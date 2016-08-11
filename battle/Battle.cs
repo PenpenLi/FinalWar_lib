@@ -32,11 +32,9 @@ namespace FinalWar
         public int mMoney;
         public int oMoney;
 
-        public Dictionary<int, int> mSummonAction = new Dictionary<int, int>();
-        public Dictionary<int, int> oSummonAction = new Dictionary<int, int>();
+        public Dictionary<int, int> summon = new Dictionary<int, int>();
 
-        public List<KeyValuePair<int, int>> mAction = new List<KeyValuePair<int, int>>();
-        public List<KeyValuePair<int, int>> oAction = new List<KeyValuePair<int, int>>();
+        public List<KeyValuePair<int, int>> action = new List<KeyValuePair<int, int>>();
 
         private int cardUid;
 
@@ -201,57 +199,75 @@ namespace FinalWar
                         bw.Write(enumerator4.Current.Value);
                     }
 
-                    Dictionary<int, int> summonAction;
-
-                    List<KeyValuePair<int, int>> action;
-
                     bool isOver;
 
                     if (_isMine)
                     {
                         bw.Write(mMoney);
 
-                        bw.Write(mOver);
-
                         isOver = mOver;
-                        
-                        summonAction = mSummonAction;
-
-                        action = mAction;
                     }
                     else
                     {
                         bw.Write(oMoney);
 
-                        bw.Write(oOver);
-
                         isOver = oOver;
-                        
-                        summonAction = oSummonAction;
-
-                        action = oAction;
                     }
+
+                    bw.Write(isOver);
 
                     if (isOver)
                     {
-                        bw.Write(summonAction.Count);
+                        int num = 0;
 
-                        enumerator4 = summonAction.GetEnumerator();
+                        List<KeyValuePair<int, int>> tmpList = new List<KeyValuePair<int, int>>();
+
+                        enumerator4 = summon.GetEnumerator();
 
                         while (enumerator4.MoveNext())
                         {
-                            bw.Write(enumerator4.Current.Key);
+                            int pos = enumerator4.Current.Key;
 
-                            bw.Write(enumerator4.Current.Value);
+                            if((mapData.dic[pos] == _isMine && !mapBelongDic.ContainsKey(pos)) || (mapData.dic[pos] != _isMine && mapBelongDic.ContainsKey(pos)))
+                            {
+                                num++;
+
+                                tmpList.Add(enumerator4.Current);
+                            }
                         }
 
-                        bw.Write(action.Count);
+                        bw.Write(num);
 
-                        for(int i = 0; i < action.Count; i++)
+                        for(int i = 0; i < num; i++)
                         {
-                            bw.Write(action[i].Key);
+                            bw.Write(tmpList[i].Key);
 
-                            bw.Write(action[i].Value);
+                            bw.Write(tmpList[i].Value);
+                        }
+
+                        num = 0;
+
+                        tmpList.Clear();
+
+                        for (int i = 0; i < action.Count; i++)
+                        {
+                            int pos = action[i].Key;
+
+                            if ((mapData.dic[pos] == _isMine && !mapBelongDic.ContainsKey(pos)) || (mapData.dic[pos] != _isMine && mapBelongDic.ContainsKey(pos)))
+                            {
+                                num++;
+
+                                tmpList.Add(action[i]);
+                            }
+                        }
+
+                        bw.Write(num);
+
+                        for(int i = 0; i < num; i++)
+                        {
+                            bw.Write(tmpList[i].Key);
+
+                            bw.Write(tmpList[i].Value);
                         }
                     }
 
@@ -355,10 +371,6 @@ namespace FinalWar
                 handCards.Add(uid, id);
             }
 
-            Dictionary<int, int> summonAction;
-
-            List<KeyValuePair<int, int>> action;
-
             bool isOver;
 
             if (clientIsMine)
@@ -366,42 +378,34 @@ namespace FinalWar
                 mMoney = _br.ReadInt32();
 
                 isOver = mOver = _br.ReadBoolean();
-
-                summonAction = mSummonAction;
-
-                action = mAction;
             }
             else
             {
                 oMoney = _br.ReadInt32();
 
                 isOver = oOver = _br.ReadBoolean();
-
-                summonAction = oSummonAction;
-
-                action = oAction;
             }
 
-            summonAction.Clear();
+            summon.Clear();
 
             action.Clear();
 
             if (isOver)
             {
-                int actionNum = _br.ReadInt32();
+                num = _br.ReadInt32();
 
-                for (int i = 0; i < actionNum; i++)
+                for (int i = 0; i < num; i++)
                 {
                     int uid = _br.ReadInt32();
 
                     int pos = _br.ReadInt32();
 
-                    summonAction.Add(uid, pos);
+                    summon.Add(uid, pos);
                 }
 
-                actionNum = _br.ReadInt32();
+                num = _br.ReadInt32();
 
-                for (int i = 0; i < actionNum; i++)
+                for (int i = 0; i < num; i++)
                 {
                     int pos = _br.ReadInt32();
 
@@ -416,29 +420,21 @@ namespace FinalWar
 
         public void ClientRequestSummon(int _cardUid, int _pos)
         {
-            Dictionary<int, int> summonAction = clientIsMine ? mSummonAction : oSummonAction;
-
-            summonAction.Add(_cardUid, _pos);
+            summon.Add(_cardUid, _pos);
         }
 
         public void ClientRequestUnsummon(int _cardUid)
         {
-            Dictionary<int, int> summonAction = clientIsMine ? mSummonAction : oSummonAction;
-
-            summonAction.Remove(_cardUid);
+            summon.Remove(_cardUid);
         }
 
         public void ClientRequestAction(int _pos, int _targetPos)
         {
-            List<KeyValuePair<int, int>> action = clientIsMine ? mAction : oAction;
-
             action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
         }
 
         public void ClientRequestUnaction(int _pos)
         {
-            List<KeyValuePair<int, int>> action = clientIsMine ? mAction : oAction;
-
             for(int i = 0; i < action.Count; i++)
             {
                 if(action[i].Key == _pos)
@@ -458,26 +454,9 @@ namespace FinalWar
                 {
                     bw.Write(PackageTag.C2S_DOACTION);
 
-                    Dictionary<int, int> summonAction;
+                    bw.Write(summon.Count);
 
-                    List<KeyValuePair<int, int>> action;
-
-                    if (clientIsMine)
-                    {
-                        summonAction = mSummonAction;
-
-                        action = mAction;
-                    }
-                    else
-                    {
-                        summonAction = oSummonAction;
-
-                        action = oAction;
-                    }
-
-                    bw.Write(summonAction.Count);
-
-                    Dictionary<int, int>.Enumerator enumerator = summonAction.GetEnumerator();
+                    Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
                     while (enumerator.MoveNext())
                     {
@@ -529,8 +508,6 @@ namespace FinalWar
         private void ServerDoAction(bool _isMine, BinaryReader _br)
         {
             Dictionary<int, int> cards;
-            Dictionary<int, int> summonAction;
-            List<KeyValuePair<int, int>> action;
 
             if (_isMine)
             {
@@ -544,10 +521,6 @@ namespace FinalWar
                 }
 
                 cards = mHandCards;
-
-                summonAction = mSummonAction;
-
-                action = mAction;
             }
             else
             {
@@ -561,29 +534,25 @@ namespace FinalWar
                 }
 
                 cards = oHandCards;
-
-                summonAction = oSummonAction;
-
-                action = oAction;
             }
 
-            int summonActionNum = _br.ReadInt32();
+            int num = _br.ReadInt32();
 
-            for(int i = 0; i < summonActionNum; i++)
+            for(int i = 0; i < num; i++)
             {
                 int uid = _br.ReadInt32();
 
                 int pos = _br.ReadInt32();
 
-                if (cards.ContainsKey(uid))
+                if (cards.ContainsKey(uid) && ((mapData.dic[pos] == _isMine && !mapBelongDic.ContainsKey(pos)) || (mapData.dic[pos] != _isMine && mapBelongDic.ContainsKey(pos))))
                 {
-                    summonAction.Add(uid, pos);
+                    summon.Add(uid, pos);
                 }
             }
 
-            int moveActionNum = _br.ReadInt32();
+            num = _br.ReadInt32();
 
-            for (int i = 0; i < moveActionNum; i++)
+            for (int i = 0; i < num; i++)
             {
                 int pos = _br.ReadInt32();
 
@@ -629,11 +598,9 @@ namespace FinalWar
 
                     oBw.Write(PackageTag.S2C_DOACTION);
 
-                    DoSummonAction(mBw, oBw);
+                    BattleData battleData = GetBattleData();
 
-                    List<KeyValuePair<int, int>> actionList = MergeAction();
-
-                    BattleData battleData = GetBattleData(actionList);
+                    DoSummonAction();
 
                     DoMoveAction(battleData);
 
@@ -656,127 +623,55 @@ namespace FinalWar
             }
         }
 
-        private void DoSummonAction(BinaryWriter _mBw,BinaryWriter _oBw)
+        private void DoSummonAction()
         {
-            _oBw.Write(mSummonAction.Count);
-
-            Dictionary<int, int>.Enumerator enumerator = mSummonAction.GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
                 int tmpCardUid = enumerator.Current.Key;
                 int pos = enumerator.Current.Value;
 
-                SummonOneUnit(_oBw, true, tmpCardUid, pos);
+                SummonOneUnit(tmpCardUid, pos);
             }
 
-            mSummonAction.Clear();
-
-            _mBw.Write(oSummonAction.Count);
-
-            enumerator = oSummonAction.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                int tmpCardUid = enumerator.Current.Key;
-                int pos = enumerator.Current.Value;
-
-                SummonOneUnit(_mBw, false, tmpCardUid, pos);
-            }
-
-            oSummonAction.Clear();
+            summon.Clear();
         }
 
-        private void SummonOneUnit(BinaryWriter _bw, bool _isMine, int _uid, int _pos)
+        private void SummonOneUnit(int _uid, int _pos)
         {
-            bool mapIsMine = mapData.dic[_pos] == _isMine;
+            bool isMine = (mapData.dic[_pos] && !mapBelongDic.ContainsKey(_pos)) || (!mapData.dic[_pos] && mapBelongDic.ContainsKey(_pos));
+            
+            int heroID;
 
-            bool mapBelongHasChange = mapBelongDic.ContainsKey(_pos);
-
-            if (mapData.dic.ContainsKey(_pos) && mapIsMine != mapBelongHasChange && !heroMapDic.ContainsKey(_pos))
+            if (isMine)
             {
-                int heroID;
-
-                if (_isMine)
-                {
-                    if (mHandCards.ContainsKey(_uid))
-                    {
-                        heroID = mHandCards[_uid];
-                    }
-                    else
-                    {
-                        throw new Exception("can not find card uid");
-                    }
-                }
-                else
-                {
-                    if (oHandCards.ContainsKey(_uid))
-                    {
-                        heroID = oHandCards[_uid];
-                    }
-                    else
-                    {
-                        throw new Exception("can not find card uid");
-                    }
-                }
-
-                IHeroSDS sds = heroDataDic[heroID];
-
-                if (_isMine)
-                {
-                    if (sds.GetCost() > mMoney)
-                    {
-                        throw new Exception("summon hero not enough money");
-                    }
-                    else
-                    {
-                        mMoney -= sds.GetCost();
-
-                        mHandCards.Remove(_uid);
-                    }
-                }
-                else
-                {
-                    if (sds.GetCost() > oMoney)
-                    {
-                        throw new Exception("summon hero not enough money");
-                    }
-                    else
-                    {
-                        oMoney -= sds.GetCost();
-
-                        oHandCards.Remove(_uid);
-                    }
-                }
-
-                _bw.Write(_pos);
-
-                _bw.Write(heroID);
-
-                AddHero(_isMine, sds, _pos);
+                heroID = mHandCards[_uid];
             }
             else
             {
-                throw new Exception("summon pos error");
+                heroID = oHandCards[_uid];
             }
+
+            IHeroSDS sds = heroDataDic[heroID];
+
+            if (isMine)
+            {
+                mMoney -= sds.GetCost();
+
+                mHandCards.Remove(_uid);
+            }
+            else
+            {
+                oMoney -= sds.GetCost();
+
+                oHandCards.Remove(_uid);
+            }
+
+            AddHero(isMine, sds, _pos);
         }
 
-        private List<KeyValuePair<int, int>> MergeAction()
-        {
-            List<KeyValuePair<int, int>> tmpList = new List<KeyValuePair<int, int>>();
-
-            tmpList.AddRange(mAction);
-
-            tmpList.AddRange(oAction);
-
-            mAction.Clear();
-
-            oAction.Clear();
-
-            return tmpList;
-        }
-
-        public BattleData GetBattleData(List<KeyValuePair<int,int>> _action)
+        public BattleData GetBattleData()
         {
             BattleData battleData = new BattleData();
 
@@ -788,10 +683,10 @@ namespace FinalWar
 
             Dictionary<int, int> supDic = new Dictionary<int, int>();
 
-            for (int i = 0; i < _action.Count; i++)
+            for (int i = 0; i < action.Count; i++)
             { 
-                int pos = _action[i].Key;
-                int targetPos = _action[i].Value;
+                int pos = action[i].Key;
+                int targetPos = action[i].Value;
 
                 GetOneUnitAction(pos, targetPos, shtList, atkList, supList, supDic);
             }
@@ -827,7 +722,7 @@ namespace FinalWar
                     }
                     else
                     {
-                        if (!battleData.moveDic.ContainsValue(targetPos) && (!heroMapDic.ContainsKey(targetPos) || battleData.moveDic.ContainsKey(targetPos)))
+                        if (!summon.ContainsKey(targetPos) && !battleData.moveDic.ContainsValue(targetPos) && (!heroMapDic.ContainsKey(targetPos) || battleData.moveDic.ContainsKey(targetPos)))
                         {
                             for (int m = tmpList.Count - 1; m > -1; m--)
                             {
@@ -1075,30 +970,28 @@ namespace FinalWar
 
                     if (cellData.stander != null && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
                     {
-                        for (int i = 0; i < cellData.attackers.Count; i++)
+                        Hero attacker = cellData.attackers[0];
+
+                        cellData.attackers.RemoveAt(0);
+
+                        cellData.attackOvers.Add(attacker);
+
+                        attacker.action = Hero.HeroAction.ATTACKOVER;
+
+                        cellData.stander.nowHp -= attacker.sds.GetAtk();
+
+                        if (cellData.stander.nowHp < 1)
                         {
-                            Hero attacker = cellData.attackers[i];
-
-                            if (attacker.action == Hero.HeroAction.ATTACK)
+                            if (diePos == null)
                             {
-                                attacker.action = Hero.HeroAction.ATTACKOVER;
-
-                                cellData.stander.nowHp -= attacker.sds.GetAtk();
-
-                                if (cellData.stander.nowHp < 1)
-                                {
-                                    if (diePos == null)
-                                    {
-                                        diePos = new List<int>();
-                                    }
-
-                                    diePos.Add(cellData.stander.pos);
-                                }
-                                else if (i < cellData.attackers.Count - 1)
-                                {
-                                    hasAction = true;
-                                }
+                                diePos = new List<int>();
                             }
+
+                            diePos.Add(cellData.stander.pos);
+                        }
+                        else if (cellData.attackers.Count > 0)
+                        {
+                            hasAction = true;
                         }
                     }
                 }
@@ -1123,54 +1016,52 @@ namespace FinalWar
 
                     if (cellData.attackers.Count > 0 && (cellData.stander != null || cellData.supporters.Count > 0))
                     {
-                        for (int i = 0; i < cellData.attackers.Count; i++)
+                        Hero attacker = cellData.attackers[0];
+
+                        cellData.attackers.RemoveAt(0);
+
+                        cellData.attackOvers.Add(attacker);
+                        
+                        attacker.action = Hero.HeroAction.ATTACKOVER;
+
+                        Hero target;
+
+                        if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                         {
-                            Hero attacker = cellData.attackers[i];
+                            target = cellData.stander;
+                        }
+                        else
+                        {
+                            target = cellData.supporters[0];
+                        }
 
-                            if (attacker.action == Hero.HeroAction.ATTACK)
+                        target.nowHp -= attacker.sds.GetAtk();
+
+                        if (target.nowHp < 1)
+                        {
+                            if (diePos == null)
                             {
-                                attacker.action = Hero.HeroAction.ATTACKOVER;
-
-                                Hero target;
-
-                                if (cellData.stander != null)
-                                {
-                                    target = cellData.stander;
-                                }
-                                else
-                                {
-                                    target = cellData.supporters[0];
-                                }
-
-                                target.nowHp -= attacker.sds.GetAtk();
-
-                                if (target.nowHp < 1)
-                                {
-                                    if (diePos == null)
-                                    {
-                                        diePos = new List<int>();
-                                    }
-
-                                    diePos.Add(target.pos);
-                                }
-
-                                attacker.nowHp -= target.sds.GetDef();
-
-                                if (attacker.nowHp < 1)
-                                {
-                                    if (diePos == null)
-                                    {
-                                        diePos = new List<int>();
-                                    }
-
-                                    diePos.Add(attacker.pos);
-                                }
-
-                                if (i < cellData.attackers.Count - 1)
-                                {
-                                    hasAction = true;
-                                }
+                                diePos = new List<int>();
                             }
+
+                            diePos.Add(target.pos);
+                        }
+
+                        attacker.nowHp -= target.sds.GetDef();
+
+                        if (attacker.nowHp < 1)
+                        {
+                            if (diePos == null)
+                            {
+                                diePos = new List<int>();
+                            }
+
+                            diePos.Add(attacker.pos);
+                        }
+
+                        if (cellData.attackers.Count > 0)
+                        {
+                            hasAction = true;
                         }
                     }
                 }
@@ -1197,7 +1088,7 @@ namespace FinalWar
             {
                 BattleCellData cellData = enumerator.Current.Value;
 
-                if (cellData.stander == null && (cellData.supporters.Count > 0 || cellData.attackers.Count > 0))
+                if (cellData.stander == null && (cellData.supporters.Count > 0 || cellData.attackOvers.Count > 0 || cellData.attackers.Count > 0))
                 {
                     tmpList.Add(enumerator.Current.Key);
                 }
@@ -1217,18 +1108,23 @@ namespace FinalWar
 
                 Hero hero = heroMapDic[nowPos];
 
-                if (hero.action == Hero.HeroAction.ATTACK || hero.action == Hero.HeroAction.ATTACKOVER)
+                if (hero.action == Hero.HeroAction.ATTACK)
                 {
                     BattleCellData cellData = _battleData.actionDic[hero.actionTarget];
 
                     cellData.attackers.Remove(hero);
+                }
+                else if(hero.action == Hero.HeroAction.ATTACKOVER)
+                {
+                    BattleCellData cellData = _battleData.actionDic[hero.actionTarget];
+
+                    cellData.attackOvers.Remove(hero);
                 }
                 else if (hero.action == Hero.HeroAction.SHOOT)
                 {
                     BattleCellData cellData = _battleData.actionDic[hero.actionTarget];
 
                     cellData.shooters.Remove(hero);
-
                 }
                 else if (hero.action == Hero.HeroAction.SUPPORT)
                 {
@@ -1258,6 +1154,10 @@ namespace FinalWar
                 if (cellData.supporters.Count > 0)
                 {
                     hero = cellData.supporters[0];
+                }
+                else if(cellData.attackOvers.Count > 0)
+                {
+                    hero = cellData.attackOvers[0];
                 }
                 else if(cellData.attackers.Count > 0)
                 {
@@ -1379,15 +1279,13 @@ namespace FinalWar
 
         public int ClientDoSummonMyHero(BinaryReader _br)
         {
-            Dictionary<int, int> summonAction = clientIsMine ? mSummonAction : oSummonAction;
-
-            int summonNum = summonAction.Count;
+            int summonNum = summon.Count;
 
             if(summonNum > 0)
             {
                 Dictionary<int, int> tmpCards = clientIsMine ? mHandCards : oHandCards;
 
-                Dictionary<int, int>.Enumerator enumerator = summonAction.GetEnumerator();
+                Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
                 while (enumerator.MoveNext())
                 {
@@ -1413,7 +1311,7 @@ namespace FinalWar
                     AddHero(clientIsMine, sds, pos);
                 }
 
-                summonAction.Clear();
+                summon.Clear();
             }
 
             return summonNum;
