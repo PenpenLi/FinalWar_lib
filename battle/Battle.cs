@@ -228,7 +228,7 @@ namespace FinalWar
                         {
                             int pos = enumerator4.Current.Key;
 
-                            if((mapData.dic[pos] == _isMine && !mapBelongDic.ContainsKey(pos)) || (mapData.dic[pos] != _isMine && mapBelongDic.ContainsKey(pos)))
+                            if((mapData.dic[pos] == _isMine) == !mapBelongDic.ContainsKey(pos))
                             {
                                 num++;
 
@@ -253,7 +253,7 @@ namespace FinalWar
                         {
                             int pos = action[i].Key;
 
-                            if ((mapData.dic[pos] == _isMine && !mapBelongDic.ContainsKey(pos)) || (mapData.dic[pos] != _isMine && mapBelongDic.ContainsKey(pos)))
+                            if ((mapData.dic[pos] == _isMine) == !mapBelongDic.ContainsKey(pos))
                             {
                                 num++;
 
@@ -544,7 +544,7 @@ namespace FinalWar
 
                 int pos = _br.ReadInt32();
 
-                if (cards.ContainsKey(uid) && ((mapData.dic[pos] == _isMine && !mapBelongDic.ContainsKey(pos)) || (mapData.dic[pos] != _isMine && mapBelongDic.ContainsKey(pos))))
+                if (cards.ContainsKey(uid) && (mapData.dic[pos] == _isMine) == !mapBelongDic.ContainsKey(pos))
                 {
                     summon.Add(uid, pos);
                 }
@@ -600,7 +600,7 @@ namespace FinalWar
 
                     BattleData battleData = GetBattleData();
 
-                    DoSummonAction();
+                    DoSummonAction(mBw, oBw);
 
                     DoMoveAction(battleData);
 
@@ -623,16 +623,52 @@ namespace FinalWar
             }
         }
 
-        private void DoSummonAction()
+        private void DoSummonAction(BinaryWriter _mBw, BinaryWriter _oBw)
         {
             Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
+
+            List<KeyValuePair<int, int>> mList = new List<KeyValuePair<int, int>>();
+            List<KeyValuePair<int, int>> oList = new List<KeyValuePair<int, int>>();
 
             while (enumerator.MoveNext())
             {
                 int tmpCardUid = enumerator.Current.Key;
                 int pos = enumerator.Current.Value;
 
+                bool isMine = mapData.dic[pos] == !mapBelongDic.ContainsKey(pos);
+
+                if (isMine)
+                {
+                    int heroID = mHandCards[tmpCardUid];
+
+                    mList.Add(new KeyValuePair<int, int>(pos, heroID));
+                }
+                else
+                {
+                    int heroID = oHandCards[tmpCardUid];
+
+                    oList.Add(new KeyValuePair<int, int>(pos, heroID));
+                }
+
                 SummonOneUnit(tmpCardUid, pos);
+            }
+
+            _mBw.Write(oList.Count);
+
+            for (int i = 0; i < oList.Count; i++)
+            {
+                _mBw.Write(oList[i].Key);
+
+                _mBw.Write(oList[i].Value);
+            }
+
+            _oBw.Write(mList.Count);
+
+            for (int i = 0; i < mList.Count; i++)
+            {
+                _oBw.Write(mList[i].Key);
+
+                _oBw.Write(mList[i].Value);
             }
 
             summon.Clear();
@@ -640,7 +676,7 @@ namespace FinalWar
 
         private void SummonOneUnit(int _uid, int _pos)
         {
-            bool isMine = (mapData.dic[_pos] && !mapBelongDic.ContainsKey(_pos)) || (!mapData.dic[_pos] && mapBelongDic.ContainsKey(_pos));
+            bool isMine = mapData.dic[_pos] == !mapBelongDic.ContainsKey(_pos);
             
             int heroID;
 
@@ -842,13 +878,9 @@ namespace FinalWar
 
         private void GetOneUnitAction(int _pos, int _targetPos, List<KeyValuePair<int, int>> _shtList, List<KeyValuePair<int, int>> _atkList, List<KeyValuePair<int, int>> _supList, Dictionary<int, int> _supDic)
         {
-            bool b = mapData.dic[_pos];
+            bool posIsMine = mapData.dic[_pos] == !mapBelongDic.ContainsKey(_pos);
 
-            bool posIsMine = mapBelongDic.ContainsKey(_pos) ? !b : b;
-
-            b = mapData.dic[_targetPos];
-
-            bool targetPosIsMine = mapBelongDic.ContainsKey(_targetPos) ? !b : b;
+            bool targetPosIsMine = mapData.dic[_targetPos] == !mapBelongDic.ContainsKey(_targetPos);
 
             List<int> arr = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
 
@@ -1340,17 +1372,6 @@ namespace FinalWar
 
         public void ClientDoRecover(BinaryReader _br)
         { 
-            mapBelongDic.Clear();
-
-            int mapBelongNum = _br.ReadInt32();
-
-            for(int i = 0; i < mapBelongNum; i++)
-            {
-                int pos = _br.ReadInt32();
-
-                mapBelongDic.Add(pos, true);
-            }
-
             bool addCard = _br.ReadBoolean();
 
             if (addCard)
