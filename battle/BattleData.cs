@@ -9,8 +9,6 @@ namespace FinalWar
     {
         public Dictionary<int, BattleCellData> actionDic = new Dictionary<int, BattleCellData>();
 
-        public Dictionary<int, int> summonDic = new Dictionary<int, int>();
-
         public Dictionary<int, int> moveDic = new Dictionary<int, int>();
     }
 }
