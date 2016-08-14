@@ -600,7 +600,7 @@ namespace FinalWar
 
                     BattleData battleData = GetBattleData();
 
-                    DoSummonAction(mBw, oBw);
+                    DoSummonAction(mBw, oBw, battleData);
 
                     DoMoveAction(battleData);
 
@@ -616,6 +616,10 @@ namespace FinalWar
 
                     RecoverOver();
 
+                    action.Clear();
+
+                    summon.Clear();
+
                     serverSendDataCallBack(true, mMs);
 
                     serverSendDataCallBack(false, oMs);
@@ -623,7 +627,7 @@ namespace FinalWar
             }
         }
 
-        private void DoSummonAction(BinaryWriter _mBw, BinaryWriter _oBw)
+        private void DoSummonAction(BinaryWriter _mBw, BinaryWriter _oBw, BattleData _battleData)
         {
             Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
@@ -650,7 +654,7 @@ namespace FinalWar
                     oList.Add(new KeyValuePair<int, int>(pos, heroID));
                 }
 
-                SummonOneUnit(tmpCardUid, pos);
+                SummonOneUnit(tmpCardUid, pos, _battleData);
             }
 
             _mBw.Write(oList.Count);
@@ -674,7 +678,7 @@ namespace FinalWar
             summon.Clear();
         }
 
-        private void SummonOneUnit(int _uid, int _pos)
+        private void SummonOneUnit(int _uid, int _pos, BattleData _battleData)
         {
             bool isMine = mapData.dic[_pos] == !mapBelongDic.ContainsKey(_pos);
             
@@ -705,6 +709,11 @@ namespace FinalWar
             }
 
             AddHero(isMine, sds, _pos);
+
+            if (_battleData.actionDic.ContainsKey(_pos))
+            {
+                _battleData.actionDic[_pos].stander = heroMapDic[_pos];
+            }
         }
 
         public BattleData GetBattleData()
@@ -815,6 +824,11 @@ namespace FinalWar
                 {
                     cellData = new BattleCellData();
 
+                    if (heroMapDic.ContainsKey(pair.Value))
+                    {
+                        cellData.stander = heroMapDic[pair.Value];
+                    }
+
                     battleData.actionDic.Add(pair.Value, cellData);
                 }
 
@@ -841,6 +855,11 @@ namespace FinalWar
                 {
                     cellData = new BattleCellData();
 
+                    if (heroMapDic.ContainsKey(pair.Value))
+                    {
+                        cellData.stander = heroMapDic[pair.Value];
+                    }
+
                     battleData.actionDic.Add(pair.Value, cellData);
                 }
 
@@ -866,6 +885,8 @@ namespace FinalWar
                 else
                 {
                     cellData = new BattleCellData();
+
+                    cellData.stander = heroMapDic[pair.Value];
 
                     battleData.actionDic.Add(pair.Value, cellData);
                 }
@@ -1179,9 +1200,16 @@ namespace FinalWar
 
             while (true)
             {
+                if (!_battleData.actionDic.ContainsKey(nowPos))
+                {
+                    return;
+                }
+
                 BattleCellData cellData = _battleData.actionDic[nowPos];
 
                 Hero hero = null;
+
+                bool changeMapBelong = false;
 
                 if (cellData.supporters.Count > 0)
                 {
@@ -1190,14 +1218,30 @@ namespace FinalWar
                 else if(cellData.attackOvers.Count > 0)
                 {
                     hero = cellData.attackOvers[0];
+
+                    changeMapBelong = true;
                 }
                 else if(cellData.attackers.Count > 0)
                 {
                     hero = cellData.attackers[0];
+
+                    changeMapBelong = true;
                 }
 
                 if(hero != null)
                 {
+                    if (changeMapBelong)
+                    {
+                        if (mapBelongDic.ContainsKey(nowPos))
+                        {
+                            mapBelongDic.Remove(nowPos);
+                        }
+                        else
+                        {
+                            mapBelongDic.Add(nowPos, true);
+                        }
+                    }
+
                     heroMapDic.Remove(hero.pos);
 
                     heroMapDic.Add(nowPos, hero);
@@ -1210,7 +1254,7 @@ namespace FinalWar
                 }
                 else
                 {
-                    break;
+                    return;
                 }
             }
         }
