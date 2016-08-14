@@ -758,7 +758,7 @@ namespace FinalWar
                     }
                     else
                     {
-                        if (!summon.ContainsKey(targetPos) && !battleData.moveDic.ContainsValue(targetPos) && (!heroMapDic.ContainsKey(targetPos) || battleData.moveDic.ContainsKey(targetPos)))
+                        if (!summon.ContainsValue(targetPos) && !battleData.moveDic.ContainsValue(targetPos) && (!heroMapDic.ContainsKey(targetPos) || battleData.moveDic.ContainsKey(targetPos)))
                         {
                             for (int m = tmpList.Count - 1; m > -1; m--)
                             {
