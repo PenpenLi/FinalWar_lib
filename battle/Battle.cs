@@ -574,18 +574,22 @@ namespace FinalWar
             }
         }
 
-        private void AddHero(bool _isMine, IHeroSDS _sds, int _pos)
+        private Hero AddHero(bool _isMine, IHeroSDS _sds, int _pos)
         {
             Hero hero = new Hero(_isMine, _sds, _pos);
 
-            heroMapDic.Add(hero.pos, hero);
+            heroMapDic.Add(_pos, hero);
+
+            return hero;
         }
 
-        private void AddHero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
+        private Hero AddHero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
         {
             Hero hero = new Hero(_isMine, _sds, _pos, _nowHp);
 
             heroMapDic.Add(_pos, hero);
+
+            return hero;
         }
 
         private void ServerStartBattle()
@@ -708,11 +712,13 @@ namespace FinalWar
                 oHandCards.Remove(_uid);
             }
 
-            AddHero(isMine, sds, _pos);
+            Hero hero = AddHero(isMine, sds, _pos);
 
             if (_battleData.actionDic.ContainsKey(_pos))
             {
-                _battleData.actionDic[_pos].stander = heroMapDic[_pos];
+                _battleData.actionDic[_pos].stander = hero;
+
+                hero.action = Hero.HeroAction.NULL;
             }
         }
 

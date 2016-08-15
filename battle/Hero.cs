@@ -2,7 +2,7 @@
 {
     public class Hero
     {
-        public enum HeroAction
+        internal enum HeroAction
         {
             ATTACK,
             ATTACKOVER,
@@ -19,11 +19,9 @@
         public int pos;
         public int nowHp;
 
-        public bool isSummon;
+        internal HeroAction action;
 
-        public HeroAction action;
-
-        public int actionTarget;
+        internal int actionTarget;
 
         public Hero(bool _isMine, IHeroSDS _sds, int _pos)
         {
@@ -31,8 +29,6 @@
             sds = _sds;
             pos = _pos;
             nowHp = sds.GetHp();
-
-            isSummon = true;
         }
 
         public Hero(bool _isMine,IHeroSDS _sds,int _pos,int _nowHp)
@@ -41,8 +37,6 @@
             sds = _sds;
             pos = _pos;
             nowHp = _nowHp;
-
-            isSummon = false;
         }
     }
 }
