@@ -1031,7 +1031,7 @@ namespace FinalWar
 
                         attacker.action = Hero.HeroAction.ATTACKOVER;
 
-                        cellData.stander.nowHp -= attacker.sds.GetAtk();
+                        cellData.stander.nowHp -= attacker.sds.GetAttack();
 
                         if (cellData.stander.nowHp < 1)
                         {
@@ -1082,13 +1082,17 @@ namespace FinalWar
                         if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                         {
                             target = cellData.stander;
+
+                            attacker.nowHp -= target.sds.GetDefense();
                         }
                         else
                         {
                             target = cellData.supporters[0];
+
+                            attacker.nowHp -= target.sds.GetSupport();
                         }
 
-                        target.nowHp -= attacker.sds.GetAtk();
+                        target.nowHp -= attacker.sds.GetAttack();
 
                         if (target.nowHp < 1)
                         {
@@ -1099,8 +1103,6 @@ namespace FinalWar
 
                             diePos.Add(target.pos);
                         }
-
-                        attacker.nowHp -= target.sds.GetDef();
 
                         if (attacker.nowHp < 1)
                         {

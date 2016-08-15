@@ -3,8 +3,9 @@
     int GetID();
     int GetHp();
     int GetCost();
-    int GetAtk();
+    int GetAttack();
     int GetShoot();
-    int GetDef();
+    int GetDefense();
+    int GetSupport();
 }
 
