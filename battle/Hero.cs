@@ -31,7 +31,7 @@
             nowHp = sds.GetHp();
         }
 
-        public Hero(bool _isMine,IHeroSDS _sds,int _pos,int _nowHp)
+        public Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
         {
             isMine = _isMine;
             sds = _sds;
