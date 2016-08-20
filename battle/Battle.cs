@@ -594,87 +594,69 @@ namespace FinalWar
 
         private void ServerStartBattle()
         {
+            List<ValueType> voList = new List<ValueType>();
+            
+            BattleData battleData = GetBattleData();
+
+            DoSummonAction(battleData, voList);
+
+            DoMoveAction(battleData, voList);
+
+            DoAttackAction(battleData, voList);
+
+            DoMoveAfterAttack(battleData, voList);
+
+            byte[] bytes;
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (BinaryWriter bw = new BinaryWriter(ms))
+                {
+                    bw.Write(PackageTag.S2C_DOACTION);
+
+                    BattleVOTools.WriteDataToStream(voList, bw);
+
+                    bytes = ms.ToArray();
+                }
+            }
+
             using (MemoryStream mMs = new MemoryStream(), oMs = new MemoryStream())
             {
                 using (BinaryWriter mBw = new BinaryWriter(mMs), oBw = new BinaryWriter(oMs))
                 {
-                    mBw.Write(PackageTag.S2C_DOACTION);
+                    mBw.Write(bytes);
 
-                    oBw.Write(PackageTag.S2C_DOACTION);
-
-                    BattleData battleData = GetBattleData();
-
-                    DoSummonAction(mBw, oBw, battleData);
-
-                    DoMoveAction(battleData);
-
-                    DoAttackAction(battleData);
-
-                    DoMoveAfterAttack(battleData);
+                    oBw.Write(bytes);
 
                     RecoverCards(mBw, oBw);
-
-                    RecoverMoney();
-
-                    RecoverOver();
-
-                    action.Clear();
-
-                    summon.Clear();
 
                     serverSendDataCallBack(true, mMs);
 
                     serverSendDataCallBack(false, oMs);
                 }
             }
+
+            RecoverMoney();
+
+            RecoverOver();
+
+            action.Clear();
+
+            summon.Clear();
         }
 
-        private void DoSummonAction(BinaryWriter _mBw, BinaryWriter _oBw, BattleData _battleData)
+        private void DoSummonAction(BattleData _battleData, List<ValueType> _voList)
         {
             Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
-
-            List<KeyValuePair<int, int>> mList = new List<KeyValuePair<int, int>>();
-            List<KeyValuePair<int, int>> oList = new List<KeyValuePair<int, int>>();
 
             while (enumerator.MoveNext())
             {
                 int tmpCardUid = enumerator.Current.Key;
                 int pos = enumerator.Current.Value;
 
-                bool isMine = mapData.dic[pos] == !mapBelongDic.ContainsKey(pos);
-
-                if (isMine)
-                {
-                    int heroID = mHandCards[tmpCardUid];
-
-                    mList.Add(new KeyValuePair<int, int>(pos, heroID));
-                }
-                else
-                {
-                    int heroID = oHandCards[tmpCardUid];
-
-                    oList.Add(new KeyValuePair<int, int>(pos, heroID));
-                }
+                _voList.Add(new BattleSummonVO(tmpCardUid, pos));
 
                 SummonOneUnit(tmpCardUid, pos, _battleData);
-            }
-
-            _mBw.Write(oList.Count);
-
-            for (int i = 0; i < oList.Count; i++)
-            {
-                _mBw.Write(oList[i].Key);
-
-                _mBw.Write(oList[i].Value);
-            }
-
-            _oBw.Write(mList.Count);
-
-            for (int i = 0; i < mList.Count; i++)
-            {
-                _oBw.Write(mList[i].Key);
-
-                _oBw.Write(mList[i].Value);
             }
 
             summon.Clear();
@@ -944,11 +926,13 @@ namespace FinalWar
             }
         }
 
-        private void DoMoveAction(BattleData _battleData)
+        private void DoMoveAction(BattleData _battleData, List<ValueType> _voList)
         {
             Dictionary<int, Hero> tmpDic = new Dictionary<int, Hero>();
 
             Dictionary<int, int>.Enumerator enumerator = _battleData.moveDic.GetEnumerator();
+
+            _voList.Add(new BattleMoveVO(_battleData.moveDic));
 
             while (enumerator.MoveNext())
             {
@@ -977,7 +961,7 @@ namespace FinalWar
             }
         }
 
-        private void DoAttackAction(BattleData _battleData)
+        private void DoAttackAction(BattleData _battleData, List<ValueType> _voList)
         {
             bool doRush = true;
 
@@ -999,6 +983,9 @@ namespace FinalWar
 
                         if (cellData.stander != null && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
                         {
+                            List<KeyValuePair<int, int>> attackers = new List<KeyValuePair<int, int>>();
+                            int stander = cellData.stander.pos;
+
                             for (int i = 0; i < cellData.attackers.Count; i++)
                             {
                                 Hero attacker = cellData.attackers[i];
@@ -1016,14 +1003,20 @@ namespace FinalWar
                                         diePos.Add(cellData.stander.pos);
                                     }
                                 }
+
+                                attackers.Add(new KeyValuePair<int, int>(attacker.pos, attacker.sds.GetAttack()));
                             }
 
                             cellData.attackers.Clear();
+
+                            _voList.Add(new BattleRushVO(attackers, stander));
                         }
                     }
 
                     if (diePos.Count > 0)
                     {
+                        _voList.Add(new BattleDeathVO(new List<int>(diePos)));
+
                         DieHeros(_battleData, diePos);
 
                         diePos.Clear();
@@ -1044,6 +1037,9 @@ namespace FinalWar
 
                         if (cellData.stander != null && cellData.shooters.Count > 0)
                         {
+                            List<KeyValuePair<int, int>> shooters = new List<KeyValuePair<int, int>>();
+                            int stander = cellData.stander.pos;
+
                             for (int i = 0; i < cellData.shooters.Count; i++)
                             {
                                 Hero shooter = cellData.shooters[i];
@@ -1059,14 +1055,20 @@ namespace FinalWar
                                         diePos.Add(cellData.stander.pos);
                                     }
                                 }
+
+                                shooters.Add(new KeyValuePair<int, int>(shooter.pos,shooter.sds.GetShoot()));
                             }
 
                             cellData.shooters.Clear();
+
+                            _voList.Add(new BattleShootVO(shooters, stander));
                         }
                     }
 
                     if (diePos.Count > 0)
                     {
+                        _voList.Add(new BattleDeathVO(new List<int>(diePos)));
+
                         DieHeros(_battleData, diePos);
 
                         diePos.Clear();
@@ -1079,11 +1081,11 @@ namespace FinalWar
 
                 bool hasAction = false;
 
-                enumerator = _battleData.actionDic.Values.GetEnumerator();
+                Dictionary<int, BattleCellData>.Enumerator enumerator2 = _battleData.actionDic.GetEnumerator();
 
-                while (enumerator.MoveNext())
+                while (enumerator2.MoveNext())
                 {
-                    BattleCellData cellData = enumerator.Current;
+                    BattleCellData cellData = enumerator2.Current.Value;
 
                     if (cellData.attackers.Count > 0 && (cellData.stander != null || cellData.supporters.Count > 0))
                     {
@@ -1102,12 +1104,16 @@ namespace FinalWar
                             target = cellData.stander;
 
                             attacker.nowHp -= target.sds.GetDefense();
+
+                            _voList.Add(new BattleAttackVO(attacker.pos, enumerator2.Current.Key, -1, attacker.sds.GetAttack(), target.sds.GetDefense()));
                         }
                         else
                         {
                             target = cellData.supporters[0];
 
                             attacker.nowHp -= target.sds.GetSupport();
+
+                            _voList.Add(new BattleAttackVO(attacker.pos, enumerator2.Current.Key, target.pos, attacker.sds.GetAttack(), target.sds.GetSupport()));
                         }
 
                         target.nowHp -= attacker.sds.GetAttack();
@@ -1131,6 +1137,8 @@ namespace FinalWar
 
                 if (diePos.Count > 0)
                 {
+                    _voList.Add(new BattleDeathVO(new List<int>(diePos)));
+
                     DieHeros(_battleData, diePos);
 
                     diePos.Clear();
@@ -1145,7 +1153,7 @@ namespace FinalWar
             }
         }
 
-        private void DoMoveAfterAttack(BattleData _battleData)
+        private void DoMoveAfterAttack(BattleData _battleData, List<ValueType> _voList)
         {
             List<int> tmpList = new List<int>();
 
@@ -1161,9 +1169,16 @@ namespace FinalWar
                 }
             }
 
-            for (int i = 0; i < tmpList.Count; i++)
+            if(tmpList.Count > 0)
             {
-                OneCellEmpty(_battleData, tmpList[i]);
+                Dictionary<int, int> tmpMoveDic = new Dictionary<int, int>();
+
+                for (int i = 0; i < tmpList.Count; i++)
+                {
+                    OneCellEmpty(_battleData, tmpList[i], tmpMoveDic);
+                }
+
+                _voList.Add(new BattleMoveVO(tmpMoveDic));
             }
         }
 
@@ -1209,7 +1224,7 @@ namespace FinalWar
             }
         }
 
-        private void OneCellEmpty(BattleData _battleData, int _pos)
+        private void OneCellEmpty(BattleData _battleData, int _pos, Dictionary<int, int> _tmpMoveDic)
         {
             int nowPos = _pos;
 
@@ -1256,6 +1271,8 @@ namespace FinalWar
                             mapBelongDic.Add(nowPos, true);
                         }
                     }
+
+                    _tmpMoveDic.Add(hero.pos, nowPos);
 
                     heroMapDic.Remove(hero.pos);
 
