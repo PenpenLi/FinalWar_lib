@@ -49,7 +49,7 @@ namespace FinalWar
 
         private Action<MemoryStream> clientSendDataCallBack;
         private Action clientRefreshDataCallBack;
-        private Action<BinaryReader> clientDoActionCallBack;
+        private Action<IEnumerator<ValueType>> clientDoActionCallBack;
 
         public static void Init(Dictionary<int, IHeroSDS> _heroDataDic, Dictionary<int, MapData> _mapDataDic)
         {
@@ -62,7 +62,7 @@ namespace FinalWar
             serverSendDataCallBack = _serverSendDataCallBack;
         }
 
-        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<BinaryReader> _clientDoActionCallBack)
+        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<IEnumerator<ValueType>> _clientDoActionCallBack)
         {
             clientSendDataCallBack = _clientSendDataCallBack;
             clientRefreshDataCallBack = _clientRefreshDataCallBack;
@@ -297,7 +297,7 @@ namespace FinalWar
 
                 case PackageTag.S2C_DOACTION:
 
-                    clientDoActionCallBack(br);
+                    ClientDoAction(br);
 
                     break;
             }
@@ -474,10 +474,6 @@ namespace FinalWar
                         bw.Write(action[i].Value);
                     }
 
-                    //summonAction.Clear();
-
-                    //moveAction.Clear();
-
                     if (clientIsMine)
                     {
                         mOver = true;
@@ -598,7 +594,11 @@ namespace FinalWar
             
             BattleData battleData = GetBattleData();
 
+            action.Clear();
+
             DoSummonAction(battleData, voList);
+
+            summon.Clear();
 
             DoMoveAction(battleData, voList);
 
@@ -639,10 +639,6 @@ namespace FinalWar
             RecoverMoney();
 
             RecoverOver();
-
-            action.Clear();
-
-            summon.Clear();
         }
 
         private void DoSummonAction(BattleData _battleData, List<ValueType> _voList)
@@ -652,17 +648,16 @@ namespace FinalWar
             while (enumerator.MoveNext())
             {
                 int tmpCardUid = enumerator.Current.Key;
+
                 int pos = enumerator.Current.Value;
 
-                _voList.Add(new BattleSummonVO(tmpCardUid, pos));
+                int heroID = SummonOneUnit(tmpCardUid, pos, _battleData);
 
-                SummonOneUnit(tmpCardUid, pos, _battleData);
+                _voList.Add(new BattleSummonVO(tmpCardUid, heroID, pos));
             }
-
-            summon.Clear();
         }
 
-        private void SummonOneUnit(int _uid, int _pos, BattleData _battleData)
+        private int SummonOneUnit(int _uid, int _pos, BattleData _battleData)
         {
             bool isMine = mapData.dic[_pos] == !mapBelongDic.ContainsKey(_pos);
             
@@ -700,6 +695,8 @@ namespace FinalWar
 
                 hero.action = Hero.HeroAction.NULL;
             }
+
+            return heroID;
         }
 
         public BattleData GetBattleData()
@@ -1385,65 +1382,148 @@ namespace FinalWar
             return result;
         }
 
-        public int ClientDoSummonMyHero(BinaryReader _br)
+        private void ClientDoAction(BinaryReader _br)
         {
-            int summonNum = summon.Count;
+            summon.Clear();
 
-            if(summonNum > 0)
-            {
-                Dictionary<int, int> tmpCards = clientIsMine ? mHandCards : oHandCards;
+            action.Clear();
 
-                Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
-
-                while (enumerator.MoveNext())
-                {
-                    int tmpCardUid = enumerator.Current.Key;
-
-                    int pos = enumerator.Current.Value;
-
-                    int heroID = tmpCards[tmpCardUid];
-
-                    IHeroSDS sds = heroDataDic[heroID];
-
-                    if (clientIsMine)
-                    {
-                        mMoney -= sds.GetCost();
-                    }
-                    else
-                    {
-                        oMoney -= sds.GetCost();
-                    }
-
-                    tmpCards.Remove(tmpCardUid);
-
-                    AddHero(clientIsMine, sds, pos);
-                }
-
-                summon.Clear();
-            }
-
-            return summonNum;
+            clientDoActionCallBack(ClientDoActionReal(_br));
         }
 
-        public int ClientDoSummonOppHero(BinaryReader _br)
+        private IEnumerator<ValueType> ClientDoActionReal(BinaryReader _br)
         {
-            int summonNum = _br.ReadInt32();
+            List<ValueType> voList = BattleVOTools.ReadDataFromStream(_br);
 
-            if(summonNum > 0)
+            for (int i = 0; i < voList.Count; i++)
             {
-                for (int i = 0; i < summonNum; i++)
+                ValueType vo = voList[i];
+
+                if(vo is BattleSummonVO)
                 {
-                    int pos = _br.ReadInt32();
+                    ClientDoSummon((BattleSummonVO)vo);
+                }
+                else if(vo is BattleMoveVO)
+                {
+                    ClientDoMove((BattleMoveVO)vo);
+                }
+                else if(vo is BattleRushVO)
+                {
+                    ClientDoRush((BattleRushVO)vo);
+                }
+                else if(vo is BattleShootVO)
+                {
+                    ClientDoShoot((BattleShootVO)vo);
+                }
+                else if(vo is BattleAttackVO)
+                {
+                    ClientDoAttack((BattleAttackVO)vo);
+                }
+                else if(vo is BattleDeathVO)
+                {
+                    ClientDoDie((BattleDeathVO)vo);
+                }
 
-                    int heroID = _br.ReadInt32();
+                yield return vo;
+            }
 
-                    IHeroSDS sds = heroDataDic[heroID];
+            ClientDoRecover(_br);
+        }
 
-                    AddHero(!clientIsMine, sds, pos);
+        private void ClientDoSummon(BattleSummonVO _vo)
+        {
+            bool isMine = mapData.dic[_vo.pos] == !mapBelongDic.ContainsKey(_vo.pos);
+
+            IHeroSDS sds = heroDataDic[_vo.heroID];
+
+            if (isMine == clientIsMine)
+            {
+                if (clientIsMine)
+                {
+                    mHandCards.Remove(_vo.cardUid);
+
+                    mMoney -= sds.GetCost();
+                }
+                else
+                {
+                    oHandCards.Remove(_vo.cardUid);
+
+                    oMoney -= sds.GetCost();
                 }
             }
 
-            return summonNum;
+            AddHero(isMine, sds, _vo.pos);
+        }
+
+        private void ClientDoMove(BattleMoveVO _vo)
+        {
+            Dictionary<int, Hero> tmpDic = new Dictionary<int, Hero>();
+
+            Dictionary<int, int>.Enumerator enumerator = _vo.moves.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                tmpDic.Add(enumerator.Current.Value, heroMapDic[enumerator.Current.Key]);
+
+                heroMapDic.Remove(enumerator.Current.Key);
+            }
+
+            Dictionary<int, Hero>.Enumerator enumerator2 = tmpDic.GetEnumerator();
+
+            while (enumerator2.MoveNext())
+            {
+                heroMapDic.Add(enumerator2.Current.Key, enumerator2.Current.Value);
+
+                enumerator2.Current.Value.pos = enumerator2.Current.Key;
+            }
+        }
+
+        private void ClientDoRush(BattleRushVO _vo)
+        {
+            Hero hero = heroMapDic[_vo.stander];
+
+            for(int i = 0; i < _vo.attackers.Count; i++)
+            {
+                hero.nowHp -= _vo.attackers[i].Value;
+            }
+        }
+
+        private void ClientDoShoot(BattleShootVO _vo)
+        {
+            Hero hero = heroMapDic[_vo.stander];
+
+            for (int i = 0; i < _vo.shooters.Count; i++)
+            {
+                hero.nowHp -= _vo.shooters[i].Value;
+            }
+        }
+
+        private void ClientDoAttack(BattleAttackVO _vo)
+        {
+            Hero hero = heroMapDic[_vo.attacker];
+
+            hero.nowHp -= _vo.damageSelf;
+
+            if (heroMapDic.ContainsKey(_vo.supporter))
+            {
+                Hero support = heroMapDic[_vo.supporter];
+
+                support.nowHp -= _vo.damage;
+            }
+            else
+            {
+                Hero defender = heroMapDic[_vo.defender];
+
+                defender.nowHp -= _vo.damage;
+            }
+        }
+
+        private void ClientDoDie(BattleDeathVO _vo)
+        {
+            for(int i = 0; i < _vo.deads.Count; i++)
+            {
+                heroMapDic.Remove(_vo.deads[i]);
+            }
         }
 
         public void ClientDoRecover(BinaryReader _br)

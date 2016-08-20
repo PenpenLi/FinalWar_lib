@@ -31,6 +31,8 @@ namespace FinalWar
 
                     _bw.Write(summon.cardUid);
 
+                    _bw.Write(summon.heroID);
+
                     _bw.Write(summon.pos);
                 }
                 else if(vo is BattleMoveVO)
@@ -136,9 +138,11 @@ namespace FinalWar
 
                         int cardUid = _br.ReadInt32();
 
+                        int heroID = _br.ReadInt32();
+
                         int summonPos = _br.ReadInt32();
 
-                        result.Add(new BattleSummonVO(cardUid, summonPos));
+                        result.Add(new BattleSummonVO(cardUid, heroID, summonPos));
 
                         break;
 
