@@ -1472,9 +1472,27 @@ namespace FinalWar
 
             while (enumerator2.MoveNext())
             {
-                heroMapDic.Add(enumerator2.Current.Key, enumerator2.Current.Value);
+                int nowPos = enumerator2.Current.Key;
 
-                enumerator2.Current.Value.pos = enumerator2.Current.Key;
+                Hero hero = enumerator2.Current.Value;
+
+                heroMapDic.Add(nowPos, hero);
+
+                hero.pos = nowPos;
+
+                bool isMine = mapData.dic[nowPos] == !mapBelongDic.ContainsKey(nowPos);
+
+                if(isMine != hero.isMine)
+                {
+                    if (mapBelongDic.ContainsKey(nowPos))
+                    {
+                        mapBelongDic.Remove(nowPos);
+                    }
+                    else
+                    {
+                        mapBelongDic.Add(nowPos, true);
+                    }
+                }
             }
         }
 
