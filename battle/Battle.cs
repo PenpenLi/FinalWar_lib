@@ -869,7 +869,10 @@ namespace FinalWar
                 {
                     cellData = new BattleCellData();
 
-                    cellData.stander = heroMapDic[pair.Value];
+                    if (heroMapDic.ContainsKey(pair.Value))
+                    {
+                        cellData.stander = heroMapDic[pair.Value];
+                    }
 
                     battleData.actionDic.Add(pair.Value, cellData);
                 }
@@ -981,6 +984,7 @@ namespace FinalWar
                         if (cellData.stander != null && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
                         {
                             List<KeyValuePair<int, int>> attackers = new List<KeyValuePair<int, int>>();
+
                             int stander = cellData.stander.pos;
 
                             for (int i = 0; i < cellData.attackers.Count; i++)
