@@ -142,7 +142,7 @@ namespace FinalWar
             }
         }
 
-        private void ServerRefreshData(bool _isMine)
+        public void ServerRefreshData(bool _isMine)
         {
             using (MemoryStream ms = new MemoryStream())
             {
