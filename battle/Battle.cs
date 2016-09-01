@@ -228,7 +228,7 @@ namespace FinalWar
                         {
                             int pos = enumerator4.Current.Key;
 
-                            if((mapData.dic[pos] == _isMine) == !mapBelongDic.ContainsKey(pos))
+                            if ((mapData.dic[pos] == _isMine) == !mapBelongDic.ContainsKey(pos))
                             {
                                 num++;
 
@@ -437,7 +437,7 @@ namespace FinalWar
         {
             for(int i = 0; i < action.Count; i++)
             {
-                if(action[i].Key == _pos)
+                if (action[i].Key == _pos)
                 {
                     action.RemoveAt(i);
 
@@ -560,7 +560,7 @@ namespace FinalWar
                 }
             }
 
-            if(mOver && oOver)
+            if (mOver && oOver)
             {
                 ServerStartBattle();
 
@@ -967,7 +967,7 @@ namespace FinalWar
 
             bool doShoot = true;
 
-            List<int> diePos = new List<int>();
+            Dictionary<Hero, int> damageDic = new Dictionary<Hero, int>();
 
             Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator;
 
@@ -995,14 +995,13 @@ namespace FinalWar
 
                                 attacker.action = Hero.HeroAction.ATTACKOVER;
 
-                                if (cellData.stander.nowHp > 0)
+                                if (damageDic.ContainsKey(cellData.stander))
                                 {
-                                    cellData.stander.nowHp -= attacker.sds.GetAttack();
-
-                                    if (cellData.stander.nowHp < 1)
-                                    {
-                                        diePos.Add(cellData.stander.pos);
-                                    }
+                                    damageDic[cellData.stander] += attacker.sds.GetAttack();
+                                }
+                                else
+                                {
+                                    damageDic.Add(cellData.stander, attacker.sds.GetAttack());
                                 }
 
                                 attackers.Add(new KeyValuePair<int, int>(attacker.pos, attacker.sds.GetAttack()));
@@ -1014,15 +1013,39 @@ namespace FinalWar
                         }
                     }
 
-                    if (diePos.Count > 0)
+                    if (damageDic.Count > 0)
                     {
-                        _voList.Add(new BattleDeathVO(new List<int>(diePos)));
+                        List<int> diePos = null;
 
-                        DieHeros(_battleData, diePos);
+                        Dictionary<Hero, int>.Enumerator enumerator3 = damageDic.GetEnumerator();
 
-                        diePos.Clear();
+                        while (enumerator3.MoveNext())
+                        {
+                            KeyValuePair<Hero, int> pair = enumerator3.Current;
 
-                        continue;
+                            pair.Key.nowHp -= pair.Value;
+
+                            if (pair.Key.nowHp < 1)
+                            {
+                                if (diePos == null)
+                                {
+                                    diePos = new List<int>();
+                                }
+
+                                diePos.Add(pair.Key.pos);
+
+                                DieHero(_battleData, pair.Key);
+                            }
+                        }
+
+                        damageDic.Clear();
+
+                        if (diePos != null)
+                        {
+                            _voList.Add(new BattleDeathVO(diePos));
+
+                            continue;
+                        }
                     }
                 }
 
@@ -1039,6 +1062,7 @@ namespace FinalWar
                         if (cellData.stander != null && cellData.shooters.Count > 0)
                         {
                             List<KeyValuePair<int, int>> shooters = new List<KeyValuePair<int, int>>();
+
                             int stander = cellData.stander.pos;
 
                             for (int i = 0; i < cellData.shooters.Count; i++)
@@ -1047,14 +1071,13 @@ namespace FinalWar
 
                                 shooter.action = Hero.HeroAction.NULL;
 
-                                if (cellData.stander.nowHp > 0)
+                                if (damageDic.ContainsKey(cellData.stander))
                                 {
-                                    cellData.stander.nowHp -= shooter.sds.GetShoot();
-
-                                    if (cellData.stander.nowHp < 1)
-                                    {
-                                        diePos.Add(cellData.stander.pos);
-                                    }
+                                    damageDic[cellData.stander] += shooter.sds.GetShoot();
+                                }
+                                else
+                                {
+                                    damageDic.Add(cellData.stander, shooter.sds.GetShoot());
                                 }
 
                                 shooters.Add(new KeyValuePair<int, int>(shooter.pos,shooter.sds.GetShoot()));
@@ -1066,15 +1089,39 @@ namespace FinalWar
                         }
                     }
 
-                    if (diePos.Count > 0)
+                    if (damageDic.Count > 0)
                     {
-                        _voList.Add(new BattleDeathVO(new List<int>(diePos)));
+                        List<int> diePos = null;
 
-                        DieHeros(_battleData, diePos);
+                        Dictionary<Hero, int>.Enumerator enumerator3 = damageDic.GetEnumerator();
 
-                        diePos.Clear();
+                        while (enumerator3.MoveNext())
+                        {
+                            KeyValuePair<Hero, int> pair = enumerator3.Current;
 
-                        continue;
+                            pair.Key.nowHp -= pair.Value;
+
+                            if (pair.Key.nowHp < 1)
+                            {
+                                if (diePos == null)
+                                {
+                                    diePos = new List<int>();
+                                }
+
+                                diePos.Add(pair.Key.pos);
+
+                                DieHero(_battleData, pair.Key);
+                            }
+                        }
+
+                        damageDic.Clear();
+
+                        if (diePos != null)
+                        {
+                            _voList.Add(new BattleDeathVO(diePos));
+
+                            continue;
+                        }
                     }
                 }
 
@@ -1100,51 +1147,83 @@ namespace FinalWar
 
                         Hero target;
 
+                        int damage;
+
                         if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                         {
                             target = cellData.stander;
 
-                            attacker.nowHp -= target.sds.GetDefense();
+                            damage = target.sds.GetDefense();
 
-                            _voList.Add(new BattleAttackVO(attacker.pos, enumerator2.Current.Key, -1, attacker.sds.GetAttack(), target.sds.GetDefense()));
+                            _voList.Add(new BattleAttackVO(attacker.pos, enumerator2.Current.Key, -1, attacker.sds.GetAttack(), damage));
                         }
                         else
                         {
                             target = cellData.supporters[0];
 
-                            attacker.nowHp -= target.sds.GetSupport();
+                            damage = target.sds.GetSupport();
 
-                            _voList.Add(new BattleAttackVO(attacker.pos, enumerator2.Current.Key, target.pos, attacker.sds.GetAttack(), target.sds.GetSupport()));
+                            _voList.Add(new BattleAttackVO(attacker.pos, enumerator2.Current.Key, target.pos, attacker.sds.GetAttack(), damage));
                         }
 
-                        target.nowHp -= attacker.sds.GetAttack();
-
-                        if (target.nowHp < 1)
+                        if (damageDic.ContainsKey(attacker))
                         {
-                            diePos.Add(target.pos);
+                            damageDic[attacker] += damage;
                         }
-
-                        if (attacker.nowHp < 1)
+                        else
                         {
-                            diePos.Add(attacker.pos);
+                            damageDic.Add(attacker, damage);
                         }
 
-                        if (cellData.attackers.Count > 0)
+                        if (damageDic.ContainsKey(target))
+                        {
+                            damageDic[target] += attacker.sds.GetAttack();
+                        }
+                        else
+                        {
+                            damageDic.Add(target, attacker.sds.GetAttack());
+                        }
+
+                        if (!hasAction && cellData.attackers.Count > 0)
                         {
                             hasAction = true;
                         }
                     }
                 }
 
-                if (diePos.Count > 0)
+                if (damageDic.Count > 0)
                 {
-                    _voList.Add(new BattleDeathVO(new List<int>(diePos)));
+                    List<int> diePos = null;
 
-                    DieHeros(_battleData, diePos);
+                    Dictionary<Hero, int>.Enumerator enumerator3 = damageDic.GetEnumerator();
 
-                    diePos.Clear();
+                    while (enumerator3.MoveNext())
+                    {
+                        KeyValuePair<Hero, int> pair = enumerator3.Current;
 
-                    doRush = true;
+                        pair.Key.nowHp -= pair.Value;
+
+                        if (pair.Key.nowHp < 1)
+                        {
+                            if (diePos == null)
+                            {
+                                diePos = new List<int>();
+                            }
+
+                            diePos.Add(pair.Key.pos);
+
+                            DieHero(_battleData, pair.Key);
+                        }
+                    }
+
+                    damageDic.Clear();
+
+                    if (diePos != null)
+                    {
+                        _voList.Add(new BattleDeathVO(diePos));
+
+                        doRush = true;
+                    }
                 }
 
                 if (!hasAction)
@@ -1170,7 +1249,7 @@ namespace FinalWar
                 }
             }
 
-            if(tmpList.Count > 0)
+            if (tmpList.Count > 0)
             {
                 Dictionary<int, int> tmpMoveDic = new Dictionary<int, int>();
 
@@ -1180,6 +1259,41 @@ namespace FinalWar
                 }
 
                 _voList.Add(new BattleMoveVO(tmpMoveDic));
+            }
+        }
+
+        private void DieHero(BattleData _battleData, Hero _hero)
+        {
+            if (_hero.action == Hero.HeroAction.ATTACK)
+            {
+                BattleCellData cellData = _battleData.actionDic[_hero.actionTarget];
+
+                cellData.attackers.Remove(_hero);
+            }
+            else if (_hero.action == Hero.HeroAction.ATTACKOVER)
+            {
+                BattleCellData cellData = _battleData.actionDic[_hero.actionTarget];
+
+                cellData.attackOvers.Remove(_hero);
+            }
+            else if (_hero.action == Hero.HeroAction.SHOOT)
+            {
+                BattleCellData cellData = _battleData.actionDic[_hero.actionTarget];
+
+                cellData.shooters.Remove(_hero);
+            }
+            else if (_hero.action == Hero.HeroAction.SUPPORT)
+            {
+                BattleCellData cellData = _battleData.actionDic[_hero.actionTarget];
+
+                cellData.supporters.Remove(_hero);
+            }
+
+            heroMapDic.Remove(_hero.pos);
+
+            if (_battleData.actionDic.ContainsKey(_hero.pos))
+            {
+                _battleData.actionDic[_hero.pos].stander = null;
             }
         }
 
@@ -1197,7 +1311,7 @@ namespace FinalWar
 
                     cellData.attackers.Remove(hero);
                 }
-                else if(hero.action == Hero.HeroAction.ATTACKOVER)
+                else if (hero.action == Hero.HeroAction.ATTACKOVER)
                 {
                     BattleCellData cellData = _battleData.actionDic[hero.actionTarget];
 
@@ -1246,20 +1360,20 @@ namespace FinalWar
                 {
                     hero = cellData.supporters[0];
                 }
-                else if(cellData.attackOvers.Count > 0)
+                else if (cellData.attackOvers.Count > 0)
                 {
                     hero = cellData.attackOvers[0];
 
                     changeMapBelong = true;
                 }
-                else if(cellData.attackers.Count > 0)
+                else if (cellData.attackers.Count > 0)
                 {
                     hero = cellData.attackers[0];
 
                     changeMapBelong = true;
                 }
 
-                if(hero != null)
+                if (hero != null)
                 {
                     if (changeMapBelong)
                     {
@@ -1294,7 +1408,7 @@ namespace FinalWar
 
         private void RecoverCards(BinaryWriter _mBw, BinaryWriter _oBw)
         {
-            if(mCards.Count > 0)
+            if (mCards.Count > 0)
             {
                 int index = (int)(random.NextDouble() * mCards.Count);
 
@@ -1302,7 +1416,7 @@ namespace FinalWar
 
                 mCards.RemoveAt(index);
 
-                if(mHandCards.Count < MAX_HAND_CARD_NUM)
+                if (mHandCards.Count < MAX_HAND_CARD_NUM)
                 {
                     int tmpCardUid = GetCardUid();
 
@@ -1359,14 +1473,14 @@ namespace FinalWar
         {
             mMoney += ADD_MONEY;
 
-            if(mMoney > MAX_MONEY)
+            if (mMoney > MAX_MONEY)
             {
                 mMoney = MAX_MONEY;
             }
 
             oMoney += ADD_MONEY;
 
-            if(oMoney > MAX_MONEY)
+            if (oMoney > MAX_MONEY)
             {
                 oMoney = MAX_MONEY;
             }
@@ -1403,27 +1517,27 @@ namespace FinalWar
             {
                 ValueType vo = voList[i];
 
-                if(vo is BattleSummonVO)
+                if (vo is BattleSummonVO)
                 {
                     ClientDoSummon((BattleSummonVO)vo);
                 }
-                else if(vo is BattleMoveVO)
+                else if (vo is BattleMoveVO)
                 {
                     ClientDoMove((BattleMoveVO)vo);
                 }
-                else if(vo is BattleRushVO)
+                else if (vo is BattleRushVO)
                 {
                     ClientDoRush((BattleRushVO)vo);
                 }
-                else if(vo is BattleShootVO)
+                else if (vo is BattleShootVO)
                 {
                     ClientDoShoot((BattleShootVO)vo);
                 }
-                else if(vo is BattleAttackVO)
+                else if (vo is BattleAttackVO)
                 {
                     ClientDoAttack((BattleAttackVO)vo);
                 }
-                else if(vo is BattleDeathVO)
+                else if (vo is BattleDeathVO)
                 {
                     ClientDoDie((BattleDeathVO)vo);
                 }
@@ -1486,7 +1600,7 @@ namespace FinalWar
 
                 bool isMine = mapData.dic[nowPos] == !mapBelongDic.ContainsKey(nowPos);
 
-                if(isMine != hero.isMine)
+                if (isMine != hero.isMine)
                 {
                     if (mapBelongDic.ContainsKey(nowPos))
                     {
