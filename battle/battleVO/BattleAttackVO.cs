@@ -7,19 +7,17 @@ namespace FinalWar
 {
     public struct BattleAttackVO
     {
-        public int attacker;
+        public List<KeyValuePair<int, int>> attackers;
+        public List<KeyValuePair<int, int>> supporters;
         public int defender;
-        public int supporter;
-        public int damage;
-        public int damageSelf;
+        public int defenderDamage;
 
-        public BattleAttackVO(int _attacker, int _defender, int _supporter, int _damage, int _damageSelf)
+        public BattleAttackVO(List<KeyValuePair<int, int>> _attackers, List<KeyValuePair<int, int>> _supporters, int _defender, int _defenderDamage)
         {
-            attacker = _attacker;
+            attackers = _attackers;
+            supporters = _supporters;
             defender = _defender;
-            supporter = _supporter;
-            damage = _damage;
-            damageSelf = _damageSelf;
+            defenderDamage = _defenderDamage;
         }
     }
 }

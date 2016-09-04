@@ -96,15 +96,31 @@ namespace FinalWar
 
                     BattleAttackVO attack = (BattleAttackVO)vo;
 
-                    _bw.Write(attack.attacker);
+                    _bw.Write(attack.attackers.Count);
+
+                    for(int m = 0; m < attack.attackers.Count; m++)
+                    {
+                        KeyValuePair<int, int> pair = attack.attackers[m];
+
+                        _bw.Write(pair.Key);
+
+                        _bw.Write(pair.Value);
+                    }
+
+                    _bw.Write(attack.supporters.Count);
+
+                    for (int m = 0; m < attack.supporters.Count; m++)
+                    {
+                        KeyValuePair<int, int> pair = attack.supporters[m];
+
+                        _bw.Write(pair.Key);
+
+                        _bw.Write(pair.Value);
+                    }
 
                     _bw.Write(attack.defender);
 
-                    _bw.Write(attack.supporter);
-
-                    _bw.Write(attack.damage);
-
-                    _bw.Write(attack.damageSelf);
+                    _bw.Write(attack.defenderDamage);
                 }
                 else if(vo is BattleDeathVO)
                 {
@@ -209,17 +225,37 @@ namespace FinalWar
 
                     case BattleVOType.ATTACK:
 
-                        int attacker = _br.ReadInt32();
+                        List<KeyValuePair<int, int>> attacker = new List<KeyValuePair<int, int>>();
+
+                        List<KeyValuePair<int, int>> supporter = new List<KeyValuePair<int, int>>();
+
+                        attackerNum = _br.ReadInt32();
+
+                        for (int m = 0; m < attackerNum; m++)
+                        {
+                            int pos = _br.ReadInt32();
+
+                            int damage = _br.ReadInt32();
+
+                            attacker.Add(new KeyValuePair<int, int>(pos, damage));
+                        }
+
+                        attackerNum = _br.ReadInt32();
+
+                        for (int m = 0; m < attackerNum; m++)
+                        {
+                            int pos = _br.ReadInt32();
+
+                            int damage = _br.ReadInt32();
+
+                            supporter.Add(new KeyValuePair<int, int>(pos, damage));
+                        }
 
                         int defender = _br.ReadInt32();
 
-                        int supporter = _br.ReadInt32();
+                        int defenderDamage = _br.ReadInt32();
 
-                        int damageEnemy = _br.ReadInt32();
-
-                        int damageSelf = _br.ReadInt32();
-
-                        result.Add(new BattleAttackVO(attacker, defender, supporter, damageEnemy, damageSelf));
+                        result.Add(new BattleAttackVO(attacker, supporter, defender, defenderDamage));
 
                         break;
 
