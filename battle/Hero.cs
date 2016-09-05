@@ -56,14 +56,18 @@
 
         public int BeDamage(ref int _damage)
         {
-            int tmpDamage = _damage / sds.GetDefense();
+            Log.Write("damage:" + _damage);
+
+            float fix = sds.GetDefense() * 2;
+
+            int tmpDamage = (int)(_damage / fix);
 
             if(tmpDamage > nowHp)
             {
                 tmpDamage = nowHp;
             }
 
-            _damage -= tmpDamage * sds.GetDefense();
+            _damage -= (int)(tmpDamage * fix);
 
             return tmpDamage;
         }
