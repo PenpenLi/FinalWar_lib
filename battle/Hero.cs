@@ -38,5 +38,34 @@
             pos = _pos;
             nowHp = _nowHp;
         }
+
+        public int GetShootDamage()
+        {
+            return nowHp * sds.GetShoot();
+        }
+
+        public int GetAttackDamage()
+        {
+            return nowHp * sds.GetAttack();
+        }
+
+        public int GetCounterDamage()
+        {
+            return nowHp * sds.GetCounter();
+        }
+
+        public int BeDamage(ref int _damage)
+        {
+            int tmpDamage = _damage / sds.GetDefense();
+
+            if(tmpDamage > nowHp)
+            {
+                tmpDamage = nowHp;
+            }
+
+            _damage -= tmpDamage * sds.GetDefense();
+
+            return tmpDamage;
+        }
     }
 }

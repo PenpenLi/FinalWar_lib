@@ -5,7 +5,8 @@
     int GetCost();
     int GetAttack();
     int GetShoot();
+    int GetCounter();
     int GetDefense();
-    int GetSupport();
+    int GetLeader();
 }
 

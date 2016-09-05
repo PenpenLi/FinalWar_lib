@@ -4,13 +4,19 @@ namespace FinalWar
 {
     public struct BattleRushVO
     {
-        public List<KeyValuePair<int, int>> attackers;
+        public List<int> attackers;
         public int stander;
+        public int damage;
+        public List<int> attackersPowerChange;
+        public int standerPowerChange;
 
-        public BattleRushVO(List<KeyValuePair<int, int>> _attackers, int _stander)
+        public BattleRushVO(List<int> _attackers, int _stander, int _damage, List<int> _attackersPowerChange, int _standerPowerChange)
         {
             attackers = _attackers;
             stander = _stander;
+            damage = _damage;
+            attackersPowerChange = _attackersPowerChange;
+            standerPowerChange = _standerPowerChange;
         }
     }
 }

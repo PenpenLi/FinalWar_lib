@@ -62,14 +62,16 @@ namespace FinalWar
 
                     for(int m = 0; m < rush.attackers.Count; m++)
                     {
-                        KeyValuePair<int, int> pair = rush.attackers[m];
+                        _bw.Write(rush.attackers[m]);
 
-                        _bw.Write(pair.Key);
-
-                        _bw.Write(pair.Value);
+                        _bw.Write(rush.attackersPowerChange[m]);
                     }
 
                     _bw.Write(rush.stander);
+
+                    _bw.Write(rush.damage);
+
+                    _bw.Write(rush.standerPowerChange);
                 }
                 else if(vo is BattleShootVO)
                 {
@@ -81,14 +83,16 @@ namespace FinalWar
 
                     for (int m = 0; m < shoot.shooters.Count; m++)
                     {
-                        KeyValuePair<int, int> pair = shoot.shooters[m];
+                        _bw.Write(shoot.shooters[m]);
 
-                        _bw.Write(pair.Key);
-
-                        _bw.Write(pair.Value);
+                        _bw.Write(shoot.shootersPowerChange[m]);
                     }
 
                     _bw.Write(shoot.stander);
+
+                    _bw.Write(shoot.damage);
+
+                    _bw.Write(shoot.standerPowerChange);
                 }
                 else if(vo is BattleAttackVO)
                 {
@@ -100,27 +104,29 @@ namespace FinalWar
 
                     for(int m = 0; m < attack.attackers.Count; m++)
                     {
-                        KeyValuePair<int, int> pair = attack.attackers[m];
+                        _bw.Write(attack.attackers[m]);
 
-                        _bw.Write(pair.Key);
+                        _bw.Write(attack.attackersDamage[m]);
 
-                        _bw.Write(pair.Value);
+                        _bw.Write(attack.attackersPowerChange[m]);
                     }
 
                     _bw.Write(attack.supporters.Count);
 
                     for (int m = 0; m < attack.supporters.Count; m++)
                     {
-                        KeyValuePair<int, int> pair = attack.supporters[m];
+                        _bw.Write(attack.supporters[m]);
 
-                        _bw.Write(pair.Key);
+                        _bw.Write(attack.supportersDamage[m]);
 
-                        _bw.Write(pair.Value);
+                        _bw.Write(attack.supportersPowerChange[m]);
                     }
 
                     _bw.Write(attack.defender);
 
                     _bw.Write(attack.defenderDamage);
+
+                    _bw.Write(attack.defenderPowerChange);
                 }
                 else if(vo is BattleDeathVO)
                 {
@@ -183,7 +189,9 @@ namespace FinalWar
 
                     case BattleVOType.RUSH:
 
-                        List<KeyValuePair<int, int>> attackers = new List<KeyValuePair<int, int>>();
+                        List<int> attackers = new List<int>();
+
+                        List<int> attackersPowerChange = new List<int>();
 
                         int attackerNum = _br.ReadInt32();
 
@@ -191,20 +199,28 @@ namespace FinalWar
                         {
                             int rusher = _br.ReadInt32();
 
-                            int damage = _br.ReadInt32();
+                            int powerChange = _br.ReadInt32();
 
-                            attackers.Add(new KeyValuePair<int, int>(rusher, damage));
+                            attackers.Add(rusher);
+
+                            attackersPowerChange.Add(powerChange);
                         }
 
                         int stander = _br.ReadInt32();
 
-                        result.Add(new BattleRushVO(attackers, stander));
+                        int damage = _br.ReadInt32();
+
+                        int standerPowerChange = _br.ReadInt32();
+
+                        result.Add(new BattleRushVO(attackers, stander, damage, attackersPowerChange, standerPowerChange));
 
                         break;
 
                     case BattleVOType.SHOOT:
 
-                        List<KeyValuePair<int, int>> shooters = new List<KeyValuePair<int, int>>();
+                        List<int> shooters = new List<int>();
+
+                        List<int> shootersPowerChange = new List<int>();
 
                         int shooterNum = _br.ReadInt32();
 
@@ -212,22 +228,36 @@ namespace FinalWar
                         {
                             int shooter = _br.ReadInt32();
 
-                            int damage = _br.ReadInt32();
+                            int powerChange = _br.ReadInt32();
 
-                            shooters.Add(new KeyValuePair<int, int>(shooter, damage));
+                            shooters.Add(shooter);
+
+                            shootersPowerChange.Add(powerChange);
                         }
 
                         stander = _br.ReadInt32();
 
-                        result.Add(new BattleShootVO(shooters, stander));
+                        damage = _br.ReadInt32();
+
+                        standerPowerChange = _br.ReadInt32();
+
+                        result.Add(new BattleShootVO(shooters, stander, damage, shootersPowerChange, standerPowerChange));
 
                         break;
 
                     case BattleVOType.ATTACK:
 
-                        List<KeyValuePair<int, int>> attacker = new List<KeyValuePair<int, int>>();
+                        attackers = new List<int>();
 
-                        List<KeyValuePair<int, int>> supporter = new List<KeyValuePair<int, int>>();
+                        List<int> attackersDamage = new List<int>();
+
+                        attackersPowerChange = new List<int>();
+
+                        List<int> supporters = new List<int>();
+
+                        List<int> supportersDamage = new List<int>();
+
+                        List<int> supportersPowerChange = new List<int>();
 
                         attackerNum = _br.ReadInt32();
 
@@ -235,9 +265,15 @@ namespace FinalWar
                         {
                             int pos = _br.ReadInt32();
 
-                            int damage = _br.ReadInt32();
+                            int attackerDamage = _br.ReadInt32();
 
-                            attacker.Add(new KeyValuePair<int, int>(pos, damage));
+                            int attackerPowerChange = _br.ReadInt32();
+
+                            attackers.Add(pos);
+
+                            attackersDamage.Add(attackerDamage);
+
+                            attackersPowerChange.Add(attackerPowerChange);
                         }
 
                         attackerNum = _br.ReadInt32();
@@ -246,16 +282,24 @@ namespace FinalWar
                         {
                             int pos = _br.ReadInt32();
 
-                            int damage = _br.ReadInt32();
+                            int supporterDamage = _br.ReadInt32();
 
-                            supporter.Add(new KeyValuePair<int, int>(pos, damage));
+                            int supporterPowerChange = _br.ReadInt32();
+
+                            supporters.Add(pos);
+
+                            supportersDamage.Add(supporterDamage);
+
+                            supportersPowerChange.Add(supporterPowerChange);
                         }
 
                         int defender = _br.ReadInt32();
 
                         int defenderDamage = _br.ReadInt32();
 
-                        result.Add(new BattleAttackVO(attacker, supporter, defender, defenderDamage));
+                        int defenderPowerChange = _br.ReadInt32();
+
+                        result.Add(new BattleAttackVO(attackers, supporters, defender, attackersDamage, supportersDamage, defenderDamage, attackersPowerChange, supportersPowerChange, defenderPowerChange));
 
                         break;
 

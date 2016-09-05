@@ -8,7 +8,5 @@ namespace FinalWar
     public class BattleData
     {
         public Dictionary<int, BattleCellData> actionDic = new Dictionary<int, BattleCellData>();
-
-        public Dictionary<int, int> moveDic = new Dictionary<int, int>();
     }
 }
