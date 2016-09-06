@@ -23,7 +23,7 @@
 
         internal int actionTarget;
 
-        public Hero(bool _isMine, IHeroSDS _sds, int _pos)
+        internal Hero(bool _isMine, IHeroSDS _sds, int _pos)
         {
             isMine = _isMine;
             sds = _sds;
@@ -31,7 +31,7 @@
             nowHp = sds.GetHp();
         }
 
-        public Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
+        internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
         {
             isMine = _isMine;
             sds = _sds;
@@ -39,25 +39,23 @@
             nowHp = _nowHp;
         }
 
-        public int GetShootDamage()
+        internal int GetShootDamage()
         {
             return nowHp * sds.GetShoot();
         }
 
-        public int GetAttackDamage()
+        internal int GetAttackDamage()
         {
             return nowHp * sds.GetAttack();
         }
 
-        public int GetCounterDamage()
+        internal int GetCounterDamage()
         {
             return nowHp * sds.GetCounter();
         }
 
-        public int BeDamage(ref int _damage)
+        internal int BeDamage(ref int _damage)
         {
-            Log.Write("damage:" + _damage);
-
             float fix = sds.GetDefense() * 2;
 
             int tmpDamage = (int)(_damage / fix);

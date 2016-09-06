@@ -606,7 +606,7 @@ namespace FinalWar
 
             DoAttackAction(battleData, voList);
 
-            DoMoveAfterAttack(battleData, voList);
+            DoMoveAction(battleData, voList);
 
             byte[] bytes;
 
@@ -1277,7 +1277,7 @@ namespace FinalWar
             }
         }
 
-        private void DoMoveAfterAttack(BattleData _battleData, List<ValueType> _voList)
+        private void DoMoveAction(BattleData _battleData, List<ValueType> _voList)
         {
             List<int> tmpList = new List<int>();
 
@@ -1704,7 +1704,7 @@ namespace FinalWar
             }
         }
 
-        public void ClientDoRecover(BinaryReader _br)
+        private void ClientDoRecover(BinaryReader _br)
         { 
             bool addCard = _br.ReadBoolean();
 
