@@ -51,6 +51,28 @@ namespace FinalWar
 
                         _bw.Write(enumerator.Current.Value);
                     }
+
+                    _bw.Write(move.powerChange.Count);
+
+                    Dictionary<int, Dictionary<int, int>>.Enumerator enumerator2 = move.powerChange.GetEnumerator();
+
+                    while (enumerator2.MoveNext())
+                    {
+                        _bw.Write(enumerator2.Current.Key);
+
+                        Dictionary<int, int> tmpDic = enumerator2.Current.Value;
+
+                        _bw.Write(tmpDic.Count);
+
+                        Dictionary<int, int>.Enumerator enumerator3 = tmpDic.GetEnumerator();
+
+                        while (enumerator3.MoveNext())
+                        {
+                            _bw.Write(enumerator3.Current.Key);
+
+                            _bw.Write(enumerator3.Current.Value);
+                        }
+                    }
                 }
                 else if(vo is BattleRushVO)
                 {
@@ -140,6 +162,17 @@ namespace FinalWar
                     {
                         _bw.Write(death.deads[m]);
                     }
+
+                    _bw.Write(death.powerChange.Count);
+
+                    Dictionary<int, int>.Enumerator enumerator = death.powerChange.GetEnumerator();
+
+                    while (enumerator.MoveNext())
+                    {
+                        _bw.Write(enumerator.Current.Key);
+
+                        _bw.Write(enumerator.Current.Value);
+                    }
                 }
             }
         }
@@ -172,6 +205,8 @@ namespace FinalWar
 
                         Dictionary<int, int> moveDic = new Dictionary<int, int>();
 
+                        Dictionary<int, Dictionary<int, int>> movePowerChange = new Dictionary<int, Dictionary<int, int>>();
+
                         int moveNum = _br.ReadInt32();
 
                         for(int m = 0; m < moveNum; m++)
@@ -181,9 +216,24 @@ namespace FinalWar
                             int targetPos = _br.ReadInt32();
 
                             moveDic.Add(pos, targetPos);
+
+                            Dictionary<int, int> tmpDic = new Dictionary<int, int>();
+
+                            int powerChangeNum = _br.ReadInt32();
+
+                            for(int n = 0; n < powerChangeNum; n++)
+                            {
+                                int powerChangePos = _br.ReadInt32();
+
+                                int powerChange = _br.ReadInt32();
+
+                                tmpDic.Add(powerChangePos, powerChange);
+                            }
+
+                            movePowerChange.Add(pos, tmpDic);
                         }
 
-                        result.Add(new BattleMoveVO(moveDic));
+                        result.Add(new BattleMoveVO(moveDic, movePowerChange));
 
                         break;
 
@@ -307,6 +357,8 @@ namespace FinalWar
 
                         List<int> deads = new List<int>();
 
+                        Dictionary<int, int> deathPowerChange = new Dictionary<int, int>();
+
                         int deadsNum = _br.ReadInt32();
 
                         for(int m = 0; m < deadsNum; m++)
@@ -316,7 +368,18 @@ namespace FinalWar
                             deads.Add(deadPos);
                         }
 
-                        result.Add(new BattleDeathVO(deads));
+                        int deathPowerChangeNum = _br.ReadInt32();
+
+                        for(int m = 0; m < deathPowerChangeNum; m++)
+                        {
+                            int pos = _br.ReadInt32();
+
+                            int powerChange = _br.ReadInt32();
+
+                            deathPowerChange.Add(pos, powerChange);
+                        }
+
+                        result.Add(new BattleDeathVO(deads, deathPowerChange));
 
                         break;
                 }

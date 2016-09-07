@@ -2,6 +2,7 @@
 {
     int GetID();
     int GetHp();
+    int GetPower();
     int GetCost();
     int GetAttack();
     int GetShoot();
