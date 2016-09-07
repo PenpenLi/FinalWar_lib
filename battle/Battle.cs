@@ -895,8 +895,6 @@ namespace FinalWar
                 {
                     List<int> shooters = new List<int>();
 
-                    List<int> shootersPowerChange = new List<int>();
-
                     int stander = cellData.stander.pos;
 
                     int damage = 0;
@@ -910,8 +908,6 @@ namespace FinalWar
                         damage += shooter.GetShootDamage();
 
                         shooters.Add(shooter.pos);
-
-                        shootersPowerChange.Add(0);//士气
                     }
 
                     cellData.shooters.Clear();
@@ -959,7 +955,7 @@ namespace FinalWar
                         }
                     }
 
-                    _voList.Add(new BattleShootVO(shooters, stander, damage, shootersPowerChange, powerChange));//士气
+                    _voList.Add(new BattleShootVO(shooters, stander, damage));
                 }
             }
 
@@ -975,7 +971,7 @@ namespace FinalWar
 
                     Hero hero = pair.Key;
 
-                    hero.nowHp -= pair.Value;
+                    hero.HpChange(-pair.Value);
 
                     if (hero.nowHp < 1)
                     {
@@ -1006,7 +1002,7 @@ namespace FinalWar
 
                     Hero hero = pair.Key;
 
-                    hero.nowPower += pair.Value;
+                    hero.PowerChange(pair.Value);
                 }
             }
         }
@@ -1140,7 +1136,7 @@ namespace FinalWar
 
                         Hero hero = pair.Key;
 
-                        hero.nowHp -= pair.Value;
+                        hero.HpChange(-pair.Value);
 
                         if (hero.nowHp < 1)
                         {
@@ -1176,7 +1172,7 @@ namespace FinalWar
 
                         Hero hero = pair.Key;
 
-                        hero.nowPower += pair.Value;
+                        hero.PowerChange(pair.Value);
                     }
                 }
 
@@ -1373,7 +1369,7 @@ namespace FinalWar
 
                     Hero hero = pair.Key;
 
-                    hero.nowHp -= pair.Value;
+                    hero.HpChange(-pair.Value);
 
                     if (hero.nowHp < 1)
                     {
@@ -1420,7 +1416,7 @@ namespace FinalWar
                     OneCellEmpty(_battleData, tmpList[i], tmpMoveDic);
                 }
 
-                _voList.Add(new BattleMoveVO(tmpMoveDic, new Dictionary<int, Dictionary<int, int>>()));
+                _voList.Add(new BattleMoveVO(tmpMoveDic));
             }
         }
 
@@ -1738,14 +1734,14 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_vo.stander];
 
-            hero.nowHp -= _vo.damage;
+            hero.HpChange(-_vo.damage);
         }
 
         private void ClientDoShoot(BattleShootVO _vo)
         {
             Hero hero = heroMapDic[_vo.stander];
 
-            hero.nowHp -= _vo.damage;
+            hero.HpChange(-_vo.damage);
         }
 
         private void ClientDoAttack(BattleAttackVO _vo)
@@ -1754,21 +1750,21 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.attackers[i]];
 
-                hero.nowHp -= _vo.attackersDamage[i];
+                hero.HpChange(-_vo.attackersDamage[i]);
             }
 
             for (int i = 0; i < _vo.supporters.Count; i++)
             {
                 Hero hero = heroMapDic[_vo.supporters[i]];
 
-                hero.nowHp -= _vo.supportersDamage[i];
+                hero.HpChange(-_vo.supportersDamage[i]);
             }
 
             if(_vo.defenderDamage > 0)
             {
                 Hero hero = heroMapDic[_vo.defender];
 
-                hero.nowHp -= _vo.defenderDamage;
+                hero.HpChange(-_vo.defenderDamage);
             }
         }
 
@@ -1807,6 +1803,11 @@ namespace FinalWar
             }
 
             clientRefreshDataCallBack();
+        }
+
+        private void AddDataToDic(ref Dictionary<Hero,int> _dic,Hero _hero,int _data)
+        {
+
         }
     }
 }

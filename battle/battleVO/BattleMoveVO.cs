@@ -5,12 +5,10 @@ namespace FinalWar
     public struct BattleMoveVO
     {
         public Dictionary<int, int> moves;
-        public Dictionary<int, Dictionary<int, int>> powerChange;
 
-        public BattleMoveVO(Dictionary<int, int> _moves, Dictionary<int, Dictionary<int, int>> _powerChange)
+        public BattleMoveVO(Dictionary<int, int> _moves)
         {
             moves = _moves;
-            powerChange = _powerChange;
         }
     }
 }

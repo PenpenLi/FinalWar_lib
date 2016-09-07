@@ -13,7 +13,8 @@ namespace FinalWar
             RUSH,
             SHOOT,
             ATTACK,
-            DEATH
+            DEATH,
+            POWERCHANGE
         }
         public static void WriteDataToStream(List<ValueType> _voList, BinaryWriter _bw)
         {
@@ -50,28 +51,6 @@ namespace FinalWar
                         _bw.Write(enumerator.Current.Key);
 
                         _bw.Write(enumerator.Current.Value);
-                    }
-
-                    _bw.Write(move.powerChange.Count);
-
-                    Dictionary<int, Dictionary<int, int>>.Enumerator enumerator2 = move.powerChange.GetEnumerator();
-
-                    while (enumerator2.MoveNext())
-                    {
-                        _bw.Write(enumerator2.Current.Key);
-
-                        Dictionary<int, int> tmpDic = enumerator2.Current.Value;
-
-                        _bw.Write(tmpDic.Count);
-
-                        Dictionary<int, int>.Enumerator enumerator3 = tmpDic.GetEnumerator();
-
-                        while (enumerator3.MoveNext())
-                        {
-                            _bw.Write(enumerator3.Current.Key);
-
-                            _bw.Write(enumerator3.Current.Value);
-                        }
                     }
                 }
                 else if(vo is BattleRushVO)
@@ -174,6 +153,23 @@ namespace FinalWar
                         _bw.Write(enumerator.Current.Value);
                     }
                 }
+                else if(vo is BattlePowerChangeVO)
+                {
+                    _bw.Write((int)BattleVOType.POWERCHANGE);
+
+                    BattlePowerChangeVO powerChange = (BattlePowerChangeVO)vo;
+
+                    _bw.Write(powerChange.powerChanges.Count);
+
+                    Dictionary<int, int>.Enumerator enumerator = powerChange.powerChanges.GetEnumerator();
+
+                    while (enumerator.MoveNext())
+                    {
+                        _bw.Write(enumerator.Current.Key);
+
+                        _bw.Write(enumerator.Current.Value);
+                    }
+                }
             }
         }
 
@@ -205,8 +201,6 @@ namespace FinalWar
 
                         Dictionary<int, int> moveDic = new Dictionary<int, int>();
 
-                        Dictionary<int, Dictionary<int, int>> movePowerChange = new Dictionary<int, Dictionary<int, int>>();
-
                         int moveNum = _br.ReadInt32();
 
                         for(int m = 0; m < moveNum; m++)
@@ -216,24 +210,9 @@ namespace FinalWar
                             int targetPos = _br.ReadInt32();
 
                             moveDic.Add(pos, targetPos);
-
-                            Dictionary<int, int> tmpDic = new Dictionary<int, int>();
-
-                            int powerChangeNum = _br.ReadInt32();
-
-                            for(int n = 0; n < powerChangeNum; n++)
-                            {
-                                int powerChangePos = _br.ReadInt32();
-
-                                int powerChange = _br.ReadInt32();
-
-                                tmpDic.Add(powerChangePos, powerChange);
-                            }
-
-                            movePowerChange.Add(pos, tmpDic);
                         }
 
-                        result.Add(new BattleMoveVO(moveDic, movePowerChange));
+                        result.Add(new BattleMoveVO(moveDic));
 
                         break;
 
@@ -380,6 +359,25 @@ namespace FinalWar
                         }
 
                         result.Add(new BattleDeathVO(deads, deathPowerChange));
+
+                        break;
+
+                    case BattleVOType.POWERCHANGE:
+
+                        Dictionary<int, int> powerChangeDic = new Dictionary<int, int>();
+
+                        int powerChangeNum = _br.ReadInt32();
+
+                        for (int m = 0; m < powerChangeNum; m++)
+                        {
+                            int pos = _br.ReadInt32();
+
+                            int powerChange = _br.ReadInt32();
+
+                            powerChangeDic.Add(pos, powerChange);
+                        }
+
+                        result.Add(new BattlePowerChangeVO(powerChangeDic));
 
                         break;
                 }

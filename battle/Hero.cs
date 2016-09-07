@@ -17,8 +17,8 @@
         public IHeroSDS sds;
 
         public int pos;
-        public int nowHp;
-        public int nowPower;
+        public int nowHp { get; private set; }
+        public int nowPower { get; private set; }
 
         internal HeroAction action;
 
@@ -40,6 +40,16 @@
             pos = _pos;
             nowHp = _nowHp;
             nowPower = _nowPower;
+        }
+
+        internal void HpChange(int _value)
+        {
+            nowHp += _value;
+        }
+
+        internal void PowerChange(int _value)
+        {
+            nowPower += _value;
         }
 
         internal int GetShootDamage()
