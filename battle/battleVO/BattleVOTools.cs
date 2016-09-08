@@ -134,15 +134,15 @@ namespace FinalWar
 
                     BattlePowerChangeVO powerChange = (BattlePowerChangeVO)vo;
 
-                    _bw.Write(powerChange.powerChanges.Count);
+                    _bw.Write(powerChange.pos.Count);
 
-                    Dictionary<int, int>.Enumerator enumerator = powerChange.powerChanges.GetEnumerator();
-
-                    while (enumerator.MoveNext())
+                    for(int m = 0; m < powerChange.pos.Count; m++)
                     {
-                        _bw.Write(enumerator.Current.Key);
+                        _bw.Write(powerChange.pos[m]);
 
-                        _bw.Write(enumerator.Current.Value);
+                        _bw.Write(powerChange.powerChange[m]);
+
+                        _bw.Write(powerChange.isDizz[m]);
                     }
                 }
             }
@@ -296,7 +296,11 @@ namespace FinalWar
 
                     case BattleVOType.POWERCHANGE:
 
-                        Dictionary<int, int> powerChangeDic = new Dictionary<int, int>();
+                        List<int> posList = new List<int>();
+
+                        List<int> powerChangeList = new List<int>();
+
+                        List<bool> isDizzList = new List<bool>();
 
                         int powerChangeNum = _br.ReadInt32();
 
@@ -304,12 +308,18 @@ namespace FinalWar
                         {
                             int pos = _br.ReadInt32();
 
+                            posList.Add(pos);
+
                             int powerChange = _br.ReadInt32();
 
-                            powerChangeDic.Add(pos, powerChange);
+                            powerChangeList.Add(powerChange);
+
+                            bool isDizz = _br.ReadBoolean();
+
+                            isDizzList.Add(isDizz);
                         }
 
-                        result.Add(new BattlePowerChangeVO(powerChangeDic));
+                        result.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
 
                         break;
                 }

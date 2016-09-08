@@ -47,9 +47,11 @@
             nowHp += _value;
         }
 
-        internal void PowerChange(int _value)
+        internal bool PowerChange(int _value)
         {
             nowPower += _value;
+
+            return false;
         }
 
         internal int GetShootDamage()

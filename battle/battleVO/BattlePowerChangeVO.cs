@@ -4,11 +4,15 @@ namespace FinalWar
 {
     public struct BattlePowerChangeVO
     {
-        public Dictionary<int, int> powerChanges;
+        public List<int> pos;
+        public List<int> powerChange;
+        public List<bool> isDizz;
 
-        public BattlePowerChangeVO(Dictionary<int, int> _powerChanges)
+        public BattlePowerChangeVO(List<int> _pos, List<int> _powerChange, List<bool> _isDizz)
         {
-            powerChanges = _powerChanges;
+            pos = _pos;
+            powerChange = _powerChange;
+            isDizz = _isDizz;
         }
     }
 }

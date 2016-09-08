@@ -974,7 +974,11 @@ namespace FinalWar
 
             if (powerChangeDic != null)
             {
-                Dictionary<int, int> resultPowerChangeDic = new Dictionary<int, int>();
+                List<int> posList = new List<int>();
+
+                List<int> powerChangeList = new List<int>();
+
+                List<bool> isDizzList = new List<bool>();
 
                 Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
 
@@ -984,12 +988,21 @@ namespace FinalWar
 
                     Hero hero = pair.Key;
 
-                    hero.PowerChange(pair.Value);
+                    bool isDizz = hero.PowerChange(pair.Value);
 
-                    resultPowerChangeDic.Add(pair.Key.pos, pair.Value);
+                    if (isDizz)
+                    {
+                        RemoveHeroAction(_battleData, hero);
+                    }
+
+                    posList.Add(hero.pos);
+
+                    powerChangeList.Add(pair.Value);
+
+                    isDizzList.Add(isDizz);
                 }
 
-                _voList.Add(new BattlePowerChangeVO(resultPowerChangeDic));
+                _voList.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
             }
         }
 
@@ -1098,7 +1111,11 @@ namespace FinalWar
 
                 if (powerChangeDic != null)
                 {
-                    Dictionary<int, int> resultPowerChangeDic = new Dictionary<int, int>();
+                    List<int> posList = new List<int>();
+
+                    List<int> powerChangeList = new List<int>();
+
+                    List<bool> isDizzList = new List<bool>();
 
                     Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
 
@@ -1108,12 +1125,21 @@ namespace FinalWar
 
                         Hero hero = pair.Key;
 
-                        hero.PowerChange(pair.Value);
+                        bool isDizz = hero.PowerChange(pair.Value);
 
-                        resultPowerChangeDic.Add(pair.Key.pos, pair.Value);
+                        if (isDizz)
+                        {
+                            RemoveHeroAction(_battleData, hero);
+                        }
+
+                        posList.Add(hero.pos);
+
+                        powerChangeList.Add(pair.Value);
+
+                        isDizzList.Add(isDizz);
                     }
 
-                    _voList.Add(new BattlePowerChangeVO(resultPowerChangeDic));
+                    _voList.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
                 }
 
                 if (quit)
@@ -1325,7 +1351,11 @@ namespace FinalWar
 
             if (powerChangeDic != null)
             {
-                Dictionary<int, int> resultPowerChangeDic = new Dictionary<int, int>();
+                List<int> posList = new List<int>();
+
+                List<int> powerChangeList = new List<int>();
+
+                List<bool> isDizzList = new List<bool>();
 
                 Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
 
@@ -1337,10 +1367,14 @@ namespace FinalWar
 
                     hero.PowerChange(pair.Value);
 
-                    resultPowerChangeDic.Add(pair.Key.pos, pair.Value);
+                    posList.Add(hero.pos);
+
+                    powerChangeList.Add(pair.Value);
+
+                    isDizzList.Add(false);
                 }
 
-                _voList.Add(new BattlePowerChangeVO(resultPowerChangeDic));
+                _voList.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
             }
         }
 
@@ -1395,7 +1429,11 @@ namespace FinalWar
 
             if (powerChangeDic != null)
             {
-                Dictionary<int, int> resultPowerChangeDic = new Dictionary<int, int>();
+                List<int> posList = new List<int>();
+
+                List<int> powerChangeList = new List<int>();
+
+                List<bool> isDizzList = new List<bool>();
 
                 Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
 
@@ -1407,10 +1445,14 @@ namespace FinalWar
 
                     hero.PowerChange(pair.Value);
 
-                    resultPowerChangeDic.Add(pair.Key.pos, pair.Value);
+                    posList.Add(hero.pos);
+
+                    powerChangeList.Add(pair.Value);
+
+                    isDizzList.Add(false);
                 }
 
-                _voList.Add(new BattlePowerChangeVO(resultPowerChangeDic));
+                _voList.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
             }
         }
 
