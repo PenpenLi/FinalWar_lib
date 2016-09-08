@@ -115,5 +115,30 @@
         {
             return 0;
         }
+
+        internal int Attack(int _attackerNum, int _defenderNum, int _attackDamage, int _defenseDamage)
+        {
+            return 0;
+        }
+
+        internal int BeAttack(int _attackerNum, int _defenderNum, int _attackDamage, int _defenseDamage)
+        {
+            return 0;
+        }
+
+        internal int OtherHeroDie(bool _isMine)
+        {
+            return 0;
+        }
+
+        internal int MapBelongChange(bool _isMineNow)
+        {
+            return 0;
+        }
+
+        internal int RecoverPower()
+        {
+            return 0;
+        }
     }
 }

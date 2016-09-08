@@ -974,6 +974,8 @@ namespace FinalWar
 
             if (powerChangeDic != null)
             {
+                Dictionary<int, int> resultPowerChangeDic = new Dictionary<int, int>();
+
                 Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
 
                 while (enumerator3.MoveNext())
@@ -983,7 +985,11 @@ namespace FinalWar
                     Hero hero = pair.Key;
 
                     hero.PowerChange(pair.Value);
+
+                    resultPowerChangeDic.Add(pair.Key.pos, pair.Value);
                 }
+
+                _voList.Add(new BattlePowerChangeVO(resultPowerChangeDic));
             }
         }
 
@@ -1092,6 +1098,8 @@ namespace FinalWar
 
                 if (powerChangeDic != null)
                 {
+                    Dictionary<int, int> resultPowerChangeDic = new Dictionary<int, int>();
+
                     Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
 
                     while (enumerator3.MoveNext())
@@ -1101,7 +1109,11 @@ namespace FinalWar
                         Hero hero = pair.Key;
 
                         hero.PowerChange(pair.Value);
+
+                        resultPowerChangeDic.Add(pair.Key.pos, pair.Value);
                     }
+
+                    _voList.Add(new BattlePowerChangeVO(resultPowerChangeDic));
                 }
 
                 if (quit)
@@ -1137,13 +1149,23 @@ namespace FinalWar
 
                     int defenseDamage;
 
+                    int attackDamage = 0;
+
+                    int attackerNum = cellData.attackers.Count;
+
+                    int defenderNum;
+
                     if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                     {
                         defenseDamage = cellData.stander.GetCounterDamage();
+
+                        defenderNum = cellData.supporters.Count + 1;
                     }
                     else
                     {
                         defenseDamage = 0;
+
+                        defenderNum = cellData.supporters.Count;
                     }
 
                     for (int i = 0; i < cellData.supporters.Count; i++)
@@ -1155,8 +1177,6 @@ namespace FinalWar
                         defenseDamage += hero.GetCounterDamage();
                     }
 
-                    int attackDamage = 0;
-
                     for (int i = 0; i < cellData.attackers.Count; i++)
                     {
                         Hero hero = cellData.attackers[i];
@@ -1164,8 +1184,17 @@ namespace FinalWar
                         attackers.Add(hero.pos);
 
                         attackDamage += hero.GetAttackDamage();
+                    }
 
-                        if(defenseDamage > 0)
+                    int recAttackDamage = attackDamage;
+
+                    int recDefenseDamage = defenseDamage;
+
+                    for (int i = 0; i < cellData.attackers.Count; i++)
+                    {
+                        Hero hero = cellData.attackers[i];
+
+                        if (defenseDamage > 0)
                         {
                             int tmpDamage = hero.BeDamage(ref defenseDamage);
 
@@ -1180,15 +1209,32 @@ namespace FinalWar
                         {
                             attackersDamage.Add(0);
                         }
+
+                        int powerChange = hero.Attack(attackerNum, defenderNum, recAttackDamage, recDefenseDamage);
+
+                        if(powerChange != 0)
+                        {
+                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, hero, powerChange);
+                        }
                     }
 
-                    if(attackDamage > 0 && cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
+                    if(cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                     {
-                        defenderDamage = cellData.stander.BeDamage(ref attackDamage);
-
-                        if(defenderDamage > 0)
+                        if(attackDamage > 0)
                         {
-                            BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, defenderDamage);
+                            defenderDamage = cellData.stander.BeDamage(ref attackDamage);
+
+                            if (defenderDamage > 0)
+                            {
+                                BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, defenderDamage);
+                            }
+                        }
+
+                        int powerChange = cellData.stander.BeAttack(attackerNum, defenderNum, recAttackDamage, recDefenseDamage);
+
+                        if (powerChange != 0)
+                        {
+                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, powerChange);
                         }
                     }
 
@@ -1211,15 +1257,32 @@ namespace FinalWar
                         {
                             supportersDamage.Add(0);
                         }
+
+                        int powerChange = hero.BeAttack(attackerNum, defenderNum, recAttackDamage, recDefenseDamage);
+
+                        if (powerChange != 0)
+                        {
+                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, hero, powerChange);
+                        }
                     }
 
-                    if(attackDamage > 0 && cellData.stander != null && cellData.stander.action != Hero.HeroAction.DEFENSE)
+                    if(cellData.stander != null && cellData.stander.action != Hero.HeroAction.DEFENSE)
                     {
-                        defenderDamage = cellData.stander.BeDamage(ref attackDamage);
-
-                        if(defenderDamage > 0)
+                        if(attackDamage > 0)
                         {
-                            BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, defenderDamage);
+                            defenderDamage = cellData.stander.BeDamage(ref attackDamage);
+
+                            if (defenderDamage > 0)
+                            {
+                                BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, defenderDamage);
+                            }
+                        }
+
+                        int powerChange = cellData.stander.BeAttack(attackerNum, defenderNum, recAttackDamage, recDefenseDamage);
+
+                        if (powerChange != 0)
+                        {
+                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, powerChange);
                         }
                     }
 
@@ -1259,11 +1322,33 @@ namespace FinalWar
                     _voList.Add(new BattleDeathVO(diePos));
                 }
             }
+
+            if (powerChangeDic != null)
+            {
+                Dictionary<int, int> resultPowerChangeDic = new Dictionary<int, int>();
+
+                Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
+
+                while (enumerator3.MoveNext())
+                {
+                    KeyValuePair<Hero, int> pair = enumerator3.Current;
+
+                    Hero hero = pair.Key;
+
+                    hero.PowerChange(pair.Value);
+
+                    resultPowerChangeDic.Add(pair.Key.pos, pair.Value);
+                }
+
+                _voList.Add(new BattlePowerChangeVO(resultPowerChangeDic));
+            }
         }
 
         private void DoMoveAction(BattleData _battleData, List<ValueType> _voList)
         {
-            List<int> tmpList = new List<int>();
+            Dictionary<Hero, int> powerChangeDic = null;
+
+            List<int> tmpList = null;
 
             Dictionary<int, BattleCellData>.Enumerator enumerator = _battleData.actionDic.GetEnumerator();
 
@@ -1273,20 +1358,59 @@ namespace FinalWar
 
                 if (cellData.stander == null && (cellData.supporters.Count > 0 || cellData.attackOvers.Count > 0 || cellData.attackers.Count > 0))
                 {
+                    if(tmpList == null)
+                    {
+                        tmpList = new List<int>();
+                    }
+
                     tmpList.Add(enumerator.Current.Key);
                 }
             }
 
-            if (tmpList.Count > 0)
+            if (tmpList != null)
             {
                 Dictionary<int, int> tmpMoveDic = new Dictionary<int, int>();
 
                 for (int i = 0; i < tmpList.Count; i++)
                 {
-                    OneCellEmpty(_battleData, tmpList[i], tmpMoveDic);
+                    OneCellEmpty(_battleData, tmpList[i], tmpMoveDic, ref powerChangeDic);
                 }
 
                 _voList.Add(new BattleMoveVO(tmpMoveDic));
+            }
+
+            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
+
+            while (enumerator2.MoveNext())
+            {
+                Hero hero = enumerator2.Current;
+
+                int powerChange = hero.RecoverPower();
+
+                if(powerChange != 0)
+                {
+                    BattlePublicTools.AccumulationDicData(ref powerChangeDic, hero, powerChange);
+                }
+            }
+
+            if (powerChangeDic != null)
+            {
+                Dictionary<int, int> resultPowerChangeDic = new Dictionary<int, int>();
+
+                Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
+
+                while (enumerator3.MoveNext())
+                {
+                    KeyValuePair<Hero, int> pair = enumerator3.Current;
+
+                    Hero hero = pair.Key;
+
+                    hero.PowerChange(pair.Value);
+
+                    resultPowerChangeDic.Add(pair.Key.pos, pair.Value);
+                }
+
+                _voList.Add(new BattlePowerChangeVO(resultPowerChangeDic));
             }
         }
 
@@ -1301,6 +1425,24 @@ namespace FinalWar
                 _battleData.actionDic[_hero.pos].stander = null;
             }
 
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
+
+            for(int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                if (heroMapDic.ContainsKey(pos))
+                {
+                    Hero hero = heroMapDic[pos];
+
+                    if(hero.nowHp > 0)
+                    {
+                        int powerChange = hero.OtherHeroDie(_hero.isMine);
+
+                        BattlePublicTools.AccumulationDicData(ref _powerChangeDic, hero, powerChange);
+                    }
+                }
+            }
 
         }
 
@@ -1332,7 +1474,7 @@ namespace FinalWar
             }
         }
 
-        private void OneCellEmpty(BattleData _battleData, int _pos, Dictionary<int, int> _tmpMoveDic)
+        private void OneCellEmpty(BattleData _battleData, int _pos, Dictionary<int, int> _tmpMoveDic, ref Dictionary<Hero,int> _powerChangeDic)
         {
             int nowPos = _pos;
 
@@ -1377,6 +1519,22 @@ namespace FinalWar
                         else
                         {
                             mapBelongDic.Add(nowPos, true);
+                        }
+
+                        bool b = mapData.dic[nowPos] != mapBelongDic.ContainsKey(nowPos);
+
+                        Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+
+                        while (enumerator.MoveNext())
+                        {
+                            Hero tmpHero = enumerator.Current;
+
+                            int powerChange = tmpHero.MapBelongChange(tmpHero.isMine ? b : !b);
+
+                            if(powerChange != 0)
+                            {
+                                BattlePublicTools.AccumulationDicData(ref _powerChangeDic, tmpHero, powerChange);
+                            }
                         }
                     }
 
