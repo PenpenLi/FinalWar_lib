@@ -10,7 +10,7 @@ public class BattlePublicTools
 
         for(int i = 0; i < 6; i++)
         {
-            if(arr[i] != -1)
+            if (arr[i] != -1)
             {
                 result.Add(arr[i]);
             }
@@ -31,7 +31,7 @@ public class BattlePublicTools
             {
                 int[] arr2 = _neighbourPosMap[arr[i]];
 
-                if(arr2[i] != -1)
+                if (arr2[i] != -1)
                 {
                     result.Add(arr2[i]);
                 }

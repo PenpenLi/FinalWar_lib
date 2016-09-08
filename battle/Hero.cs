@@ -89,7 +89,7 @@
 
             int tmpDamage = (int)(_damage / fix);
 
-            if(tmpDamage > nowHp)
+            if (tmpDamage > nowHp)
             {
                 tmpDamage = nowHp;
             }

@@ -86,7 +86,7 @@ class SuperEventListener
 
             dic.Remove(unit.callBack);
 
-            if(dic.Count == 0)
+            if (dic.Count == 0)
             {
                 dicWithEvent.Remove(unit.eventName);
             }
@@ -107,7 +107,7 @@ class SuperEventListener
 
                 dic.Remove(_callBack);
 
-                if(dic.Count == 0)
+                if (dic.Count == 0)
                 {
                     dicWithEvent.Remove(_eventName);
                 }

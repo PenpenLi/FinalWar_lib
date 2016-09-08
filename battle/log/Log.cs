@@ -11,7 +11,7 @@ public class Log
 
     public static void Write(string _str)
     {
-        if(logCallBack != null)
+        if (logCallBack != null)
         {
             logCallBack(_str);
         }

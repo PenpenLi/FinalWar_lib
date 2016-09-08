@@ -24,7 +24,7 @@ namespace FinalWar
             {
                 ValueType vo = _voList[i];
 
-                if(vo is BattleSummonVO)
+                if (vo is BattleSummonVO)
                 {
                     _bw.Write((int)BattleVOType.SUMMON);
 
@@ -36,7 +36,7 @@ namespace FinalWar
 
                     _bw.Write(summon.pos);
                 }
-                else if(vo is BattleMoveVO)
+                else if (vo is BattleMoveVO)
                 {
                     _bw.Write((int)BattleVOType.MOVE);
 
@@ -53,7 +53,7 @@ namespace FinalWar
                         _bw.Write(enumerator.Current.Value);
                     }
                 }
-                else if(vo is BattleRushVO)
+                else if (vo is BattleRushVO)
                 {
                     _bw.Write((int)BattleVOType.RUSH);
 
@@ -70,7 +70,7 @@ namespace FinalWar
 
                     _bw.Write(rush.damage);
                 }
-                else if(vo is BattleShootVO)
+                else if (vo is BattleShootVO)
                 {
                     _bw.Write((int)BattleVOType.SHOOT);
 
@@ -87,7 +87,7 @@ namespace FinalWar
 
                     _bw.Write(shoot.damage);
                 }
-                else if(vo is BattleAttackVO)
+                else if (vo is BattleAttackVO)
                 {
                     _bw.Write((int)BattleVOType.ATTACK);
 
@@ -115,7 +115,7 @@ namespace FinalWar
 
                     _bw.Write(attack.defenderDamage);
                 }
-                else if(vo is BattleDeathVO)
+                else if (vo is BattleDeathVO)
                 {
                     _bw.Write((int)BattleVOType.DEATH);
 
@@ -128,7 +128,7 @@ namespace FinalWar
                         _bw.Write(death.deads[m]);
                     }
                 }
-                else if(vo is BattlePowerChangeVO)
+                else if (vo is BattlePowerChangeVO)
                 {
                     _bw.Write((int)BattleVOType.POWERCHANGE);
 
