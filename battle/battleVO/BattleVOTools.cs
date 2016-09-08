@@ -64,15 +64,11 @@ namespace FinalWar
                     for(int m = 0; m < rush.attackers.Count; m++)
                     {
                         _bw.Write(rush.attackers[m]);
-
-                        _bw.Write(rush.attackersPowerChange[m]);
                     }
 
                     _bw.Write(rush.stander);
 
                     _bw.Write(rush.damage);
-
-                    _bw.Write(rush.standerPowerChange);
                 }
                 else if(vo is BattleShootVO)
                 {
@@ -85,15 +81,11 @@ namespace FinalWar
                     for (int m = 0; m < shoot.shooters.Count; m++)
                     {
                         _bw.Write(shoot.shooters[m]);
-
-                        _bw.Write(shoot.shootersPowerChange[m]);
                     }
 
                     _bw.Write(shoot.stander);
 
                     _bw.Write(shoot.damage);
-
-                    _bw.Write(shoot.standerPowerChange);
                 }
                 else if(vo is BattleAttackVO)
                 {
@@ -108,8 +100,6 @@ namespace FinalWar
                         _bw.Write(attack.attackers[m]);
 
                         _bw.Write(attack.attackersDamage[m]);
-
-                        _bw.Write(attack.attackersPowerChange[m]);
                     }
 
                     _bw.Write(attack.supporters.Count);
@@ -119,15 +109,11 @@ namespace FinalWar
                         _bw.Write(attack.supporters[m]);
 
                         _bw.Write(attack.supportersDamage[m]);
-
-                        _bw.Write(attack.supportersPowerChange[m]);
                     }
 
                     _bw.Write(attack.defender);
 
                     _bw.Write(attack.defenderDamage);
-
-                    _bw.Write(attack.defenderPowerChange);
                 }
                 else if(vo is BattleDeathVO)
                 {
@@ -140,17 +126,6 @@ namespace FinalWar
                     for(int m = 0; m < death.deads.Count; m++)
                     {
                         _bw.Write(death.deads[m]);
-                    }
-
-                    _bw.Write(death.powerChange.Count);
-
-                    Dictionary<int, int>.Enumerator enumerator = death.powerChange.GetEnumerator();
-
-                    while (enumerator.MoveNext())
-                    {
-                        _bw.Write(enumerator.Current.Key);
-
-                        _bw.Write(enumerator.Current.Value);
                     }
                 }
                 else if(vo is BattlePowerChangeVO)
@@ -220,28 +195,20 @@ namespace FinalWar
 
                         List<int> attackers = new List<int>();
 
-                        List<int> attackersPowerChange = new List<int>();
-
                         int attackerNum = _br.ReadInt32();
 
                         for(int m = 0; m < attackerNum; m++)
                         {
                             int rusher = _br.ReadInt32();
 
-                            int powerChange = _br.ReadInt32();
-
                             attackers.Add(rusher);
-
-                            attackersPowerChange.Add(powerChange);
                         }
 
                         int stander = _br.ReadInt32();
 
                         int damage = _br.ReadInt32();
 
-                        int standerPowerChange = _br.ReadInt32();
-
-                        result.Add(new BattleRushVO(attackers, stander, damage, attackersPowerChange, standerPowerChange));
+                        result.Add(new BattleRushVO(attackers, stander, damage));
 
                         break;
 
@@ -249,28 +216,20 @@ namespace FinalWar
 
                         List<int> shooters = new List<int>();
 
-                        List<int> shootersPowerChange = new List<int>();
-
                         int shooterNum = _br.ReadInt32();
 
                         for (int m = 0; m < shooterNum; m++)
                         {
                             int shooter = _br.ReadInt32();
 
-                            int powerChange = _br.ReadInt32();
-
                             shooters.Add(shooter);
-
-                            shootersPowerChange.Add(powerChange);
                         }
 
                         stander = _br.ReadInt32();
 
                         damage = _br.ReadInt32();
 
-                        standerPowerChange = _br.ReadInt32();
-
-                        result.Add(new BattleShootVO(shooters, stander, damage, shootersPowerChange, standerPowerChange));
+                        result.Add(new BattleShootVO(shooters, stander, damage));
 
                         break;
 
@@ -280,13 +239,9 @@ namespace FinalWar
 
                         List<int> attackersDamage = new List<int>();
 
-                        attackersPowerChange = new List<int>();
-
                         List<int> supporters = new List<int>();
 
                         List<int> supportersDamage = new List<int>();
-
-                        List<int> supportersPowerChange = new List<int>();
 
                         attackerNum = _br.ReadInt32();
 
@@ -296,13 +251,9 @@ namespace FinalWar
 
                             int attackerDamage = _br.ReadInt32();
 
-                            int attackerPowerChange = _br.ReadInt32();
-
                             attackers.Add(pos);
 
                             attackersDamage.Add(attackerDamage);
-
-                            attackersPowerChange.Add(attackerPowerChange);
                         }
 
                         attackerNum = _br.ReadInt32();
@@ -313,30 +264,22 @@ namespace FinalWar
 
                             int supporterDamage = _br.ReadInt32();
 
-                            int supporterPowerChange = _br.ReadInt32();
-
                             supporters.Add(pos);
 
                             supportersDamage.Add(supporterDamage);
-
-                            supportersPowerChange.Add(supporterPowerChange);
                         }
 
                         int defender = _br.ReadInt32();
 
                         int defenderDamage = _br.ReadInt32();
 
-                        int defenderPowerChange = _br.ReadInt32();
-
-                        result.Add(new BattleAttackVO(attackers, supporters, defender, attackersDamage, supportersDamage, defenderDamage, attackersPowerChange, supportersPowerChange, defenderPowerChange));
+                        result.Add(new BattleAttackVO(attackers, supporters, defender, attackersDamage, supportersDamage, defenderDamage));
 
                         break;
 
                     case BattleVOType.DEATH:
 
                         List<int> deads = new List<int>();
-
-                        Dictionary<int, int> deathPowerChange = new Dictionary<int, int>();
 
                         int deadsNum = _br.ReadInt32();
 
@@ -347,18 +290,7 @@ namespace FinalWar
                             deads.Add(deadPos);
                         }
 
-                        int deathPowerChangeNum = _br.ReadInt32();
-
-                        for(int m = 0; m < deathPowerChangeNum; m++)
-                        {
-                            int pos = _br.ReadInt32();
-
-                            int powerChange = _br.ReadInt32();
-
-                            deathPowerChange.Add(pos, powerChange);
-                        }
-
-                        result.Add(new BattleDeathVO(deads, deathPowerChange));
+                        result.Add(new BattleDeathVO(deads));
 
                         break;
 
