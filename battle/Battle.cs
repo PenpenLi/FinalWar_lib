@@ -993,6 +993,8 @@ namespace FinalWar
                     if (isDizz)
                     {
                         RemoveHeroAction(_battleData, hero);
+
+                        hero.action = Hero.HeroAction.NULL;
                     }
 
                     posList.Add(hero.pos);
@@ -1130,6 +1132,8 @@ namespace FinalWar
                         if (isDizz)
                         {
                             RemoveHeroAction(_battleData, hero);
+
+                            hero.action = Hero.HeroAction.NULL;
                         }
 
                         posList.Add(hero.pos);
