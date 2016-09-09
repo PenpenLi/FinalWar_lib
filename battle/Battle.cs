@@ -695,7 +695,7 @@ namespace FinalWar
             {
                 _battleData.actionDic[_pos].stander = hero;
 
-                hero.action = Hero.HeroAction.NULL;
+                hero.SetAction(Hero.HeroAction.NULL);
             }
 
             return heroID;
@@ -726,7 +726,7 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                enumerator.Current.action = Hero.HeroAction.DEFENSE;
+                enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
             }
 
             for(int i = 0; i < shtList.Count; i++)
@@ -735,9 +735,7 @@ namespace FinalWar
 
                 Hero hero = heroMapDic[pair.Key];
 
-                hero.action = Hero.HeroAction.SHOOT;
-
-                hero.actionTarget = pair.Value;
+                hero.SetAction(Hero.HeroAction.SHOOT, pair.Value);
 
                 BattleCellData cellData;
 
@@ -766,9 +764,7 @@ namespace FinalWar
 
                 Hero hero = heroMapDic[pair.Key];
 
-                hero.action = Hero.HeroAction.ATTACK;
-
-                hero.actionTarget = pair.Value;
+                hero.SetAction(Hero.HeroAction.ATTACK, pair.Value);
 
                 BattleCellData cellData;
 
@@ -797,9 +793,7 @@ namespace FinalWar
 
                 Hero hero = heroMapDic[pair.Key];
 
-                hero.action = Hero.HeroAction.SUPPORT;
-
-                hero.actionTarget = pair.Value;
+                hero.SetAction(Hero.HeroAction.SUPPORT, pair.Value);
 
                 BattleCellData cellData;
 
@@ -899,7 +893,7 @@ namespace FinalWar
                     {
                         Hero shooter = cellData.shooters[i];
 
-                        shooter.action = Hero.HeroAction.NULL;
+                        shooter.SetAction(Hero.HeroAction.NULL);
 
                         shooters.Add(shooter.pos);
 
@@ -907,7 +901,7 @@ namespace FinalWar
 
                         damage += tmpDamage;
 
-                        int shooterPowerChange = shooter.Shoot(tmpDamage);
+                        int shooterPowerChange = shooter.Shoot();
 
                         if (shooterPowerChange != 0)
                         {
@@ -924,7 +918,7 @@ namespace FinalWar
                         BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, damage);
                     }
 
-                    int powerChange = cellData.stander.BeShoot(damage);
+                    int powerChange = cellData.stander.BeShoot(cellData.shooters.Count);
 
                     if (powerChange != 0)
                     {
@@ -990,7 +984,7 @@ namespace FinalWar
                     {
                         RemoveHeroAction(_battleData, hero);
 
-                        hero.action = Hero.HeroAction.NULL;
+                        hero.SetAction(Hero.HeroAction.NULL);
                     }
 
                     posList.Add(hero.pos);
@@ -1034,7 +1028,7 @@ namespace FinalWar
                         {
                             Hero attacker = cellData.attackers[i];
 
-                            attacker.action = Hero.HeroAction.ATTACKOVER;
+                            attacker.SetAction(Hero.HeroAction.ATTACKOVER);
 
                             attackers.Add(attacker.pos);
 
@@ -1042,7 +1036,7 @@ namespace FinalWar
 
                             damage += tmpDamage;
 
-                            int powerChange = attacker.Rush(tmpDamage);
+                            int powerChange = attacker.Rush();
 
                             if (powerChange != 0)
                             {
@@ -1063,7 +1057,7 @@ namespace FinalWar
                             BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, damage);
                         }
 
-                        int standerPowerChange = cellData.stander.BeRush(damage);
+                        int standerPowerChange = cellData.stander.BeRush(cellData.attackers.Count);
 
                         if (standerPowerChange != 0)
                         {
@@ -1129,7 +1123,7 @@ namespace FinalWar
                         {
                             RemoveHeroAction(_battleData, hero);
 
-                            hero.action = Hero.HeroAction.NULL;
+                            hero.SetAction(Hero.HeroAction.NULL);
                         }
 
                         posList.Add(hero.pos);
@@ -1212,10 +1206,6 @@ namespace FinalWar
                         attackDamage += hero.GetAttackDamage();
                     }
 
-                    int recAttackDamage = attackDamage;
-
-                    int recDefenseDamage = defenseDamage;
-
                     for (int i = 0; i < cellData.attackers.Count; i++)
                     {
                         Hero hero = cellData.attackers[i];
@@ -1236,7 +1226,7 @@ namespace FinalWar
                             attackersDamage.Add(0);
                         }
 
-                        int powerChange = hero.Attack(attackerNum, defenderNum, recAttackDamage, recDefenseDamage);
+                        int powerChange = hero.Attack(attackerNum, defenderNum);
 
                         if (powerChange != 0)
                         {
@@ -1256,7 +1246,7 @@ namespace FinalWar
                             }
                         }
 
-                        int powerChange = cellData.stander.BeAttack(attackerNum, defenderNum, recAttackDamage, recDefenseDamage);
+                        int powerChange = cellData.stander.BeAttack(attackerNum, defenderNum);
 
                         if (powerChange != 0)
                         {
@@ -1284,7 +1274,7 @@ namespace FinalWar
                             supportersDamage.Add(0);
                         }
 
-                        int powerChange = hero.BeAttack(attackerNum, defenderNum, recAttackDamage, recDefenseDamage);
+                        int powerChange = hero.BeAttack(attackerNum, defenderNum);
 
                         if (powerChange != 0)
                         {
@@ -1296,7 +1286,7 @@ namespace FinalWar
                     {
                         if (attackDamage > 0)
                         {
-                            defenderDamage = cellData.stander.BeDamage(ref attackDamage);
+                            defenderDamage = cellData.stander.BeDamage(attackDamage);
 
                             if (defenderDamage > 0)
                             {
@@ -1304,7 +1294,7 @@ namespace FinalWar
                             }
                         }
 
-                        int powerChange = cellData.stander.BeAttack(attackerNum, defenderNum, recAttackDamage, recDefenseDamage);
+                        int powerChange = cellData.stander.BeAttack(attackerNum, defenderNum);
 
                         if (powerChange != 0)
                         {
@@ -1371,7 +1361,7 @@ namespace FinalWar
                     {
                         RemoveHeroAction(_battleData, hero);
 
-                        hero.action = Hero.HeroAction.NULL;
+                        hero.SetAction(Hero.HeroAction.NULL);
                     }
 
                     posList.Add(hero.pos);

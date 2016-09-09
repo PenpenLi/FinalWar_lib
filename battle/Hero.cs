@@ -12,6 +12,15 @@
             NULL
         }
 
+        private static readonly int[] HeroActionPower = new int[]
+        {
+            60,
+            60,
+            40,
+            40,
+            20
+        };
+
         public bool isMine;
 
         public IHeroSDS sds;
@@ -20,9 +29,9 @@
         public int nowHp { get; private set; }
         public int nowPower { get; private set; }
 
-        internal HeroAction action;
+        internal HeroAction action { get; private set; }
 
-        internal int actionTarget;
+        internal int actionTarget { get; private set; }
 
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos)
         {
@@ -42,9 +51,30 @@
             nowPower = _nowPower;
         }
 
+        internal void SetAction(HeroAction _action, int _actionTarget)
+        {
+            action = _action;
+
+            actionTarget = _actionTarget;
+        }
+
+        internal void SetAction(HeroAction _action)
+        {
+            action = _action;
+        }
+
         internal bool HpChange(int _value)
         {
             nowHp += _value;
+
+            if(nowHp > sds.GetHp())
+            {
+                nowHp = sds.GetHp();
+            }
+            else if(nowHp < 0)
+            {
+                nowHp = 0;
+            }
 
             return nowHp < 1;
         }
@@ -53,7 +83,30 @@
         {
             nowPower += _value;
 
-            return false;
+            if(nowPower > 100)
+            {
+                nowPower = 100;
+            }
+            else if(nowPower < 0)
+            {
+                nowPower = 0;
+            }
+
+            if(action != HeroAction.NULL)
+            {
+                if(nowPower < HeroActionPower[(int)action])
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
 
         internal int GetShootDamage()
@@ -101,31 +154,31 @@
             return tmpDamage;
         }
 
-        internal int Shoot(int _damage)
+        internal int Shoot()
         {
             return 0;
         }
 
-        internal int BeShoot(int _damage)
+        internal int BeShoot(int _shooterNum)
         {
             return 0;
         }
-        internal int Rush(int _damage)
-        {
-            return 0;
-        }
-
-        internal int BeRush(int _damage)
+        internal int Rush()
         {
             return 0;
         }
 
-        internal int Attack(int _attackerNum, int _defenderNum, int _attackDamage, int _defenseDamage)
+        internal int BeRush(int _rusherNum)
         {
             return 0;
         }
 
-        internal int BeAttack(int _attackerNum, int _defenderNum, int _attackDamage, int _defenseDamage)
+        internal int Attack(int _attackerNum, int _defenderNum)
+        {
+            return 0;
+        }
+
+        internal int BeAttack(int _attackerNum, int _defenderNum)
         {
             return 0;
         }
