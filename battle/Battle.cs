@@ -1369,13 +1369,20 @@ namespace FinalWar
 
                     Hero hero = pair.Key;
 
-                    hero.PowerChange(pair.Value);
+                    bool isDizz = hero.PowerChange(pair.Value);
+
+                    if (isDizz)
+                    {
+                        RemoveHeroAction(_battleData, hero);
+
+                        hero.action = Hero.HeroAction.NULL;
+                    }
 
                     posList.Add(hero.pos);
 
                     powerChangeList.Add(pair.Value);
 
-                    isDizzList.Add(false);
+                    isDizzList.Add(isDizz);
                 }
 
                 _voList.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
