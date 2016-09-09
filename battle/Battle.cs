@@ -694,8 +694,6 @@ namespace FinalWar
             if (_battleData.actionDic.ContainsKey(_pos))
             {
                 _battleData.actionDic[_pos].stander = hero;
-
-                hero.SetAction(Hero.HeroAction.NULL);
             }
 
             return heroID;

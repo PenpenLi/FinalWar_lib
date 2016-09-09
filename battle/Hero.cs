@@ -40,6 +40,8 @@
             pos = _pos;
             nowHp = sds.GetHp();
             nowPower = sds.GetPower();
+
+            action = HeroAction.NULL;
         }
 
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowPower)
@@ -49,6 +51,8 @@
             pos = _pos;
             nowHp = _nowHp;
             nowPower = _nowPower;
+
+            action = HeroAction.NULL;
         }
 
         internal void SetAction(HeroAction _action, int _actionTarget)
