@@ -567,10 +567,6 @@ namespace FinalWar
             if (mOver && oOver)
             {
                 ServerStartBattle();
-
-                //ServerRefreshData(true);
-
-                //ServerRefreshData(false);
             }
         }
 
@@ -600,17 +596,17 @@ namespace FinalWar
 
             action.Clear();
 
-            DoShootAction(battleData, voList);
+            ServerDoShoot(battleData, voList);
 
-            DoSummonAction(battleData, voList);
+            ServerDoSummon(battleData, voList);
 
             summon.Clear();
 
-            DoRushAction(battleData, voList);
+            ServerDoRush(battleData, voList);
 
-            DoAttackAction(battleData, voList);
+            ServerDoAttack(battleData, voList);
 
-            DoMoveAction(battleData, voList);
+            ServerDoMove(battleData, voList);
 
             byte[] bytes;
 
@@ -647,7 +643,7 @@ namespace FinalWar
             RecoverOver();
         }
 
-        private void DoSummonAction(BattleData _battleData, List<ValueType> _voList)
+        private void ServerDoSummon(BattleData _battleData, List<ValueType> _voList)
         {
             Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
@@ -879,7 +875,7 @@ namespace FinalWar
             }
         }
 
-        private void DoShootAction(BattleData _battleData, List<ValueType> _voList)
+        private void ServerDoShoot(BattleData _battleData, List<ValueType> _voList)
         {
             Dictionary<Hero, int> damageDic = null;
 
@@ -951,9 +947,9 @@ namespace FinalWar
 
                     Hero hero = pair.Key;
 
-                    hero.HpChange(-pair.Value);
+                    bool isDie = hero.HpChange(-pair.Value);
 
-                    if (hero.nowHp < 1)
+                    if (isDie)
                     {
                         if (diePos == null)
                         {
@@ -1008,7 +1004,7 @@ namespace FinalWar
             }
         }
 
-        private void DoRushAction(BattleData _battleData, List<ValueType> _voList)
+        private void ServerDoRush(BattleData _battleData, List<ValueType> _voList)
         {
             while (true)
             {
@@ -1090,9 +1086,9 @@ namespace FinalWar
 
                         Hero hero = pair.Key;
 
-                        hero.HpChange(-pair.Value);
+                        bool isDie = hero.HpChange(-pair.Value);
 
-                        if (hero.nowHp < 1)
+                        if (isDie)
                         {
                             if (diePos == null)
                             {
@@ -1153,7 +1149,7 @@ namespace FinalWar
             }
         }
 
-        private void DoAttackAction(BattleData _battleData, List<ValueType> _voList)
+        private void ServerDoAttack(BattleData _battleData, List<ValueType> _voList)
         {
             Dictionary<Hero, int> damageDic = null;
 
@@ -1332,9 +1328,9 @@ namespace FinalWar
 
                     Hero hero = pair.Key;
 
-                    hero.HpChange(-pair.Value);
+                    bool isDie = hero.HpChange(-pair.Value);
 
-                    if (hero.nowHp < 1)
+                    if (isDie)
                     {
                         if (diePos == null)
                         {
@@ -1389,7 +1385,7 @@ namespace FinalWar
             }
         }
 
-        private void DoMoveAction(BattleData _battleData, List<ValueType> _voList)
+        private void ServerDoMove(BattleData _battleData, List<ValueType> _voList)
         {
             Dictionary<Hero, int> powerChangeDic = null;
 

@@ -42,9 +42,11 @@
             nowPower = _nowPower;
         }
 
-        internal void HpChange(int _value)
+        internal bool HpChange(int _value)
         {
             nowHp += _value;
+
+            return nowHp < 1;
         }
 
         internal bool PowerChange(int _value)
