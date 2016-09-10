@@ -740,6 +740,11 @@ namespace FinalWar
 
                 Hero hero = heroMapDic[pair.Key];
 
+                if(hero.nowPower < Hero.HeroActionPower[(int)Hero.HeroAction.SHOOT])
+                {
+                    continue;
+                }
+
                 hero.SetAction(Hero.HeroAction.SHOOT, pair.Value);
 
                 BattleCellData cellData;
@@ -769,6 +774,11 @@ namespace FinalWar
 
                 Hero hero = heroMapDic[pair.Key];
 
+                if (hero.nowPower < Hero.HeroActionPower[(int)Hero.HeroAction.ATTACK])
+                {
+                    continue;
+                }
+
                 hero.SetAction(Hero.HeroAction.ATTACK, pair.Value);
 
                 BattleCellData cellData;
@@ -797,6 +807,11 @@ namespace FinalWar
                 KeyValuePair<int, int> pair = supList[i];
 
                 Hero hero = heroMapDic[pair.Key];
+
+                if (hero.nowPower < Hero.HeroActionPower[(int)Hero.HeroAction.SUPPORT])
+                {
+                    continue;
+                }
 
                 hero.SetAction(Hero.HeroAction.SUPPORT, pair.Value);
 
