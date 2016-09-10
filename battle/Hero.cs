@@ -12,7 +12,7 @@
             NULL
         }
 
-        public static readonly int[] HeroActionPower = new int[]
+        private static readonly int[] HeroActionPower = new int[]
         {
             60,
             60,
@@ -200,7 +200,19 @@
 
         internal int RecoverPower()
         {
-            return 0;
+            return 10;
+        }
+
+        internal bool CheckCanDoAction(HeroAction _action)
+        {
+            if(nowPower < HeroActionPower[(int)_action])
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }

@@ -432,9 +432,54 @@ namespace FinalWar
             summon.Remove(_cardUid);
         }
 
-        public void ClientRequestAction(int _pos, int _targetPos)
+        public bool ClientRequestAction(int _pos, int _targetPos)
         {
-            action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+            Hero hero = heroMapDic[_pos];
+
+            bool b = mapData.dic[_targetPos] != mapBelongDic.ContainsKey(_targetPos);
+
+            List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+
+            if (tmpList.Contains(_targetPos))
+            {
+                if(b == hero.isMine)
+                {
+                    if (hero.CheckCanDoAction(Hero.HeroAction.SUPPORT))
+                    {
+                        action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+
+                        return true;
+                    }
+                }
+                else
+                {
+                    if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
+                    {
+                        action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                if(b != hero.isMine && heroMapDic.ContainsKey(_targetPos))
+                {
+                    tmpList = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
+
+                    if (tmpList.Contains(_targetPos))
+                    {
+                        if (hero.CheckCanDoAction(Hero.HeroAction.SHOOT))
+                        {
+                            action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         public void ClientRequestUnaction(int _pos)
@@ -724,13 +769,13 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                if(enumerator.Current.nowPower < Hero.HeroActionPower[(int)Hero.HeroAction.DEFENSE])
+                if(enumerator.Current.CheckCanDoAction(Hero.HeroAction.DEFENSE))
                 {
-                    enumerator.Current.SetAction(Hero.HeroAction.NULL);
+                    enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
                 }
                 else
                 {
-                    enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
+                    enumerator.Current.SetAction(Hero.HeroAction.NULL);
                 }
             }
 
@@ -740,7 +785,7 @@ namespace FinalWar
 
                 Hero hero = heroMapDic[pair.Key];
 
-                if(hero.nowPower < Hero.HeroActionPower[(int)Hero.HeroAction.SHOOT])
+                if(!hero.CheckCanDoAction(Hero.HeroAction.SHOOT))
                 {
                     continue;
                 }
@@ -774,7 +819,7 @@ namespace FinalWar
 
                 Hero hero = heroMapDic[pair.Key];
 
-                if (hero.nowPower < Hero.HeroActionPower[(int)Hero.HeroAction.ATTACK])
+                if (!hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
                 {
                     continue;
                 }
@@ -808,7 +853,7 @@ namespace FinalWar
 
                 Hero hero = heroMapDic[pair.Key];
 
-                if (hero.nowPower < Hero.HeroActionPower[(int)Hero.HeroAction.SUPPORT])
+                if (!hero.CheckCanDoAction(Hero.HeroAction.SUPPORT))
                 {
                     continue;
                 }
@@ -1475,6 +1520,11 @@ namespace FinalWar
 
         private void DieHero(BattleData _battleData, Hero _hero, ref Dictionary<Hero, int> _powerChangeDic)
         {
+            if (_powerChangeDic != null && _powerChangeDic.ContainsKey(_hero))
+            {
+                _powerChangeDic.Remove(_hero);
+            }
+
             RemoveHeroAction(_battleData, _hero);
 
             heroMapDic.Remove(_hero.pos);
@@ -1502,7 +1552,6 @@ namespace FinalWar
                     }
                 }
             }
-
         }
 
         private void RemoveHeroAction(BattleData _battleData, Hero _hero)
@@ -1751,6 +1800,10 @@ namespace FinalWar
                 {
                     ClientDoDie((BattleDeathVO)vo);
                 }
+                else if (vo is BattlePowerChangeVO)
+                {
+                    ClientDoPowerChange((BattlePowerChangeVO)vo);
+                }
 
                 yield return vo;
             }
@@ -1867,6 +1920,16 @@ namespace FinalWar
             for(int i = 0; i < _vo.deads.Count; i++)
             {
                 heroMapDic.Remove(_vo.deads[i]);
+            }
+        }
+
+        private void ClientDoPowerChange(BattlePowerChangeVO _vo)
+        {
+            for(int i = 0; i < _vo.pos.Count; i++)
+            {
+                Hero hero = heroMapDic[_vo.pos[i]];
+
+                hero.PowerChange(_vo.powerChange[i]);
             }
         }
 
