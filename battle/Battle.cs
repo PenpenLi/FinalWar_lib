@@ -724,7 +724,14 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
+                if(enumerator.Current.nowPower < Hero.HeroActionPower[(int)Hero.HeroAction.DEFENSE])
+                {
+                    enumerator.Current.SetAction(Hero.HeroAction.NULL);
+                }
+                else
+                {
+                    enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
+                }
             }
 
             for(int i = 0; i < shtList.Count; i++)

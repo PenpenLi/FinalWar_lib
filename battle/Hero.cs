@@ -12,13 +12,14 @@
             NULL
         }
 
-        private static readonly int[] HeroActionPower = new int[]
+        public static readonly int[] HeroActionPower = new int[]
         {
             60,
             60,
             40,
             40,
-            20
+            20,
+            0
         };
 
         public bool isMine;
@@ -96,7 +97,7 @@
                 nowPower = 0;
             }
 
-            if(action != HeroAction.NULL)
+            if(_value < 0 && action != HeroAction.NULL)
             {
                 if(nowPower < HeroActionPower[(int)action])
                 {
