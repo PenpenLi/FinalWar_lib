@@ -43,21 +43,24 @@ public class BattlePublicTools
 
     public static void AccumulationDicData<T>(ref Dictionary<T,int> _dic,T _key,int _data)
     {
-        if (_dic == null)
+        if(_data != 0)
         {
-            _dic = new Dictionary<T, int>();
-
-            _dic.Add(_key, _data);
-        }
-        else
-        {
-            if (_dic.ContainsKey(_key))
+            if (_dic == null)
             {
-                _dic[_key] += _data;
+                _dic = new Dictionary<T, int>();
+
+                _dic.Add(_key, _data);
             }
             else
             {
-                _dic.Add(_key, _data);
+                if (_dic.ContainsKey(_key))
+                {
+                    _dic[_key] += _data;
+                }
+                else
+                {
+                    _dic.Add(_key, _data);
+                }
             }
         }
     }

@@ -34,6 +34,8 @@
 
         internal int actionTarget { get; private set; }
 
+        private bool beDamaged = false;
+
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos)
         {
             isMine = _isMine;
@@ -97,16 +99,9 @@
                 nowPower = 0;
             }
 
-            if(_value < 0 && action != HeroAction.NULL)
+            if(_value < 0 && action != HeroAction.NULL && nowPower < HeroActionPower[(int)action])
             {
-                if(nowPower < HeroActionPower[(int)action])
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return true;
             }
             else
             {
@@ -139,6 +134,12 @@
             {
                 tmpDamage = nowHp;
             }
+            else if (tmpDamage < 1)
+            {
+                tmpDamage = 1;
+            }
+
+            beDamaged = true;
 
             return tmpDamage;
         }
@@ -153,8 +154,14 @@
             {
                 tmpDamage = nowHp;
             }
+            else if (tmpDamage < 1)
+            {
+                tmpDamage = 1;
+            }
 
             _damage -= (int)(tmpDamage * fix);
+
+            beDamaged = true;
 
             return tmpDamage;
         }
@@ -206,7 +213,20 @@
 
         internal int RecoverPower()
         {
-            return 10;
+            int powerChange;
+
+            if (beDamaged)
+            {
+                powerChange = 5;
+
+                beDamaged = false;
+            }
+            else
+            {
+                powerChange = 10;
+            }
+
+            return powerChange;
         }
 
         internal bool CheckCanDoAction(HeroAction _action)

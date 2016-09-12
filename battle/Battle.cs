@@ -991,27 +991,21 @@ namespace FinalWar
 
                         int shooterPowerChange = shooter.Shoot();
 
-                        if (shooterPowerChange != 0)
-                        {
-                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, shooter, shooterPowerChange);
-                        }
+                        BattlePublicTools.AccumulationDicData(ref powerChangeDic, shooter, shooterPowerChange);
                     }
 
                     cellData.shooters.Clear();
 
-                    damage = cellData.stander.BeDamage(damage);
-
-                    if (damage != 0)
+                    if(damage > 0)
                     {
+                        damage = cellData.stander.BeDamage(damage);
+
                         BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, damage);
                     }
 
                     int powerChange = cellData.stander.BeShoot(cellData.shooters.Count);
 
-                    if (powerChange != 0)
-                    {
-                        BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, powerChange);
-                    }
+                    BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, powerChange);
 
                     _voList.Add(new BattleShootVO(shooters, stander, damage));
                 }
@@ -1062,10 +1056,7 @@ namespace FinalWar
 
                             int powerChange = attacker.Rush();
 
-                            if (powerChange != 0)
-                            {
-                                BattlePublicTools.AccumulationDicData(ref powerChangeDic, attacker, powerChange);
-                            }
+                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, attacker, powerChange);
                         }
 
                         List<Hero> tmpList = cellData.attackers;
@@ -1074,19 +1065,16 @@ namespace FinalWar
 
                         cellData.attackOvers = tmpList;
 
-                        damage = cellData.stander.BeDamage(damage);
-
-                        if (damage != 0)
+                        if(damage > 0)
                         {
+                            damage = cellData.stander.BeDamage(damage);
+
                             BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, damage);
                         }
 
                         int standerPowerChange = cellData.stander.BeRush(cellData.attackers.Count);
 
-                        if (standerPowerChange != 0)
-                        {
-                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, standerPowerChange);
-                        }
+                        BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, standerPowerChange);
 
                         _voList.Add(new BattleRushVO(attackers, stander, damage));
                     }
@@ -1174,10 +1162,7 @@ namespace FinalWar
                         {
                             int tmpDamage = hero.BeDamage(ref defenseDamage);
 
-                            if (tmpDamage > 0)
-                            {
-                                BattlePublicTools.AccumulationDicData(ref damageDic, hero, tmpDamage);
-                            }
+                            BattlePublicTools.AccumulationDicData(ref damageDic, hero, tmpDamage);
 
                             attackersDamage.Add(tmpDamage);
                         }
@@ -1188,10 +1173,7 @@ namespace FinalWar
 
                         int powerChange = hero.Attack(attackerNum, defenderNum);
 
-                        if (powerChange != 0)
-                        {
-                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, hero, powerChange);
-                        }
+                        BattlePublicTools.AccumulationDicData(ref powerChangeDic, hero, powerChange);
                     }
 
                     if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
@@ -1200,18 +1182,12 @@ namespace FinalWar
                         {
                             defenderDamage = cellData.stander.BeDamage(ref attackDamage);
 
-                            if (defenderDamage > 0)
-                            {
-                                BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, defenderDamage);
-                            }
+                            BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, defenderDamage);
                         }
 
                         int powerChange = cellData.stander.BeAttack(attackerNum, defenderNum);
 
-                        if (powerChange != 0)
-                        {
-                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, powerChange);
-                        }
+                        BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, powerChange);
                     }
 
                     for (int i = 0; i < cellData.supporters.Count; i++)
@@ -1222,10 +1198,7 @@ namespace FinalWar
                         {
                             int tmpDamage = hero.BeDamage(ref attackDamage);
 
-                            if (tmpDamage > 0)
-                            {
-                                BattlePublicTools.AccumulationDicData(ref damageDic, hero, tmpDamage);
-                            }
+                            BattlePublicTools.AccumulationDicData(ref damageDic, hero, tmpDamage);
 
                             supportersDamage.Add(tmpDamage);
                         }
@@ -1236,10 +1209,7 @@ namespace FinalWar
 
                         int powerChange = hero.BeAttack(attackerNum, defenderNum);
 
-                        if (powerChange != 0)
-                        {
-                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, hero, powerChange);
-                        }
+                        BattlePublicTools.AccumulationDicData(ref powerChangeDic, hero, powerChange);
                     }
 
                     if (cellData.stander != null && cellData.stander.action != Hero.HeroAction.DEFENSE)
@@ -1248,18 +1218,12 @@ namespace FinalWar
                         {
                             defenderDamage = cellData.stander.BeDamage(attackDamage);
 
-                            if (defenderDamage > 0)
-                            {
-                                BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, defenderDamage);
-                            }
+                            BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, defenderDamage);
                         }
 
                         int powerChange = cellData.stander.BeAttack(attackerNum, defenderNum);
 
-                        if (powerChange != 0)
-                        {
-                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, powerChange);
-                        }
+                        BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, powerChange);
                     }
 
                     _voList.Add(new BattleAttackVO(attackers, supporters, enumerator.Current.Key, attackersDamage, supportersDamage, defenderDamage));
@@ -1314,10 +1278,7 @@ namespace FinalWar
 
                 int powerChange = hero.RecoverPower();
 
-                if (powerChange != 0)
-                {
-                    BattlePublicTools.AccumulationDicData(ref powerChangeDic, hero, powerChange);
-                }
+                BattlePublicTools.AccumulationDicData(ref powerChangeDic, hero, powerChange);
             }
 
             ProcessPowerChangeDic(powerChangeDic, _voList, false);
@@ -1444,10 +1405,7 @@ namespace FinalWar
 
                             int powerChange = tmpHero.MapBelongChange(tmpHero.isMine ? b : !b);
 
-                            if (powerChange != 0)
-                            {
-                                BattlePublicTools.AccumulationDicData(ref _powerChangeDic, tmpHero, powerChange);
-                            }
+                            BattlePublicTools.AccumulationDicData(ref _powerChangeDic, tmpHero, powerChange);
                         }
                     }
 
