@@ -230,7 +230,7 @@ namespace FinalWar
                         {
                             int pos = enumerator4.Current.Key;
 
-                            if ((mapData.dic[pos] == _isMine) == !mapBelongDic.ContainsKey(pos))
+                            if ((mapData.dic[pos] == _isMine) != mapBelongDic.ContainsKey(pos))
                             {
                                 num++;
 
@@ -255,7 +255,7 @@ namespace FinalWar
                         {
                             int pos = action[i].Key;
 
-                            if ((mapData.dic[pos] == _isMine) == !mapBelongDic.ContainsKey(pos))
+                            if ((mapData.dic[pos] == _isMine) != mapBelongDic.ContainsKey(pos))
                             {
                                 num++;
 
@@ -589,7 +589,7 @@ namespace FinalWar
 
                 int pos = _br.ReadInt32();
 
-                if (cards.ContainsKey(uid) && (mapData.dic[pos] == _isMine) == !mapBelongDic.ContainsKey(pos))
+                if (cards.ContainsKey(uid) && (mapData.dic[pos] == _isMine) != mapBelongDic.ContainsKey(pos))
                 {
                     summon.Add(uid, pos);
                 }
@@ -690,6 +690,8 @@ namespace FinalWar
 
         private void ServerDoSummon(BattleData _battleData, List<ValueType> _voList)
         {
+            Dictionary<Hero, int> powerChangeDic = null;
+
             Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
             while (enumerator.MoveNext())
@@ -698,19 +700,40 @@ namespace FinalWar
 
                 int pos = enumerator.Current.Value;
 
-                int heroID = SummonOneUnit(tmpCardUid, pos, _battleData);
+                bool isMine = mapData.dic[pos] != mapBelongDic.ContainsKey(pos);
+
+                int heroID = SummonOneUnit(tmpCardUid, pos, isMine, _battleData);
 
                 _voList.Add(new BattleSummonVO(tmpCardUid, heroID, pos));
+
+                List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, pos);
+
+                for (int i = 0; i < posList.Count; i++)
+                {
+                    pos = posList[i];
+
+                    if (heroMapDic.ContainsKey(pos))
+                    {
+                        Hero hero = heroMapDic[pos];
+
+                        if (hero.isMine == isMine)
+                        {
+                            int powerChange = hero.SummonHero();
+
+                            BattlePublicTools.AccumulationDicData(ref powerChangeDic, hero, powerChange);
+                        }
+                    }
+                }
             }
+
+            ProcessPowerChangeDic(powerChangeDic, _voList, true);
         }
 
-        private int SummonOneUnit(int _uid, int _pos, BattleData _battleData)
+        private int SummonOneUnit(int _uid, int _pos, bool _isMine, BattleData _battleData)
         {
-            bool isMine = mapData.dic[_pos] == !mapBelongDic.ContainsKey(_pos);
-            
             int heroID;
 
-            if (isMine)
+            if (_isMine)
             {
                 heroID = mHandCards[_uid];
             }
@@ -721,7 +744,7 @@ namespace FinalWar
 
             IHeroSDS sds = heroDataDic[heroID];
 
-            if (isMine)
+            if (_isMine)
             {
                 mMoney -= sds.GetCost();
 
@@ -734,7 +757,7 @@ namespace FinalWar
                 oHandCards.Remove(_uid);
             }
 
-            Hero hero = AddHero(isMine, sds, _pos);
+            Hero hero = AddHero(_isMine, sds, _pos);
 
             if (_battleData.actionDic.ContainsKey(_pos))
             {
@@ -886,9 +909,9 @@ namespace FinalWar
 
         private void GetOneUnitAction(int _pos, int _targetPos, List<KeyValuePair<int, int>> _shtList, List<KeyValuePair<int, int>> _atkList, List<KeyValuePair<int, int>> _supList, Dictionary<int, int> _supDic)
         {
-            bool posIsMine = mapData.dic[_pos] == !mapBelongDic.ContainsKey(_pos);
+            bool posIsMine = mapData.dic[_pos] != mapBelongDic.ContainsKey(_pos);
 
-            bool targetPosIsMine = mapData.dic[_targetPos] == !mapBelongDic.ContainsKey(_targetPos);
+            bool targetPosIsMine = mapData.dic[_targetPos] != mapBelongDic.ContainsKey(_targetPos);
 
             List<int> arr = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
 
@@ -994,73 +1017,9 @@ namespace FinalWar
                 }
             }
 
-            if (damageDic != null)
-            {
-                List<int> diePos = null;
+            ProcessDamageDic(_battleData, damageDic, ref powerChangeDic, _voList);
 
-                Dictionary<Hero, int>.Enumerator enumerator3 = damageDic.GetEnumerator();
-
-                while (enumerator3.MoveNext())
-                {
-                    KeyValuePair<Hero, int> pair = enumerator3.Current;
-
-                    Hero hero = pair.Key;
-
-                    bool isDie = hero.HpChange(-pair.Value);
-
-                    if (isDie)
-                    {
-                        if (diePos == null)
-                        {
-                            diePos = new List<int>();
-                        }
-
-                        diePos.Add(hero.pos);
-
-                        DieHero(_battleData, hero, ref powerChangeDic);
-                    }
-                }
-
-                if (diePos != null)
-                {
-                    _voList.Add(new BattleDeathVO(diePos));
-                }
-            }
-
-            if (powerChangeDic != null)
-            {
-                List<int> posList = new List<int>();
-
-                List<int> powerChangeList = new List<int>();
-
-                List<bool> isDizzList = new List<bool>();
-
-                Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
-
-                while (enumerator3.MoveNext())
-                {
-                    KeyValuePair<Hero, int> pair = enumerator3.Current;
-
-                    Hero hero = pair.Key;
-
-                    bool isDizz = hero.PowerChange(pair.Value);
-
-                    if (isDizz)
-                    {
-                        RemoveHeroAction(_battleData, hero);
-
-                        hero.SetAction(Hero.HeroAction.NULL);
-                    }
-
-                    posList.Add(hero.pos);
-
-                    powerChangeList.Add(pair.Value);
-
-                    isDizzList.Add(isDizz);
-                }
-
-                _voList.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
-            }
+            ProcessPowerChangeDic(powerChangeDic, _voList, true);
         }
 
         private void ServerDoRush(BattleData _battleData, List<ValueType> _voList)
@@ -1133,73 +1092,9 @@ namespace FinalWar
                     }
                 }
 
-                if (damageDic != null)
-                {
-                    List<int> diePos = null;
+                ProcessDamageDic(_battleData, damageDic, ref powerChangeDic, _voList);
 
-                    Dictionary<Hero, int>.Enumerator enumerator3 = damageDic.GetEnumerator();
-
-                    while (enumerator3.MoveNext())
-                    {
-                        KeyValuePair<Hero, int> pair = enumerator3.Current;
-
-                        Hero hero = pair.Key;
-
-                        bool isDie = hero.HpChange(-pair.Value);
-
-                        if (isDie)
-                        {
-                            if (diePos == null)
-                            {
-                                diePos = new List<int>();
-                            }
-
-                            diePos.Add(hero.pos);
-
-                            DieHero(_battleData, hero, ref powerChangeDic);
-                        }
-                    }
-
-                    if (diePos != null)
-                    {
-                        _voList.Add(new BattleDeathVO(diePos));
-                    }
-                }
-
-                if (powerChangeDic != null)
-                {
-                    List<int> posList = new List<int>();
-
-                    List<int> powerChangeList = new List<int>();
-
-                    List<bool> isDizzList = new List<bool>();
-
-                    Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
-
-                    while (enumerator3.MoveNext())
-                    {
-                        KeyValuePair<Hero, int> pair = enumerator3.Current;
-
-                        Hero hero = pair.Key;
-
-                        bool isDizz = hero.PowerChange(pair.Value);
-
-                        if (isDizz)
-                        {
-                            RemoveHeroAction(_battleData, hero);
-
-                            hero.SetAction(Hero.HeroAction.NULL);
-                        }
-
-                        posList.Add(hero.pos);
-
-                        powerChangeList.Add(pair.Value);
-
-                        isDizzList.Add(isDizz);
-                    }
-
-                    _voList.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
-                }
+                ProcessPowerChangeDic(powerChangeDic, _voList, true);
 
                 if (quit)
                 {
@@ -1371,73 +1266,9 @@ namespace FinalWar
                 }
             }
 
-            if (damageDic != null)
-            {
-                List<int> diePos = null;
+            ProcessDamageDic(_battleData, damageDic, ref powerChangeDic, _voList);
 
-                Dictionary<Hero, int>.Enumerator enumerator3 = damageDic.GetEnumerator();
-
-                while (enumerator3.MoveNext())
-                {
-                    KeyValuePair<Hero, int> pair = enumerator3.Current;
-
-                    Hero hero = pair.Key;
-
-                    bool isDie = hero.HpChange(-pair.Value);
-
-                    if (isDie)
-                    {
-                        if (diePos == null)
-                        {
-                            diePos = new List<int>();
-                        }
-
-                        diePos.Add(hero.pos);
-
-                        DieHero(_battleData, hero, ref powerChangeDic);
-                    }
-                }
-
-                if (diePos != null)
-                {
-                    _voList.Add(new BattleDeathVO(diePos));
-                }
-            }
-
-            if (powerChangeDic != null)
-            {
-                List<int> posList = new List<int>();
-
-                List<int> powerChangeList = new List<int>();
-
-                List<bool> isDizzList = new List<bool>();
-
-                Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
-
-                while (enumerator3.MoveNext())
-                {
-                    KeyValuePair<Hero, int> pair = enumerator3.Current;
-
-                    Hero hero = pair.Key;
-
-                    bool isDizz = hero.PowerChange(pair.Value);
-
-                    if (isDizz)
-                    {
-                        RemoveHeroAction(_battleData, hero);
-
-                        hero.SetAction(Hero.HeroAction.NULL);
-                    }
-
-                    posList.Add(hero.pos);
-
-                    powerChangeList.Add(pair.Value);
-
-                    isDizzList.Add(isDizz);
-                }
-
-                _voList.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
-            }
+            ProcessPowerChangeDic(powerChangeDic, _voList, true);
         }
 
         private void ServerDoMove(BattleData _battleData, List<ValueType> _voList)
@@ -1489,33 +1320,7 @@ namespace FinalWar
                 }
             }
 
-            if (powerChangeDic != null)
-            {
-                List<int> posList = new List<int>();
-
-                List<int> powerChangeList = new List<int>();
-
-                List<bool> isDizzList = new List<bool>();
-
-                Dictionary<Hero, int>.Enumerator enumerator3 = powerChangeDic.GetEnumerator();
-
-                while (enumerator3.MoveNext())
-                {
-                    KeyValuePair<Hero, int> pair = enumerator3.Current;
-
-                    Hero hero = pair.Key;
-
-                    hero.PowerChange(pair.Value);
-
-                    posList.Add(hero.pos);
-
-                    powerChangeList.Add(pair.Value);
-
-                    isDizzList.Add(false);
-                }
-
-                _voList.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
-            }
+            ProcessPowerChangeDic(powerChangeDic, _voList, false);
         }
 
         private void DieHero(BattleData _battleData, Hero _hero, ref Dictionary<Hero, int> _powerChangeDic)
@@ -1759,6 +1564,95 @@ namespace FinalWar
             return result;
         }
 
+        private void ProcessDamageDic(BattleData _battleData, Dictionary<Hero,int> _damageDic, ref Dictionary<Hero,int> _powerChangeDic, List<ValueType> _voList)
+        {
+            if (_damageDic != null)
+            {
+                List<int> diePos = null;
+
+                Dictionary<Hero, int>.Enumerator enumerator3 = _damageDic.GetEnumerator();
+
+                while (enumerator3.MoveNext())
+                {
+                    KeyValuePair<Hero, int> pair = enumerator3.Current;
+
+                    Hero hero = pair.Key;
+
+                    bool isDie = hero.HpChange(-pair.Value);
+
+                    if (isDie)
+                    {
+                        if (diePos == null)
+                        {
+                            diePos = new List<int>();
+                        }
+
+                        diePos.Add(hero.pos);
+
+                        DieHero(_battleData, hero, ref _powerChangeDic);
+                    }
+                }
+
+                if (diePos != null)
+                {
+                    _voList.Add(new BattleDeathVO(diePos));
+                }
+            }
+        }
+
+        private void ProcessPowerChangeDic(Dictionary<Hero,int> _powerChangeDic, List<ValueType> _voList, bool _checkDizz)
+        {
+            if (_powerChangeDic != null)
+            {
+                List<int> posList = new List<int>();
+
+                List<int> powerChangeList = new List<int>();
+
+                List<bool> isDizzList = new List<bool>();
+
+                Dictionary<Hero, int>.Enumerator enumerator3 = _powerChangeDic.GetEnumerator();
+
+                while (enumerator3.MoveNext())
+                {
+                    KeyValuePair<Hero, int> pair = enumerator3.Current;
+
+                    Hero hero = pair.Key;
+
+                    posList.Add(hero.pos);
+
+                    powerChangeList.Add(pair.Value);
+
+                    if (_checkDizz)
+                    {
+                        bool isDizz = hero.PowerChange(pair.Value);
+
+                        isDizzList.Add(isDizz);
+                    }
+                    else
+                    {
+                        hero.PowerChange(pair.Value);
+
+                        isDizzList.Add(false);
+                    }
+                }
+
+                _voList.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         private void ClientDoAction(BinaryReader _br)
         {
             summon.Clear();
@@ -1813,7 +1707,7 @@ namespace FinalWar
 
         private void ClientDoSummon(BattleSummonVO _vo)
         {
-            bool isMine = mapData.dic[_vo.pos] == !mapBelongDic.ContainsKey(_vo.pos);
+            bool isMine = mapData.dic[_vo.pos] != mapBelongDic.ContainsKey(_vo.pos);
 
             IHeroSDS sds = heroDataDic[_vo.heroID];
 
@@ -1861,7 +1755,7 @@ namespace FinalWar
 
                 hero.pos = nowPos;
 
-                bool isMine = mapData.dic[nowPos] == !mapBelongDic.ContainsKey(nowPos);
+                bool isMine = mapData.dic[nowPos] != mapBelongDic.ContainsKey(nowPos);
 
                 if (isMine != hero.isMine)
                 {

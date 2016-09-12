@@ -168,6 +168,12 @@
         {
             return 0;
         }
+
+        internal int SummonHero()
+        {
+            return 0;
+        }
+
         internal int Rush()
         {
             return 0;
