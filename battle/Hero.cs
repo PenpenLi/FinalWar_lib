@@ -259,12 +259,38 @@ namespace FinalWar
 
         internal int Attack(int _attackerNum, int _defenderNum)
         {
-            return FixPowerChange((_attackerNum - _defenderNum) * 500);
+            int num = _attackerNum - _defenderNum;
+
+            if(num > 0)
+            {
+                return FixPowerChange(num * 400);
+            }
+            else if(num < 0)
+            {
+                return FixPowerChange(num * 500);
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         internal int BeAttack(int _attackerNum, int _defenderNum)
         {
-            return FixPowerChange((_defenderNum - _attackerNum) * 500);
+            int num = _defenderNum - _attackerNum;
+
+            if (num > 0)
+            {
+                return FixPowerChange(num * 400);
+            }
+            else if (num < 0)
+            {
+                return FixPowerChange(num * 500);
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         internal int OtherHeroDie(bool _isMine)
