@@ -994,8 +994,6 @@ namespace FinalWar
                         BattlePublicTools.AccumulationDicData(ref powerChangeDic, shooter, shooterPowerChange);
                     }
 
-                    cellData.shooters.Clear();
-
                     if(damage > 0)
                     {
                         damage = cellData.stander.BeDamage(damage);
@@ -1008,6 +1006,8 @@ namespace FinalWar
                     BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, powerChange);
 
                     _voList.Add(new BattleShootVO(shooters, stander, damage));
+
+                    cellData.shooters.Clear();
                 }
             }
 
@@ -1072,7 +1072,7 @@ namespace FinalWar
                             BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, damage);
                         }
 
-                        int standerPowerChange = cellData.stander.BeRush(cellData.attackers.Count);
+                        int standerPowerChange = cellData.stander.BeRush(cellData.attackOvers.Count);
 
                         BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, standerPowerChange);
 

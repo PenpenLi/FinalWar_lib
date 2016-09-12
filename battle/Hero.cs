@@ -111,9 +111,9 @@ namespace FinalWar
         {
             nowPower += _value;
 
-            if(nowPower > 100)
+            if(nowPower > MAX_POWER)
             {
-                nowPower = 100;
+                nowPower = MAX_POWER;
             }
             else if(nowPower < 0)
             {
@@ -216,17 +216,21 @@ namespace FinalWar
 
             int maxPowerChange;
 
-            if(_powerChange > 0)
+            if (_powerChange > 0)
             {
-                minPowerChange = (int)(_powerChange * (1 - ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
+                int powerChange = (int)(_powerChange * (1 + ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
 
-                maxPowerChange = (int)(_powerChange * (1 + ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
+                minPowerChange = (int)(powerChange * (1 - POWER_FIX_WITH_RANDOM_RANGE));
+
+                maxPowerChange = (int)(powerChange * (1 + POWER_FIX_WITH_RANDOM_RANGE));
             }
             else
             {
-                minPowerChange = (int)(_powerChange * (1 + ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
+                int powerChange = (int)(_powerChange * (1 - ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
 
-                maxPowerChange = (int)(_powerChange * (1 - ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
+                minPowerChange = (int)(powerChange * (1 + POWER_FIX_WITH_RANDOM_RANGE));
+
+                maxPowerChange = (int)(powerChange * (1 - POWER_FIX_WITH_RANDOM_RANGE));
             }
 
             return random.Next(minPowerChange, maxPowerChange);
