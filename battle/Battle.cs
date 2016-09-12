@@ -712,7 +712,7 @@ namespace FinalWar
                 {
                     pos = posList[i];
 
-                    if (heroMapDic.ContainsKey(pos))
+                    if (!summon.ContainsValue(pos) && heroMapDic.ContainsKey(pos))
                     {
                         Hero hero = heroMapDic[pos];
 
@@ -726,7 +726,7 @@ namespace FinalWar
                 }
             }
 
-            ProcessPowerChangeDic(powerChangeDic, _voList, true);
+            ProcessPowerChangeDic(_battleData, powerChangeDic, _voList);
         }
 
         private int SummonOneUnit(int _uid, int _pos, bool _isMine, BattleData _battleData)
@@ -1013,7 +1013,7 @@ namespace FinalWar
 
             ProcessDamageDic(_battleData, damageDic, ref powerChangeDic, _voList);
 
-            ProcessPowerChangeDic(powerChangeDic, _voList, true);
+            ProcessPowerChangeDic(_battleData, powerChangeDic, _voList);
         }
 
         private void ServerDoRush(BattleData _battleData, List<ValueType> _voList)
@@ -1082,7 +1082,7 @@ namespace FinalWar
 
                 ProcessDamageDic(_battleData, damageDic, ref powerChangeDic, _voList);
 
-                ProcessPowerChangeDic(powerChangeDic, _voList, true);
+                ProcessPowerChangeDic(_battleData, powerChangeDic, _voList);
 
                 if (quit)
                 {
@@ -1232,7 +1232,7 @@ namespace FinalWar
 
             ProcessDamageDic(_battleData, damageDic, ref powerChangeDic, _voList);
 
-            ProcessPowerChangeDic(powerChangeDic, _voList, true);
+            ProcessPowerChangeDic(_battleData, powerChangeDic, _voList);
         }
 
         private void ServerDoMove(BattleData _battleData, List<ValueType> _voList)
@@ -1281,7 +1281,7 @@ namespace FinalWar
                 BattlePublicTools.AccumulationDicData(ref powerChangeDic, hero, powerChange);
             }
 
-            ProcessPowerChangeDic(powerChangeDic, _voList, false);
+            ProcessPowerChangeDic(null, powerChangeDic, _voList);
         }
 
         private void DieHero(BattleData _battleData, Hero _hero, ref Dictionary<Hero, int> _powerChangeDic)
@@ -1558,7 +1558,7 @@ namespace FinalWar
             }
         }
 
-        private void ProcessPowerChangeDic(Dictionary<Hero,int> _powerChangeDic, List<ValueType> _voList, bool _checkDizz)
+        private void ProcessPowerChangeDic(BattleData _battleData, Dictionary<Hero,int> _powerChangeDic, List<ValueType> _voList)
         {
             if (_powerChangeDic != null)
             {
@@ -1580,9 +1580,14 @@ namespace FinalWar
 
                     powerChangeList.Add(pair.Value);
 
-                    if (_checkDizz)
+                    if (_battleData != null)
                     {
                         bool isDizz = hero.PowerChange(pair.Value);
+
+                        if (isDizz)
+                        {
+                            RemoveHeroAction(_battleData, hero);
+                        }
 
                         isDizzList.Add(isDizz);
                     }
