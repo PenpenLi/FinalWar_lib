@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace FinalWar
 {
@@ -310,7 +311,7 @@ namespace FinalWar
 
         internal bool CheckCanDoAction(HeroAction _action)
         {
-            if(nowPower < HeroActionPower[(int)_action])
+            if (nowPower < HeroActionPower[(int)_action])
             {
                 return false;
             }
@@ -318,6 +319,30 @@ namespace FinalWar
             {
                 return true;
             }
+        }
+
+        public static int GetPowerLevel(int _nowPower)
+        {
+            int level = 0;
+
+            Dictionary<int, bool> tmpDic = new Dictionary<int, bool>();
+
+            for(int i = 0; i < HeroActionPower.Length; i++)
+            {
+                int data = HeroActionPower[i];
+
+                if(data != 0 && !tmpDic.ContainsKey(data))
+                {
+                    tmpDic.Add(data, true);
+
+                    if(_nowPower > data)
+                    {
+                        level++;
+                    }
+                }
+            }
+
+            return level;
         }
     }
 }
