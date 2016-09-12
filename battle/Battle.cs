@@ -1403,7 +1403,7 @@ namespace FinalWar
                         {
                             Hero tmpHero = enumerator.Current;
 
-                            int powerChange = tmpHero.MapBelongChange(tmpHero.isMine ? b : !b);
+                            int powerChange = tmpHero.MapBelongChange(b);
 
                             BattlePublicTools.AccumulationDicData(ref _powerChangeDic, tmpHero, powerChange);
                         }

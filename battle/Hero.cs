@@ -1,4 +1,6 @@
-﻿namespace FinalWar
+﻿using System;
+
+namespace FinalWar
 {
     public class Hero
     {
@@ -14,13 +16,31 @@
 
         private static readonly int[] HeroActionPower = new int[]
         {
-            60,
-            60,
-            40,
-            40,
-            20,
+            6000,
+            6000,
+            4000,
+            4000,
+            2000,
             0
         };
+
+        private static readonly Random random = new Random();
+
+        private const int MAX_POWER = 10000;
+
+        private const int MAX_DEFENSE = 100;
+
+        private const int MAX_LEADER = 100;
+
+        private const float DEFENSE_FIX = 0.7f;
+
+        private const float DAMAGE_FIX_WITH_POWER_RANGE = 0.3f;
+
+        private const float DAMAGE_FIX_WITH_RANDOM_RANGE = 0.05f;
+
+        private const float POWER_FIX_WITH_LEADER_RANGE = 0.3f;
+
+        private const float POWER_FIX_WITH_RANDOM_RANGE = 0.05f;
 
         public bool isMine;
 
@@ -111,22 +131,40 @@
 
         internal int GetShootDamage()
         {
-            return nowHp * sds.GetShoot();
+            return FixDamageWithPowerAndRandom(sds.GetShoot());
         }
 
         internal int GetAttackDamage()
         {
-            return nowHp * sds.GetAttack();
+            return FixDamageWithPowerAndRandom(sds.GetAttack());
         }
 
         internal int GetCounterDamage()
         {
-            return nowHp * sds.GetCounter();
+            return FixDamageWithPowerAndRandom(sds.GetCounter());
+        }
+
+        private int FixDamageWithPowerAndRandom(int _damage)
+        {
+            int damage = (int)(nowHp * _damage * (1 + ((nowPower * 2 / MAX_POWER) - 1) * DAMAGE_FIX_WITH_POWER_RANGE));
+
+            int minDamage = (int)(damage * (1 - DAMAGE_FIX_WITH_RANDOM_RANGE));
+
+            int maxDamage = (int)(damage * (1 + DAMAGE_FIX_WITH_RANDOM_RANGE));
+
+            damage = random.Next(minDamage, maxDamage);
+
+            if(damage < 1)
+            {
+                damage = 1;
+            }
+
+            return damage;
         }
 
         internal int BeDamage(int _damage)
         {
-            float fix = sds.GetDefense() * 2;
+            float fix = FixDefense();
 
             int tmpDamage = (int)(_damage / fix);
 
@@ -146,7 +184,7 @@
 
         internal int BeDamage(ref int _damage)
         {
-            float fix = sds.GetDefense() * 2;
+            float fix = FixDefense();
 
             int tmpDamage = (int)(_damage / fix);
 
@@ -166,6 +204,33 @@
             return tmpDamage;
         }
 
+        private float FixDefense()
+        {
+            return (int)(sds.GetDefense() * DEFENSE_FIX + MAX_DEFENSE * (1 - DEFENSE_FIX)) * 2;
+        }
+
+        private int FixPowerChange(int _powerChange)
+        {
+            int minPowerChange;
+
+            int maxPowerChange;
+
+            if(_powerChange > 0)
+            {
+                minPowerChange = (int)(_powerChange * (1 - ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
+
+                maxPowerChange = (int)(_powerChange * (1 + ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
+            }
+            else
+            {
+                minPowerChange = (int)(_powerChange * (1 + ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
+
+                maxPowerChange = (int)(_powerChange * (1 - ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
+            }
+
+            return random.Next(minPowerChange, maxPowerChange);
+        }
+
         internal int Shoot()
         {
             return 0;
@@ -173,42 +238,56 @@
 
         internal int BeShoot(int _shooterNum)
         {
-            return 0;
+            return FixPowerChange(-300 * _shooterNum);
         }
 
         internal int SummonHero()
         {
-            return 0;
+            return FixPowerChange(500);
         }
 
         internal int Rush()
         {
-            return 0;
+            return FixPowerChange(1200);
         }
 
         internal int BeRush(int _rusherNum)
         {
-            return 0;
+            return FixPowerChange(-1500 * _rusherNum);
         }
 
         internal int Attack(int _attackerNum, int _defenderNum)
         {
-            return 0;
+            return FixPowerChange((_attackerNum - _defenderNum) * 500);
         }
 
         internal int BeAttack(int _attackerNum, int _defenderNum)
         {
-            return 0;
+            return FixPowerChange((_defenderNum - _attackerNum) * 500);
         }
 
         internal int OtherHeroDie(bool _isMine)
         {
-            return 0;
+            if (isMine == _isMine)
+            {
+                return FixPowerChange(-1000);
+            }
+            else
+            {
+                return FixPowerChange(800);
+            }
         }
 
         internal int MapBelongChange(bool _isMineNow)
         {
-            return 0;
+            if(isMine == _isMineNow)
+            {
+                return FixPowerChange(800);
+            }
+            else
+            {
+                return FixPowerChange(-1000);
+            }
         }
 
         internal int RecoverPower()
@@ -217,13 +296,13 @@
 
             if (beDamaged)
             {
-                powerChange = 5;
+                powerChange = FixPowerChange(300);
 
                 beDamaged = false;
             }
             else
             {
-                powerChange = 10;
+                powerChange = FixPowerChange(600);
             }
 
             return powerChange;
