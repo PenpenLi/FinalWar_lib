@@ -1221,9 +1221,9 @@ namespace FinalWar
                             BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, defenderDamage);
                         }
 
-                        int powerChange = cellData.stander.BeAttack(attackerNum, defenderNum);
+                        //int powerChange = cellData.stander.BeAttack(attackerNum, defenderNum);
 
-                        BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, powerChange);
+                        //BattlePublicTools.AccumulationDicData(ref powerChangeDic, cellData.stander, powerChange);
                     }
 
                     _voList.Add(new BattleAttackVO(attackers, supporters, enumerator.Current.Key, attackersDamage, supportersDamage, defenderDamage));
