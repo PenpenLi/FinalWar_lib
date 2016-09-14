@@ -35,6 +35,8 @@ namespace FinalWar
 
         private const float DEFENSE_FIX = 0.7f;
 
+        private const float DEFENSE_FIX_WITH_POWER_RANGE = 0.2f;
+
         private const float DAMAGE_FIX_WITH_POWER_RANGE = 0.3f;
 
         private const float DAMAGE_FIX_WITH_RANDOM_RANGE = 0.05f;
@@ -207,7 +209,7 @@ namespace FinalWar
 
         private float FixDefense()
         {
-            return (int)(sds.GetDefense() * DEFENSE_FIX + MAX_DEFENSE * (1 - DEFENSE_FIX)) * 2;
+            return (sds.GetDefense() * DEFENSE_FIX + MAX_DEFENSE * (1 - DEFENSE_FIX)) * 2 * (1 + ((nowPower * 2 / MAX_POWER) - 1) * DEFENSE_FIX_WITH_POWER_RANGE);
         }
 
         private int FixPowerChange(int _powerChange)
@@ -313,11 +315,11 @@ namespace FinalWar
         {
             if(isMine == _isMineNow)
             {
-                return FixPowerChange(800);
+                return FixPowerChange(400);
             }
             else
             {
-                return FixPowerChange(-1000);
+                return FixPowerChange(-500);
             }
         }
 
