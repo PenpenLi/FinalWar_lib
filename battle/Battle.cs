@@ -996,7 +996,7 @@ namespace FinalWar
 
                     if(damage > 0)
                     {
-                        damage = cellData.stander.BeDamage(damage);
+                        damage = cellData.stander.BeDamageByShoot(damage);
 
                         BattlePublicTools.AccumulationDicData(ref damageDic, cellData.stander, damage);
                     }

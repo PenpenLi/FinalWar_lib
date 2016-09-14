@@ -45,6 +45,10 @@ namespace FinalWar
 
         private const float POWER_FIX_WITH_RANDOM_RANGE = 0.05f;
 
+        private const float SHOOT_DAMAGE_FIX_WITH_DEFENSE = 0.5f;
+
+        private const float SHOOT_POWER_FIX_WITH_DEFENSE = 0.5f;
+
         public bool isMine;
 
         public IHeroSDS sds;
@@ -165,6 +169,18 @@ namespace FinalWar
             return damage;
         }
 
+        internal int BeDamageByShoot(int _damage)
+        {
+            if(action == HeroAction.DEFENSE)
+            {
+                return BeDamage((int)(_damage * SHOOT_DAMAGE_FIX_WITH_DEFENSE));
+            }
+            else
+            {
+                return BeDamage(_damage);
+            }
+        }
+
         internal int BeDamage(int _damage)
         {
             float fix = FixDefense();
@@ -245,7 +261,14 @@ namespace FinalWar
 
         internal int BeShoot(int _shooterNum)
         {
-            return FixPowerChange(-300 * _shooterNum);
+            if(action == HeroAction.DEFENSE)
+            {
+                return FixPowerChange((int)(-300 * _shooterNum * SHOOT_POWER_FIX_WITH_DEFENSE));
+            }
+            else
+            {
+                return FixPowerChange(-300 * _shooterNum);
+            }
         }
 
         internal int SummonHero()
