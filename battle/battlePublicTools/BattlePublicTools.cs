@@ -41,7 +41,7 @@ public class BattlePublicTools
         return result;
     }
 
-    public static void AccumulationDicData<T>(ref Dictionary<T,int> _dic,T _key,int _data)
+    public static void AccumulateDicData<T>(ref Dictionary<T,int> _dic,T _key,int _data)
     {
         if(_data != 0)
         {
