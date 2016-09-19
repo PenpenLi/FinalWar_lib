@@ -26,7 +26,6 @@ namespace FinalWar
             0
         };
 
-        private static readonly Random random = new Random();
 
         private const int MAX_POWER = 10000;
 
@@ -68,6 +67,11 @@ namespace FinalWar
 
         private HeroSkill skill;
 
+        private float attackFix;
+        private float shootFix;
+        private float counterFix;
+        private float defenseFix;
+
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos)
         {
             isMine = _isMine;
@@ -89,6 +93,8 @@ namespace FinalWar
             nowPower = sds.GetPower();
 
             action = HeroAction.NULL;
+
+            ResetFix();
 
             if(sds.GetSkills().Length > 0)
             {
@@ -160,28 +166,22 @@ namespace FinalWar
 
         internal int GetShootDamage()
         {
-            return FixDamageWithPowerAndRandom(sds.GetShoot());
+            return FixDamageWithPowerAndRandom(sds.GetShoot() * shootFix);
         }
 
         internal int GetAttackDamage()
         {
-            return FixDamageWithPowerAndRandom(sds.GetAttack());
+            return FixDamageWithPowerAndRandom(sds.GetAttack() * attackFix);
         }
 
         internal int GetCounterDamage()
         {
-            return FixDamageWithPowerAndRandom(sds.GetCounter());
+            return FixDamageWithPowerAndRandom(sds.GetCounter() * counterFix);
         }
 
-        private int FixDamageWithPowerAndRandom(int _damage)
+        private int FixDamageWithPowerAndRandom(float _damage)
         {
-            int damage = (int)(nowHp * _damage * (1 + ((nowPower * 2 / MAX_POWER) - 1) * DAMAGE_FIX_WITH_POWER_RANGE));
-
-            int minDamage = (int)(damage * (1 - DAMAGE_FIX_WITH_RANDOM_RANGE));
-
-            int maxDamage = (int)(damage * (1 + DAMAGE_FIX_WITH_RANDOM_RANGE));
-
-            damage = random.Next(minDamage, maxDamage);
+            int damage = (int)(nowHp * _damage * (1 + ((nowPower * 2 / MAX_POWER) - 1) * DAMAGE_FIX_WITH_POWER_RANGE) * (1 + (Battle.random.NextDouble() * 2 - 1) * DAMAGE_FIX_WITH_RANDOM_RANGE));
 
             if(damage < 1)
             {
@@ -258,33 +258,25 @@ namespace FinalWar
 
         private float FixDefense()
         {
-            return (sds.GetDefense() * DEFENSE_FIX + MAX_DEFENSE * (1 - DEFENSE_FIX)) * 2 * (1 + ((nowPower * 2 / MAX_POWER) - 1) * DEFENSE_FIX_WITH_POWER_RANGE);
+            return (sds.GetDefense() * DEFENSE_FIX + MAX_DEFENSE * (1 - DEFENSE_FIX)) * 2 * (1 + ((nowPower * 2 / MAX_POWER) - 1) * DEFENSE_FIX_WITH_POWER_RANGE) * defenseFix;
         }
 
         private int FixPowerChange(int _powerChange)
         {
-            int minPowerChange;
-
-            int maxPowerChange;
+            float powerChange;
 
             if (_powerChange > 0)
             {
-                int powerChange = (int)(_powerChange * (1 + ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
-
-                minPowerChange = (int)(powerChange * (1 - POWER_FIX_WITH_RANDOM_RANGE));
-
-                maxPowerChange = (int)(powerChange * (1 + POWER_FIX_WITH_RANDOM_RANGE));
+                powerChange = _powerChange * (1 + ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE);
             }
             else
             {
-                int powerChange = (int)(_powerChange * (1 - ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE));
-
-                minPowerChange = (int)(powerChange * (1 + POWER_FIX_WITH_RANDOM_RANGE));
-
-                maxPowerChange = (int)(powerChange * (1 - POWER_FIX_WITH_RANDOM_RANGE));
+                powerChange = _powerChange * (1 - ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE);
             }
 
-            return random.Next(minPowerChange, maxPowerChange);
+            int result = (int)(powerChange * (1 + (Battle.random.NextDouble() * 2 - 1) * DAMAGE_FIX_WITH_RANDOM_RANGE));
+
+            return result;
         }
 
         internal int Shoot()
@@ -406,6 +398,39 @@ namespace FinalWar
             else
             {
                 return true;
+            }
+        }
+
+        internal void SetAttackFix(float _value)
+        {
+            attackFix *= _value;
+        }
+
+        internal void SetShootFix(float _value)
+        {
+            shootFix *= _value;
+        }
+
+        internal void SetCounterFix(float _value)
+        {
+            counterFix *= _value;
+        }
+
+        internal void SetDfenseFix(float _value)
+        {
+            defenseFix *= _value;
+        }
+
+        internal void ResetFix()
+        {
+            attackFix = shootFix = counterFix = defenseFix = 1;
+        }
+
+        internal void Die()
+        {
+            if(skill != null)
+            {
+                skill.Destroy();
             }
         }
 

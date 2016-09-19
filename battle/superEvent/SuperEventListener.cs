@@ -5,24 +5,11 @@ namespace superEvent
 {
     internal class SuperEvent
     {
-        internal string eventName;
         internal int index;
         internal object[] datas;
 
-        internal SuperEvent(string _eventName)
+        internal SuperEvent(int _index, object[] _datas)
         {
-            eventName = _eventName;
-        }
-
-        internal SuperEvent(string _eventName, params object[] _objs)
-        {
-            eventName = _eventName;
-            datas = _objs;
-        }
-
-        internal SuperEvent(string _eventName, int _index, object[] _datas)
-        {
-            eventName = _eventName;
             index = _index;
             datas = _datas;
         }
@@ -116,11 +103,11 @@ namespace superEvent
             }
         }
 
-        internal void DispatchEvent(SuperEvent e)
+        internal void DispatchEvent(string _eventName,params object[] _objs)
         {
-            if (dicWithEvent.ContainsKey(e.eventName))
+            if (dicWithEvent.ContainsKey(_eventName))
             {
-                Dictionary<Action<SuperEvent>, SuperEventListenerUnit> dic = dicWithEvent[e.eventName];
+                Dictionary<Action<SuperEvent>, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
                 Action[] arr = new Action[dic.Count];
 
@@ -132,7 +119,7 @@ namespace superEvent
                 {
                     KeyValuePair<Action<SuperEvent>, SuperEventListenerUnit> pair = enumerator.Current;
 
-                    SuperEvent ev = new SuperEvent(e.eventName, pair.Value.index, e.datas);
+                    SuperEvent ev = new SuperEvent(pair.Value.index, _objs);
 
                     Action del = delegate ()
                     {

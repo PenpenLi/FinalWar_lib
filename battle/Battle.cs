@@ -7,6 +7,8 @@ namespace FinalWar
 {
     public class Battle
     {
+        internal static readonly Random random = new Random();
+
         internal static Dictionary<int, MapData> mapDataDic;
         internal static Dictionary<int, IHeroSDS> heroDataDic;
         internal static Dictionary<int, ISkillSDS> skillDataDic;
@@ -44,8 +46,6 @@ namespace FinalWar
         public bool mOver;
         public bool oOver;
 
-        private Random random;
-
         private Action<bool, MemoryStream> serverSendDataCallBack;
 
         public bool clientIsMine;
@@ -78,8 +78,6 @@ namespace FinalWar
         public void ServerStart(int _mapID,List<int> _mCards,List<int> _oCards)
         {
             Log.Write("Battle Start!");
-
-            random = new Random();
 
             mapData = mapDataDic[_mapID];
 
@@ -720,9 +718,9 @@ namespace FinalWar
 
                 bool isMine = mapData.dic[pos] != mapBelongDic.ContainsKey(pos);
 
-                int heroID = SummonOneUnit(tmpCardUid, pos, isMine, _battleData);
+                Hero summonHero = SummonOneUnit(tmpCardUid, pos, isMine, _battleData);
 
-                _voList.Add(new BattleSummonVO(tmpCardUid, heroID, pos));
+                _voList.Add(new BattleSummonVO(tmpCardUid, summonHero.sds.GetID(), pos));
 
                 List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, pos);
 
@@ -742,6 +740,8 @@ namespace FinalWar
                         }
                     }
                 }
+
+                eventListener.DispatchEvent(HeroSkill.GetEventName(summonHero.uid, SkillTime.SUMMON), hpChangeDic, powerChangeDic);
             }
 
             ProcessHpChangeDic(_battleData, hpChangeDic, powerChangeDic, _voList);
@@ -749,7 +749,7 @@ namespace FinalWar
             ProcessPowerChangeDic(_battleData, powerChangeDic, _voList);
         }
 
-        private int SummonOneUnit(int _uid, int _pos, bool _isMine, BattleData _battleData)
+        private Hero SummonOneUnit(int _uid, int _pos, bool _isMine, BattleData _battleData)
         {
             int heroID;
 
@@ -784,7 +784,7 @@ namespace FinalWar
                 _battleData.actionDic[_pos].stander = hero;
             }
 
-            return heroID;
+            return hero;
         }
 
         public BattleData GetBattleData()
@@ -995,9 +995,7 @@ namespace FinalWar
                     {
                         Hero shooter = cellData.shooters[i];
 
-                        SuperEvent e = new SuperEvent(HeroSkill.GetEventName(shooter.uid, SkillTime.SHOOT), cellData.stander, hpChangeDic, powerChangeDic);
-
-                        eventListener.DispatchEvent(e);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(shooter.uid, SkillTime.SHOOT), cellData.stander, hpChangeDic, powerChangeDic);
                     }
                 }
             }
@@ -1079,9 +1077,7 @@ namespace FinalWar
                         {
                             Hero attacker = cellData.attackers[i];
 
-                            SuperEvent e = new SuperEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), attackers, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
-
-                            eventListener.DispatchEvent(e);
+                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), attackers, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
                         }
                     }
                 }
@@ -1165,14 +1161,12 @@ namespace FinalWar
 
                 if (cellData.attackers.Count > 0 && (cellData.stander != null || cellData.supporters.Count > 0))
                 {
-                    List<Hero> supporters = new List<Hero>();
+                    List<Hero> supporters = new List<Hero>(cellData.supporters);
 
                     if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                     {
                         supporters.Add(cellData.stander);
                     }
-
-                    supporters.AddRange(cellData.supporters);
 
                     List<Hero> attackers = new List<Hero>(cellData.attackers);
 
@@ -1180,25 +1174,19 @@ namespace FinalWar
                     {
                         Hero hero = cellData.attackers[i];
 
-                        SuperEvent e = new SuperEvent(HeroSkill.GetEventName(hero.uid, SkillTime.ATTACK), attackers, supporters, hpChangeDic, powerChangeDic);
-
-                        eventListener.DispatchEvent(e);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.ATTACK), attackers, supporters, hpChangeDic, powerChangeDic);
                     }
 
                     if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                     {
-                        SuperEvent e = new SuperEvent(HeroSkill.GetEventName(cellData.stander.uid, SkillTime.COUNTER), supporters, attackers, hpChangeDic, powerChangeDic);
-
-                        eventListener.DispatchEvent(e);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(cellData.stander.uid, SkillTime.COUNTER), attackers, supporters, hpChangeDic, powerChangeDic);
                     }
 
                     for (int i = 0; i < cellData.supporters.Count; i++)
                     {
                         Hero hero = cellData.supporters[i];
 
-                        SuperEvent e = new SuperEvent(HeroSkill.GetEventName(hero.uid, SkillTime.COUNTER), supporters, attackers, hpChangeDic, powerChangeDic);
-
-                        eventListener.DispatchEvent(e);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.COUNTER), attackers, supporters, hpChangeDic, powerChangeDic);
                     }
                 }
             }
@@ -1343,6 +1331,8 @@ namespace FinalWar
 
         private void ServerDoMove(BattleData _battleData, List<ValueType> _voList)
         {
+            Dictionary<Hero, int> hpChangeDic = new Dictionary<Hero, int>();
+
             Dictionary<Hero, int> powerChangeDic = new Dictionary<Hero, int>();
 
             List<int> tmpList = null;
@@ -1382,10 +1372,21 @@ namespace FinalWar
             {
                 Hero hero = enumerator2.Current;
 
+                eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.RECOVER), hpChangeDic, powerChangeDic);
+            }
+
+            enumerator2 = heroMapDic.Values.GetEnumerator();
+
+            while (enumerator2.MoveNext())
+            {
+                Hero hero = enumerator2.Current;
+
                 int powerChange = hero.RecoverPower();
 
                 BattlePublicTools.AccumulateDicData(powerChangeDic, hero, powerChange);
             }
+
+            ProcessHpChangeDic(_battleData, hpChangeDic, powerChangeDic, _voList);
 
             ProcessPowerChangeDic(null, powerChangeDic, _voList);
         }
@@ -1400,6 +1401,8 @@ namespace FinalWar
             RemoveHeroAction(_battleData, _hero);
 
             heroMapDic.Remove(_hero.pos);
+
+            _hero.Die();
 
             if (_battleData.actionDic.ContainsKey(_hero.pos))
             {

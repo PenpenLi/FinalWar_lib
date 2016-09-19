@@ -11,9 +11,7 @@ public enum SkillTarget
 {
     SELF,
     ALLY,
-    ENEMY,
-    NEIGHBOUR_ALLY,
-    NEIGHBOUR_ENEMY
+    ENEMY
 }
 
 public enum SkillEffect
@@ -34,5 +32,5 @@ public interface ISkillSDS
     SkillTarget GetSkillTarget();
     int GetTargetNum();
     SkillEffect GetSkillEffect();
-    int[] GetSkillDatas();
+    float[] GetSkillDatas();
 }
