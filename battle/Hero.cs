@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using superEvent;
 
 namespace FinalWar
 {
@@ -65,6 +66,8 @@ namespace FinalWar
 
         private bool beDamaged = false;
 
+        private HeroSkill skill;
+
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos)
         {
             isMine = _isMine;
@@ -76,7 +79,7 @@ namespace FinalWar
             action = HeroAction.NULL;
         }
 
-        internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _uid)
+        internal Hero(Battle _battle, bool _isMine, IHeroSDS _sds, int _pos, int _uid)
         {
             isMine = _isMine;
             sds = _sds;
@@ -86,6 +89,11 @@ namespace FinalWar
             nowPower = sds.GetPower();
 
             action = HeroAction.NULL;
+
+            if(sds.GetSkills().Length > 0)
+            {
+                skill = new HeroSkill(_battle, this);
+            }
         }
 
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowPower)

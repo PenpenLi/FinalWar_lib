@@ -9,5 +9,6 @@
     int GetCounter();
     int GetDefense();
     int GetLeader();
+    int[] GetSkills();
 }
 

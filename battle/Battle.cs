@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using superEvent;
 
 namespace FinalWar
 {
     public class Battle
     {
-        private static Dictionary<int, IHeroSDS> heroDataDic;
-        private static Dictionary<int, MapData> mapDataDic;
+        internal static Dictionary<int, MapData> mapDataDic;
+        internal static Dictionary<int, IHeroSDS> heroDataDic;
+        internal static Dictionary<int, ISkillSDS> skillDataDic;
 
         private const int DEFAULT_HAND_CARD_NUM = 5;
         private const int MAX_HAND_CARD_NUM = 10;
@@ -52,10 +54,13 @@ namespace FinalWar
         private Action clientRefreshDataCallBack;
         private Action<IEnumerator<ValueType>> clientDoActionCallBack;
 
-        public static void Init(Dictionary<int, IHeroSDS> _heroDataDic, Dictionary<int, MapData> _mapDataDic)
+        internal SuperEventListener eventListener = new SuperEventListener();
+
+        public static void Init(Dictionary<int, MapData> _mapDataDic, Dictionary<int, IHeroSDS> _heroDataDic, Dictionary<int, ISkillSDS> _skillDataDic)
         {
-            heroDataDic = _heroDataDic;
             mapDataDic = _mapDataDic;
+            heroDataDic = _heroDataDic;
+            skillDataDic = _skillDataDic;
         }
 
         public void ServerSetCallBack(Action<bool, MemoryStream> _serverSendDataCallBack)
@@ -619,7 +624,7 @@ namespace FinalWar
 
         private Hero AddHero(bool _isMine, IHeroSDS _sds, int _pos, int _uid)
         {
-            Hero hero = new Hero(_isMine, _sds, _pos, _uid);
+            Hero hero = new Hero(this, _isMine, _sds, _pos, _uid);
 
             heroMapDic.Add(_pos, hero);
 
@@ -982,7 +987,16 @@ namespace FinalWar
 
                 if (cellData.stander != null && cellData.shooters.Count > 0)
                 {
-                    
+                    for (int i = 0; i < cellData.shooters.Count; i++)
+                    {
+                        Hero shooter = cellData.shooters[i];
+
+                        string eventName = HeroSkill.GetEventName(shooter.uid, SkillTime.SHOOT);
+
+                        SuperEvent e = new SuperEvent(eventName, cellData.stander, hpChangeDic, powerChangeDic);
+
+                        eventListener.DispatchEvent(e);
+                    }
                 }
             }
 
@@ -1057,6 +1071,27 @@ namespace FinalWar
 
                     if (cellData.stander != null && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
                     {
+                        for (int i = 0; i < cellData.attackers.Count; i++)
+                        {
+                            Hero attacker = cellData.attackers[i];
+
+                            string eventName = HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK);
+
+                            SuperEvent e = new SuperEvent(eventName, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
+
+                            eventListener.DispatchEvent(e);
+                        }
+                    }
+                }
+
+                enumerator = _battleData.actionDic.Values.GetEnumerator();
+
+                while (enumerator.MoveNext())
+                {
+                    BattleCellData cellData = enumerator.Current;
+
+                    if (cellData.stander != null && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
+                    {
                         quit = false;
 
                         List<int> attackers = new List<int>();
@@ -1121,6 +1156,27 @@ namespace FinalWar
             Dictionary<Hero, int> powerChangeDic = new Dictionary<Hero, int>();
 
             Dictionary<int, BattleCellData>.Enumerator enumerator = _battleData.actionDic.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                BattleCellData cellData = enumerator.Current.Value;
+
+                if (cellData.attackers.Count > 0 && (cellData.stander != null || cellData.supporters.Count > 0))
+                {
+                    List<Hero> supporters = new List<Hero>();
+
+                    if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
+                    {
+                        supporters.Add(cellData.stander);
+                    }
+
+                    supporters.AddRange(cellData.supporters);
+
+                    
+                }
+            }
+
+            enumerator = _battleData.actionDic.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
