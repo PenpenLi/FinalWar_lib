@@ -51,6 +51,8 @@ namespace FinalWar
 
         public bool isMine;
 
+        public int uid;
+
         public IHeroSDS sds;
 
         public int pos;
@@ -68,6 +70,18 @@ namespace FinalWar
             isMine = _isMine;
             sds = _sds;
             pos = _pos;
+            nowHp = sds.GetHp();
+            nowPower = sds.GetPower();
+
+            action = HeroAction.NULL;
+        }
+
+        internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _uid)
+        {
+            isMine = _isMine;
+            sds = _sds;
+            pos = _pos;
+            uid = _uid;
             nowHp = sds.GetHp();
             nowPower = sds.GetPower();
 
@@ -201,15 +215,26 @@ namespace FinalWar
             return tmpDamage;
         }
 
-        internal int BeDamage(ref int _damage)
+        internal int BeDamage(ref int _damage, Dictionary<Hero, int> _hpChangeDic)
         {
             float fix = FixDefense();
 
             int tmpDamage = (int)(_damage / fix);
 
-            if (tmpDamage > nowHp)
+            int tmpNowHp;
+
+            if (_hpChangeDic.ContainsKey(this))
             {
-                tmpDamage = nowHp;
+                tmpNowHp = nowHp + _hpChangeDic[this];
+            }
+            else
+            {
+                tmpNowHp = nowHp;
+            }
+
+            if (tmpDamage > tmpNowHp)
+            {
+                tmpDamage = tmpNowHp;
             }
             else if (tmpDamage < 1)
             {

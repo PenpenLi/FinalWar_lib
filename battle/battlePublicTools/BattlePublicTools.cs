@@ -41,26 +41,17 @@ public class BattlePublicTools
         return result;
     }
 
-    public static void AccumulateDicData<T>(ref Dictionary<T,int> _dic,T _key,int _data)
+    public static void AccumulateDicData<T>(Dictionary<T,int> _dic,T _key,int _data)
     {
         if(_data != 0)
         {
-            if (_dic == null)
+            if (_dic.ContainsKey(_key))
             {
-                _dic = new Dictionary<T, int>();
-
-                _dic.Add(_key, _data);
+                _dic[_key] += _data;
             }
             else
             {
-                if (_dic.ContainsKey(_key))
-                {
-                    _dic[_key] += _data;
-                }
-                else
-                {
-                    _dic.Add(_key, _data);
-                }
+                _dic.Add(_key, _data);
             }
         }
     }
