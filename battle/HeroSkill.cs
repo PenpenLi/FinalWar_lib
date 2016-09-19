@@ -46,19 +46,35 @@ namespace FinalWar
             {
                 case SkillTime.SHOOT:
 
-                    Shoot(e.datas[0] as Hero, e.datas[1] as Dictionary<Hero, int>, e.datas[2] as Dictionary<Hero, int>);
+                    Shoot(_skillSDS, e.datas[0] as Hero, e.datas[1] as Dictionary<Hero, int>, e.datas[2] as Dictionary<Hero, int>);
 
                     break;
 
                 case SkillTime.ATTACK:
 
+                    Attack(_skillSDS, e.datas[0] as List<Hero>, e.datas[1] as List<Hero>, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as Dictionary<Hero, int>);
 
+                    break;
+
+                case SkillTime.COUNTER:
+
+                    Counter(_skillSDS, e.datas[0] as List<Hero>, e.datas[1] as List<Hero>, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as Dictionary<Hero, int>);
 
                     break;
             }
         }
 
-        private void Shoot(Hero _target, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
+        private void Shoot(ISkillSDS _skillSDS, Hero _target, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
+        {
+
+        }
+
+        private void Attack(ISkillSDS _skillSDS, List<Hero> _attackers, List<Hero> _supporters, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
+        {
+
+        }
+
+        private void Counter(ISkillSDS _skillSDS, List<Hero> _supporters, List<Hero> _attackers, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
         {
 
         }
