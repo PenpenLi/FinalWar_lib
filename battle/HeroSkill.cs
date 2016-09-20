@@ -50,6 +50,12 @@ namespace FinalWar
 
                     break;
 
+                case SkillTime.RUSH:
+
+                    Rush(_skillSDS, e.datas[0] as List<Hero>, e.datas[1] as Hero, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as Dictionary<Hero, int>);
+
+                    break;
+
                 case SkillTime.ATTACK:
 
                     Attack(_skillSDS, e.datas[0] as List<Hero>, e.datas[1] as List<Hero>, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as Dictionary<Hero, int>);
@@ -158,6 +164,44 @@ namespace FinalWar
 
                         SkillTakeEffect(_skillSDS, heros, _hpChangeDic, _powerChangeDic);
                     }
+
+                    break;
+            }
+        }
+
+        private void Rush(ISkillSDS _skillSDS, List<Hero> _attackers, Hero _stander, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
+        {
+            switch (_skillSDS.GetSkillTarget())
+            {
+                case SkillTarget.SELF:
+
+                    SkillTakeEffect(_skillSDS, new List<Hero>() { hero }, _hpChangeDic, _powerChangeDic);
+
+                    break;
+
+                case SkillTarget.ALLY:
+
+                    if (_attackers.Count > 1)
+                    {
+                        List<Hero> attackers = new List<Hero>(_attackers);
+
+                        attackers.Remove(hero);
+
+                        while (attackers.Count > _skillSDS.GetTargetNum())
+                        {
+                            int index = (int)(Battle.random.NextDouble() * attackers.Count);
+
+                            attackers.RemoveAt(index);
+                        }
+
+                        SkillTakeEffect(_skillSDS, attackers, _hpChangeDic, _powerChangeDic);
+                    }
+
+                    break;
+
+                case SkillTarget.ENEMY:
+
+                    SkillTakeEffect(_skillSDS, new List<Hero>() { _stander }, _hpChangeDic, _powerChangeDic);
 
                     break;
             }

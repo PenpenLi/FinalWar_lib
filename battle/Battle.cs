@@ -1078,6 +1078,8 @@ namespace FinalWar
                             Hero attacker = cellData.attackers[i];
 
                             eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), attackers, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
+
+                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), attackers, cellData.stander, hpChangeDic, powerChangeDic);
                         }
                     }
                 }

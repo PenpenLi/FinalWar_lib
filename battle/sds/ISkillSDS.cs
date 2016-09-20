@@ -2,6 +2,7 @@
 {
     SHOOT,
     SUMMON,
+    RUSH,
     ATTACK,
     COUNTER,
     RECOVER
