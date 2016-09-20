@@ -1906,6 +1906,10 @@ namespace FinalWar
                 {
                     ClientDoPowerChange((BattlePowerChangeVO)vo);
                 }
+                else if (vo is BattleHpChangeVO)
+                {
+                    ClientDoHpChange((BattleHpChangeVO)vo);
+                }
 
                 yield return vo;
             }
@@ -1983,14 +1987,14 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_vo.stander];
 
-            hero.HpChange(-_vo.damage);
+            hero.HpChange(_vo.damage);
         }
 
         private void ClientDoShoot(BattleShootVO _vo)
         {
             Hero hero = heroMapDic[_vo.stander];
 
-            hero.HpChange(-_vo.damage);
+            hero.HpChange(_vo.damage);
         }
 
         private void ClientDoAttack(BattleAttackVO _vo)
@@ -1999,21 +2003,21 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.attackers[i]];
 
-                hero.HpChange(-_vo.attackersDamage[i]);
+                hero.HpChange(_vo.attackersDamage[i]);
             }
 
             for (int i = 0; i < _vo.supporters.Count; i++)
             {
                 Hero hero = heroMapDic[_vo.supporters[i]];
 
-                hero.HpChange(-_vo.supportersDamage[i]);
+                hero.HpChange(_vo.supportersDamage[i]);
             }
 
             if (_vo.defenderDamage > 0)
             {
                 Hero hero = heroMapDic[_vo.defender];
 
-                hero.HpChange(-_vo.defenderDamage);
+                hero.HpChange(_vo.defenderDamage);
             }
         }
 

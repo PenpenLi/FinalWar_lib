@@ -8,7 +8,7 @@ namespace FinalWar
     {
         internal static string GetEventName(int _heroUid, SkillTime _skillTime)
         {
-            return string.Format("{0}_{1}", _heroUid, _heroUid);
+            return string.Format("{0}_{1}", _heroUid, _skillTime);
         }
 
         private Battle battle;
