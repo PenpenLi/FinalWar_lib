@@ -741,7 +741,7 @@ namespace FinalWar
                     }
                 }
 
-                eventListener.DispatchEvent(HeroSkill.GetEventName(summonHero.uid, SkillTime.SUMMON), hpChangeDic, powerChangeDic);
+                eventListener.DispatchEvent(HeroSkill.GetEventName(summonHero.uid, SkillTime.SUMMON), summon, hpChangeDic, powerChangeDic);
             }
 
             ProcessHpChangeDic(_battleData, hpChangeDic, powerChangeDic, _voList, false);
@@ -1732,7 +1732,7 @@ namespace FinalWar
             return result;
         }
 
-        private void ProcessHpChangeDic(BattleData _battleData, Dictionary<Hero,int> _hpChangeDic, Dictionary<Hero,int> _powerChangeDic, List<ValueType> _voList, bool _mustDamage)
+        private void ProcessHpChangeDic(BattleData _battleData, Dictionary<Hero,int> _hpChangeDic, Dictionary<Hero,int> _powerChangeDic, List<ValueType> _voList, bool _isAttack)
         {
             if (_hpChangeDic.Count > 0)
             {
@@ -1740,15 +1740,40 @@ namespace FinalWar
 
                 Dictionary<Hero, int>.Enumerator enumerator3 = _hpChangeDic.GetEnumerator();
 
+                List<int> posList = null;
+
+                List<int> hpChangeList = null;
+
                 while (enumerator3.MoveNext())
                 {
                     KeyValuePair<Hero, int> pair = enumerator3.Current;
 
-                    Hero hero = pair.Key;
-
-                    if (_mustDamage && pair.Value >= 0)
+                    if(pair.Value == 0)
                     {
                         continue;
+                    }
+
+                    Hero hero = pair.Key;
+
+                    if (_isAttack)
+                    {
+                        if(pair.Value > 0)
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if(posList == null)
+                        {
+                            posList = new List<int>();
+
+                            hpChangeList = new List<int>();
+                        }
+
+                        posList.Add(hero.pos);
+
+                        hpChangeList.Add(pair.Value);
                     }
 
                     bool isDie = hero.HpChange(pair.Value);
@@ -1764,6 +1789,11 @@ namespace FinalWar
 
                         DieHero(_battleData, hero, _powerChangeDic);
                     }
+                }
+
+                if (posList != null)
+                {
+                    _voList.Add(new BattleHpChangeVO(posList, hpChangeList));
                 }
 
                 if (diePos != null)
@@ -2002,6 +2032,16 @@ namespace FinalWar
                 Hero hero = heroMapDic[_vo.pos[i]];
 
                 hero.PowerChange(_vo.powerChange[i]);
+            }
+        }
+
+        private void ClientDoHpChange(BattleHpChangeVO _vo)
+        {
+            for(int i = 0; i < _vo.pos.Count; i++)
+            {
+                Hero hero = heroMapDic[_vo.pos[i]];
+
+                hero.HpChange(_vo.hpChange[i]);
             }
         }
 

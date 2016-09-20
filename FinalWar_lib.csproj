@@ -62,6 +62,7 @@
     <Compile Include="battle\BattleData.cs" />
     <Compile Include="battle\battleVO\BattleAttackVO.cs" />
     <Compile Include="battle\battleVO\BattleDeathVO.cs" />
+    <Compile Include="battle\battleVO\BattleHpChangeVO.cs" />
     <Compile Include="battle\battleVO\BattleMoveVO.cs" />
     <Compile Include="battle\battleVO\BattlePowerChangeVO.cs" />
     <Compile Include="battle\battleVO\BattleRushVO.cs" />

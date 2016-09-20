@@ -14,7 +14,8 @@ namespace FinalWar
             SHOOT,
             ATTACK,
             DEATH,
-            POWERCHANGE
+            POWERCHANGE,
+            HPCHANGE
         }
         public static void WriteDataToStream(List<ValueType> _voList, BinaryWriter _bw)
         {
@@ -143,6 +144,21 @@ namespace FinalWar
                         _bw.Write(powerChange.powerChange[m]);
 
                         _bw.Write(powerChange.isDizz[m]);
+                    }
+                }
+                else if(vo is BattleHpChangeVO)
+                {
+                    _bw.Write((int)BattleVOType.HPCHANGE);
+
+                    BattleHpChangeVO hpChange = (BattleHpChangeVO)vo;
+
+                    _bw.Write(hpChange.pos.Count);
+
+                    for (int m = 0; m < hpChange.pos.Count; m++)
+                    {
+                        _bw.Write(hpChange.pos[m]);
+
+                        _bw.Write(hpChange.hpChange[m]);
                     }
                 }
             }
@@ -320,6 +336,29 @@ namespace FinalWar
                         }
 
                         result.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
+
+                        break;
+
+                    case BattleVOType.HPCHANGE:
+
+                        posList = new List<int>();
+
+                        List<int> hpChangeList = new List<int>();
+
+                        int hpChangeNum = _br.ReadInt32();
+
+                        for (int m = 0; m < hpChangeNum; m++)
+                        {
+                            int pos = _br.ReadInt32();
+
+                            posList.Add(pos);
+
+                            int hpChange = _br.ReadInt32();
+
+                            hpChangeList.Add(hpChange);
+                        }
+
+                        result.Add(new BattleHpChangeVO(posList, hpChangeList));
 
                         break;
                 }
