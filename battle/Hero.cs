@@ -125,20 +125,30 @@ namespace FinalWar
             action = _action;
         }
 
-        internal bool HpChange(int _value)
+        internal bool ServerHpChange(int _value)
+        {
+            if(_value < 0)
+            {
+                beDamaged = true;
+            }
+
+            ClientHpChange(_value);
+
+            return nowHp < 1;
+        }
+
+        internal void ClientHpChange(int _value)
         {
             nowHp += _value;
 
-            if(nowHp > sds.GetHp())
+            if (nowHp > sds.GetHp())
             {
                 nowHp = sds.GetHp();
             }
-            else if(nowHp < 0)
+            else if (nowHp < 0)
             {
                 nowHp = 0;
             }
-
-            return nowHp < 1;
         }
 
         internal bool PowerChange(int _value)
@@ -218,8 +228,6 @@ namespace FinalWar
                 tmpDamage = 1;
             }
 
-            beDamaged = true;
-
             return tmpDamage;
         }
 
@@ -229,30 +237,38 @@ namespace FinalWar
 
             int tmpDamage = (int)(_damage / fix);
 
+            if (tmpDamage < 1)
+            {
+                tmpDamage = 1;
+            }
+
             int tmpNowHp;
 
             if (_hpChangeDic.ContainsKey(this))
             {
                 tmpNowHp = nowHp + _hpChangeDic[this];
+
+                if (tmpNowHp < 0)
+                {
+                    tmpNowHp = 0;
+                }
             }
             else
             {
                 tmpNowHp = nowHp;
             }
-
-            if (tmpDamage > tmpNowHp)
+            
+            if (tmpDamage < tmpNowHp)
+            {
+                _damage = 0;
+            }
+            else
             {
                 tmpDamage = tmpNowHp;
+
+                _damage -= (int)(tmpDamage * fix);
             }
-            else if (tmpDamage < 1)
-            {
-                tmpDamage = 1;
-            }
-
-            _damage -= (int)(tmpDamage * fix);
-
-            beDamaged = true;
-
+            
             return tmpDamage;
         }
 

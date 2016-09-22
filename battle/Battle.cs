@@ -651,7 +651,7 @@ namespace FinalWar
 
             action.Clear();
 
-            
+            ServerDoRoundStart(battleData, voList);
 
             ServerDoShoot(battleData, voList);
 
@@ -1810,7 +1810,7 @@ namespace FinalWar
                         hpChangeList.Add(pair.Value);
                     }
 
-                    bool isDie = hero.HpChange(pair.Value);
+                    bool isDie = hero.ServerHpChange(pair.Value);
 
                     if (isDie)
                     {
@@ -2037,14 +2037,14 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_vo.stander];
 
-            hero.HpChange(_vo.damage);
+            hero.ClientHpChange(_vo.damage);
         }
 
         private void ClientDoShoot(BattleShootVO _vo)
         {
             Hero hero = heroMapDic[_vo.stander];
 
-            hero.HpChange(_vo.damage);
+            hero.ClientHpChange(_vo.damage);
         }
 
         private void ClientDoAttack(BattleAttackVO _vo)
@@ -2053,21 +2053,21 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.attackers[i]];
 
-                hero.HpChange(_vo.attackersDamage[i]);
+                hero.ClientHpChange(_vo.attackersDamage[i]);
             }
 
             for (int i = 0; i < _vo.supporters.Count; i++)
             {
                 Hero hero = heroMapDic[_vo.supporters[i]];
 
-                hero.HpChange(_vo.supportersDamage[i]);
+                hero.ClientHpChange(_vo.supportersDamage[i]);
             }
 
-            if (_vo.defenderDamage > 0)
+            if (_vo.defenderDamage < 0)
             {
                 Hero hero = heroMapDic[_vo.defender];
 
-                hero.HpChange(_vo.defenderDamage);
+                hero.ClientHpChange(_vo.defenderDamage);
             }
         }
 
@@ -2095,7 +2095,7 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.pos[i]];
 
-                hero.HpChange(_vo.hpChange[i]);
+                hero.ClientHpChange(_vo.hpChange[i]);
             }
         }
 
