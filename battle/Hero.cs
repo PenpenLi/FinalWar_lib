@@ -426,14 +426,6 @@ namespace FinalWar
             attackFix = shootFix = counterFix = defenseFix = 1;
         }
 
-        internal void Die()
-        {
-            if(skill != null)
-            {
-                skill.Destroy();
-            }
-        }
-
         public static int GetPowerLevel(int _nowPower)
         {
             int level = 0;

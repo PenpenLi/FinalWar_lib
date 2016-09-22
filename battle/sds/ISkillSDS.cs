@@ -1,11 +1,13 @@
 ﻿public enum SkillTime
 {
+    ROUNDSTART,
     SHOOT,
     SUMMON,
     RUSH,
     ATTACK,
     COUNTER,
-    RECOVER
+    RECOVER,
+    DIE
 }
 
 public enum SkillTarget

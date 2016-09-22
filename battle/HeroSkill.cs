@@ -38,6 +38,10 @@ namespace FinalWar
 
                 eventIDs[i] = battle.eventListener.AddListener(eventName, dele);
             }
+
+            string dieEventName = GetEventName(hero.uid, SkillTime.DIE);
+
+            battle.eventListener.AddListener(dieEventName, Destroy);
         }
 
         private void TriggerSkill(ISkillSDS _skillSDS, SuperEvent e)
@@ -68,21 +72,21 @@ namespace FinalWar
 
                     break;
 
+                case SkillTime.ROUNDSTART:
+
                 case SkillTime.SUMMON:
-
-                    Summon(_skillSDS, e.datas[0] as Dictionary<int, int>, e.datas[1] as Dictionary<Hero, int>, e.datas[2] as Dictionary<Hero, int>);
-
-                    break;
 
                 case SkillTime.RECOVER:
 
-                    Recover(_skillSDS, e.datas[0] as Dictionary<Hero, int>, e.datas[1] as Dictionary<Hero, int>);
+                case SkillTime.DIE:
+
+                    RoundStartSummonRecoverDie(_skillSDS, e.datas[0] as Dictionary<Hero, int>, e.datas[1] as Dictionary<Hero, int>);
 
                     break;
             }
         }
 
-        private void Summon(ISkillSDS _skillSDS, Dictionary<int,int> _summon,Dictionary<Hero,int> _hpChangeDic,Dictionary<Hero,int> _powerChangeDic)
+        private void RoundStartSummonRecoverDie(ISkillSDS _skillSDS, Dictionary<Hero,int> _hpChangeDic, Dictionary<Hero,int> _powerChangeDic)
         {
             switch (_skillSDS.GetSkillTarget())
             {
@@ -102,7 +106,7 @@ namespace FinalWar
                     {
                         int pos = posList[i];
 
-                        if (!_summon.ContainsValue(pos) && battle.heroMapDic.ContainsKey(pos))
+                        if (battle.heroMapDic.ContainsKey(pos))
                         {
                             Hero tmpHero = battle.heroMapDic[pos];
 
@@ -119,98 +123,6 @@ namespace FinalWar
                     }
 
                     if (heros != null)
-                    {
-                        while (heros.Count > _skillSDS.GetTargetNum())
-                        {
-                            int index = (int)(Battle.random.NextDouble() * heros.Count);
-
-                            heros.RemoveAt(index);
-                        }
-
-                        SkillTakeEffect(_skillSDS, heros, _hpChangeDic, _powerChangeDic);
-                    }
-
-                    break;
-
-                case SkillTarget.ENEMY:
-
-                    heros = null;
-
-                    posList = BattlePublicTools.GetNeighbourPos(battle.mapData.neighbourPosMap, hero.pos);
-
-                    for (int i = 0; i < posList.Count; i++)
-                    {
-                        int pos = posList[i];
-
-                        if (!_summon.ContainsValue(pos) && battle.heroMapDic.ContainsKey(pos))
-                        {
-                            Hero tmpHero = battle.heroMapDic[pos];
-
-                            if (tmpHero.isMine != hero.isMine)
-                            {
-                                if (heros == null)
-                                {
-                                    heros = new List<Hero>();
-                                }
-
-                                heros.Add(tmpHero);
-                            }
-                        }
-                    }
-
-                    if (heros != null)
-                    {
-                        while (heros.Count > _skillSDS.GetTargetNum())
-                        {
-                            int index = (int)(Battle.random.NextDouble() * heros.Count);
-
-                            heros.RemoveAt(index);
-                        }
-
-                        SkillTakeEffect(_skillSDS, heros, _hpChangeDic, _powerChangeDic);
-                    }
-
-                    break;
-            }
-        }
-
-        private void Recover(ISkillSDS _skillSDS, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
-        {
-            switch (_skillSDS.GetSkillTarget())
-            {
-                case SkillTarget.SELF:
-
-                    SkillTakeEffect(_skillSDS, new List<Hero>() { hero }, _hpChangeDic, _powerChangeDic);
-
-                    break;
-
-                case SkillTarget.ALLY:
-
-                    List<Hero> heros = null;
-
-                    List<int> posList = BattlePublicTools.GetNeighbourPos(battle.mapData.neighbourPosMap, hero.pos);
-
-                    for(int i = 0; i < posList.Count; i++)
-                    {
-                        int pos = posList[i];
-
-                        if (battle.heroMapDic.ContainsKey(pos))
-                        {
-                            Hero tmpHero = battle.heroMapDic[pos];
-
-                            if(tmpHero.isMine == hero.isMine)
-                            {
-                                if(heros == null)
-                                {
-                                    heros = new List<Hero>();
-                                }
-
-                                heros.Add(tmpHero);
-                            }
-                        }
-                    }
-
-                    if(heros != null)
                     {
                         while (heros.Count > _skillSDS.GetTargetNum())
                         {
@@ -478,7 +390,7 @@ namespace FinalWar
             }
         }
 
-        internal void Destroy()
+        internal void Destroy(SuperEvent e)
         {
             for(int i = 0; i < eventIDs.Length; i++)
             {

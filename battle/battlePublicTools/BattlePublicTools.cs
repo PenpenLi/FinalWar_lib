@@ -48,6 +48,11 @@ public class BattlePublicTools
             if (_dic.ContainsKey(_key))
             {
                 _dic[_key] += _data;
+
+                if(_dic[_key] == 0)
+                {
+                    _dic.Remove(_key);
+                }
             }
             else
             {
