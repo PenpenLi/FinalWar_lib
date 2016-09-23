@@ -12,6 +12,7 @@ namespace FinalWar
         internal static Dictionary<int, MapData> mapDataDic;
         internal static Dictionary<int, IHeroSDS> heroDataDic;
         internal static Dictionary<int, ISkillSDS> skillDataDic;
+        internal static Dictionary<int, IAuraSDS> auraDataDic;
 
         private const int DEFAULT_HAND_CARD_NUM = 5;
         private const int MAX_HAND_CARD_NUM = 10;
@@ -55,12 +56,14 @@ namespace FinalWar
         private Action<IEnumerator<ValueType>> clientDoActionCallBack;
 
         internal SuperEventListener eventListener = new SuperEventListener();
+        internal SuperEventListenerV eventListenerV = new SuperEventListenerV();
 
-        public static void Init(Dictionary<int, MapData> _mapDataDic, Dictionary<int, IHeroSDS> _heroDataDic, Dictionary<int, ISkillSDS> _skillDataDic)
+        public static void Init(Dictionary<int, MapData> _mapDataDic, Dictionary<int, IHeroSDS> _heroDataDic, Dictionary<int, ISkillSDS> _skillDataDic, Dictionary<int, IAuraSDS> _auraDataDic)
         {
             mapDataDic = _mapDataDic;
             heroDataDic = _heroDataDic;
             skillDataDic = _skillDataDic;
+            auraDataDic = _auraDataDic;
         }
 
         public void ServerSetCallBack(Action<bool, MemoryStream> _serverSendDataCallBack)

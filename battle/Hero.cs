@@ -65,12 +65,12 @@ namespace FinalWar
 
         private bool beDamaged = false;
 
-        private HeroSkill skill;
-
         private float attackFix;
         private float shootFix;
         private float counterFix;
         private float defenseFix;
+
+        private SuperEventListenerV eventListenerV;
 
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos)
         {
@@ -85,6 +85,8 @@ namespace FinalWar
 
         internal Hero(Battle _battle, bool _isMine, IHeroSDS _sds, int _pos, int _uid)
         {
+            eventListenerV = _battle.eventListenerV;
+
             isMine = _isMine;
             sds = _sds;
             pos = _pos;
@@ -98,7 +100,12 @@ namespace FinalWar
 
             if(sds.GetSkills().Length > 0)
             {
-                skill = new HeroSkill(_battle, this);
+                HeroSkill.Init(_battle, this);
+            }
+
+            if(sds.GetAuras().Length > 0)
+            {
+                HeroAura.Init(_battle, this);
             }
         }
 
@@ -176,17 +183,29 @@ namespace FinalWar
 
         internal int GetShootDamage()
         {
-            return FixDamageWithPowerAndRandom(sds.GetShoot() * shootFix);
+            float fix = 1;
+
+            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_SHOOT), ref fix, this);
+
+            return FixDamageWithPowerAndRandom(sds.GetShoot() * fix * shootFix);
         }
 
         internal int GetAttackDamage()
         {
-            return FixDamageWithPowerAndRandom(sds.GetAttack() * attackFix);
+            float fix = 1;
+
+            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_ATTACK), ref fix, this);
+
+            return FixDamageWithPowerAndRandom(sds.GetAttack() * fix * attackFix);
         }
 
         internal int GetCounterDamage()
         {
-            return FixDamageWithPowerAndRandom(sds.GetCounter() * counterFix);
+            float fix = 1;
+
+            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_COUNTER), ref fix, this);
+
+            return FixDamageWithPowerAndRandom(sds.GetCounter() * fix * counterFix);
         }
 
         private int FixDamageWithPowerAndRandom(float _damage)
@@ -274,7 +293,11 @@ namespace FinalWar
 
         private float FixDefense()
         {
-            return (sds.GetDefense() * DEFENSE_FIX + MAX_DEFENSE * (1 - DEFENSE_FIX)) * 2 * (1 + ((nowPower * 2 / MAX_POWER) - 1) * DEFENSE_FIX_WITH_POWER_RANGE) * defenseFix;
+            float fix = 1;
+
+            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_DEFENSE), ref fix, this);
+
+            return (sds.GetDefense() * fix * DEFENSE_FIX + MAX_DEFENSE * (1 - DEFENSE_FIX)) * 2 * (1 + ((nowPower * 2 / MAX_POWER) - 1) * DEFENSE_FIX_WITH_POWER_RANGE) * defenseFix;
         }
 
         private int FixPowerChange(int _powerChange)

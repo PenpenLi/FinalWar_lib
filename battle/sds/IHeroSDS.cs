@@ -10,5 +10,6 @@
     int GetDefense();
     int GetLeader();
     int[] GetSkills();
+    int[] GetAuras();
 }
 

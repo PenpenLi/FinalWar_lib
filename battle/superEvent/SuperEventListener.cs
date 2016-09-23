@@ -3,18 +3,6 @@ using System.Collections.Generic;
 
 namespace superEvent
 {
-    internal class SuperEvent
-    {
-        internal int index;
-        internal object[] datas;
-
-        internal SuperEvent(int _index, object[] _datas)
-        {
-            index = _index;
-            datas = _datas;
-        }
-    }
-
     internal class SuperEventListener
     {
         private class SuperEventListenerUnit
@@ -109,7 +97,7 @@ namespace superEvent
             {
                 Dictionary<Action<SuperEvent>, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                Action[] arr = new Action[dic.Count];
+                KeyValuePair<Action<SuperEvent>, SuperEvent>[] arr = new KeyValuePair<Action<SuperEvent>, SuperEvent>[dic.Count];
 
                 Dictionary<Action<SuperEvent>, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -121,19 +109,16 @@ namespace superEvent
 
                     SuperEvent ev = new SuperEvent(pair.Value.index, _objs);
 
-                    Action del = delegate ()
-                    {
-                        pair.Key(ev);
-                    };
-
-                    arr[i] = del;
+                    arr[i] = new KeyValuePair<Action<SuperEvent>, SuperEvent>(pair.Key, ev);
 
                     i++;
                 }
 
                 for (i = 0; i < arr.Length; i++)
                 {
-                    arr[i]();
+                    KeyValuePair<Action<SuperEvent>, SuperEvent> pair = arr[i];
+
+                    pair.Key(pair.Value);
                 }
             }
         }
