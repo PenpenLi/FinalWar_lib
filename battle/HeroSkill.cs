@@ -48,21 +48,13 @@ namespace FinalWar
             {
                 case SkillTime.SHOOT:
 
-                    Shoot(_battle, _hero, _skillSDS, e.datas[0] as Hero, e.datas[1] as Dictionary<Hero, int>, e.datas[2] as Dictionary<Hero, int>);
-
-                    break;
-
                 case SkillTime.RUSH:
-
-                    Rush(_battle, _hero, _skillSDS, e.datas[0] as List<Hero>, e.datas[1] as Hero, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as Dictionary<Hero, int>);
-
-                    break;
 
                 case SkillTime.ATTACK:
                     
                 case SkillTime.COUNTER:
 
-                    AttackerCounter(_battle, _hero, _skillSDS, e.datas[0] as List<Hero>, e.datas[1] as List<Hero>, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as Dictionary<Hero, int>);
+                    ShootRushAttackerCounter(_battle, _hero, _skillSDS, e.datas[0] as List<Hero>, e.datas[1] as List<Hero>, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as Dictionary<Hero, int>);
 
                     break;
 
@@ -172,63 +164,7 @@ namespace FinalWar
             }
         }
 
-        private static void Rush(Battle _battle, Hero _hero, ISkillSDS _skillSDS, List<Hero> _attackers, Hero _stander, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
-        {
-            switch (_skillSDS.GetSkillTarget())
-            {
-                case SkillTarget.SELF:
-
-                    SkillTakeEffect(_skillSDS, new List<Hero>() { _hero }, _hpChangeDic, _powerChangeDic);
-
-                    break;
-
-                case SkillTarget.ALLY:
-
-                    if (_attackers.Count > 1)
-                    {
-                        List<Hero> attackers = new List<Hero>(_attackers);
-
-                        attackers.Remove(_hero);
-
-                        while (attackers.Count > _skillSDS.GetTargetNum())
-                        {
-                            int index = (int)(Battle.random.NextDouble() * attackers.Count);
-
-                            attackers.RemoveAt(index);
-                        }
-
-                        SkillTakeEffect(_skillSDS, attackers, _hpChangeDic, _powerChangeDic);
-                    }
-
-                    break;
-
-                case SkillTarget.ENEMY:
-
-                    SkillTakeEffect(_skillSDS, new List<Hero>() { _stander }, _hpChangeDic, _powerChangeDic);
-
-                    break;
-            }
-        }
-
-        private static void Shoot(Battle _battle, Hero _hero, ISkillSDS _skillSDS, Hero _target, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
-        {
-            switch (_skillSDS.GetSkillTarget())
-            {
-                case SkillTarget.SELF:
-
-                    SkillTakeEffect(_skillSDS, new List<Hero>() { _hero }, _hpChangeDic, _powerChangeDic);
-
-                    break;
-
-                case SkillTarget.ENEMY:
-
-                    SkillTakeEffect(_skillSDS, new List<Hero>() { _target }, _hpChangeDic, _powerChangeDic);
-
-                    break;
-            }
-        }
-
-        private static void AttackerCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
+        private static void ShootRushAttackerCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
         {
             switch (_skillSDS.GetSkillTarget())
             {

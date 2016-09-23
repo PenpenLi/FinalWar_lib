@@ -1058,7 +1058,7 @@ namespace FinalWar
                     {
                         Hero shooter = cellData.shooters[i];
 
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(shooter.uid, SkillTime.SHOOT), cellData.stander, hpChangeDic, powerChangeDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(shooter.uid, SkillTime.SHOOT), new List<Hero>() { shooter }, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
                     }
                 }
             }
@@ -1158,7 +1158,7 @@ namespace FinalWar
 
                             eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), attackers, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
 
-                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), attackers, cellData.stander, hpChangeDic, powerChangeDic);
+                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), attackers, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
                         }
                     }
                 }
