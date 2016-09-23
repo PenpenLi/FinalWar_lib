@@ -700,6 +700,10 @@ namespace FinalWar
 
             ServerDoRecover(battleData, voList);
 
+            eventListener.LogNum();
+
+            eventListenerV.LogNum();
+
             byte[] bytes;
 
             using (MemoryStream ms = new MemoryStream())

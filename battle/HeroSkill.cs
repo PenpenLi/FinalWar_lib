@@ -175,22 +175,15 @@ namespace FinalWar
                     break;
 
                 case SkillTarget.ALLY:
+                    
+                    List<Hero> myHeros = new List<Hero>(_myHeros);
 
-                    if(_myHeros.Count > 1)
+                    if (myHeros.Count > _skillSDS.GetTargetNum())
                     {
-                        List<Hero> myHeros = new List<Hero>(_myHeros);
-
-                        myHeros.Remove(_hero);
-
-                        while (myHeros.Count > _skillSDS.GetTargetNum())
-                        {
-                            int index = (int)(Battle.random.NextDouble() * myHeros.Count);
-
-                            myHeros.RemoveAt(index);
-                        }
-
-                        SkillTakeEffect(_skillSDS, myHeros, _hpChangeDic, _powerChangeDic);
+                        myHeros.RemoveRange(_skillSDS.GetTargetNum(), myHeros.Count - _skillSDS.GetTargetNum());
                     }
+
+                    SkillTakeEffect(_skillSDS, myHeros, _hpChangeDic, _powerChangeDic);
 
                     break;
 
@@ -198,11 +191,9 @@ namespace FinalWar
 
                     List<Hero> oppHeros = new List<Hero>(_oppHeros);
 
-                    while (oppHeros.Count > _skillSDS.GetTargetNum())
+                    if (oppHeros.Count > _skillSDS.GetTargetNum())
                     {
-                        int index = (int)(Battle.random.NextDouble() * oppHeros.Count);
-
-                        oppHeros.RemoveAt(index);
+                        oppHeros.RemoveRange(_skillSDS.GetTargetNum(), oppHeros.Count - _skillSDS.GetTargetNum());
                     }
 
                     SkillTakeEffect(_skillSDS, oppHeros, _hpChangeDic, _powerChangeDic);
