@@ -4,6 +4,7 @@
     int GetHp();
     int GetPower();
     int GetCost();
+    bool GetThreat();
     int GetAttack();
     int GetShoot();
     int GetCounter();

@@ -463,6 +463,36 @@ namespace FinalWar
                 {
                     if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
                     {
+                        if (heroMapDic.ContainsKey(_targetPos))
+                        {
+                            Hero targetHero = heroMapDic[_targetPos];
+
+                            if (targetHero.sds.GetThreat())
+                            {
+                                action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+
+                                return true;
+                            }
+                        }
+
+                        for(int i = 0; i < tmpList.Count; i++)
+                        {
+                            int pos = tmpList[i];
+
+                            if(pos != _targetPos)
+                            {
+                                if (heroMapDic.ContainsKey(pos))
+                                {
+                                    Hero targetHero = heroMapDic[pos];
+
+                                    if(targetHero.isMine != hero.isMine && targetHero.sds.GetThreat())
+                                    {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+
                         action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
 
                         return true;
