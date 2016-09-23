@@ -70,6 +70,7 @@
     <Compile Include="battle\battleVO\BattleSummonVO.cs" />
     <Compile Include="battle\battleVO\BattleVOTools.cs" />
     <Compile Include="battle\Hero.cs" />
+    <Compile Include="battle\HeroAi.cs" />
     <Compile Include="battle\HeroSkill.cs" />
     <Compile Include="battle\log\Log.cs" />
     <Compile Include="battle\map\MapData.cs" />
