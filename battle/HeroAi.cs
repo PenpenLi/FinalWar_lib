@@ -172,6 +172,8 @@ namespace FinalWar
                             }
                         }
                     }
+
+                    posList = BattlePublicTools.GetNeighbourPos2(_battle.mapData.neighbourPosMap, pair.Key.pos);
                 }
             }
         }
