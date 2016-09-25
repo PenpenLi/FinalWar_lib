@@ -203,6 +203,13 @@ namespace FinalWar
                         pair.Value.canState.Add(CanState.CAN_SHOOT, shootPos);
                     }
                 }
+
+                enumerator2 = myHeros.GetEnumerator();
+
+                while (enumerator2.MoveNext())
+                {
+
+                }
             }
         }
     }
