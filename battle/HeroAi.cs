@@ -295,62 +295,7 @@ namespace FinalWar
                         {
                             if (!state.beState.ContainsKey(BeState.WILL_BE_ATTACK) || hasBeenSupportedPos.ContainsKey(hero.pos))
                             {
-                                List<CanState> canList = new List<CanState>();
-
-                                List<double> randomList = new List<double>();
-
-                                if (state.canState.ContainsKey(CanState.CAN_ATTACK))
-                                {
-                                    canList.Add(CanState.CAN_ATTACK);
-
-                                    randomList.Add(1);
-                                }
-
-                                if (state.canState.ContainsKey(CanState.CAN_SHOOT))
-                                {
-                                    canList.Add(CanState.CAN_SHOOT);
-
-                                    randomList.Add(1);
-                                }
-
-                                if (state.canState.ContainsKey(CanState.CAN_SUPPORT))
-                                {
-                                    canList.Add(CanState.CAN_SUPPORT);
-
-                                    randomList.Add(1);
-                                }
-
-                                randomList.Add(_wrongValue);
-
-                                int index = PublicTools.Choose(randomList, Battle.random);
-
-                                if (index < canList.Count)
-                                {
-                                    CanState tmpState = canList[index];
-
-                                    List<int> targetPosList = state.canState[tmpState];
-
-                                    randomList.Clear();
-
-                                    for (int m = 0; m < targetPosList.Count; m++)
-                                    {
-                                        randomList.Add(1);
-                                    }
-
-                                    index = PublicTools.Choose(randomList, Battle.random);
-
-                                    int targetPos = targetPosList[index];
-
-                                    _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
-
-                                    if (tmpState == CanState.CAN_SUPPORT)
-                                    {
-                                        if (!hasBeenSupportedPos.ContainsKey(targetPos))
-                                        {
-                                            hasBeenSupportedPos.Add(targetPos, false);
-                                        }
-                                    }
-                                }
+                                CheckDoAction(_battle, _isMine, _wrongValue, hero, state, hasBeenSupportedPos);
                             }
                             else
                             {
@@ -372,10 +317,17 @@ namespace FinalWar
                                         {
                                             if (Battle.random.NextDouble() < 0.5)
                                             {
+                                                _battle.action.Add(new KeyValuePair<int, int>(pos, hero.pos));
 
+                                                tmpState.done = true;
                                             }
                                         }
                                     }
+                                }
+
+                                if (Battle.random.NextDouble() < 0.5)
+                                {
+                                    CheckDoAction(_battle, _isMine, _wrongValue, hero, state, hasBeenSupportedPos);
                                 }
                             }
                         }
@@ -383,6 +335,66 @@ namespace FinalWar
                         {
 
                         }
+                    }
+                }
+            }
+        }
+
+        private static void CheckDoAction(Battle _battle, bool _isMine, double _wrongValue, Hero _hero, HeroState _state, Dictionary<int,bool> _hasBeenSupportedPos)
+        {
+            List<CanState> canList = new List<CanState>();
+
+            List<double> randomList = new List<double>();
+
+            if (_state.canState.ContainsKey(CanState.CAN_ATTACK))
+            {
+                canList.Add(CanState.CAN_ATTACK);
+
+                randomList.Add(1);
+            }
+
+            if (_state.canState.ContainsKey(CanState.CAN_SHOOT))
+            {
+                canList.Add(CanState.CAN_SHOOT);
+
+                randomList.Add(1);
+            }
+
+            if (_state.canState.ContainsKey(CanState.CAN_SUPPORT))
+            {
+                canList.Add(CanState.CAN_SUPPORT);
+
+                randomList.Add(1);
+            }
+
+            randomList.Add(_wrongValue);
+
+            int index = PublicTools.Choose(randomList, Battle.random);
+
+            if (index < canList.Count)
+            {
+                CanState tmpState = canList[index];
+
+                List<int> targetPosList = _state.canState[tmpState];
+
+                randomList.Clear();
+
+                for (int m = 0; m < targetPosList.Count; m++)
+                {
+                    randomList.Add(1);
+                }
+
+                index = PublicTools.Choose(randomList, Battle.random);
+
+                int targetPos = targetPosList[index];
+
+                _battle.action.Add(new KeyValuePair<int, int>(_hero.pos, targetPos));
+
+                if (tmpState == CanState.CAN_SUPPORT)
+                {
+                    if (!_hasBeenSupportedPos.ContainsKey(targetPos))
+                    {
+                        _hasBeenSupportedPos.Add(targetPos, false);
                     }
                 }
             }
