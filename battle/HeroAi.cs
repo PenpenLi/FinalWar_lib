@@ -289,63 +289,92 @@ namespace FinalWar
                         state.done = true;
                     }
 
-                    if (state.canState.Count > 0)
+                    if (hero.CheckCanDoAction(Hero.HeroAction.SUPPORT))
                     {
-                        if (!state.beState.ContainsKey(BeState.WILL_BE_ATTACK))
+                        if (state.canState.Count > 0)
                         {
-                            List<CanState> canList = new List<CanState>();
-
-                            List<double> randomList = new List<double>();
-
-                            if (state.canState.ContainsKey(CanState.CAN_ATTACK))
+                            if (!state.beState.ContainsKey(BeState.WILL_BE_ATTACK) || hasBeenSupportedPos.ContainsKey(hero.pos))
                             {
-                                canList.Add(CanState.CAN_ATTACK);
+                                List<CanState> canList = new List<CanState>();
 
-                                randomList.Add(1);
-                            }
+                                List<double> randomList = new List<double>();
 
-                            if (state.canState.ContainsKey(CanState.CAN_SHOOT))
-                            {
-                                canList.Add(CanState.CAN_SHOOT);
-
-                                randomList.Add(1);
-                            }
-
-                            if (state.canState.ContainsKey(CanState.CAN_SUPPORT))
-                            {
-                                canList.Add(CanState.CAN_SUPPORT);
-
-                                randomList.Add(1);
-                            }
-
-                            randomList.Add(_wrongValue);
-
-                            int index = PublicTools.Choose(randomList, Battle.random);
-
-                            if (index < canList.Count)
-                            {
-                                CanState tmpState = canList[index];
-
-                                List<int> targetPosList = state.canState[tmpState];
-
-                                randomList.Clear();
-
-                                for(int m = 0; m < targetPosList.Count; m++)
+                                if (state.canState.ContainsKey(CanState.CAN_ATTACK))
                                 {
+                                    canList.Add(CanState.CAN_ATTACK);
+
                                     randomList.Add(1);
                                 }
 
-                                index = PublicTools.Choose(randomList, Battle.random);
-
-                                int targetPos = targetPosList[index];
-
-                                _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
-
-                                if(tmpState == CanState.CAN_SUPPORT)
+                                if (state.canState.ContainsKey(CanState.CAN_SHOOT))
                                 {
-                                    if (!hasBeenSupportedPos.ContainsKey(targetPos))
+                                    canList.Add(CanState.CAN_SHOOT);
+
+                                    randomList.Add(1);
+                                }
+
+                                if (state.canState.ContainsKey(CanState.CAN_SUPPORT))
+                                {
+                                    canList.Add(CanState.CAN_SUPPORT);
+
+                                    randomList.Add(1);
+                                }
+
+                                randomList.Add(_wrongValue);
+
+                                int index = PublicTools.Choose(randomList, Battle.random);
+
+                                if (index < canList.Count)
+                                {
+                                    CanState tmpState = canList[index];
+
+                                    List<int> targetPosList = state.canState[tmpState];
+
+                                    randomList.Clear();
+
+                                    for (int m = 0; m < targetPosList.Count; m++)
                                     {
-                                        hasBeenSupportedPos.Add(targetPos, false);
+                                        randomList.Add(1);
+                                    }
+
+                                    index = PublicTools.Choose(randomList, Battle.random);
+
+                                    int targetPos = targetPosList[index];
+
+                                    _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
+
+                                    if (tmpState == CanState.CAN_SUPPORT)
+                                    {
+                                        if (!hasBeenSupportedPos.ContainsKey(targetPos))
+                                        {
+                                            hasBeenSupportedPos.Add(targetPos, false);
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (state.beState.ContainsKey(BeState.WILL_BE_SUPPORT))
+                                {
+                                    List<int> tmpList = state.beState[BeState.WILL_BE_SUPPORT];
+
+                                    PublicTools.ShuffleList(tmpList, Battle.random);
+
+                                    for (int m = 0; m < tmpList.Count; m++)
+                                    {
+                                        int pos = tmpList[m];
+
+                                        Hero tmpHero = _battle.heroMapDic[pos];
+
+                                        HeroState tmpState = myHeroDic[tmpHero];
+
+                                        if (!tmpState.done)
+                                        {
+                                            if (Battle.random.NextDouble() < 0.5)
+                                            {
+
+                                            }
+                                        }
                                     }
                                 }
                             }
