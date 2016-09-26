@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using publicTools;
 
 namespace FinalWar
 {
@@ -23,13 +23,21 @@ namespace FinalWar
         {
             public Dictionary<BeState, List<int>> beState = new Dictionary<BeState, List<int>>();
             public Dictionary<CanState, List<int>> canState = new Dictionary<CanState, List<int>>();
+
+            public bool done = false;
         }
 
-        internal static void Start(Battle _battle, bool _isMine)
+        internal static void Start(Battle _battle, bool _isMine, double _wrongValue)
         {
-            Dictionary<Hero, HeroState> myHeros = null;
+            ClearAction(_battle, _isMine);
+
+            List<Hero> myHeroList= null;
+
+            Dictionary<Hero, HeroState> myHeroDic = null;
 
             Dictionary<int, List<int>> willBeAttackPos = new Dictionary<int, List<int>>();
+
+            Dictionary<int, bool> hasBeenSupportedPos = new Dictionary<int, bool>();
 
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = _battle.heroMapDic.Values.GetEnumerator();
 
@@ -39,12 +47,16 @@ namespace FinalWar
 
                 if(hero.isMine == _isMine)
                 {
-                    if(myHeros == null)
+                    if(myHeroDic == null)
                     {
-                        myHeros = new Dictionary<Hero, HeroState>();
+                        myHeroList = new List<Hero>();
+
+                        myHeroDic = new Dictionary<Hero, HeroState>();
                     }
 
-                    myHeros.Add(hero, new HeroState());
+                    myHeroDic.Add(hero, new HeroState());
+
+                    myHeroList.Add(hero);
                 }
                 else
                 {
@@ -106,9 +118,9 @@ namespace FinalWar
                 }
             }
 
-            if(myHeros != null)
+            if (myHeroDic != null)
             {
-                Dictionary<Hero, HeroState>.Enumerator enumerator2 = myHeros.GetEnumerator();
+                Dictionary<Hero, HeroState>.Enumerator enumerator2 = myHeroDic.GetEnumerator();
 
                 while (enumerator2.MoveNext())
                 {
@@ -204,11 +216,185 @@ namespace FinalWar
                     }
                 }
 
-                enumerator2 = myHeros.GetEnumerator();
+                enumerator2 = myHeroDic.GetEnumerator();
 
                 while (enumerator2.MoveNext())
                 {
+                    KeyValuePair<Hero, HeroState> pair = enumerator2.Current;
 
+                    if (pair.Key.CheckCanDoAction(Hero.HeroAction.SUPPORT))
+                    {
+                        List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, pair.Key.pos);
+
+                        for (int i = 0; i < posList.Count; i++)
+                        {
+                            int pos = posList[i];
+
+                            if (willBeAttackPos.ContainsKey(pos))
+                            {
+                                List<int> tmpList;
+
+                                if (pair.Value.canState.ContainsKey(CanState.CAN_SUPPORT))
+                                {
+                                    tmpList = pair.Value.canState[CanState.CAN_SUPPORT];
+                                }
+                                else
+                                {
+                                    tmpList = new List<int>();
+
+                                    pair.Value.canState.Add(CanState.CAN_SUPPORT, tmpList);
+                                }
+
+                                tmpList.Add(pos);
+
+                                if (_battle.heroMapDic.ContainsKey(pos))
+                                {
+                                    Hero tmpHero = _battle.heroMapDic[pos];
+
+                                    HeroState state = myHeroDic[tmpHero];
+
+                                    if (state.beState.ContainsKey(BeState.WILL_BE_SUPPORT))
+                                    {
+                                        tmpList = state.beState[BeState.WILL_BE_SUPPORT];
+                                    }
+                                    else
+                                    {
+                                        tmpList = new List<int>();
+
+                                        state.beState.Add(BeState.WILL_BE_SUPPORT, tmpList);
+                                    }
+
+                                    tmpList.Add(pos);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //具体做动作
+                PublicTools.ShuffleList(myHeroList, Battle.random);
+
+                for(int i = 0; i < myHeroList.Count; i++)
+                {
+                    Hero hero = myHeroList[i];
+
+                    HeroState state = myHeroDic[hero];
+
+                    if (state.done)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        state.done = true;
+                    }
+
+                    if (state.canState.Count > 0)
+                    {
+                        if (!state.beState.ContainsKey(BeState.WILL_BE_ATTACK))
+                        {
+                            List<CanState> canList = new List<CanState>();
+
+                            List<double> randomList = new List<double>();
+
+                            if (state.canState.ContainsKey(CanState.CAN_ATTACK))
+                            {
+                                canList.Add(CanState.CAN_ATTACK);
+
+                                randomList.Add(1);
+                            }
+
+                            if (state.canState.ContainsKey(CanState.CAN_SHOOT))
+                            {
+                                canList.Add(CanState.CAN_SHOOT);
+
+                                randomList.Add(1);
+                            }
+
+                            if (state.canState.ContainsKey(CanState.CAN_SUPPORT))
+                            {
+                                canList.Add(CanState.CAN_SUPPORT);
+
+                                randomList.Add(1);
+                            }
+
+                            randomList.Add(_wrongValue);
+
+                            int index = PublicTools.Choose(randomList, Battle.random);
+
+                            if (index < canList.Count)
+                            {
+                                CanState tmpState = canList[index];
+
+                                List<int> targetPosList = state.canState[tmpState];
+
+                                randomList.Clear();
+
+                                for(int m = 0; m < targetPosList.Count; m++)
+                                {
+                                    randomList.Add(1);
+                                }
+
+                                index = PublicTools.Choose(randomList, Battle.random);
+
+                                int targetPos = targetPosList[index];
+
+                                _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
+
+                                if(tmpState == CanState.CAN_SUPPORT)
+                                {
+                                    if (!hasBeenSupportedPos.ContainsKey(targetPos))
+                                    {
+                                        hasBeenSupportedPos.Add(targetPos, false);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void ClearAction(Battle _battle, bool _isMine)
+        {
+            List<int> delList = new List<int>();
+
+            Dictionary<int, int>.Enumerator enumerator = _battle.summon.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                KeyValuePair<int, int> pair = enumerator.Current;
+
+                int pos = pair.Value;
+
+                bool b = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+
+                if(b == _isMine)
+                {
+                    delList.Add(pair.Key);
+                }
+            }
+
+            for(int i = 0; i < delList.Count; i++)
+            {
+                _battle.summon.Remove(delList[i]);
+            }
+
+            for(int i = _battle.action.Count - 1; i > -1; i--)
+            {
+                KeyValuePair<int, int> pair = _battle.action[i];
+
+                int pos = pair.Key;
+
+                bool b = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+
+                if (b == _isMine)
+                {
+                    _battle.action.RemoveAt(i);
                 }
             }
         }
