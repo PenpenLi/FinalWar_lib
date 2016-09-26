@@ -12,11 +12,11 @@
     int GetLeader();
     int[] GetSkills();
     int[] GetAuras();
-    int GetAiAttackAdd();
-    int GetAiAttackMul();
-    int GetAiShootAdd();
-    int GetAiShootMul();
-    int GetAiCounterAdd();
-    int GetAiCounterMul();
+    //int GetAiAttackAdd();
+    //int GetAiAttackMul();
+    //int GetAiShootAdd();
+    //int GetAiShootMul();
+    //int GetAiCounterAdd();
+    //int GetAiCounterMul();
 }
 

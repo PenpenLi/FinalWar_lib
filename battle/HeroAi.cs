@@ -3,7 +3,7 @@ using publicTools;
 
 namespace FinalWar
 {
-    internal class HeroAi
+    public class HeroAi
     {
         private enum BeState
         {
@@ -27,7 +27,7 @@ namespace FinalWar
             public bool done = false;
         }
 
-        internal static void Start(Battle _battle, bool _isMine, double _wrongValue)
+        public static void Start(Battle _battle, bool _isMine, double _wrongValue)
         {
             ClearAction(_battle, _isMine);
 
@@ -210,7 +210,7 @@ namespace FinalWar
                         }
                     }
 
-                    if (pair.Key.CheckCanDoAction(Hero.HeroAction.SHOOT))
+                    if (pair.Key.CheckCanDoAction(Hero.HeroAction.SHOOT) && shootPos.Count > 0)
                     {
                         pair.Value.canState.Add(CanState.CAN_SHOOT, shootPos);
                     }
