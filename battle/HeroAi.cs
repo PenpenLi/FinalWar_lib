@@ -214,13 +214,26 @@ namespace FinalWar
 
                                     tmpList.Add(pos);
                                 }
+
+                                if (pair.Key.CheckCanDoAction(Hero.HeroAction.SHOOT))
+                                {
+                                    List<int> tmpList;
+
+                                    if (pair.Value.canState.ContainsKey(CanState.CAN_SHOOT))
+                                    {
+                                        tmpList = pair.Value.canState[CanState.CAN_SHOOT];
+                                    }
+                                    else
+                                    {
+                                        tmpList = new List<int>();
+
+                                        pair.Value.canState.Add(CanState.CAN_SHOOT, tmpList);
+                                    }
+
+                                    tmpList.Add(pos);
+                                }
                             }
                         }
-                    }
-
-                    if (pair.Key.CheckCanDoAction(Hero.HeroAction.SHOOT) && shootPos.Count > 0)
-                    {
-                        pair.Value.canState.Add(CanState.CAN_SHOOT, shootPos);
                     }
                 }
 
@@ -353,13 +366,15 @@ namespace FinalWar
                             {
                                 int pos = posList[m];
 
+                                
+
                                 int dis = BattlePublicTools.GetDistance(_battle.mapData.mapWidth, pos, targetPos);
 
                                 if (dis < minDis)
                                 {
                                     resultPos.Clear();
 
-                                    resultPos.Add(dis);
+                                    resultPos.Add(pos);
 
                                     minDis = dis;
                                 }
