@@ -20,6 +20,7 @@ namespace FinalWar
         private const int ADD_MONEY = 1;
         private const int MAX_MONEY = 10;
 
+        public int mapID;
         public MapData mapData;
 
         public Dictionary<int, bool> mapBelongDic;
@@ -82,7 +83,9 @@ namespace FinalWar
         {
             Log.Write("Battle Start!");
 
-            mapData = mapDataDic[_mapID];
+            mapID = _mapID;
+
+            mapData = mapDataDic[mapID];
 
             heroMapDic = new Dictionary<int, Hero>();
 
@@ -166,7 +169,7 @@ namespace FinalWar
 
                     bw.Write(oScore);
 
-                    bw.Write(mapData.id);
+                    bw.Write(mapID);
 
                     bw.Write(mapBelongDic.Count);
 

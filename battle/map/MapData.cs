@@ -3,15 +3,13 @@ using System.IO;
 
 public class MapData
 {
-    public int id;
-
     public int mapWidth;
     public int mapHeight;
 
     public int size;
 
-    public int base1;
-    public int base2;
+    public int base1 = -1;
+    public int base2 = -1;
 
     public int score1;
     public int score2;
@@ -19,6 +17,11 @@ public class MapData
     public Dictionary<int, bool> dic = new Dictionary<int, bool>();
 
     public Dictionary<int, int[]> neighbourPosMap = new Dictionary<int, int[]>();
+
+    public MapData()
+    {
+
+    }
 
     public MapData(int _mapWidth, int _mapHeight)
     {
@@ -32,6 +35,9 @@ public class MapData
     {
         _bw.Write(mapWidth);
         _bw.Write(mapHeight);
+
+        _bw.Write(base1);
+        _bw.Write(base2);
 
         _bw.Write(dic.Count);
 
@@ -49,6 +55,9 @@ public class MapData
     {
         mapWidth = _br.ReadInt32();
         mapHeight = _br.ReadInt32();
+
+        base1 = _br.ReadInt32();
+        base2 = _br.ReadInt32();
 
         size = mapWidth * mapHeight - mapHeight / 2;
 

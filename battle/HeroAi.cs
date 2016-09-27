@@ -482,9 +482,9 @@ namespace FinalWar
 
                     for (int m = 0; m < posList.Count; m++)
                     {
-                        int pos = posList[i];
+                        int pos = posList[m];
 
-                        if(!_battle.heroMapDic.ContainsKey(pos) && resultList.Contains(pos))
+                        if(!_battle.heroMapDic.ContainsKey(pos) && !resultList.Contains(pos) && !resultList2.Contains(pos))
                         {
                             bool b = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
 
