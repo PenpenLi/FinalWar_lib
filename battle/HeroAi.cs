@@ -31,7 +31,14 @@ namespace FinalWar
         {
             ClearAction(_battle, _isMine);
 
-            List<Hero> myHeroList= null;
+            DoAction(_battle, _isMine, _wrongValue);
+
+            DoSummon(_battle, _isMine, _wrongValue);
+        }
+
+        private static void DoAction(Battle _battle, bool _isMine, double _wrongValue)
+        {
+            List<Hero> myHeroList = null;
 
             Dictionary<Hero, HeroState> myHeroDic = null;
 
@@ -39,15 +46,16 @@ namespace FinalWar
 
             Dictionary<int, bool> hasBeenSupportedPos = new Dictionary<int, bool>();
 
+            //doAction
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = _battle.heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
                 Hero hero = enumerator.Current;
 
-                if(hero.isMine == _isMine)
+                if (hero.isMine == _isMine)
                 {
-                    if(myHeroDic == null)
+                    if (myHeroDic == null)
                     {
                         myHeroList = new List<Hero>();
 
@@ -74,7 +82,7 @@ namespace FinalWar
 
                             bool mapIsMine = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
 
-                            if(mapIsMine == _isMine)
+                            if (mapIsMine == _isMine)
                             {
                                 neighbourOppPos.Add(pos);
 
@@ -90,7 +98,7 @@ namespace FinalWar
                             }
                         }
 
-                        if(neighbourOppThreatPos.Count > 0)
+                        if (neighbourOppThreatPos.Count > 0)
                         {
                             neighbourOppPos = neighbourOppThreatPos;
                         }
@@ -274,7 +282,7 @@ namespace FinalWar
                 //具体做动作
                 PublicTools.ShuffleList(myHeroList, Battle.random);
 
-                for(int i = 0; i < myHeroList.Count; i++)
+                for (int i = 0; i < myHeroList.Count; i++)
                 {
                     Hero hero = myHeroList[i];
 
@@ -333,12 +341,216 @@ namespace FinalWar
                         }
                         else
                         {
+                            int targetPos = _isMine ? _battle.mapData.base2 : _battle.mapData.base1;
 
+                            List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, hero.pos);
+
+                            List<int> resultPos = new List<int>();
+
+                            int minDis = int.MaxValue;
+
+                            for (int m = 0; m < posList.Count; m++)
+                            {
+                                int pos = posList[m];
+
+                                int dis = BattlePublicTools.GetDistance(_battle.mapData.mapWidth, pos, targetPos);
+
+                                if (dis < minDis)
+                                {
+                                    resultPos.Clear();
+
+                                    resultPos.Add(dis);
+
+                                    minDis = dis;
+                                }
+                                else if (dis == minDis)
+                                {
+                                    resultPos.Add(pos);
+                                }
+                            }
+
+                            if (resultPos.Count > 0)
+                            {
+                                List<double> randomList = new List<double>();
+
+                                for (int m = 0; m < resultPos.Count; m++)
+                                {
+                                    randomList.Add(1);
+                                }
+
+                                int index = PublicTools.Choose(randomList, Battle.random);
+
+                                _battle.action.Add(new KeyValuePair<int, int>(hero.pos, resultPos[index]));
+                            }
                         }
                     }
                 }
             }
         }
+
+        private static void DoSummon(Battle _battle, bool _isMine, double _wrongValue)
+        { 
+            //---summon
+            int money;
+            Dictionary<int, int> handCards;
+            int oppBasePos;
+
+            if (_isMine)
+            {
+                oppBasePos = _battle.mapData.base2;
+                money = _battle.mMoney;
+                handCards = _battle.mHandCards;
+            }
+            else
+            {
+                oppBasePos = _battle.mapData.base1;
+                money = _battle.oMoney;
+                handCards = _battle.oHandCards;
+            }
+
+            List<int> cards = new List<int>();
+            List<double> randomList2 = new List<double>();
+
+            Dictionary<int, int>.Enumerator enumerator4 = handCards.GetEnumerator();
+
+            while (enumerator4.MoveNext())
+            {
+                KeyValuePair<int, int> pair = enumerator4.Current;
+
+                int cardID = pair.Value;
+
+                IHeroSDS heroSDS = Battle.heroDataDic[cardID];
+
+                if(heroSDS.GetCost() <= money)
+                {
+                    cards.Add(pair.Key);
+
+                    randomList2.Add(1);
+                }
+            }
+
+            if(cards.Count > 0)
+            {
+                List<int> resultList = new List<int>();
+
+                List<int> resultList2 = new List<int>();
+
+                List<int> nowCheckPos = new List<int>() { oppBasePos };
+
+                Dictionary<int, bool> checkedPos = new Dictionary<int, bool>();
+
+                checkedPos.Add(oppBasePos, false);
+
+                while (nowCheckPos.Count > 0)
+                {
+                    int nowPos = nowCheckPos[0];
+
+                    nowCheckPos.RemoveAt(0);
+
+                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, nowPos);
+
+                    for (int i = 0; i < posList.Count; i++)
+                    {
+                        int pos = posList[i];
+
+                        if (!checkedPos.ContainsKey(pos))
+                        {
+                            checkedPos.Add(pos, false);
+
+                            bool b = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+
+                            if (b == _isMine)
+                            {
+                                if (!_battle.heroMapDic.ContainsKey(pos))
+                                {
+                                    resultList.Add(pos);
+                                }
+                            }
+                            else
+                            {
+                                nowCheckPos.Add(pos);
+                            }
+                        }
+                    }
+                }
+
+                for (int i = 0; i < resultList.Count; i++)
+                {
+                    int nowPos = resultList[i];
+
+                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, nowPos);
+
+                    for (int m = 0; m < posList.Count; m++)
+                    {
+                        int pos = posList[i];
+
+                        if(!_battle.heroMapDic.ContainsKey(pos) && resultList.Contains(pos))
+                        {
+                            bool b = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+
+                            if (b == _isMine)
+                            {
+                                resultList2.Add(pos);
+                            }
+                        }
+                    }
+                }
+
+                PublicTools.ShuffleList(cards, Battle.random);
+
+                while (cards.Count > 0 && (resultList.Count > 0 || resultList2.Count > 0))
+                {
+                    int cardUid = cards[0];
+
+                    cards.RemoveAt(0);
+
+                    randomList2.RemoveAt(0);
+
+                    int cardID = handCards[cardUid];
+
+                    IHeroSDS heroSDS = Battle.heroDataDic[cardID];
+
+                    if(heroSDS.GetCost() <= money)
+                    {
+                        List<int> summonPosList;
+
+                        if(resultList.Count > 0 && resultList2.Count > 0)
+                        {
+                            if (Battle.random.NextDouble() < 0.5)
+                            {
+                                summonPosList = resultList;
+                            }
+                            else
+                            {
+                                summonPosList = resultList2;
+                            }
+                        }
+                        else if(resultList.Count > 0)
+                        {
+                            summonPosList = resultList;
+                        }
+                        else
+                        {
+                            summonPosList = resultList2;
+                        }
+
+                        int index = (int)(Battle.random.NextDouble() * summonPosList.Count);
+
+                        int summonPos = summonPosList[index];
+
+                        summonPosList.RemoveAt(index);
+
+                        _battle.summon.Add(cardUid, summonPos);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+         
 
         private static void CheckDoAction(Battle _battle, bool _isMine, double _wrongValue, Hero _hero, HeroState _state, Dictionary<int,bool> _hasBeenSupportedPos)
         {

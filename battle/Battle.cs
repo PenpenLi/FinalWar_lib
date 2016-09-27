@@ -28,8 +28,8 @@ namespace FinalWar
         private List<int> mCards;
         private List<int> oCards;
 
-        public Dictionary<int,int> mHandCards;
-        public Dictionary<int,int> oHandCards;
+        public Dictionary<int, int> mHandCards;
+        public Dictionary<int, int> oHandCards;
 
         public int mScore;
         public int oScore;

@@ -10,17 +10,15 @@ public class MapData
 
     public int size;
 
+    public int base1;
+    public int base2;
+
     public int score1;
     public int score2;
 
     public Dictionary<int, bool> dic = new Dictionary<int, bool>();
 
     public Dictionary<int, int[]> neighbourPosMap = new Dictionary<int, int[]>();
-
-    public MapData()
-    {
-
-    }
 
     public MapData(int _mapWidth, int _mapHeight)
     {
