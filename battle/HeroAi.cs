@@ -498,7 +498,7 @@ namespace FinalWar
 
                 PublicTools.ShuffleList(cards, Battle.random);
 
-                while (cards.Count > 0 && (resultList.Count > 0 || resultList2.Count > 0))
+                while (Battle.random.NextDouble() < 0.8 && cards.Count > 0 && (resultList.Count > 0 || resultList2.Count > 0))
                 {
                     int cardUid = cards[0];
 
