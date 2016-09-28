@@ -531,7 +531,7 @@ namespace FinalWar
 
                         if(resultList.Count > 0 && resultList2.Count > 0)
                         {
-                            if (Battle.random.NextDouble() < 0.5)
+                            if (Battle.random.NextDouble() < 0.6)
                             {
                                 summonPosList = resultList;
                             }

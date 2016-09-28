@@ -20,83 +20,6 @@ public class BattlePublicTools
         return result;
     }
 
-    public static int GetDistance(int _width, int _pos, int _targetPos)
-    {
-        int y0;
-
-        int ty = (int)(_pos / (_width * 2 - 1));
-        int tx = _pos % (_width * 2 - 1);
-
-        if(tx < _width)
-        {
-            y0 = ty * 2;
-        }
-        else
-        {
-            y0 = ty * 2 + 1;
-        }
-
-        int y1;
-
-
-        ty = (int)(_targetPos / (_width * 2 - 1));
-        tx = _targetPos % (_width * 2 - 1);
-
-        if(tx < _width)
-        {
-            y1 = ty * 2;
-        }
-        else
-        {
-            y1 = ty * 2 + 1;
-        }
-
-        int dy = y1 - y0;
-
-        if(dy > 0)
-        {
-            int minx = _pos + dy * (_width - 1);
-
-            int maxx = _pos + dy * _width;
-
-            if (_targetPos < minx)
-            {
-                return dy + minx - _targetPos;
-            }
-            else if(_targetPos > maxx)
-            {
-                return dy + _targetPos - maxx;
-            }
-            else
-            {
-                return dy;
-            }
-        }
-        else if(dy < 0)
-        {
-            int minx = _pos + dy * _width;
-
-            int maxx = _pos + dy * (_width - 1);
-
-            if (_targetPos < minx)
-            {
-                return -dy + minx - _targetPos;
-            }
-            else if (_targetPos > maxx)
-            {
-                return -dy + _targetPos - maxx;
-            }
-            else
-            {
-                return -dy;
-            }
-        }
-        else
-        {
-            return Math.Abs(_pos - _targetPos);
-        }
-    }
-
     public static List<int> GetNeighbourPos2(Dictionary<int, int[]> _neighbourPosMap, int _pos)
     {
         List<int> result = new List<int>();
@@ -136,6 +59,82 @@ public class BattlePublicTools
             {
                 _dic.Add(_key, _data);
             }
+        }
+    }
+
+    public static int GetDistance(int _width, int _pos, int _targetPos)
+    {
+        int y0;
+
+        int ty = (int)(_pos / (_width * 2 - 1));
+        int tx = _pos % (_width * 2 - 1);
+
+        if (tx < _width)
+        {
+            y0 = ty * 2;
+        }
+        else
+        {
+            y0 = ty * 2 + 1;
+        }
+
+        int y1;
+
+        ty = (int)(_targetPos / (_width * 2 - 1));
+        tx = _targetPos % (_width * 2 - 1);
+
+        if (tx < _width)
+        {
+            y1 = ty * 2;
+        }
+        else
+        {
+            y1 = ty * 2 + 1;
+        }
+
+        int dy = y1 - y0;
+
+        if (dy > 0)
+        {
+            int minx = _pos + dy * (_width - 1);
+
+            int maxx = _pos + dy * _width;
+
+            if (_targetPos < minx)
+            {
+                return dy + minx - _targetPos;
+            }
+            else if (_targetPos > maxx)
+            {
+                return dy + _targetPos - maxx;
+            }
+            else
+            {
+                return dy;
+            }
+        }
+        else if (dy < 0)
+        {
+            int minx = _pos + dy * _width;
+
+            int maxx = _pos + dy * (_width - 1);
+
+            if (_targetPos < minx)
+            {
+                return -dy + minx - _targetPos;
+            }
+            else if (_targetPos > maxx)
+            {
+                return -dy + _targetPos - maxx;
+            }
+            else
+            {
+                return -dy;
+            }
+        }
+        else
+        {
+            return Math.Abs(_pos - _targetPos);
         }
     }
 }
