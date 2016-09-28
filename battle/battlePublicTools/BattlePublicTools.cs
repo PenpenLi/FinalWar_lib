@@ -22,38 +22,42 @@ public class BattlePublicTools
 
     public static int GetDistance(int _width, int _pos, int _targetPos)
     {
-        int y0 = (int)(_pos / _width);
-        int x0 = _pos % _width;
+        int y0;
 
-        int y1 = (int)(_targetPos / _width);
-        int x1 = _targetPos % _width;
+        int ty = (int)(_pos / (_width * 2 - 1));
+        int tx = _pos % (_width * 2 - 1);
+
+        if(tx < _width)
+        {
+            y0 = ty * 2;
+        }
+        else
+        {
+            y0 = ty * 2 + 1;
+        }
+
+        int y1;
+
+
+        ty = (int)(_targetPos / (_width * 2 - 1));
+        tx = _targetPos % (_width * 2 - 1);
+
+        if(tx < _width)
+        {
+            y1 = ty * 2;
+        }
+        else
+        {
+            y1 = ty * 2 + 1;
+        }
 
         int dy = y1 - y0;
 
         if(dy > 0)
         {
-            int tt = _pos + dy * _width;
+            int minx = _pos + dy * (_width - 1);
 
-            int minx;
-
-            int maxx;
-
-            if (y0 % 2 == 0)
-            {
-                minx = tt - (int)((dy + 1) / 2);
-
-                maxx = tt + (int)(dy / 2);
-            }
-            else
-            {
-                minx = tt - (int)(dy / 2);
-
-                maxx = tt + (int)((dy + 1) / 2);
-            }
-
-            //Console.WriteLine("minx:" + minx);
-
-            //Console.WriteLine("maxx:" + maxx);
+            int maxx = _pos + dy * _width;
 
             if (_targetPos < minx)
             {
@@ -70,28 +74,9 @@ public class BattlePublicTools
         }
         else if(dy < 0)
         {
-            int tt = _pos + dy * _width;
+            int minx = _pos + dy * _width;
 
-            int minx;
-
-            int maxx;
-
-            if(y1 % 2 == 0)
-            {
-                minx = tt + (int)(dy / 2);
-
-                maxx = tt - (int)((dy - 1) / 2);
-            }
-            else
-            {
-                minx = tt + (int)((dy - 1) / 2);
-
-                maxx = tt - (int)(dy / 2);
-            }
-
-            //Console.WriteLine("minx:" + minx);
-
-            //Console.WriteLine("maxx:" + maxx);
+            int maxx = _pos + dy * (_width - 1);
 
             if (_targetPos < minx)
             {
