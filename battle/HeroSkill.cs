@@ -54,7 +54,7 @@ namespace FinalWar
                     
                 case SkillTime.COUNTER:
 
-                    ShootRushAttackerCounter(_battle, _hero, _skillSDS, e.datas[0] as List<Hero>, e.datas[1] as List<Hero>, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as Dictionary<Hero, int>);
+                    ShootRushAttackCounter(_battle, _hero, _skillSDS, e.datas[0] as List<Hero>, e.datas[1] as List<Hero>, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as Dictionary<Hero, int>);
 
                     break;
 
@@ -164,7 +164,7 @@ namespace FinalWar
             }
         }
 
-        private static void ShootRushAttackerCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
+        private static void ShootRushAttackCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _powerChangeDic)
         {
             switch (_skillSDS.GetSkillTarget())
             {
