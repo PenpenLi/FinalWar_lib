@@ -629,7 +629,7 @@ namespace FinalWar
 
         private static void ClearAction(Battle _battle, bool _isMine)
         {
-            List<int> delList = new List<int>();
+            List<int> delList = null;
 
             Dictionary<int, int>.Enumerator enumerator = _battle.summon.GetEnumerator();
 
@@ -643,13 +643,21 @@ namespace FinalWar
 
                 if(b == _isMine)
                 {
+                    if(delList == null)
+                    {
+                        delList = new List<int>();
+                    }
+
                     delList.Add(pair.Key);
                 }
             }
 
-            for(int i = 0; i < delList.Count; i++)
+            if(delList != null)
             {
-                _battle.summon.Remove(delList[i]);
+                for (int i = 0; i < delList.Count; i++)
+                {
+                    _battle.summon.Remove(delList[i]);
+                }
             }
 
             for(int i = _battle.action.Count - 1; i > -1; i--)

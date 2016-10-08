@@ -33,7 +33,7 @@ namespace FinalWar
 
         private const int MAX_LEADER = 100;
 
-        private const float DEFENSE_FIX = 0.7f;
+        private const float DEFENSE_FIX = 0.75f;
 
         private const float DEFENSE_FIX_WITH_POWER_RANGE = 0.2f;
 

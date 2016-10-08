@@ -59,6 +59,8 @@ namespace FinalWar
         internal SuperEventListener eventListener = new SuperEventListener();
         internal SuperEventListenerV eventListenerV = new SuperEventListenerV();
 
+        private bool isVsAi;
+
         public static void Init(Dictionary<int, MapData> _mapDataDic, Dictionary<int, IHeroSDS> _heroDataDic, Dictionary<int, ISkillSDS> _skillDataDic, Dictionary<int, IAuraSDS> _auraDataDic)
         {
             mapDataDic = _mapDataDic;
@@ -79,9 +81,11 @@ namespace FinalWar
             clientDoActionCallBack = _clientDoActionCallBack;
         }
 
-        public void ServerStart(int _mapID,List<int> _mCards,List<int> _oCards)
+        public void ServerStart(int _mapID, List<int> _mCards, List<int> _oCards, bool _isVsAi)
         {
             Log.Write("Battle Start!");
+
+            isVsAi = _isVsAi;
 
             mapID = _mapID;
 
@@ -124,7 +128,10 @@ namespace FinalWar
 
             ServerRefreshData(true);
 
-            ServerRefreshData(false);
+            if (!isVsAi)
+            {
+                ServerRefreshData(false);
+            }
         }
 
         public void ServerGetPackage(byte[] _bytes,bool _isMine)
@@ -650,8 +657,17 @@ namespace FinalWar
                 }
             }
 
-            if (mOver && oOver)
+            if (!isVsAi)
             {
+                if (mOver && oOver)
+                {
+                    ServerStartBattle();
+                }
+            }
+            else
+            {
+                HeroAi.Start(this, false, 0);
+
                 ServerStartBattle();
             }
         }
@@ -721,19 +737,36 @@ namespace FinalWar
                 }
             }
 
-            using (MemoryStream mMs = new MemoryStream(), oMs = new MemoryStream())
+            if (!isVsAi)
             {
-                using (BinaryWriter mBw = new BinaryWriter(mMs), oBw = new BinaryWriter(oMs))
+                using (MemoryStream mMs = new MemoryStream(), oMs = new MemoryStream())
                 {
-                    mBw.Write(bytes);
+                    using (BinaryWriter mBw = new BinaryWriter(mMs), oBw = new BinaryWriter(oMs))
+                    {
+                        mBw.Write(bytes);
 
-                    oBw.Write(bytes);
+                        oBw.Write(bytes);
 
-                    RecoverCards(mBw, oBw);
+                        RecoverCards(mBw, oBw);
 
-                    serverSendDataCallBack(true, mMs);
+                        serverSendDataCallBack(true, mMs);
 
-                    serverSendDataCallBack(false, oMs);
+                        serverSendDataCallBack(false, oMs);
+                    }
+                }
+            }
+            else
+            {
+                using (MemoryStream mMs = new MemoryStream())
+                {
+                    using (BinaryWriter mBw = new BinaryWriter(mMs))
+                    {
+                        mBw.Write(bytes);
+
+                        RecoverCards(mBw, null);
+
+                        serverSendDataCallBack(true, mMs);
+                    }
                 }
             }
 
@@ -1752,20 +1785,29 @@ namespace FinalWar
 
                     oHandCards.Add(tmpCardUid, id);
 
-                    _oBw.Write(true);
+                    if (!isVsAi)
+                    {
+                        _oBw.Write(true);
 
-                    _oBw.Write(tmpCardUid);
+                        _oBw.Write(tmpCardUid);
 
-                    _oBw.Write(id);
+                        _oBw.Write(id);
+                    }
                 }
                 else
                 {
-                    _oBw.Write(false);
+                    if (!isVsAi)
+                    {
+                        _oBw.Write(false);
+                    }
                 }
             }
             else
             {
-                _oBw.Write(false);
+                if (!isVsAi)
+                {
+                    _oBw.Write(false);
+                }
             }
         }
 
