@@ -1695,7 +1695,7 @@ namespace FinalWar
 
                     int tmpPos = hero.pos;
 
-                    hero.pos = nowPos;
+                    hero.PosChange(nowPos);
 
                     nowPos = tmpPos;
                 }
@@ -2055,7 +2055,7 @@ namespace FinalWar
 
                 heroMapDic.Add(nowPos, hero);
 
-                hero.pos = nowPos;
+                hero.PosChange(nowPos);
 
                 bool isMine = mapData.dic[nowPos] != mapBelongDic.ContainsKey(nowPos);
 

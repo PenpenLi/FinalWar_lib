@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using superEvent;
 
 namespace FinalWar
 {
     public class Hero
     {
-        internal enum HeroAction
+        //为了DamageCalculator才设置为public
+        public enum HeroAction
         {
             ATTACK,
             ATTACKOVER,
@@ -49,14 +49,16 @@ namespace FinalWar
 
         private const float SHOOT_POWER_FIX_WITH_DEFENSE = 0.5f;
 
-        public bool isMine;
+        public bool isMine { get; private set; }
 
-        public int uid;
+        public int uid { get; private set; }
 
-        public IHeroSDS sds;
+        public IHeroSDS sds { get; private set; }
 
-        public int pos;
+        public int pos { get; private set; }
+
         public int nowHp { get; private set; }
+
         public int nowPower { get; private set; }
 
         internal HeroAction action { get; private set; }
@@ -65,19 +67,23 @@ namespace FinalWar
 
         private bool beDamaged = false;
 
-        private float attackFix;
-        private float shootFix;
-        private float counterFix;
-        private float defenseFix;
+        private float attackFix = 1;
+        private float shootFix = 1;
+        private float counterFix = 1;
+        private float defenseFix = 1;
 
         private SuperEventListenerV eventListenerV;
 
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos)
         {
             isMine = _isMine;
+
             sds = _sds;
-            pos = _pos;
+
+            PosChange(_pos);
+
             nowHp = sds.GetHp();
+
             nowPower = sds.GetPower();
 
             action = HeroAction.NULL;
@@ -88,15 +94,18 @@ namespace FinalWar
             eventListenerV = _battle.eventListenerV;
 
             isMine = _isMine;
+
             sds = _sds;
-            pos = _pos;
+
+            PosChange(_pos);
+
             uid = _uid;
+
             nowHp = sds.GetHp();
+
             nowPower = sds.GetPower();
 
             action = HeroAction.NULL;
-
-            ResetFix();
 
             if(sds.GetSkills().Length > 0)
             {
@@ -109,12 +118,17 @@ namespace FinalWar
             }
         }
 
-        internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowPower)
+        //为了DamageCalculator才设置为public
+        public Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowPower)
         {
             isMine = _isMine;
+
             sds = _sds;
-            pos = _pos;
+
+            PosChange(_pos);
+
             nowHp = _nowHp;
+
             nowPower = _nowPower;
 
             action = HeroAction.NULL;
@@ -127,9 +141,15 @@ namespace FinalWar
             actionTarget = _actionTarget;
         }
 
-        internal void SetAction(HeroAction _action)
+        //为了DamageCalculator才设置为public
+        public void SetAction(HeroAction _action)
         {
             action = _action;
+        }
+
+        internal void PosChange(int _pos)
+        {
+            pos = _pos;
         }
 
         internal bool ServerHpChange(int _value)
@@ -181,29 +201,41 @@ namespace FinalWar
             }
         }
 
-        internal int GetShootDamage()
+        //为了DamageCalculator才设置为public
+        public int GetShootDamage()
         {
             float fix = 1;
 
-            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_SHOOT), ref fix, this);
+            if (eventListenerV != null)
+            {
+                eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_SHOOT), ref fix, this);
+            }
 
             return FixDamageWithPowerAndRandom(sds.GetShoot() * fix * shootFix);
         }
 
-        internal int GetAttackDamage()
+        //为了DamageCalculator才设置为public
+        public int GetAttackDamage()
         {
             float fix = 1;
 
-            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_ATTACK), ref fix, this);
+            if (eventListenerV != null)
+            {
+                eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_ATTACK), ref fix, this);
+            }
 
             return FixDamageWithPowerAndRandom(sds.GetAttack() * fix * attackFix);
         }
 
-        internal int GetCounterDamage()
+        //为了DamageCalculator才设置为public
+        public int GetCounterDamage()
         {
             float fix = 1;
 
-            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_COUNTER), ref fix, this);
+            if (eventListenerV != null)
+            {
+                eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_COUNTER), ref fix, this);
+            }
 
             return FixDamageWithPowerAndRandom(sds.GetCounter() * fix * counterFix);
         }
@@ -220,7 +252,8 @@ namespace FinalWar
             return damage;
         }
 
-        internal int BeDamageByShoot(int _damage)
+        //为了DamageCalculator才设置为public
+        public int BeDamageByShoot(int _damage)
         {
             if(action == HeroAction.DEFENSE)
             {
@@ -232,7 +265,8 @@ namespace FinalWar
             }
         }
 
-        internal int BeDamage(int _damage)
+        //为了DamageCalculator才设置为public
+        public int BeDamage(int _damage)
         {
             float fix = FixDefense();
 
@@ -291,11 +325,14 @@ namespace FinalWar
             return tmpDamage;
         }
 
-        private float FixDefense()
+        internal float FixDefense()
         {
             float fix = 1;
 
-            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_DEFENSE), ref fix, this);
+            if (eventListenerV != null)
+            {
+                eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_DEFENSE), ref fix, this);
+            }
 
             return (sds.GetDefense() * fix * DEFENSE_FIX + MAX_DEFENSE * (1 - DEFENSE_FIX)) * 2 * (1 + ((nowPower * 2 / MAX_POWER) - 1) * DEFENSE_FIX_WITH_POWER_RANGE) * defenseFix;
         }
