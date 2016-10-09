@@ -41,13 +41,15 @@ namespace FinalWar
 
         private const float DAMAGE_FIX_WITH_RANDOM_RANGE = 0.05f;
 
+        //private const float DAMAGE_FIX_WITH_RANDOM_RANGE = 0f;
+
         private const float POWER_FIX_WITH_LEADER_RANGE = 0.3f;
 
         private const float POWER_FIX_WITH_RANDOM_RANGE = 0.05f;
 
         private const float SHOOT_DAMAGE_FIX_WITH_DEFENSE = 0.5f;
 
-        private const float SHOOT_POWER_FIX_WITH_DEFENSE = 0.5f;
+        private const float SHOOT_POWER_FIX_WITH_DEFENSE = 0.3f;
 
         public bool isMine { get; private set; }
 
@@ -242,7 +244,7 @@ namespace FinalWar
 
         private int FixDamageWithPowerAndRandom(float _damage)
         {
-            int damage = (int)(nowHp * _damage * (1 + ((nowPower * 2 / MAX_POWER) - 1) * DAMAGE_FIX_WITH_POWER_RANGE) * (1 + (Battle.random.NextDouble() * 2 - 1) * DAMAGE_FIX_WITH_RANDOM_RANGE));
+            int damage = (int)(nowHp * _damage * (1 + (((float)nowPower * 2 / MAX_POWER) - 1) * DAMAGE_FIX_WITH_POWER_RANGE) * (1 + (Battle.random.NextDouble() * 2 - 1) * DAMAGE_FIX_WITH_RANDOM_RANGE));
 
             if(damage < 1)
             {
@@ -334,7 +336,7 @@ namespace FinalWar
                 eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_DEFENSE), ref fix, this);
             }
 
-            return (sds.GetDefense() * fix * DEFENSE_FIX + MAX_DEFENSE * (1 - DEFENSE_FIX)) * 2 * (1 + ((nowPower * 2 / MAX_POWER) - 1) * DEFENSE_FIX_WITH_POWER_RANGE) * defenseFix;
+            return (sds.GetDefense() * fix * DEFENSE_FIX + MAX_DEFENSE * (1 - DEFENSE_FIX)) * 2 * (1 + (((float)nowPower * 2 / MAX_POWER) - 1) * DEFENSE_FIX_WITH_POWER_RANGE) * defenseFix;
         }
 
         private int FixPowerChange(int _powerChange)
@@ -343,11 +345,11 @@ namespace FinalWar
 
             if (_powerChange > 0)
             {
-                powerChange = _powerChange * (1 + ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE);
+                powerChange = _powerChange * (1 + (((float)sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE);
             }
             else
             {
-                powerChange = _powerChange * (1 - ((sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE);
+                powerChange = _powerChange * (1 - (((float)sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE);
             }
 
             int result = (int)(powerChange * (1 + (Battle.random.NextDouble() * 2 - 1) * DAMAGE_FIX_WITH_RANDOM_RANGE));
