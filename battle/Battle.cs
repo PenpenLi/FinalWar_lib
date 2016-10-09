@@ -1657,6 +1657,8 @@ namespace FinalWar
 
                 cellData.supporters.Remove(_hero);
             }
+
+            _hero.SetAction(Hero.HeroAction.NULL);
         }
 
         private void OneCellEmpty(BattleData _battleData, int _pos, Dictionary<int, int> _tmpMoveDic, Dictionary<Hero,int> _powerChangeDic)

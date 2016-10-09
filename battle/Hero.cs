@@ -353,6 +353,15 @@ namespace FinalWar
             }
 
             int result = (int)(powerChange * (1 + (Battle.random.NextDouble() * 2 - 1) * DAMAGE_FIX_WITH_RANDOM_RANGE));
+            
+            if (result > 0 && result < 100)
+            {
+                result = 100;
+            }
+            else if (result < 0 && result > -100)
+            {
+                result = -100;
+            }
 
             return result;
         }
@@ -376,7 +385,7 @@ namespace FinalWar
 
         internal int SummonHero()
         {
-            return FixPowerChange(500);
+            return FixPowerChange(300);
         }
 
         internal int Rush()
@@ -455,13 +464,13 @@ namespace FinalWar
 
             if (beDamaged)
             {
-                powerChange = FixPowerChange(300);
+                powerChange = FixPowerChange(200);
 
                 beDamaged = false;
             }
             else
             {
-                powerChange = FixPowerChange(600);
+                powerChange = FixPowerChange(400);
             }
 
             return powerChange;

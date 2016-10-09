@@ -556,6 +556,8 @@ namespace FinalWar
                         summonPosList.RemoveAt(index);
 
                         _battle.summon.Add(cardUid, summonPos);
+
+                        money -= heroSDS.GetCost();
                     }
                     else
                     {
