@@ -1,8 +1,8 @@
 ﻿public enum SkillTime
 {
     ROUNDSTART,
-    SHOOT,
     SUMMON,
+    SHOOT,
     RUSH,
     ATTACK,
     COUNTER,
