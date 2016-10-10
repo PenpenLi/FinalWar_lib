@@ -390,7 +390,7 @@ namespace FinalWar
 
         internal int Rush()
         {
-            return FixPowerChange(1200);
+            return FixPowerChange(900);
         }
 
         internal int BeRush(int _rusherNum)
@@ -404,7 +404,7 @@ namespace FinalWar
 
             if(num > 0)
             {
-                return FixPowerChange(num * 400);
+                return FixPowerChange(num * 300);
             }
             else if(num < 0)
             {
@@ -422,7 +422,7 @@ namespace FinalWar
 
             if (num > 0)
             {
-                return FixPowerChange(num * 400);
+                return FixPowerChange(num * 300);
             }
             else if (num < 0)
             {
@@ -442,7 +442,7 @@ namespace FinalWar
             }
             else
             {
-                return FixPowerChange(800);
+                return FixPowerChange(600);
             }
         }
 
@@ -450,7 +450,7 @@ namespace FinalWar
         {
             if(isMine == _isMineNow)
             {
-                return FixPowerChange(400);
+                return FixPowerChange(300);
             }
             else
             {

@@ -251,7 +251,7 @@ namespace FinalWar
 
                         while (enumerator4.MoveNext())
                         {
-                            int pos = enumerator4.Current.Key;
+                            int pos = enumerator4.Current.Value;
 
                             if ((mapData.dic[pos] == _isMine) != mapBelongDic.ContainsKey(pos))
                             {
