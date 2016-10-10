@@ -49,7 +49,7 @@ namespace FinalWar
 
         private const float SHOOT_DAMAGE_FIX_WITH_DEFENSE = 0.5f;
 
-        private const float SHOOT_POWER_FIX_WITH_DEFENSE = 0.3f;
+        private const float SHOOT_POWER_FIX_WITH_DEFENSE = 0.5f;
 
         public bool isMine { get; private set; }
 

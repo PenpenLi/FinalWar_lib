@@ -59,6 +59,9 @@ namespace FinalWar
         internal SuperEventListener eventListener = new SuperEventListener();
         internal SuperEventListenerV eventListenerV = new SuperEventListenerV();
 
+        public bool mWin = false;
+        public bool oWin = false;
+
         private bool isVsAi;
 
         public static void Init(Dictionary<int, MapData> _mapDataDic, Dictionary<int, IHeroSDS> _heroDataDic, Dictionary<int, ISkillSDS> _skillDataDic, Dictionary<int, IAuraSDS> _auraDataDic)
@@ -99,6 +102,8 @@ namespace FinalWar
             oScore = mapData.score2;
 
             mMoney = oMoney = DEFAULT_MONEY;
+
+            mWin = oWin = false;
 
             cardUid = 1;
             heroUid = 1;
@@ -732,6 +737,10 @@ namespace FinalWar
                     bw.Write(PackageTag.S2C_DOACTION);
 
                     BattleVOTools.WriteDataToStream(voList, bw);
+
+                    bw.Write(mWin);
+
+                    bw.Write(oWin);
 
                     bytes = ms.ToArray();
                 }
@@ -1661,7 +1670,7 @@ namespace FinalWar
             _hero.SetAction(Hero.HeroAction.NULL);
         }
 
-        private void OneCellEmpty(BattleData _battleData, int _pos, Dictionary<int, int> _tmpMoveDic, Dictionary<Hero,int> _powerChangeDic)
+        private void OneCellEmpty(BattleData _battleData, int _pos, Dictionary<int, int> _tmpMoveDic, Dictionary<Hero, int> _powerChangeDic)
         {
             int nowPos = _pos;
 
@@ -1699,6 +1708,15 @@ namespace FinalWar
                 {
                     if (changeMapBelong)
                     {
+                        if(mapData.base1 == nowPos)
+                        {
+                            oWin = true;
+                        }
+                        else if(mapData.base2 == nowPos)
+                        {
+                            mWin = true;
+                        }
+
                         if (mapBelongDic.ContainsKey(nowPos))
                         {
                             mapBelongDic.Remove(nowPos);
@@ -2184,7 +2202,11 @@ namespace FinalWar
         }
 
         private void ClientDoRecover(BinaryReader _br)
-        { 
+        {
+            mWin = _br.ReadBoolean();
+
+            oWin = _br.ReadBoolean();
+
             bool addCard = _br.ReadBoolean();
 
             if (addCard)
