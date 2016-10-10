@@ -1297,6 +1297,8 @@ namespace FinalWar
         {
             Dictionary<Hero, int> hpChangeDic = new Dictionary<Hero, int>();
 
+            Dictionary<Hero, int> hpChangeDic2 = new Dictionary<Hero, int>();
+
             Dictionary<Hero, int> powerChangeDic = new Dictionary<Hero, int>();
 
             Dictionary<int, BattleCellData>.Enumerator enumerator = _battleData.actionDic.GetEnumerator();
@@ -1498,31 +1500,36 @@ namespace FinalWar
                     {
                         if (attackDamage > 0)
                         {
-                            defenderDamage = cellData.stander.BeDamage(attackDamage);
+                            defenderDamage = -cellData.stander.BeDamage(attackDamage);
 
-                            BattlePublicTools.AccumulateDicData(hpChangeDic, cellData.stander, -defenderDamage);
+                            hpChangeDic2.Add(cellData.stander, defenderDamage);
                         }
-
-                        if (hpChangeDic.ContainsKey(cellData.stander))
-                        {
-                            defenderDamage = hpChangeDic[cellData.stander];
-
-                            if (defenderDamage > 0)
-                            {
-                                defenderDamage = 0;
-                            }
-                        }
-                        else
-                        {
-                            defenderDamage = 0;
-                        }
-
-                        //int powerChange = cellData.stander.BeAttack(attackerNum, defenderNum);
-
-                        //BattlePublicTools.AccumulateDicData(powerChangeDic, cellData.stander, powerChange);
                     }
 
                     _voList.Add(new BattleAttackVO(attackers, supporters, enumerator.Current.Key, attackersDamage, supportersDamage, defenderDamage));
+                }
+            }
+
+            Dictionary<Hero, int>.Enumerator enumerator2 = hpChangeDic2.GetEnumerator();
+
+            while (enumerator2.MoveNext())
+            {
+                KeyValuePair<Hero, int> pair = enumerator2.Current;
+
+                if (hpChangeDic.ContainsKey(pair.Key))
+                {
+                    if(hpChangeDic[pair.Key] < 0)
+                    {
+                        hpChangeDic[pair.Key] += pair.Value;
+                    }
+                    else
+                    {
+                        hpChangeDic[pair.Key] = pair.Value;
+                    }
+                }
+                else
+                {
+                    hpChangeDic.Add(pair.Key, pair.Value);
                 }
             }
 
