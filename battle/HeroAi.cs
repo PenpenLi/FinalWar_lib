@@ -132,6 +132,8 @@ namespace FinalWar
 
                 while (enumerator2.MoveNext())
                 {
+                    List<int> posList;
+
                     KeyValuePair<Hero, HeroState> pair = enumerator2.Current;
 
                     if (willBeAttackPos.ContainsKey(pair.Key.pos))
@@ -139,36 +141,36 @@ namespace FinalWar
                         pair.Value.beState.Add(BeState.WILL_BE_ATTACK, willBeAttackPos[pair.Key.pos]);
                     }
 
-                    List<int> neighbourOppThreatPos = new List<int>();
-
-                    List<int> neighbourOppPos = new List<int>();
-
-                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, pair.Key.pos);
-
-                    for (int i = 0; i < posList.Count; i++)
+                    if (pair.Key.CheckCanDoAction(Hero.HeroAction.ATTACK))
                     {
-                        int pos = posList[i];
+                        List<int> neighbourOppThreatPos = new List<int>();
 
-                        bool mapIsMine = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+                        List<int> neighbourOppPos = new List<int>();
 
-                        if (mapIsMine != _isMine)
+                        posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, pair.Key.pos);
+
+                        for (int i = 0; i < posList.Count; i++)
                         {
-                            neighbourOppPos.Add(pos);
+                            int pos = posList[i];
 
-                            if (_battle.heroMapDic.ContainsKey(pos))
+                            bool mapIsMine = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+
+                            if (mapIsMine != _isMine)
                             {
-                                Hero tmpHero = _battle.heroMapDic[pos];
+                                neighbourOppPos.Add(pos);
 
-                                if (tmpHero.sds.GetThreat())
+                                if (_battle.heroMapDic.ContainsKey(pos))
                                 {
-                                    neighbourOppThreatPos.Add(pos);
+                                    Hero tmpHero = _battle.heroMapDic[pos];
+
+                                    if (tmpHero.sds.GetThreat())
+                                    {
+                                        neighbourOppThreatPos.Add(pos);
+                                    }
                                 }
                             }
                         }
-                    }
-
-                    if (pair.Key.CheckCanDoAction(Hero.HeroAction.ATTACK))
-                    {
+                    
                         if (neighbourOppThreatPos.Count > 0)
                         {
                             pair.Value.canState.Add(CanState.CAN_ATTACK, neighbourOppThreatPos);
@@ -181,8 +183,6 @@ namespace FinalWar
 
                     posList = BattlePublicTools.GetNeighbourPos2(_battle.mapData.neighbourPosMap, pair.Key.pos);
 
-                    List<int> shootPos = new List<int>();
-
                     for (int i = 0; i < posList.Count; i++)
                     {
                         int pos = posList[i];
@@ -193,44 +193,78 @@ namespace FinalWar
                         {
                             if (_battle.heroMapDic.ContainsKey(pos))
                             {
-                                shootPos.Add(pos);
-
                                 Hero tmpHero = _battle.heroMapDic[pos];
 
                                 if (tmpHero.CheckCanDoAction(Hero.HeroAction.SHOOT))
                                 {
-                                    List<int> tmpList;
+                                    bool willBeShoot = true;
 
-                                    if (!pair.Value.beState.ContainsKey(BeState.WILL_BE_SHOOT))
+                                    //检测射击隔了一个敌人
+                                    int midPos = (pos + pair.Key.pos) / 2;
+
+                                    if (_battle.heroMapDic.ContainsKey(midPos))
                                     {
-                                        tmpList = new List<int>();
+                                        Hero midHero = _battle.heroMapDic[midPos];
 
-                                        pair.Value.beState.Add(BeState.WILL_BE_SHOOT, tmpList);
+                                        if (midHero.isMine == _isMine)
+                                        {
+                                            willBeShoot = false;
+                                        }
                                     }
-                                    else
+
+                                    if (willBeShoot)
                                     {
-                                        tmpList = pair.Value.beState[BeState.WILL_BE_SHOOT];
-                                    }
+                                        List<int> tmpList;
 
-                                    tmpList.Add(pos);
+                                        if (!pair.Value.beState.ContainsKey(BeState.WILL_BE_SHOOT))
+                                        {
+                                            tmpList = new List<int>();
+
+                                            pair.Value.beState.Add(BeState.WILL_BE_SHOOT, tmpList);
+                                        }
+                                        else
+                                        {
+                                            tmpList = pair.Value.beState[BeState.WILL_BE_SHOOT];
+                                        }
+
+                                        tmpList.Add(pos);
+                                    }
                                 }
 
                                 if (pair.Key.CheckCanDoAction(Hero.HeroAction.SHOOT))
                                 {
-                                    List<int> tmpList;
+                                    bool canShoot = true;
 
-                                    if (pair.Value.canState.ContainsKey(CanState.CAN_SHOOT))
+                                    //检测射击隔了一个敌人
+                                    int midPos = (pos + pair.Key.pos) / 2;
+
+                                    if (_battle.heroMapDic.ContainsKey(midPos))
                                     {
-                                        tmpList = pair.Value.canState[CanState.CAN_SHOOT];
+                                        Hero midHero = _battle.heroMapDic[midPos];
+
+                                        if (midHero.isMine != _isMine)
+                                        {
+                                            canShoot = false;
+                                        }
                                     }
-                                    else
+
+                                    if (canShoot)
                                     {
-                                        tmpList = new List<int>();
+                                        List<int> tmpList;
 
-                                        pair.Value.canState.Add(CanState.CAN_SHOOT, tmpList);
+                                        if (pair.Value.canState.ContainsKey(CanState.CAN_SHOOT))
+                                        {
+                                            tmpList = pair.Value.canState[CanState.CAN_SHOOT];
+                                        }
+                                        else
+                                        {
+                                            tmpList = new List<int>();
+
+                                            pair.Value.canState.Add(CanState.CAN_SHOOT, tmpList);
+                                        }
+
+                                        tmpList.Add(pos);
                                     }
-
-                                    tmpList.Add(pos);
                                 }
                             }
                         }
@@ -354,49 +388,22 @@ namespace FinalWar
                         }
                         else
                         {
-                            int targetPos = _isMine ? _battle.mapData.base2 : _battle.mapData.base1;
-
-                            List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, hero.pos);
-
-                            List<int> resultPos = new List<int>();
-
-                            int minDis = int.MaxValue;
-
-                            for (int m = 0; m < posList.Count; m++)
+                            if (state.beState.ContainsKey(BeState.WILL_BE_ATTACK))
                             {
-                                int pos = posList[m];
-
-                                
-
-                                int dis = BattlePublicTools.GetDistance(_battle.mapData.mapWidth, pos, targetPos);
-
-                                if (dis < minDis)
+                                if(Battle.random.NextDouble() > 0.2)
                                 {
-                                    resultPos.Clear();
-
-                                    resultPos.Add(pos);
-
-                                    minDis = dis;
+                                    continue;
                                 }
-                                else if (dis == minDis)
+                            }
+                            else if (state.beState.ContainsKey(BeState.WILL_BE_SHOOT))
+                            {
+                                if (Battle.random.NextDouble() > 0.3)
                                 {
-                                    resultPos.Add(pos);
+                                    continue;
                                 }
                             }
 
-                            if (resultPos.Count > 0)
-                            {
-                                List<double> randomList = new List<double>();
-
-                                for (int m = 0; m < resultPos.Count; m++)
-                                {
-                                    randomList.Add(1);
-                                }
-
-                                int index = PublicTools.Choose(randomList, Battle.random);
-
-                                _battle.action.Add(new KeyValuePair<int, int>(hero.pos, resultPos[index]));
-                            }
+                            JustMoveForwardInMyArea(_battle, hero);
                         }
                     }
                 }
@@ -434,7 +441,7 @@ namespace FinalWar
 
                 int cardID = pair.Value;
 
-                IHeroSDS heroSDS = Battle.heroDataDic[cardID];
+                IHeroSDS heroSDS = Battle.GetHeroData(cardID);
 
                 if(heroSDS.GetCost() <= money)
                 {
@@ -523,7 +530,7 @@ namespace FinalWar
 
                     int cardID = handCards[cardUid];
 
-                    IHeroSDS heroSDS = Battle.heroDataDic[cardID];
+                    IHeroSDS heroSDS = Battle.GetHeroData(cardID);
 
                     if(heroSDS.GetCost() <= money)
                     {
@@ -625,6 +632,94 @@ namespace FinalWar
                     {
                         _hasBeenSupportedPos.Add(targetPos, false);
                     }
+                }
+            }
+            else
+            {
+                JustMoveForwardInMyArea(_battle, _hero);
+            }
+        }
+
+        private static void JustMoveForwardInMyArea(Battle _battle, Hero _hero)
+        {
+            int targetPos = _hero.isMine ? _battle.mapData.base2 : _battle.mapData.base1;
+
+            List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, _hero.pos);
+
+            List<int> resultPos = new List<int>() { _hero.pos };//添加自己位置  防止士气不够无事可干的时候一定会往和敌人老家距离相同的位置行走
+
+            int minDis = BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, targetPos);
+
+            for (int m = 0; m < posList.Count; m++)
+            {
+                int pos = posList[m];
+
+                bool mapIsMine = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+
+                //不能往敌人的格子走
+                if (mapIsMine != _hero.isMine)
+                {
+                    continue;
+                }
+
+                //如果格子上有自己人  确定自己人在移动才往那走  否则无意义
+                if (_battle.heroMapDic.ContainsKey(pos))
+                {
+                    bool targetHeroIsMoving = false;
+
+                    for(int i = 0; i < _battle.action.Count; i++)
+                    {
+                        KeyValuePair<int, int> pair = _battle.action[i];
+
+                        if (pair.Key == pos)
+                        {
+                            if (BattlePublicTools.GetDistance(_battle.mapData.mapWidth, pos,pair.Value) == 1)
+                            {
+                                targetHeroIsMoving = true;
+
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!targetHeroIsMoving)
+                    {
+                        continue;
+                    }
+                }
+
+                int dis = BattlePublicTools.GetDistance(_battle.mapData.mapWidth, pos, targetPos);
+
+                if (dis < minDis)
+                {
+                    resultPos.Clear();
+
+                    resultPos.Add(pos);
+
+                    minDis = dis;
+                }
+                else if (dis == minDis)
+                {
+                    resultPos.Add(pos);
+                }
+            }
+
+            if (resultPos.Count > 0)
+            {
+                List<double> randomList = new List<double>();
+
+                for (int m = 0; m < resultPos.Count; m++)
+                {
+                    randomList.Add(1);
+                }
+
+                int index = PublicTools.Choose(randomList, Battle.random);
+
+                int target = resultPos[index];
+
+                if (target != _hero.pos)
+                {
+                    _battle.action.Add(new KeyValuePair<int, int>(_hero.pos, target));
                 }
             }
         }

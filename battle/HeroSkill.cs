@@ -19,7 +19,7 @@ namespace FinalWar
             {
                 int skillID = _hero.sds.GetSkills()[i];
 
-                ISkillSDS skillSDS = Battle.skillDataDic[skillID];
+                ISkillSDS skillSDS = Battle.GetSkillData(skillID);
 
                 Action<SuperEvent> dele = delegate(SuperEvent e)
                 {

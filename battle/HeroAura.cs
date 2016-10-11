@@ -19,7 +19,7 @@ namespace FinalWar
             {
                 int auraID = _hero.sds.GetAuras()[i];
 
-                IAuraSDS auraSDS = Battle.auraDataDic[auraID];
+                IAuraSDS auraSDS = Battle.GetAuraData(auraID);
 
                 SuperEventListenerV.EventCallBack dele = delegate (SuperEvent e, ref float _value)
                 {

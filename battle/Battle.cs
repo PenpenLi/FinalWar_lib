@@ -10,10 +10,15 @@ namespace FinalWar
     {
         internal static readonly Random random = new Random();
 
-        internal static Dictionary<int, MapData> mapDataDic;
-        internal static Dictionary<int, IHeroSDS> heroDataDic;
-        internal static Dictionary<int, ISkillSDS> skillDataDic;
-        internal static Dictionary<int, IAuraSDS> auraDataDic;
+        internal static Func<int, MapData> GetMapData;
+        internal static Func<int, IHeroSDS> GetHeroData;
+        internal static Func<int, ISkillSDS> GetSkillData;
+        internal static Func<int, IAuraSDS> GetAuraData;
+
+        //internal static Dictionary<int, MapData> mapDataDic;
+        //internal static Dictionary<int, IHeroSDS> heroDataDic;
+        //internal static Dictionary<int, ISkillSDS> skillDataDic;
+        //internal static Dictionary<int, IAuraSDS> auraDataDic;
 
         private const int DEFAULT_HAND_CARD_NUM = 5;
         private const int MAX_HAND_CARD_NUM = 10;
@@ -68,10 +73,30 @@ namespace FinalWar
 
         public static void Init<T, U, V>(Dictionary<int, MapData> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic) where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS
         {
-            mapDataDic = _mapDataDic;
-            heroDataDic = PublicTools.ConvertDic<int, T, IHeroSDS>(_heroDataDic);
-            skillDataDic = PublicTools.ConvertDic<int, U, ISkillSDS>(_skillDataDic);
-            auraDataDic = PublicTools.ConvertDic<int, V, IAuraSDS>(_auraDataDic);
+            GetMapData = delegate (int _id)
+            {
+                return _mapDataDic[_id];
+            };
+
+            GetHeroData = delegate (int _id)
+            {
+                return _heroDataDic[_id];
+            };
+
+            GetSkillData = delegate (int _id)
+            {
+                return _skillDataDic[_id];
+            };
+
+            GetAuraData = delegate (int _id)
+            {
+                return _auraDataDic[_id];
+            };
+
+            //mapDataDic = _mapDataDic;
+            //heroDataDic = PublicTools.ConvertDic<int, T, IHeroSDS>(_heroDataDic);
+            //skillDataDic = PublicTools.ConvertDic<int, U, ISkillSDS>(_skillDataDic);
+            //auraDataDic = PublicTools.ConvertDic<int, V, IAuraSDS>(_auraDataDic);
         }
 
         public void ServerSetCallBack(Action<bool, MemoryStream> _serverSendDataCallBack, Action _serverBattleOverCallBack)
@@ -95,7 +120,7 @@ namespace FinalWar
 
             mapID = _mapID;
 
-            mapData = mapDataDic[mapID];
+            mapData = GetMapData(mapID);
 
             mScore = mapData.score1;
             oScore = mapData.score2;
@@ -334,9 +359,9 @@ namespace FinalWar
 
             oScore = _br.ReadInt32();
 
-            int mapID = _br.ReadInt32();
+            mapID = _br.ReadInt32();
 
-            mapData = mapDataDic[mapID];
+            mapData = GetMapData(mapID);
 
             mapBelongDic = new Dictionary<int, bool>();
 
@@ -365,7 +390,7 @@ namespace FinalWar
 
                 int nowPower = _br.ReadInt32();
 
-                AddHero(heroIsMine, heroDataDic[id], pos, nowHp, nowPower);
+                AddHero(heroIsMine, GetHeroData(id), pos, nowHp, nowPower);
             }
 
             Dictionary<int, int> handCards;
@@ -520,6 +545,7 @@ namespace FinalWar
                     {
                         if (hero.CheckCanDoAction(Hero.HeroAction.SHOOT))
                         {
+                            //检测射击隔了一个敌人
                             int midPos = (_pos + _targetPos) / 2;
 
                             if (heroMapDic.ContainsKey(midPos))
@@ -679,7 +705,7 @@ namespace FinalWar
             }
             else
             {
-                HeroAi.Start(this, false, 0);
+                HeroAi.Start(this, false, 0.2);
 
                 ServerStartBattle();
             }
@@ -889,7 +915,7 @@ namespace FinalWar
                 heroID = oHandCards[_uid];
             }
 
-            IHeroSDS sds = heroDataDic[heroID];
+            IHeroSDS sds = GetHeroData(heroID);
 
             if (_isMine)
             {
@@ -1074,6 +1100,7 @@ namespace FinalWar
                     {
                         if (heroMapDic.ContainsKey(_targetPos))
                         {
+                            //检测射击隔了一个敌人
                             int midPos = (_pos + _targetPos) / 2;
 
                             if (heroMapDic.ContainsKey(midPos))
@@ -2137,7 +2164,7 @@ namespace FinalWar
         {
             bool isMine = mapData.dic[_vo.pos] != mapBelongDic.ContainsKey(_vo.pos);
 
-            IHeroSDS sds = heroDataDic[_vo.heroID];
+            IHeroSDS sds = GetHeroData(_vo.heroID);
 
             if (isMine == clientIsMine)
             {
