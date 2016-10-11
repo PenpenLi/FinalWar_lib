@@ -520,6 +520,18 @@ namespace FinalWar
                     {
                         if (hero.CheckCanDoAction(Hero.HeroAction.SHOOT))
                         {
+                            int midPos = (_pos + _targetPos) / 2;
+
+                            if (heroMapDic.ContainsKey(midPos))
+                            {
+                                Hero midHero = heroMapDic[midPos];
+
+                                if(midHero.isMine != hero.isMine)
+                                {
+                                    return false;
+                                }
+                            }
+
                             action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
 
                             return true;
@@ -907,30 +919,11 @@ namespace FinalWar
 
         public BattleData GetBattleData()
         {
-            BattleData battleData = new BattleData();
-
-            List<KeyValuePair<int, int>> shtList = new List<KeyValuePair<int, int>>();
-
-            List<KeyValuePair<int, int>> atkList = new List<KeyValuePair<int, int>>();
-
-            List<KeyValuePair<int, int>> supList = new List<KeyValuePair<int, int>>();
-
-            Dictionary<int, int> supDic = new Dictionary<int, int>();
-
-            for (int i = 0; i < action.Count; i++)
-            { 
-                int pos = action[i].Key;
-
-                int targetPos = action[i].Value;
-
-                GetOneUnitAction(pos, targetPos, shtList, atkList, supList, supDic);
-            }
-
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                if(enumerator.Current.CheckCanDoAction(Hero.HeroAction.DEFENSE))
+                if (enumerator.Current.CheckCanDoAction(Hero.HeroAction.DEFENSE))
                 {
                     enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
                 }
@@ -940,114 +933,28 @@ namespace FinalWar
                 }
             }
 
-            for(int i = 0; i < shtList.Count; i++)
-            {
-                KeyValuePair<int, int> pair = shtList[i];
+            BattleData battleData = new BattleData();
 
-                Hero hero = heroMapDic[pair.Key];
+            for (int i = 0; i < action.Count; i++)
+            { 
+                int pos = action[i].Key;
 
-                if(!hero.CheckCanDoAction(Hero.HeroAction.SHOOT))
-                {
-                    continue;
-                }
+                int targetPos = action[i].Value;
 
-                hero.SetAction(Hero.HeroAction.SHOOT, pair.Value);
-
-                BattleCellData cellData;
-
-                if (battleData.actionDic.ContainsKey(pair.Value))
-                {
-                    cellData = battleData.actionDic[pair.Value];
-                }
-                else
-                {
-                    cellData = new BattleCellData();
-
-                    if (heroMapDic.ContainsKey(pair.Value))
-                    {
-                        cellData.stander = heroMapDic[pair.Value];
-                    }
-
-                    battleData.actionDic.Add(pair.Value, cellData);
-                }
-
-                cellData.shooters.Add(hero);
+                GetOneUnitAction(pos, targetPos, battleData);
             }
-
-            for (int i = 0; i < atkList.Count; i++)
-            {
-                KeyValuePair<int, int> pair = atkList[i];
-
-                Hero hero = heroMapDic[pair.Key];
-
-                if (!hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
-                {
-                    continue;
-                }
-
-                hero.SetAction(Hero.HeroAction.ATTACK, pair.Value);
-
-                BattleCellData cellData;
-
-                if (battleData.actionDic.ContainsKey(pair.Value))
-                {
-                    cellData = battleData.actionDic[pair.Value];
-                }
-                else
-                {
-                    cellData = new BattleCellData();
-
-                    if (heroMapDic.ContainsKey(pair.Value))
-                    {
-                        cellData.stander = heroMapDic[pair.Value];
-                    }
-
-                    battleData.actionDic.Add(pair.Value, cellData);
-                }
-
-                cellData.attackers.Add(hero);
-            }
-
-            for (int i = 0; i < supList.Count; i++)
-            {
-                KeyValuePair<int, int> pair = supList[i];
-
-                Hero hero = heroMapDic[pair.Key];
-
-                if (!hero.CheckCanDoAction(Hero.HeroAction.SUPPORT))
-                {
-                    continue;
-                }
-
-                hero.SetAction(Hero.HeroAction.SUPPORT, pair.Value);
-
-                BattleCellData cellData;
-
-                if (battleData.actionDic.ContainsKey(pair.Value))
-                {
-                    cellData = battleData.actionDic[pair.Value];
-                }
-                else
-                {
-                    cellData = new BattleCellData();
-
-                    if (heroMapDic.ContainsKey(pair.Value))
-                    {
-                        cellData.stander = heroMapDic[pair.Value];
-                    }
-
-                    battleData.actionDic.Add(pair.Value, cellData);
-                }
-
-                cellData.supporters.Add(hero);
-            }
-
+            
             return battleData;
         }
 
-        private void GetOneUnitAction(int _pos, int _targetPos, List<KeyValuePair<int, int>> _shtList, List<KeyValuePair<int, int>> _atkList, List<KeyValuePair<int, int>> _supList, Dictionary<int, int> _supDic)
+        private void GetOneUnitAction(int _pos, int _targetPos, BattleData _battleData)
         {
-            bool posIsMine = mapData.dic[_pos] != mapBelongDic.ContainsKey(_pos);
+            if (!heroMapDic.ContainsKey(_pos))
+            {
+                throw new Exception("action error0");
+            }
+
+            Hero hero = heroMapDic[_pos];
 
             bool targetPosIsMine = mapData.dic[_targetPos] != mapBelongDic.ContainsKey(_targetPos);
 
@@ -1055,15 +962,102 @@ namespace FinalWar
 
             if (arr.Contains(_targetPos))
             {
-                if (posIsMine == targetPosIsMine)
+                if (hero.isMine == targetPosIsMine)
                 {
-                    _supList.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+                    if (hero.CheckCanDoAction(Hero.HeroAction.SUPPORT))
+                    {
+                        hero.SetAction(Hero.HeroAction.SUPPORT, _targetPos);
 
-                    _supDic.Add(_pos, _targetPos);
+                        BattleCellData cellData;
+
+                        if (_battleData.actionDic.ContainsKey(_targetPos))
+                        {
+                            cellData = _battleData.actionDic[_targetPos];
+                        }
+                        else
+                        {
+                            cellData = new BattleCellData();
+
+                            if (heroMapDic.ContainsKey(_targetPos))
+                            {
+                                cellData.stander = heroMapDic[_targetPos];
+                            }
+
+                            _battleData.actionDic.Add(_targetPos, cellData);
+                        }
+
+                        cellData.supporters.Add(hero);
+                    }
+                    else
+                    {
+                        throw new Exception("support error0");
+                    }
                 }
                 else
                 {
-                    _atkList.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+                    if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
+                    {
+                        BattleCellData cellData;
+
+                        bool needCheckOthers = true;
+
+                        if (heroMapDic.ContainsKey(_targetPos))
+                        {
+                            Hero targetHero = heroMapDic[_targetPos];
+
+                            if (targetHero.sds.GetThreat())
+                            {
+                                needCheckOthers = false;
+                            }
+                        }
+
+                        if (needCheckOthers)
+                        {
+                            for (int i = 0; i < arr.Count; i++)
+                            {
+                                int tmpPos = arr[i];
+
+                                if (tmpPos == _targetPos)
+                                {
+                                    continue;
+                                }
+
+                                if (heroMapDic.ContainsKey(tmpPos))
+                                {
+                                    Hero tmpHero = heroMapDic[tmpPos];
+
+                                    if (tmpHero.isMine != hero.isMine && tmpHero.sds.GetThreat())
+                                    {
+                                        throw new Exception("attack error1");
+                                    }
+                                }
+                            }
+                        }
+
+                        hero.SetAction(Hero.HeroAction.ATTACK, _targetPos);
+
+                        if (_battleData.actionDic.ContainsKey(_targetPos))
+                        {
+                            cellData = _battleData.actionDic[_targetPos];
+                        }
+                        else
+                        {
+                            cellData = new BattleCellData();
+
+                            if (heroMapDic.ContainsKey(_targetPos))
+                            {
+                                cellData.stander = heroMapDic[_targetPos];
+                            }
+
+                            _battleData.actionDic.Add(_targetPos, cellData);
+                        }
+
+                        cellData.attackers.Add(hero);
+                    }
+                    else
+                    {
+                        throw new Exception("attack error0");
+                    }
                 }
             }
             else
@@ -1072,15 +1066,54 @@ namespace FinalWar
 
                 if (arr.Contains(_targetPos))
                 {
-                    if (posIsMine == targetPosIsMine)
+                    if (hero.isMine == targetPosIsMine)
                     {
                         throw new Exception("shoot error0");
                     }
                     else
                     {
-                        if (heroMapDic.ContainsKey(_pos))
+                        if (heroMapDic.ContainsKey(_targetPos))
                         {
-                            _shtList.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+                            int midPos = (_pos + _targetPos) / 2;
+
+                            if (heroMapDic.ContainsKey(midPos))
+                            {
+                                Hero midHero = heroMapDic[midPos];
+
+                                if(midHero.isMine != hero.isMine)
+                                {
+                                    throw new Exception("shoot error2");
+                                }
+                            }
+
+                            if (hero.CheckCanDoAction(Hero.HeroAction.SHOOT))
+                            {
+                                hero.SetAction(Hero.HeroAction.SHOOT, _targetPos);
+
+                                BattleCellData cellData;
+
+                                if (_battleData.actionDic.ContainsKey(_targetPos))
+                                {
+                                    cellData = _battleData.actionDic[_targetPos];
+                                }
+                                else
+                                {
+                                    cellData = new BattleCellData();
+
+                                    if (heroMapDic.ContainsKey(_targetPos))
+                                    {
+                                        cellData.stander = heroMapDic[_targetPos];
+                                    }
+
+                                    _battleData.actionDic.Add(_targetPos, cellData);
+                                }
+
+                                cellData.shooters.Add(hero);
+                            }
+                            else
+                            {
+                                throw new Exception("shoot error0");
+                            }
                         }
                         else
                         {
