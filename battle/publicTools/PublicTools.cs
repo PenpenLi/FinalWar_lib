@@ -46,5 +46,21 @@ namespace publicTools
 
             return 0;
         }
+
+        public static Dictionary<T, U> ConvertDic<T, V, U>(Dictionary<T, V> _dic) where V : U
+        {
+            Dictionary<T, U> result = new Dictionary<T, U>();
+
+            Dictionary<T, V>.Enumerator enumerator = _dic.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                KeyValuePair<T, V> pair = enumerator.Current;
+
+                result.Add(pair.Key, pair.Value);
+            }
+
+            return result;
+        }
     }
 }

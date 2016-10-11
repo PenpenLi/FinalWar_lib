@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using superEvent;
+using publicTools;
 
 namespace FinalWar
 {
@@ -23,14 +24,14 @@ namespace FinalWar
         public int mapID;
         public MapData mapData;
 
-        public Dictionary<int, bool> mapBelongDic;
-        public Dictionary<int, Hero> heroMapDic;
+        public Dictionary<int, bool> mapBelongDic = new Dictionary<int, bool>();
+        public Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
 
         private List<int> mCards;
         private List<int> oCards;
 
-        public Dictionary<int, int> mHandCards;
-        public Dictionary<int, int> oHandCards;
+        public Dictionary<int, int> mHandCards = new Dictionary<int, int>();
+        public Dictionary<int, int> oHandCards = new Dictionary<int, int>();
 
         public int mScore;
         public int oScore;
@@ -49,6 +50,7 @@ namespace FinalWar
         public bool oOver;
 
         private Action<bool, MemoryStream> serverSendDataCallBack;
+        private Action serverBattleOverCallBack;
 
         public bool clientIsMine;
 
@@ -64,17 +66,18 @@ namespace FinalWar
 
         private bool isVsAi;
 
-        public static void Init(Dictionary<int, MapData> _mapDataDic, Dictionary<int, IHeroSDS> _heroDataDic, Dictionary<int, ISkillSDS> _skillDataDic, Dictionary<int, IAuraSDS> _auraDataDic)
+        public static void Init<T, U, V>(Dictionary<int, MapData> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic) where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS
         {
             mapDataDic = _mapDataDic;
-            heroDataDic = _heroDataDic;
-            skillDataDic = _skillDataDic;
-            auraDataDic = _auraDataDic;
+            heroDataDic = PublicTools.ConvertDic<int, T, IHeroSDS>(_heroDataDic);
+            skillDataDic = PublicTools.ConvertDic<int, U, ISkillSDS>(_skillDataDic);
+            auraDataDic = PublicTools.ConvertDic<int, V, IAuraSDS>(_auraDataDic);
         }
 
-        public void ServerSetCallBack(Action<bool, MemoryStream> _serverSendDataCallBack)
+        public void ServerSetCallBack(Action<bool, MemoryStream> _serverSendDataCallBack, Action _serverBattleOverCallBack)
         {
             serverSendDataCallBack = _serverSendDataCallBack;
+            serverBattleOverCallBack = _serverBattleOverCallBack;
         }
 
         public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<IEnumerator<ValueType>> _clientDoActionCallBack)
@@ -94,10 +97,6 @@ namespace FinalWar
 
             mapData = mapDataDic[mapID];
 
-            heroMapDic = new Dictionary<int, Hero>();
-
-            mapBelongDic = new Dictionary<int, bool>();
-
             mScore = mapData.score1;
             oScore = mapData.score2;
 
@@ -105,14 +104,13 @@ namespace FinalWar
 
             mWin = oWin = false;
 
+            mOver = oOver = false;
+
             cardUid = 1;
             heroUid = 1;
 
             mCards = _mCards;
             oCards = _oCards;
-
-            mHandCards = new Dictionary<int, int>();
-            oHandCards = new Dictionary<int, int>();
 
             for (int i = 0; i < DEFAULT_HAND_CARD_NUM; i++)
             {
@@ -128,8 +126,6 @@ namespace FinalWar
 
                 oCards.RemoveAt(index);
             }
-
-            mOver = oOver = false;
 
             ServerRefreshData(true);
 
@@ -779,9 +775,37 @@ namespace FinalWar
                 }
             }
 
-            RecoverMoney();
+            if(!mWin && !oWin)
+            {
+                RecoverMoney();
 
-            RecoverOver();
+                RecoverOver();
+            }
+            else
+            {
+                BattleOver();
+            }
+        }
+
+        private void BattleOver()
+        {
+            eventListener.Clear();
+
+            eventListenerV.Clear();
+
+            summon.Clear();
+
+            action.Clear();
+
+            mapBelongDic.Clear();
+
+            heroMapDic.Clear();
+
+            mHandCards.Clear();
+
+            oHandCards.Clear();
+
+            serverBattleOverCallBack();
         }
 
         private void ServerDoSummon(BattleData _battleData, List<ValueType> _voList)
@@ -1768,7 +1792,7 @@ namespace FinalWar
 
         private void RecoverCards(BinaryWriter _mBw, BinaryWriter _oBw)
         {
-            if (mCards.Count > 0)
+            if (!mWin && !oWin && mCards.Count > 0)
             {
                 int index = (int)(random.NextDouble() * mCards.Count);
 
@@ -1798,7 +1822,7 @@ namespace FinalWar
                 _mBw.Write(false);
             }
 
-            if (oCards.Count > 0)
+            if (!mWin && !oWin && oCards.Count > 0)
             {
                 int index = (int)(random.NextDouble() * oCards.Count);
 

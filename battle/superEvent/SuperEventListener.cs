@@ -123,6 +123,12 @@ namespace superEvent
             }
         }
 
+        internal void Clear()
+        {
+            dicWithID.Clear();
+            dicWithEvent.Clear();
+        }
+
         internal void LogNum()
         {
             Log.Write("SuperEventListener:" + dicWithID.Count);
