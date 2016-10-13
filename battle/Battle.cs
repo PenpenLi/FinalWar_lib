@@ -240,9 +240,11 @@ namespace FinalWar
 
                     while (enumerator4.MoveNext())
                     {
-                        bw.Write(enumerator4.Current.Key);
+                        KeyValuePair<int, int> pair = enumerator4.Current;
 
-                        bw.Write(enumerator4.Current.Value);
+                        bw.Write(pair.Key);
+
+                        bw.Write(pair.Value);
                     }
 
                     bool isOver;
@@ -596,9 +598,11 @@ namespace FinalWar
 
                     while (enumerator.MoveNext())
                     {
-                        bw.Write(enumerator.Current.Key);
+                        KeyValuePair<int, int> pair = enumerator.Current;
 
-                        bw.Write(enumerator.Current.Value);
+                        bw.Write(pair.Key);
+
+                        bw.Write(pair.Value);
                     }
 
                     bw.Write(action.Count);
@@ -858,9 +862,11 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                int tmpCardUid = enumerator.Current.Key;
+                KeyValuePair<int, int> pair = enumerator.Current;
 
-                int pos = enumerator.Current.Value;
+                int tmpCardUid = pair.Key;
+
+                int pos = pair.Value;
 
                 bool isMine = mapData.dic[pos] != mapBelongDic.ContainsKey(pos);
 
@@ -1179,11 +1185,13 @@ namespace FinalWar
 
             Dictionary<Hero, int> powerChangeDic = new Dictionary<Hero, int>();
 
-            Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
+            Dictionary<int, BattleCellData>.Enumerator enumerator = _battleData.actionDic.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                BattleCellData cellData = enumerator.Current;
+                KeyValuePair<int, BattleCellData> pair = enumerator.Current;
+
+                BattleCellData cellData = pair.Value;
 
                 if (cellData.stander != null && cellData.shooters.Count > 0)
                 {
@@ -1191,16 +1199,16 @@ namespace FinalWar
                     {
                         Hero shooter = cellData.shooters[i];
 
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(shooter.uid, SkillTime.SHOOT), new List<Hero>() { shooter }, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(shooter.uid, SkillTime.SHOOT), pair.Key, new List<Hero>() { shooter }, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
                     }
                 }
             }
 
-            enumerator = _battleData.actionDic.Values.GetEnumerator();
+            enumerator = _battleData.actionDic.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                BattleCellData cellData = enumerator.Current;
+                BattleCellData cellData = enumerator.Current.Value;
 
                 if (cellData.stander != null && cellData.shooters.Count > 0)
                 {
@@ -1275,11 +1283,13 @@ namespace FinalWar
 
                 Dictionary<Hero, int> powerChangeDic = new Dictionary<Hero, int>();
 
-                Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
+                Dictionary<int, BattleCellData>.Enumerator enumerator = _battleData.actionDic.GetEnumerator();
 
                 while (enumerator.MoveNext())
                 {
-                    BattleCellData cellData = enumerator.Current;
+                    KeyValuePair<int, BattleCellData> pair = enumerator.Current;
+
+                    BattleCellData cellData = pair.Value;
 
                     if (cellData.stander != null && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
                     {
@@ -1289,18 +1299,18 @@ namespace FinalWar
                         {
                             Hero attacker = cellData.attackers[i];
 
-                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), attackers, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
+                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), pair.Key, attackers, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
 
-                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), attackers, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
+                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), pair.Key, attackers, new List<Hero>() { cellData.stander }, hpChangeDic, powerChangeDic);
                         }
                     }
                 }
 
-                enumerator = _battleData.actionDic.Values.GetEnumerator();
+                enumerator = _battleData.actionDic.GetEnumerator();
 
                 while (enumerator.MoveNext())
                 {
-                    BattleCellData cellData = enumerator.Current;
+                    BattleCellData cellData = enumerator.Current.Value;
 
                     if (cellData.stander != null && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
                     {
@@ -1389,7 +1399,9 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                BattleCellData cellData = enumerator.Current.Value;
+                KeyValuePair<int, BattleCellData> pair = enumerator.Current;
+
+                BattleCellData cellData = pair.Value;
 
                 if (cellData.attackers.Count > 0 && (cellData.stander != null || cellData.supporters.Count > 0))
                 {
@@ -1406,19 +1418,19 @@ namespace FinalWar
                     {
                         Hero hero = cellData.attackers[i];
 
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.ATTACK), attackers, supporters, hpChangeDic, powerChangeDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.ATTACK), pair.Key, attackers, supporters, hpChangeDic, powerChangeDic);
                     }
 
                     if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                     {
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(cellData.stander.uid, SkillTime.COUNTER), supporters, attackers, hpChangeDic, powerChangeDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(cellData.stander.uid, SkillTime.COUNTER), pair.Key, supporters, attackers, hpChangeDic, powerChangeDic);
                     }
 
                     for (int i = 0; i < cellData.supporters.Count; i++)
                     {
                         Hero hero = cellData.supporters[i];
 
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.COUNTER), supporters, attackers, hpChangeDic, powerChangeDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.COUNTER), pair.Key, supporters, attackers, hpChangeDic, powerChangeDic);
                     }
                 }
             }
@@ -1427,7 +1439,9 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                BattleCellData cellData = enumerator.Current.Value;
+                KeyValuePair<int, BattleCellData> pair = enumerator.Current;
+
+                BattleCellData cellData = pair.Value;
 
                 if (cellData.attackers.Count > 0 && (cellData.stander != null || cellData.supporters.Count > 0))
                 {
@@ -1590,7 +1604,7 @@ namespace FinalWar
                         }
                     }
 
-                    _voList.Add(new BattleAttackVO(attackers, supporters, enumerator.Current.Key, attackersDamage, supportersDamage, defenderDamage));
+                    _voList.Add(new BattleAttackVO(attackers, supporters, pair.Key, attackersDamage, supportersDamage, defenderDamage));
                 }
             }
 
@@ -1632,7 +1646,9 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                BattleCellData cellData = enumerator.Current.Value;
+                KeyValuePair<int, BattleCellData> pair = enumerator.Current;
+
+                BattleCellData cellData = pair.Value;
 
                 if (cellData.stander == null && (cellData.supporters.Count > 0 || cellData.attackOvers.Count > 0 || cellData.attackers.Count > 0))
                 {
@@ -1641,7 +1657,7 @@ namespace FinalWar
                         tmpList = new List<int>();
                     }
 
-                    tmpList.Add(enumerator.Current.Key);
+                    tmpList.Add(pair.Key);
                 }
             }
 
@@ -2193,18 +2209,22 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                tmpDic.Add(enumerator.Current.Value, heroMapDic[enumerator.Current.Key]);
+                KeyValuePair<int, int> pair = enumerator.Current;
 
-                heroMapDic.Remove(enumerator.Current.Key);
+                tmpDic.Add(pair.Value, heroMapDic[pair.Key]);
+
+                heroMapDic.Remove(pair.Key);
             }
 
             Dictionary<int, Hero>.Enumerator enumerator2 = tmpDic.GetEnumerator();
 
             while (enumerator2.MoveNext())
             {
-                int nowPos = enumerator2.Current.Key;
+                KeyValuePair<int, Hero> pair = enumerator2.Current;
 
-                Hero hero = enumerator2.Current.Value;
+                int nowPos = pair.Key;
+
+                Hero hero = pair.Value;
 
                 heroMapDic.Add(nowPos, hero);
 
