@@ -44,6 +44,9 @@ namespace FinalWar
         public int mMoney;
         public int oMoney;
 
+        private float mFix;
+        private float oFix;
+
         public Dictionary<int, int> summon = new Dictionary<int, int>();
 
         public List<KeyValuePair<int, int>> action = new List<KeyValuePair<int, int>>();
@@ -112,13 +115,17 @@ namespace FinalWar
             clientDoActionCallBack = _clientDoActionCallBack;
         }
 
-        public void ServerStart(int _mapID, List<int> _mCards, List<int> _oCards, bool _isVsAi)
+        public void ServerStart(int _mapID, List<int> _mCards, List<int> _oCards, bool _isVsAi, float _mFix, float _oFix)
         {
             Log.Write("Battle Start!");
 
             isVsAi = _isVsAi;
 
             mapID = _mapID;
+
+            mFix = _mFix;
+
+            oFix = _oFix;
 
             mapData = GetMapData(mapID);
 
@@ -936,7 +943,11 @@ namespace FinalWar
                 oHandCards.Remove(_uid);
             }
 
-            return AddHero(_isMine, sds, _pos, GetHeroUid());
+            Hero hero = AddHero(_isMine, sds, _pos, GetHeroUid());
+
+            hero.ResetFix(_isMine ? mFix : oFix);
+
+            return hero;
         }
 
         private void ServerAddHero(BattleData _battleData, Hero _hero)
@@ -1697,7 +1708,7 @@ namespace FinalWar
             {
                 Hero hero = enumerator.Current;
                 
-                hero.ResetFix();
+                hero.ResetFix(hero.isMine ? mFix : oFix);
 
                 int powerChange = hero.RecoverPower();
 
@@ -2082,11 +2093,22 @@ namespace FinalWar
 
                     posList.Add(hero.pos);
 
-                    powerChangeList.Add(pair.Value);
+                    int changeValue = pair.Value;
+
+                    if (changeValue > 0 && changeValue < 100)
+                    {
+                        changeValue = 100;
+                    }
+                    else if (changeValue < 0 && changeValue > -100)
+                    {
+                        changeValue = -100;
+                    }
+
+                    powerChangeList.Add(changeValue);
 
                     if (_battleData != null)
                     {
-                        bool isDizz = hero.PowerChange(pair.Value);
+                        bool isDizz = hero.PowerChange(changeValue);
 
                         if (isDizz)
                         {
@@ -2097,7 +2119,7 @@ namespace FinalWar
                     }
                     else
                     {
-                        hero.PowerChange(pair.Value);
+                        hero.PowerChange(changeValue);
 
                         isDizzList.Add(false);
                     }

@@ -69,10 +69,10 @@ namespace FinalWar
 
         private bool beDamaged = false;
 
-        private float attackFix = 1;
-        private float shootFix = 1;
-        private float counterFix = 1;
-        private float defenseFix = 1;
+        private float attackFix;
+        private float shootFix;
+        private float counterFix;
+        private float defenseFix;
 
         private SuperEventListenerV eventListenerV;
 
@@ -352,18 +352,7 @@ namespace FinalWar
                 powerChange = _powerChange * (1 - (((float)sds.GetLeader() * 2 / MAX_LEADER) - 1) * POWER_FIX_WITH_LEADER_RANGE);
             }
 
-            int result = (int)(powerChange * (1 + (Battle.random.NextDouble() * 2 - 1) * DAMAGE_FIX_WITH_RANDOM_RANGE));
-            
-            if (result > 0 && result < 100)
-            {
-                result = 100;
-            }
-            else if (result < 0 && result > -100)
-            {
-                result = -100;
-            }
-
-            return result;
+            return (int)(powerChange * (1 + (Battle.random.NextDouble() * 2 - 1) * DAMAGE_FIX_WITH_RANDOM_RANGE));
         }
 
         internal int Shoot()
@@ -508,9 +497,9 @@ namespace FinalWar
             defenseFix *= _value;
         }
 
-        internal void ResetFix()
+        internal void ResetFix(float _fix)
         {
-            attackFix = shootFix = counterFix = defenseFix = 1;
+            attackFix = shootFix = counterFix = defenseFix = _fix;
         }
 
         public static int GetPowerLevel(int _nowPower)
