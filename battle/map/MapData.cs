@@ -18,6 +18,8 @@ public class MapData
 
     public Dictionary<int, int[]> neighbourPosMap = new Dictionary<int, int[]>();
 
+    public Dictionary<int, KeyValuePair<int, int>> moveMap = new Dictionary<int, KeyValuePair<int, int>>();
+
     public MapData()
     {
 
@@ -45,9 +47,17 @@ public class MapData
 
         while (enumerator.MoveNext())
         {
-            _bw.Write(enumerator.Current.Key);
+            KeyValuePair<int, bool> pair2 = enumerator.Current;
 
-            _bw.Write(enumerator.Current.Value);
+            _bw.Write(pair2.Key);
+
+            _bw.Write(pair2.Value);
+
+            KeyValuePair<int, int> pair = moveMap[pair2.Key];
+
+            _bw.Write(pair.Key);
+
+            _bw.Write(pair.Value);
         }
     }
 
@@ -70,6 +80,12 @@ public class MapData
             bool isMine = _br.ReadBoolean();
 
             dic.Add(pos, isMine);
+
+            int mTarget = _br.ReadInt32();
+
+            int oTarget = _br.ReadInt32();
+
+            moveMap.Add(pos, new KeyValuePair<int, int>(mTarget, oTarget));
         }
 
         SetNeighbourPosMap();
