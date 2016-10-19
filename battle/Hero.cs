@@ -18,10 +18,10 @@ namespace FinalWar
 
         private static readonly int[] HeroActionPower = new int[]
         {
-            6000,
-            6000,
+            5000,
+            5000,
             4000,
-            4000,
+            3000,
             2000,
             0
         };
@@ -193,14 +193,14 @@ namespace FinalWar
                 nowPower = 0;
             }
 
-            if(_value < 0 && action != HeroAction.NULL && nowPower < HeroActionPower[(int)action])
-            {
-                return true;
-            }
-            else
-            {
+            //if(_value < 0 && action != HeroAction.NULL && nowPower < HeroActionPower[(int)action])
+            //{
+            //    return true;
+            //}
+            //else
+            //{
                 return false;
-            }
+            //}
         }
 
         //为了DamageCalculator才设置为public
