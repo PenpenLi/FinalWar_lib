@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using superEvent;
-using publicTools;
 
 namespace FinalWar
 {
@@ -29,7 +28,7 @@ namespace FinalWar
         public int mapID;
         public MapData mapData;
 
-        public Dictionary<int, bool> mapBelongDic = new Dictionary<int, bool>();
+        private Dictionary<int, bool> mapBelongDic = new Dictionary<int, bool>();
         public Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
 
         private List<int> mCards;
@@ -50,6 +49,8 @@ namespace FinalWar
         public Dictionary<int, int> summon = new Dictionary<int, int>();
 
         public List<KeyValuePair<int, int>> action = new List<KeyValuePair<int, int>>();
+
+        public Dictionary<int, int> autoAction = new Dictionary<int, int>();
 
         private int cardUid;
         private int heroUid;
@@ -146,17 +147,23 @@ namespace FinalWar
 
             for (int i = 0; i < DEFAULT_HAND_CARD_NUM; i++)
             {
-                int index = (int)(random.NextDouble() * mCards.Count);
+                if(mCards.Count > 0)
+                {
+                    int index = (int)(random.NextDouble() * mCards.Count);
 
-                mHandCards.Add(GetCardUid(), mCards[index]);
+                    mHandCards.Add(GetCardUid(), mCards[index]);
 
-                mCards.RemoveAt(index);
+                    mCards.RemoveAt(index);
+                }
 
-                index = (int)(random.NextDouble() * oCards.Count);
+                if(oCards.Count > 0)
+                {
+                    int index = (int)(random.NextDouble() * oCards.Count);
 
-                oHandCards.Add(GetCardUid(), oCards[index]);
+                    oHandCards.Add(GetCardUid(), oCards[index]);
 
-                oCards.RemoveAt(index);
+                    oCards.RemoveAt(index);
+                }
             }
 
             ServerRefreshData(true);
@@ -239,11 +246,24 @@ namespace FinalWar
                         bw.Write(hero.nowPower);
                     }
 
+                    bw.Write(autoAction.Count);
+
+                    Dictionary<int, int>.Enumerator enumerator4 = autoAction.GetEnumerator();
+
+                    while (enumerator4.MoveNext())
+                    {
+                        KeyValuePair<int, int> pair = enumerator4.Current;
+
+                        bw.Write(pair.Key);
+
+                        bw.Write(pair.Value);
+                    }
+
                     Dictionary<int, int> handCards = _isMine ? mHandCards : oHandCards;
 
                     bw.Write(handCards.Count);
 
-                    Dictionary<int, int>.Enumerator enumerator4 = handCards.GetEnumerator();
+                    enumerator4 = handCards.GetEnumerator();
 
                     while (enumerator4.MoveNext())
                     {
@@ -283,7 +303,7 @@ namespace FinalWar
                         {
                             int pos = enumerator4.Current.Value;
 
-                            if ((mapData.dic[pos] == _isMine) != mapBelongDic.ContainsKey(pos))
+                            if (GetPosIsMine(pos) == _isMine)
                             {
                                 num++;
 
@@ -308,7 +328,7 @@ namespace FinalWar
                         {
                             int pos = action[i].Key;
 
-                            if ((mapData.dic[pos] == _isMine) != mapBelongDic.ContainsKey(pos))
+                            if (GetPosIsMine(pos) == _isMine)
                             {
                                 num++;
 
@@ -383,7 +403,7 @@ namespace FinalWar
                 mapBelongDic.Add(pos, true);
             }
 
-            heroMapDic = new Dictionary<int, Hero>();
+            heroMapDic.Clear();
 
             num = _br.ReadInt32();
 
@@ -400,6 +420,19 @@ namespace FinalWar
                 int nowPower = _br.ReadInt32();
 
                 AddHero(heroIsMine, GetHeroData(id), pos, nowHp, nowPower);
+            }
+
+            autoAction.Clear();
+
+            num = _br.ReadInt32();
+
+            for (int i = 0; i < num; i++)
+            {
+                int pos = _br.ReadInt32();
+
+                int target = _br.ReadInt32();
+
+                autoAction.Add(pos, target);
             }
 
             Dictionary<int, int> handCards;
@@ -489,7 +522,7 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_pos];
 
-            bool b = mapData.dic[_targetPos] != mapBelongDic.ContainsKey(_targetPos);
+            bool b = GetPosIsMine(_targetPos);
 
             List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
 
@@ -687,11 +720,13 @@ namespace FinalWar
 
                 int pos = _br.ReadInt32();
 
-                if (cards.ContainsKey(uid) && (mapData.dic[pos] == _isMine) != mapBelongDic.ContainsKey(pos))
+                if (cards.ContainsKey(uid) && GetPosIsMine(pos) == _isMine)
                 {
                     summon.Add(uid, pos);
                 }
             }
+
+            Dictionary<int, int> tmpDic = new Dictionary<int, int>();
 
             num = _br.ReadInt32();
 
@@ -703,7 +738,32 @@ namespace FinalWar
 
                 if (heroMapDic.ContainsKey(pos) && heroMapDic[pos].isMine == _isMine)
                 {
+                    if (autoAction.ContainsKey(pos))
+                    {
+                        if(targetPos != autoAction[pos])
+                        {
+                            continue;
+                        }
+                    }
+
                     action.Add(new KeyValuePair<int, int>(pos, targetPos));
+
+                    tmpDic.Add(pos, targetPos);
+                }
+            }
+
+            Dictionary<int, int>.Enumerator enumerator = autoAction.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                KeyValuePair<int, int> pair = enumerator.Current;
+
+                if(GetPosIsMine(pair.Key) == _isMine)
+                {
+                    if (!tmpDic.ContainsKey(pair.Key))
+                    {
+                        action.Add(pair);
+                    }
                 }
             }
 
@@ -753,6 +813,8 @@ namespace FinalWar
 
             action.Clear();
 
+            autoAction.Clear();
+
             ServerDoRoundStart(battleData, voList);
 
             ServerDoSummon(battleData, voList);
@@ -769,6 +831,8 @@ namespace FinalWar
 
             ServerDoRecover(battleData, voList);
 
+            ServerDoAutoAction();
+
             //eventListener.LogNum();
 
             //eventListenerV.LogNum();
@@ -782,6 +846,19 @@ namespace FinalWar
                     bw.Write(PackageTag.S2C_DOACTION);
 
                     BattleVOTools.WriteDataToStream(voList, bw);
+
+                    bw.Write(autoAction.Count);
+
+                    Dictionary<int, int>.Enumerator enumerator = autoAction.GetEnumerator();
+
+                    while (enumerator.MoveNext())
+                    {
+                        KeyValuePair<int, int> pair = enumerator.Current;
+
+                        bw.Write(pair.Key);
+
+                        bw.Write(pair.Value);
+                    }
 
                     bw.Write(mWin);
 
@@ -850,6 +927,8 @@ namespace FinalWar
 
             heroMapDic.Clear();
 
+            autoAction.Clear();
+
             mHandCards.Clear();
 
             oHandCards.Clear();
@@ -875,7 +954,7 @@ namespace FinalWar
 
                 int pos = pair.Value;
 
-                bool isMine = mapData.dic[pos] != mapBelongDic.ContainsKey(pos);
+                bool isMine = GetPosIsMine(pos);
 
                 Hero summonHero = SummonOneUnit(tmpCardUid, pos, isMine, _battleData);
 
@@ -999,7 +1078,7 @@ namespace FinalWar
 
             Hero hero = heroMapDic[_pos];
 
-            bool targetPosIsMine = mapData.dic[_targetPos] != mapBelongDic.ContainsKey(_targetPos);
+            bool targetPosIsMine = GetPosIsMine(_targetPos);
 
             List<int> arr = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
 
@@ -1844,7 +1923,7 @@ namespace FinalWar
                             mapBelongDic.Add(nowPos, true);
                         }
 
-                        bool b = mapData.dic[nowPos] != mapBelongDic.ContainsKey(nowPos);
+                        bool b = GetPosIsMine(nowPos);
 
                         Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
 
@@ -1875,6 +1954,87 @@ namespace FinalWar
                     return;
                 }
             }
+        }
+
+        private void ServerDoAutoAction()
+        {
+            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                Hero hero = enumerator.Current;
+
+                if (!hero.sds.GetCanControl())
+                {
+                    int targetPos = GetHeroAutoAction(hero);
+
+                    if(targetPos != -1)
+                    {
+                        autoAction.Add(hero.pos, targetPos);
+                    }
+                }
+            }
+        }
+
+        private int GetHeroAutoAction(Hero _hero)
+        {
+            if (_hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
+            {
+                List<int> posList = GetCanAttackPos(_hero.pos);
+
+                if (posList.Count > 0)
+                {
+                    int index = (int)(random.NextDouble() * posList.Count);
+
+                    return posList[index];
+                }
+            }
+
+            if (_hero.CheckCanDoAction(Hero.HeroAction.SHOOT))
+            {
+                List<int> posList = GetCanShootPos(_hero.pos);
+
+                if (posList.Count > 0)
+                {
+                    int index = (int)(random.NextDouble() * posList.Count);
+
+                    return posList[index];
+                }
+            }
+
+            if (_hero.CheckCanDoAction(Hero.HeroAction.SUPPORT))
+            {
+                List<int> posList = GetCanSupportPos(_hero.pos);
+
+                if (posList.Count > 0)
+                {
+                    int index = (int)(random.NextDouble() * posList.Count);
+
+                    int target = posList[index];
+
+                    if (target != _hero.pos)
+                    {
+                        return target;
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+                else
+                {
+                    if (_hero.isMine)
+                    {
+                        return mapData.moveMap[_hero.pos].Key;
+                    }
+                    else
+                    {
+                        return mapData.moveMap[_hero.pos].Value;
+                    }
+                }
+            }
+
+            return -1;
         }
 
         private void RecoverCards(BinaryWriter _mBw, BinaryWriter _oBw)
@@ -2148,6 +2308,8 @@ namespace FinalWar
 
             action.Clear();
 
+            autoAction.Clear();
+
             clientDoActionCallBack(ClientDoActionReal(_br));
         }
 
@@ -2200,7 +2362,7 @@ namespace FinalWar
 
         private void ClientDoSummon(BattleSummonVO _vo)
         {
-            bool isMine = mapData.dic[_vo.pos] != mapBelongDic.ContainsKey(_vo.pos);
+            bool isMine = GetPosIsMine(_vo.pos);
 
             IHeroSDS sds = GetHeroData(_vo.heroID);
 
@@ -2252,7 +2414,7 @@ namespace FinalWar
 
                 hero.PosChange(nowPos);
 
-                bool isMine = mapData.dic[nowPos] != mapBelongDic.ContainsKey(nowPos);
+                bool isMine = GetPosIsMine(nowPos);
 
                 if (isMine != hero.isMine)
                 {
@@ -2336,6 +2498,19 @@ namespace FinalWar
 
         private void ClientDoRecover(BinaryReader _br)
         {
+            autoAction.Clear();
+
+            int num = _br.ReadInt32();
+
+            for(int i = 0; i < num; i++)
+            {
+                int pos = _br.ReadInt32();
+
+                int targetPos = _br.ReadInt32();
+
+                autoAction.Add(pos, targetPos);
+            }
+
             mWin = _br.ReadBoolean();
 
             oWin = _br.ReadBoolean();
@@ -2365,6 +2540,250 @@ namespace FinalWar
             }
 
             clientRefreshDataCallBack();
+        }
+
+        public bool GetPosIsMine(int _pos)
+        {
+            return mapData.dic[_pos] != mapBelongDic.ContainsKey(_pos);
+        }
+
+        public List<int> GetCanAttackerHeroPos(int _pos)
+        {
+            List<int> result = new List<int>();
+
+            bool isMine = GetPosIsMine(_pos);
+
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+
+            bool getThreat = false;
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                bool b = GetPosIsMine(pos);
+
+                if (b != isMine && heroMapDic.ContainsKey(pos))
+                {
+                    Hero hero = heroMapDic[pos];
+
+                    if (hero.sds.GetThreat())
+                    {
+                        if (!getThreat)
+                        { 
+                            getThreat = true;
+
+                            if(result.Count > 0)
+                            {
+                                result.Clear();
+                            }
+                        }
+
+                        result.Add(pos);
+                    }
+                    else
+                    {
+                        if (!getThreat)
+                        {
+                            result.Add(pos);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+
+        public List<int> GetCanAttackPos(int _pos)
+        {
+            List<int> result = new List<int>();
+
+            bool isMine = GetPosIsMine(_pos);
+
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+
+            bool getThreat = false;
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                bool b = GetPosIsMine(pos);
+
+                if(b != isMine)
+                {
+                    if (heroMapDic.ContainsKey(pos))
+                    {
+                        Hero hero = heroMapDic[pos];
+
+                        if (hero.sds.GetThreat())
+                        {
+                            if (!getThreat)
+                            {
+                                getThreat = true;
+
+                                if(result.Count > 0)
+                                {
+                                    result.Clear();
+                                }
+                            }
+
+                            result.Add(pos);
+
+                            continue;
+                        }
+                    }
+
+                    if (!getThreat)
+                    {
+                        result.Add(pos);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public List<int> GetCanShootPos(int _pos)
+        {
+            List<int> result = new List<int>();
+
+            bool isMine = GetPosIsMine(_pos);
+
+            List<int> posList = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                bool b = GetPosIsMine(pos);
+
+                if (b != isMine && heroMapDic.ContainsKey(pos))
+                {
+                    //检测射击隔了一个敌人
+                    int midPos = (_pos + pos) / 2;
+
+                    b = GetPosIsMine(midPos);
+
+                    if(b != isMine && heroMapDic.ContainsKey(midPos))
+                    {
+                        continue;
+                    }
+
+                    result.Add(pos);
+                }
+            }
+
+            return result;
+        }
+
+        public bool CheckPosCanBeAttack(int _pos)
+        {
+            bool isThreat = false;
+
+            if (heroMapDic.ContainsKey(_pos))
+            {
+                Hero hero = heroMapDic[_pos];
+
+                if (hero.sds.GetThreat())
+                {
+                    isThreat = true;
+                }
+            }
+
+            bool isMine = GetPosIsMine(_pos);
+
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                bool b = GetPosIsMine(pos);
+
+                if (b != isMine)
+                {
+                    if (heroMapDic.ContainsKey(pos))
+                    {
+                        Hero hero = heroMapDic[pos];
+
+                        if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
+                        {
+                            if (isThreat)
+                            {
+                                return true;
+                            }
+
+                            bool canAttack = true;
+
+                            List<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, pos);
+
+                            for(int m = 0; m < tmpPosList.Count; m++)
+                            {
+                                int tmpPos = tmpPosList[m];
+
+                                if(tmpPos == _pos)
+                                {
+                                    continue;
+                                }
+
+                                b = GetPosIsMine(tmpPos);
+
+                                if(b == isMine && heroMapDic.ContainsKey(tmpPos))
+                                {
+                                    Hero tmpHero = heroMapDic[tmpPos];
+
+                                    if (tmpHero.sds.GetThreat())
+                                    {
+                                        canAttack = false;
+
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (canAttack)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public List<int> GetCanSupportPos(int _pos)
+        {
+            List<int> result = new List<int>();
+
+            if (CheckPosCanBeAttack(_pos))
+            {
+                result.Add(_pos);
+            }
+
+            bool isMine = GetPosIsMine(_pos);
+
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                bool b = GetPosIsMine(pos);
+
+                if (b == isMine)
+                {
+                    if (CheckPosCanBeAttack(pos))
+                    {
+                        result.Add(pos);
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

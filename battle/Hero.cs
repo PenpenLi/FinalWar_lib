@@ -512,18 +512,18 @@ namespace FinalWar
             {
                 int data = HeroActionPower[i];
 
-                if(data != 0 && !tmpDic.ContainsKey(data))
+                if(!tmpDic.ContainsKey(data))
                 {
                     tmpDic.Add(data, true);
 
-                    if(_nowPower > data)
+                    if(_nowPower < data)
                     {
                         level++;
                     }
                 }
             }
 
-            return level;
+            return tmpDic.Count - 1 - level;
         }
     }
 }

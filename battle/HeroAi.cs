@@ -55,16 +55,26 @@ namespace FinalWar
 
                 if (hero.isMine == _isMine)
                 {
-                    if (myHeroDic == null)
+                    if (hero.sds.GetCanControl())
                     {
-                        myHeroList = new List<Hero>();
+                        if (myHeroDic == null)
+                        {
+                            myHeroList = new List<Hero>();
 
-                        myHeroDic = new Dictionary<Hero, HeroState>();
+                            myHeroDic = new Dictionary<Hero, HeroState>();
+                        }
+
+                        myHeroDic.Add(hero, new HeroState());
+
+                        myHeroList.Add(hero);
                     }
-
-                    myHeroDic.Add(hero, new HeroState());
-
-                    myHeroList.Add(hero);
+                    else
+                    {
+                        if (_battle.autoAction.ContainsKey(hero.pos))
+                        {
+                            _battle.action.Add(new KeyValuePair<int, int>(hero.pos, _battle.autoAction[hero.pos]));
+                        }
+                    }
                 }
                 else
                 {
@@ -80,7 +90,7 @@ namespace FinalWar
                         {
                             int pos = posList[i];
 
-                            bool mapIsMine = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+                            bool mapIsMine = _battle.GetPosIsMine(pos);
 
                             if (mapIsMine == _isMine)
                             {
@@ -153,7 +163,7 @@ namespace FinalWar
                         {
                             int pos = posList[i];
 
-                            bool mapIsMine = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+                            bool mapIsMine = _battle.GetPosIsMine(pos);
 
                             if (mapIsMine != _isMine)
                             {
@@ -187,7 +197,7 @@ namespace FinalWar
                     {
                         int pos = posList[i];
 
-                        bool mapIsMine = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+                        bool mapIsMine = _battle.GetPosIsMine(pos);
 
                         if (mapIsMine != _isMine)
                         {
@@ -408,6 +418,8 @@ namespace FinalWar
                     }
                 }
             }
+
+            PublicTools.ShuffleList(_battle.action, Battle.random);
         }
 
         private static void DoSummon(Battle _battle, bool _isMine, double _wrongValue)
@@ -479,7 +491,7 @@ namespace FinalWar
                         {
                             checkedPos.Add(pos, false);
 
-                            bool b = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+                            bool b = _battle.GetPosIsMine(pos);
 
                             if (b == _isMine)
                             {
@@ -508,7 +520,7 @@ namespace FinalWar
 
                         if(!_battle.heroMapDic.ContainsKey(pos) && !resultList.Contains(pos) && !resultList2.Contains(pos))
                         {
-                            bool b = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+                            bool b = _battle.GetPosIsMine(pos);
 
                             if (b == _isMine)
                             {
@@ -654,7 +666,7 @@ namespace FinalWar
             {
                 int pos = posList[m];
 
-                bool mapIsMine = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+                bool mapIsMine = _battle.GetPosIsMine(pos);
 
                 //不能往敌人的格子走
                 if (mapIsMine != _hero.isMine)
@@ -736,7 +748,7 @@ namespace FinalWar
 
                 int pos = pair.Value;
 
-                bool b = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+                bool b = _battle.GetPosIsMine(pos);
 
                 if(b == _isMine)
                 {
@@ -763,7 +775,7 @@ namespace FinalWar
 
                 int pos = pair.Key;
 
-                bool b = _battle.mapData.dic[pos] != _battle.mapBelongDic.ContainsKey(pos);
+                bool b = _battle.GetPosIsMine(pos);
 
                 if (b == _isMine)
                 {
