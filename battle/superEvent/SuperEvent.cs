@@ -1,6 +1,6 @@
 ﻿namespace superEvent
 {
-    internal class SuperEvent
+    internal struct SuperEvent
     {
         internal int index;
         internal object[] datas;

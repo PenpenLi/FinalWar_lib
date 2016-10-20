@@ -21,7 +21,7 @@ namespace FinalWar
 
                 IAuraSDS auraSDS = Battle.GetAuraData(auraID);
 
-                SuperEventListenerV.EventCallBack dele = delegate (SuperEvent e, ref float _value)
+                SuperEventListenerV.EventCallBack<float> dele = delegate (SuperEvent e, ref float _value)
                 {
                     TriggerAura(_battle, _hero, auraSDS, e, ref _value);
                 };

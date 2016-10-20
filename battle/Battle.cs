@@ -2017,13 +2017,24 @@ namespace FinalWar
                 }
                 else
                 {
+                    int targetPos;
+
                     if (_hero.isMine)
                     {
-                        return mapData.moveMap[_hero.pos].Key;
+                        targetPos = mapData.moveMap[_hero.pos].Key;
                     }
                     else
                     {
-                        return mapData.moveMap[_hero.pos].Value;
+                        targetPos = mapData.moveMap[_hero.pos].Value;
+                    }
+
+                    if (GetPosIsMine(targetPos) == _hero.isMine)
+                    {
+                        return targetPos;
+                    }
+                    else
+                    {
+                        return _hero.pos;
                     }
                 }
             }

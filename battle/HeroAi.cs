@@ -5,28 +5,6 @@ namespace FinalWar
 {
     public class HeroAi
     {
-        private enum BeState
-        {
-            WILL_BE_ATTACK,
-            WILL_BE_SHOOT,
-            WILL_BE_SUPPORT,
-        }
-
-        private enum CanState
-        {
-            CAN_ATTACK,
-            CAN_SHOOT,
-            CAN_SUPPORT,
-        }
-
-        private class HeroState
-        {
-            public Dictionary<BeState, List<int>> beState = new Dictionary<BeState, List<int>>();
-            public Dictionary<CanState, List<int>> canState = new Dictionary<CanState, List<int>>();
-
-            public bool done = false;
-        }
-
         public static void Start(Battle _battle, bool _isMine, double _wrongValue)
         {
             ClearAction(_battle, _isMine);
@@ -38,15 +16,6 @@ namespace FinalWar
 
         private static void DoAction(Battle _battle, bool _isMine, double _wrongValue)
         {
-            List<Hero> myHeroList = null;
-
-            Dictionary<Hero, HeroState> myHeroDic = null;
-
-            Dictionary<int, List<int>> willBeAttackPos = new Dictionary<int, List<int>>();
-
-            Dictionary<int, bool> hasBeenSupportedPos = new Dictionary<int, bool>();
-
-            //doAction
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = _battle.heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
@@ -57,363 +26,94 @@ namespace FinalWar
                 {
                     if (hero.sds.GetCanControl())
                     {
-                        if (myHeroDic == null)
-                        {
-                            myHeroList = new List<Hero>();
+                        List<int> result = null;
 
-                            myHeroDic = new Dictionary<Hero, HeroState>();
+                        if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
+                        {
+                            List<int> attackList = _battle.GetCanAttackPos(hero.pos);
+
+                            if(attackList.Count > 0)
+                            {
+                                result = attackList;
+                            }
                         }
 
-                        myHeroDic.Add(hero, new HeroState());
+                        if (hero.CheckCanDoAction(Hero.HeroAction.SHOOT))
+                        {
+                            List<int> shootList = _battle.GetCanShootPos(hero.pos);
 
-                        myHeroList.Add(hero);
+                            if(shootList.Count > 0)
+                            {
+                                if(result != null)
+                                {
+                                    result.InsertRange(result.Count, shootList);
+                                }
+                                else
+                                {
+                                    result = shootList;
+                                }
+                            }
+                        }
+
+                        if (hero.CheckCanDoAction(Hero.HeroAction.SUPPORT))
+                        {
+                            List<int> supportList = _battle.GetCanSupportPos(hero.pos);
+
+                            if(supportList.Count > 0)
+                            {
+                                if(result != null)
+                                {
+                                    result.InsertRange(result.Count, supportList);
+                                }
+                                else
+                                {
+                                    result = supportList;
+                                }
+                            }
+
+                            int targetPos;
+
+                            if(result != null)
+                            {
+                                int index = (int)(Battle.random.NextDouble() * result.Count);
+
+                                targetPos = result[index];
+
+                                if(targetPos != hero.pos)
+                                {
+                                    _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
+                                }
+                            }
+                            else
+                            {
+                                if (hero.isMine)
+                                {
+                                    targetPos = _battle.mapData.moveMap[hero.pos].Key;
+                                }
+                                else
+                                {
+                                    targetPos = _battle.mapData.moveMap[hero.pos].Value;
+                                }
+
+                                if(_battle.GetPosIsMine(targetPos) == hero.isMine)
+                                {
+                                    _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
+                                }
+                                else
+                                {
+                                    if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
+                                    {
+                                        _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
+                                    }
+                                }
+                            }
+                        }
                     }
                     else
                     {
                         if (_battle.autoAction.ContainsKey(hero.pos))
                         {
                             _battle.action.Add(new KeyValuePair<int, int>(hero.pos, _battle.autoAction[hero.pos]));
-                        }
-                    }
-                }
-                else
-                {
-                    if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
-                    {
-                        List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, hero.pos);
-
-                        List<int> neighbourOppThreatPos = new List<int>();
-
-                        List<int> neighbourOppPos = new List<int>();
-
-                        for (int i = 0; i < posList.Count; i++)
-                        {
-                            int pos = posList[i];
-
-                            bool mapIsMine = _battle.GetPosIsMine(pos);
-
-                            if (mapIsMine == _isMine)
-                            {
-                                neighbourOppPos.Add(pos);
-
-                                if (_battle.heroMapDic.ContainsKey(pos))
-                                {
-                                    Hero tmpHero = _battle.heroMapDic[pos];
-
-                                    if (tmpHero.sds.GetThreat())
-                                    {
-                                        neighbourOppThreatPos.Add(pos);
-                                    }
-                                }
-                            }
-                        }
-
-                        if (neighbourOppThreatPos.Count > 0)
-                        {
-                            neighbourOppPos = neighbourOppThreatPos;
-                        }
-
-                        for (int i = 0; i < neighbourOppPos.Count; i++)
-                        {
-                            int pos = neighbourOppPos[i];
-
-                            List<int> tmpList;
-
-                            if (willBeAttackPos.ContainsKey(pos))
-                            {
-                                tmpList = willBeAttackPos[pos];
-                            }
-                            else
-                            {
-                                tmpList = new List<int>();
-
-                                willBeAttackPos.Add(pos, tmpList);
-                            }
-
-                            tmpList.Add(hero.pos);
-                        }
-                    }
-                }
-            }
-
-            if (myHeroDic != null)
-            {
-                Dictionary<Hero, HeroState>.Enumerator enumerator2 = myHeroDic.GetEnumerator();
-
-                while (enumerator2.MoveNext())
-                {
-                    List<int> posList;
-
-                    KeyValuePair<Hero, HeroState> pair = enumerator2.Current;
-
-                    if (willBeAttackPos.ContainsKey(pair.Key.pos))
-                    {
-                        pair.Value.beState.Add(BeState.WILL_BE_ATTACK, willBeAttackPos[pair.Key.pos]);
-                    }
-
-                    if (pair.Key.CheckCanDoAction(Hero.HeroAction.ATTACK))
-                    {
-                        List<int> neighbourOppThreatPos = new List<int>();
-
-                        List<int> neighbourOppPos = new List<int>();
-
-                        posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, pair.Key.pos);
-
-                        for (int i = 0; i < posList.Count; i++)
-                        {
-                            int pos = posList[i];
-
-                            bool mapIsMine = _battle.GetPosIsMine(pos);
-
-                            if (mapIsMine != _isMine)
-                            {
-                                neighbourOppPos.Add(pos);
-
-                                if (_battle.heroMapDic.ContainsKey(pos))
-                                {
-                                    Hero tmpHero = _battle.heroMapDic[pos];
-
-                                    if (tmpHero.sds.GetThreat())
-                                    {
-                                        neighbourOppThreatPos.Add(pos);
-                                    }
-                                }
-                            }
-                        }
-                    
-                        if (neighbourOppThreatPos.Count > 0)
-                        {
-                            pair.Value.canState.Add(CanState.CAN_ATTACK, neighbourOppThreatPos);
-                        }
-                        else if (neighbourOppPos.Count > 0)
-                        {
-                            pair.Value.canState.Add(CanState.CAN_ATTACK, neighbourOppPos);
-                        }
-                    }
-
-                    posList = BattlePublicTools.GetNeighbourPos2(_battle.mapData.neighbourPosMap, pair.Key.pos);
-
-                    for (int i = 0; i < posList.Count; i++)
-                    {
-                        int pos = posList[i];
-
-                        bool mapIsMine = _battle.GetPosIsMine(pos);
-
-                        if (mapIsMine != _isMine)
-                        {
-                            if (_battle.heroMapDic.ContainsKey(pos))
-                            {
-                                Hero tmpHero = _battle.heroMapDic[pos];
-
-                                if (tmpHero.CheckCanDoAction(Hero.HeroAction.SHOOT))
-                                {
-                                    bool willBeShoot = true;
-
-                                    //检测射击隔了一个敌人
-                                    int midPos = (pos + pair.Key.pos) / 2;
-
-                                    if (_battle.heroMapDic.ContainsKey(midPos))
-                                    {
-                                        Hero midHero = _battle.heroMapDic[midPos];
-
-                                        if (midHero.isMine == _isMine)
-                                        {
-                                            willBeShoot = false;
-                                        }
-                                    }
-
-                                    if (willBeShoot)
-                                    {
-                                        List<int> tmpList;
-
-                                        if (!pair.Value.beState.ContainsKey(BeState.WILL_BE_SHOOT))
-                                        {
-                                            tmpList = new List<int>();
-
-                                            pair.Value.beState.Add(BeState.WILL_BE_SHOOT, tmpList);
-                                        }
-                                        else
-                                        {
-                                            tmpList = pair.Value.beState[BeState.WILL_BE_SHOOT];
-                                        }
-
-                                        tmpList.Add(pos);
-                                    }
-                                }
-
-                                if (pair.Key.CheckCanDoAction(Hero.HeroAction.SHOOT))
-                                {
-                                    bool canShoot = true;
-
-                                    //检测射击隔了一个敌人
-                                    int midPos = (pos + pair.Key.pos) / 2;
-
-                                    if (_battle.heroMapDic.ContainsKey(midPos))
-                                    {
-                                        Hero midHero = _battle.heroMapDic[midPos];
-
-                                        if (midHero.isMine != _isMine)
-                                        {
-                                            canShoot = false;
-                                        }
-                                    }
-
-                                    if (canShoot)
-                                    {
-                                        List<int> tmpList;
-
-                                        if (pair.Value.canState.ContainsKey(CanState.CAN_SHOOT))
-                                        {
-                                            tmpList = pair.Value.canState[CanState.CAN_SHOOT];
-                                        }
-                                        else
-                                        {
-                                            tmpList = new List<int>();
-
-                                            pair.Value.canState.Add(CanState.CAN_SHOOT, tmpList);
-                                        }
-
-                                        tmpList.Add(pos);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                enumerator2 = myHeroDic.GetEnumerator();
-
-                while (enumerator2.MoveNext())
-                {
-                    KeyValuePair<Hero, HeroState> pair = enumerator2.Current;
-
-                    if (pair.Key.CheckCanDoAction(Hero.HeroAction.SUPPORT))
-                    {
-                        List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, pair.Key.pos);
-
-                        for (int i = 0; i < posList.Count; i++)
-                        {
-                            int pos = posList[i];
-
-                            if (willBeAttackPos.ContainsKey(pos))
-                            {
-                                List<int> tmpList;
-
-                                if (pair.Value.canState.ContainsKey(CanState.CAN_SUPPORT))
-                                {
-                                    tmpList = pair.Value.canState[CanState.CAN_SUPPORT];
-                                }
-                                else
-                                {
-                                    tmpList = new List<int>();
-
-                                    pair.Value.canState.Add(CanState.CAN_SUPPORT, tmpList);
-                                }
-
-                                tmpList.Add(pos);
-
-                                if (_battle.heroMapDic.ContainsKey(pos))
-                                {
-                                    Hero tmpHero = _battle.heroMapDic[pos];
-
-                                    HeroState state = myHeroDic[tmpHero];
-
-                                    if (state.beState.ContainsKey(BeState.WILL_BE_SUPPORT))
-                                    {
-                                        tmpList = state.beState[BeState.WILL_BE_SUPPORT];
-                                    }
-                                    else
-                                    {
-                                        tmpList = new List<int>();
-
-                                        state.beState.Add(BeState.WILL_BE_SUPPORT, tmpList);
-                                    }
-
-                                    tmpList.Add(pos);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                //具体做动作
-                PublicTools.ShuffleList(myHeroList, Battle.random);
-
-                for (int i = 0; i < myHeroList.Count; i++)
-                {
-                    Hero hero = myHeroList[i];
-
-                    HeroState state = myHeroDic[hero];
-
-                    if (state.done)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        state.done = true;
-                    }
-
-                    if (hero.CheckCanDoAction(Hero.HeroAction.SUPPORT))
-                    {
-                        if (state.canState.Count > 0)
-                        {
-                            if (!state.beState.ContainsKey(BeState.WILL_BE_ATTACK) || hasBeenSupportedPos.ContainsKey(hero.pos))
-                            {
-                                CheckDoAction(_battle, _isMine, _wrongValue, hero, state, hasBeenSupportedPos);
-                            }
-                            else
-                            {
-                                if (state.beState.ContainsKey(BeState.WILL_BE_SUPPORT))
-                                {
-                                    List<int> tmpList = state.beState[BeState.WILL_BE_SUPPORT];
-
-                                    PublicTools.ShuffleList(tmpList, Battle.random);
-
-                                    for (int m = 0; m < tmpList.Count; m++)
-                                    {
-                                        int pos = tmpList[m];
-
-                                        Hero tmpHero = _battle.heroMapDic[pos];
-
-                                        HeroState tmpState = myHeroDic[tmpHero];
-
-                                        if (!tmpState.done)
-                                        {
-                                            if (Battle.random.NextDouble() < 0.5)
-                                            {
-                                                _battle.action.Add(new KeyValuePair<int, int>(pos, hero.pos));
-
-                                                tmpState.done = true;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (Battle.random.NextDouble() < 0.5)
-                                {
-                                    CheckDoAction(_battle, _isMine, _wrongValue, hero, state, hasBeenSupportedPos);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (state.beState.ContainsKey(BeState.WILL_BE_ATTACK))
-                            {
-                                if(Battle.random.NextDouble() > 0.2)
-                                {
-                                    continue;
-                                }
-                            }
-                            else if (state.beState.ContainsKey(BeState.WILL_BE_SHOOT))
-                            {
-                                if (Battle.random.NextDouble() > 0.3)
-                                {
-                                    continue;
-                                }
-                            }
-
-                            JustMoveForwardInMyArea(_battle, hero);
                         }
                     }
                 }
@@ -582,156 +282,6 @@ namespace FinalWar
                     {
                         break;
                     }
-                }
-            }
-        }
-
-         
-
-        private static void CheckDoAction(Battle _battle, bool _isMine, double _wrongValue, Hero _hero, HeroState _state, Dictionary<int,bool> _hasBeenSupportedPos)
-        {
-            List<CanState> canList = new List<CanState>();
-
-            List<double> randomList = new List<double>();
-
-            if (_state.canState.ContainsKey(CanState.CAN_ATTACK))
-            {
-                canList.Add(CanState.CAN_ATTACK);
-
-                randomList.Add(1);
-            }
-
-            if (_state.canState.ContainsKey(CanState.CAN_SHOOT))
-            {
-                canList.Add(CanState.CAN_SHOOT);
-
-                randomList.Add(1);
-            }
-
-            if (_state.canState.ContainsKey(CanState.CAN_SUPPORT))
-            {
-                canList.Add(CanState.CAN_SUPPORT);
-
-                randomList.Add(1);
-            }
-
-            randomList.Add(_wrongValue);
-
-            int index = PublicTools.Choose(randomList, Battle.random);
-
-            if (index < canList.Count)
-            {
-                CanState tmpState = canList[index];
-
-                List<int> targetPosList = _state.canState[tmpState];
-
-                randomList.Clear();
-
-                for (int m = 0; m < targetPosList.Count; m++)
-                {
-                    randomList.Add(1);
-                }
-
-                index = PublicTools.Choose(randomList, Battle.random);
-
-                int targetPos = targetPosList[index];
-
-                _battle.action.Add(new KeyValuePair<int, int>(_hero.pos, targetPos));
-
-                if (tmpState == CanState.CAN_SUPPORT)
-                {
-                    if (!_hasBeenSupportedPos.ContainsKey(targetPos))
-                    {
-                        _hasBeenSupportedPos.Add(targetPos, false);
-                    }
-                }
-            }
-            else
-            {
-                JustMoveForwardInMyArea(_battle, _hero);
-            }
-        }
-
-        private static void JustMoveForwardInMyArea(Battle _battle, Hero _hero)
-        {
-            int targetPos = _hero.isMine ? _battle.mapData.base2 : _battle.mapData.base1;
-
-            List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, _hero.pos);
-
-            List<int> resultPos = new List<int>() { _hero.pos };//添加自己位置  防止士气不够无事可干的时候一定会往和敌人老家距离相同的位置行走
-
-            int minDis = BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, targetPos);
-
-            for (int m = 0; m < posList.Count; m++)
-            {
-                int pos = posList[m];
-
-                bool mapIsMine = _battle.GetPosIsMine(pos);
-
-                //不能往敌人的格子走
-                if (mapIsMine != _hero.isMine)
-                {
-                    continue;
-                }
-
-                //如果格子上有自己人  确定自己人在移动才往那走  否则无意义
-                if (_battle.heroMapDic.ContainsKey(pos))
-                {
-                    bool targetHeroIsMoving = false;
-
-                    for(int i = 0; i < _battle.action.Count; i++)
-                    {
-                        KeyValuePair<int, int> pair = _battle.action[i];
-
-                        if (pair.Key == pos)
-                        {
-                            if (BattlePublicTools.GetDistance(_battle.mapData.mapWidth, pos,pair.Value) == 1)
-                            {
-                                targetHeroIsMoving = true;
-
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!targetHeroIsMoving)
-                    {
-                        continue;
-                    }
-                }
-
-                int dis = BattlePublicTools.GetDistance(_battle.mapData.mapWidth, pos, targetPos);
-
-                if (dis < minDis)
-                {
-                    resultPos.Clear();
-
-                    resultPos.Add(pos);
-
-                    minDis = dis;
-                }
-                else if (dis == minDis)
-                {
-                    resultPos.Add(pos);
-                }
-            }
-
-            if (resultPos.Count > 0)
-            {
-                List<double> randomList = new List<double>();
-
-                for (int m = 0; m < resultPos.Count; m++)
-                {
-                    randomList.Add(1);
-                }
-
-                int index = PublicTools.Choose(randomList, Battle.random);
-
-                int target = resultPos[index];
-
-                if (target != _hero.pos)
-                {
-                    _battle.action.Add(new KeyValuePair<int, int>(_hero.pos, target));
                 }
             }
         }

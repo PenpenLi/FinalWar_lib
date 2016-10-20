@@ -1,18 +1,22 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace superEvent
 {
     internal class SuperEventListenerV
     {
-        internal delegate void EventCallBack(SuperEvent e, ref float _value);
+        internal delegate void EventCallBack<T>(SuperEvent e, ref T _value) where T : struct;
 
-        private class SuperEventListenerVUnit
+        private class SuperEventListenerUnitBase
         {
             internal int index;
             internal string eventName;
-            internal EventCallBack callBack;
+            internal Delegate callBack;
+        }
 
-            internal SuperEventListenerVUnit(int _index, string _eventName, EventCallBack _callBack)
+        private class SuperEventListenerUnit<T> : SuperEventListenerUnitBase where T : struct
+        {
+            internal SuperEventListenerUnit(int _index, string _eventName, EventCallBack<T> _callBack)
             {
                 index = _index;
                 eventName = _eventName;
@@ -20,20 +24,20 @@ namespace superEvent
             }
         }
 
-        private Dictionary<int, SuperEventListenerVUnit> dicWithID = new Dictionary<int, SuperEventListenerVUnit>();
-        private Dictionary<string, Dictionary<EventCallBack, SuperEventListenerVUnit>> dicWithEvent = new Dictionary<string, Dictionary<EventCallBack, SuperEventListenerVUnit>>();
+        private Dictionary<int, SuperEventListenerUnitBase> dicWithID = new Dictionary<int, SuperEventListenerUnitBase>();
+        private Dictionary<string, Dictionary<Delegate, SuperEventListenerUnitBase>> dicWithEvent = new Dictionary<string, Dictionary<Delegate, SuperEventListenerUnitBase>>();
 
         private int nowIndex;
 
-        internal int AddListener(string _eventName, EventCallBack _callBack)
+        internal int AddListener<T>(string _eventName, EventCallBack<T> _callBack) where T : struct
         {
-            SuperEventListenerVUnit unit = new SuperEventListenerVUnit(nowIndex, _eventName, _callBack);
+            SuperEventListenerUnit<T> unit = new SuperEventListenerUnit<T>(nowIndex, _eventName, _callBack);
 
             nowIndex++;
 
             dicWithID.Add(unit.index, unit);
 
-            Dictionary<EventCallBack, SuperEventListenerVUnit> dic;
+            Dictionary<Delegate, SuperEventListenerUnitBase> dic;
 
             if (dicWithEvent.ContainsKey(_eventName))
             {
@@ -41,7 +45,7 @@ namespace superEvent
             }
             else
             {
-                dic = new Dictionary<EventCallBack, SuperEventListenerVUnit>();
+                dic = new Dictionary<Delegate, SuperEventListenerUnitBase>();
 
                 dicWithEvent.Add(_eventName, dic);
             }
@@ -55,11 +59,11 @@ namespace superEvent
         {
             if (dicWithID.ContainsKey(_index))
             {
-                SuperEventListenerVUnit unit = dicWithID[_index];
+                SuperEventListenerUnitBase unit = dicWithID[_index];
 
                 dicWithID.Remove(_index);
 
-                Dictionary<EventCallBack, SuperEventListenerVUnit> dic = dicWithEvent[unit.eventName];
+                Dictionary<Delegate, SuperEventListenerUnitBase> dic = dicWithEvent[unit.eventName];
 
                 dic.Remove(unit.callBack);
 
@@ -70,15 +74,15 @@ namespace superEvent
             }
         }
 
-        internal void RemoveListener(string _eventName, EventCallBack _callBack)
+        internal void RemoveListener<T>(string _eventName, EventCallBack<T> _callBack) where T : struct
         {
             if (dicWithEvent.ContainsKey(_eventName))
             {
-                Dictionary<EventCallBack, SuperEventListenerVUnit> dic = dicWithEvent[_eventName];
+                Dictionary<Delegate, SuperEventListenerUnitBase> dic = dicWithEvent[_eventName];
 
                 if (dic.ContainsKey(_callBack))
                 {
-                    SuperEventListenerVUnit unit = dic[_callBack];
+                    SuperEventListenerUnitBase unit = dic[_callBack];
 
                     dicWithID.Remove(unit.index);
 
@@ -92,34 +96,39 @@ namespace superEvent
             }
         }
 
-        internal void DispatchEvent(string _eventName, ref float _value, params object[] _objs)
+        internal void DispatchEvent<T>(string _eventName, ref T _value, params object[] _objs) where T : struct
         {
             if (dicWithEvent.ContainsKey(_eventName))
             {
-                Dictionary<EventCallBack, SuperEventListenerVUnit> dic = dicWithEvent[_eventName];
+                Dictionary<Delegate, SuperEventListenerUnitBase> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<EventCallBack,SuperEvent>[] arr = new KeyValuePair<EventCallBack, SuperEvent>[dic.Count];
+                KeyValuePair<Delegate, SuperEvent>[] arr = new KeyValuePair<Delegate, SuperEvent>[dic.Count];
 
-                Dictionary<EventCallBack, SuperEventListenerVUnit>.Enumerator enumerator = dic.GetEnumerator();
+                Dictionary<Delegate, SuperEventListenerUnitBase>.Enumerator enumerator = dic.GetEnumerator();
 
                 int i = 0;
 
                 while (enumerator.MoveNext())
                 {
-                    KeyValuePair<EventCallBack, SuperEventListenerVUnit> pair = enumerator.Current;
+                    KeyValuePair<Delegate, SuperEventListenerUnitBase> pair = enumerator.Current;
 
                     SuperEvent ev = new SuperEvent(pair.Value.index, _objs);
 
-                    arr[i] = new KeyValuePair<EventCallBack, SuperEvent>(pair.Key, ev);
+                    arr[i] = new KeyValuePair<Delegate, SuperEvent>(pair.Key, ev);
 
                     i++;
                 }
 
                 for (i = 0; i < arr.Length; i++)
                 {
-                    KeyValuePair<EventCallBack, SuperEvent> pair = arr[i];
+                    KeyValuePair<Delegate, SuperEvent> pair = arr[i];
 
-                    pair.Key(pair.Value, ref _value);
+                    if(pair.Key is EventCallBack<T>)
+                    {
+                        EventCallBack<T> callBack = pair.Key as EventCallBack<T>;
+
+                        callBack(pair.Value, ref _value);
+                    }
                 }
             }
         }
