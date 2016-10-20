@@ -726,7 +726,7 @@ namespace FinalWar
                 }
             }
 
-            Dictionary<int, int> tmpDic = new Dictionary<int, int>();
+            Dictionary<int, bool> tmpDic = new Dictionary<int, bool>();
 
             num = _br.ReadInt32();
 
@@ -748,7 +748,7 @@ namespace FinalWar
 
                     action.Add(new KeyValuePair<int, int>(pos, targetPos));
 
-                    tmpDic.Add(pos, targetPos);
+                    tmpDic.Add(pos, false);
                 }
             }
 
@@ -762,7 +762,10 @@ namespace FinalWar
                 {
                     if (!tmpDic.ContainsKey(pair.Key))
                     {
-                        action.Add(pair);
+                        if(pair.Key != pair.Value)
+                        {
+                            action.Add(pair);
+                        }
                     }
                 }
             }
@@ -2010,16 +2013,7 @@ namespace FinalWar
                 {
                     int index = (int)(random.NextDouble() * posList.Count);
 
-                    int target = posList[index];
-
-                    if (target != _hero.pos)
-                    {
-                        return target;
-                    }
-                    else
-                    {
-                        return -1;
-                    }
+                    return posList[index];
                 }
                 else
                 {
