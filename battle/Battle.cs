@@ -142,8 +142,8 @@ namespace FinalWar
             cardUid = 1;
             heroUid = 1;
 
-            mCards = _mCards;
-            oCards = _oCards;
+            mCards = new List<int>(_mCards);
+            oCards = new List<int>(_oCards);
 
             for (int i = 0; i < DEFAULT_HAND_CARD_NUM; i++)
             {
@@ -1981,9 +1981,10 @@ namespace FinalWar
 
         private int GetHeroAutoAction(Hero _hero)
         {
+            //优先攻击英雄
             if (_hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
             {
-                List<int> posList = GetCanAttackPos(_hero.pos);
+                List<int> posList = GetCanAttackerHeroPos(_hero.pos);
 
                 if (posList.Count > 0)
                 {
@@ -1993,6 +1994,7 @@ namespace FinalWar
                 }
             }
 
+            //然后射击英雄
             if (_hero.CheckCanDoAction(Hero.HeroAction.SHOOT))
             {
                 List<int> posList = GetCanShootPos(_hero.pos);
@@ -2007,22 +2009,44 @@ namespace FinalWar
 
             if (_hero.CheckCanDoAction(Hero.HeroAction.SUPPORT))
             {
+                //如果自己可能会被攻击  则防御
                 if (CheckPosCanBeAttack(_hero.pos))
                 {
-                    if(random.NextDouble() < 0.5)
-                    {
-                        return _hero.pos;
-                    }
+                    return _hero.pos;
                 }
-
+               
                 List<int> posList = GetCanSupportPos(_hero.pos);
 
+                //优先援护英雄  然后援护位置
                 if (posList.Count > 0)
                 {
+                    List<int> heroPosList = null;
+
+                    for(int i = 0; i < posList.Count; i++)
+                    {
+                        int pos = posList[i];
+
+                        if (heroMapDic.ContainsKey(pos))
+                        {
+                            if(heroPosList == null)
+                            {
+                                heroPosList = new List<int>();
+                            }
+
+                            heroPosList.Add(pos);
+                        }
+                    }
+
+                    if(heroPosList != null)
+                    {
+                        posList = heroPosList;
+                    }
+
                     int index = (int)(random.NextDouble() * posList.Count);
 
                     return posList[index];
                 }
+                //无援护目标时向前进
                 else
                 {
                     int targetPos;
@@ -2042,7 +2066,14 @@ namespace FinalWar
                     }
                     else
                     {
-                        return _hero.pos;
+                        if (_hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
+                        {
+                            return targetPos;
+                        }
+                        else
+                        {
+                            return _hero.pos;
+                        }
                     }
                 }
             }

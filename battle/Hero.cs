@@ -20,9 +20,9 @@ namespace FinalWar
         {
             5000,
             5000,
-            4000,
-            3000,
-            2000,
+            5000,
+            2500,
+            2500,
             0
         };
 
@@ -47,9 +47,9 @@ namespace FinalWar
 
         private const float POWER_FIX_WITH_RANDOM_RANGE = 0.05f;
 
-        private const float SHOOT_DAMAGE_FIX_WITH_DEFENSE = 0.5f;
+        private const float SHOOT_DAMAGE_FIX_WITH_DEFENSE = 1f;
 
-        private const float SHOOT_POWER_FIX_WITH_DEFENSE = 0.5f;
+        private const float SHOOT_POWER_FIX_WITH_DEFENSE = 1f;
 
         public bool isMine { get; private set; }
 
@@ -364,11 +364,11 @@ namespace FinalWar
         {
             if(action == HeroAction.DEFENSE)
             {
-                return FixPowerChange((int)(-300 * _shooterNum * SHOOT_POWER_FIX_WITH_DEFENSE));
+                return FixPowerChange((int)(-500 * _shooterNum * SHOOT_POWER_FIX_WITH_DEFENSE));
             }
             else
             {
-                return FixPowerChange(-300 * _shooterNum);
+                return FixPowerChange(-500 * _shooterNum);
             }
         }
 

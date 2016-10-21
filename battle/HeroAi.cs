@@ -16,6 +16,8 @@ namespace FinalWar
 
         private static void DoAction(Battle _battle, bool _isMine, double _wrongValue)
         {
+            List<KeyValuePair<int, int>> action = new List<KeyValuePair<int, int>>();
+
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = _battle.heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
@@ -43,6 +45,13 @@ namespace FinalWar
                             if(attackList.Count > 0)
                             {
                                 result = attackList;
+                            }
+
+                            attackList = _battle.GetCanAttackerHeroPos(hero.pos);
+
+                            if (attackList.Count > 0)
+                            {
+                                result.InsertRange(result.Count, attackList);
                             }
                         }
 
@@ -79,12 +88,11 @@ namespace FinalWar
                                 }
                             }
 
-
                             if(result != null)
                             {
                                 int index = (int)(Battle.random.NextDouble() * result.Count);
 
-                                _battle.action.Add(new KeyValuePair<int, int>(hero.pos, result[index]));
+                                action.Add(new KeyValuePair<int, int>(hero.pos, result[index]));
                             }
                             else
                             {
@@ -101,13 +109,13 @@ namespace FinalWar
 
                                 if(_battle.GetPosIsMine(targetPos) == hero.isMine)
                                 {
-                                    _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
+                                    action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
                                 }
                                 else
                                 {
                                     if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
                                     {
-                                        _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
+                                        action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
                                     }
                                 }
                             }
@@ -121,14 +129,16 @@ namespace FinalWar
 
                             if(targetPos != hero.pos)
                             {
-                                _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
+                                action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
                             }
                         }
                     }
                 }
             }
 
-            PublicTools.ShuffleList(_battle.action, Battle.random);
+            PublicTools.ShuffleList(action, Battle.random);
+
+            _battle.action.InsertRange(_battle.action.Count, action);
         }
 
         private static void DoSummon(Battle _battle, bool _isMine, double _wrongValue)
