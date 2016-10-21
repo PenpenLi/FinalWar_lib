@@ -2007,6 +2007,14 @@ namespace FinalWar
 
             if (_hero.CheckCanDoAction(Hero.HeroAction.SUPPORT))
             {
+                if (CheckPosCanBeAttack(_hero.pos))
+                {
+                    if(random.NextDouble() < 0.5)
+                    {
+                        return _hero.pos;
+                    }
+                }
+
                 List<int> posList = GetCanSupportPos(_hero.pos);
 
                 if (posList.Count > 0)
@@ -2763,11 +2771,6 @@ namespace FinalWar
         public List<int> GetCanSupportPos(int _pos)
         {
             List<int> result = new List<int>();
-
-            if (CheckPosCanBeAttack(_pos))
-            {
-                result.Add(_pos);
-            }
 
             bool isMine = GetPosIsMine(_pos);
 

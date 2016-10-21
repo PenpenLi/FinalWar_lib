@@ -26,6 +26,14 @@ namespace FinalWar
                 {
                     if (hero.sds.GetCanControl())
                     {
+                        if (_battle.CheckPosCanBeAttack(hero.pos))
+                        {
+                            if(Battle.random.NextDouble() < 0.5)
+                            {
+                                continue;
+                            }
+                        }
+
                         List<int> result = null;
 
                         if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
@@ -71,21 +79,17 @@ namespace FinalWar
                                 }
                             }
 
-                            int targetPos;
 
                             if(result != null)
                             {
                                 int index = (int)(Battle.random.NextDouble() * result.Count);
 
-                                targetPos = result[index];
-
-                                if(targetPos != hero.pos)
-                                {
-                                    _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
-                                }
+                                _battle.action.Add(new KeyValuePair<int, int>(hero.pos, result[index]));
                             }
                             else
                             {
+                                int targetPos;
+
                                 if (hero.isMine)
                                 {
                                     targetPos = _battle.mapData.moveMap[hero.pos].Key;
@@ -113,7 +117,12 @@ namespace FinalWar
                     {
                         if (_battle.autoAction.ContainsKey(hero.pos))
                         {
-                            _battle.action.Add(new KeyValuePair<int, int>(hero.pos, _battle.autoAction[hero.pos]));
+                            int targetPos = _battle.autoAction[hero.pos];
+
+                            if(targetPos != hero.pos)
+                            {
+                                _battle.action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
+                            }
                         }
                     }
                 }
