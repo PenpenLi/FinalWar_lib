@@ -274,11 +274,7 @@ namespace FinalWar
 
             int tmpDamage = (int)(_damage / fix);
 
-            if (tmpDamage > nowHp)
-            {
-                tmpDamage = nowHp;
-            }
-            else if (tmpDamage < 1)
+            if (tmpDamage < 1)
             {
                 tmpDamage = 1;
             }

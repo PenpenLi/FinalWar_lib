@@ -22,7 +22,7 @@ namespace FinalWar
         private const int DEFAULT_HAND_CARD_NUM = 5;
         private const int MAX_HAND_CARD_NUM = 10;
         private const int DEFAULT_MONEY = 5;
-        private const int ADD_MONEY = 1;
+        private const int ADD_MONEY = 3;
         private const int MAX_MONEY = 10;
 
         public int mapID;
