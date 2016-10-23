@@ -834,7 +834,10 @@ namespace FinalWar
 
             ServerDoRecover(battleData, voList);
 
-            ServerDoAutoAction();
+            if(!mWin && !oWin)
+            {
+                ServerDoAutoAction();
+            }
 
             //eventListener.LogNum();
 
