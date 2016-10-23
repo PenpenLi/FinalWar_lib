@@ -2017,34 +2017,12 @@ namespace FinalWar
                 {
                     return _hero.pos;
                 }
-               
-                List<int> posList = GetCanSupportPos(_hero.pos);
 
-                //优先援护英雄  然后援护位置
+                //援护英雄
+                List<int> posList = GetCanSupportHeroPos(_hero.pos);
+                
                 if (posList.Count > 0)
                 {
-                    List<int> heroPosList = null;
-
-                    for(int i = 0; i < posList.Count; i++)
-                    {
-                        int pos = posList[i];
-
-                        if (heroMapDic.ContainsKey(pos))
-                        {
-                            if(heroPosList == null)
-                            {
-                                heroPosList = new List<int>();
-                            }
-
-                            heroPosList.Add(pos);
-                        }
-                    }
-
-                    if(heroPosList != null)
-                    {
-                        posList = heroPosList;
-                    }
-
                     int index = (int)(random.NextDouble() * posList.Count);
 
                     return posList[index];
@@ -2587,6 +2565,16 @@ namespace FinalWar
             }
 
             clientRefreshDataCallBack();
+
+            if(mWin)
+            {
+                mWin = false;
+            }
+
+            if (oWin)
+            {
+                oWin = false;
+            }
         }
 
         public bool GetPosIsMine(int _pos)
@@ -2800,6 +2788,32 @@ namespace FinalWar
             }
 
             return false;
+        }
+
+        public List<int> GetCanSupportHeroPos(int _pos)
+        {
+            List<int> result = new List<int>();
+
+            bool isMine = GetPosIsMine(_pos);
+
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                bool b = GetPosIsMine(pos);
+
+                if (b == isMine && heroMapDic.ContainsKey(pos))
+                {
+                    if (CheckPosCanBeAttack(pos))
+                    {
+                        result.Add(pos);
+                    }
+                }
+            }
+
+            return result;
         }
 
         public List<int> GetCanSupportPos(int _pos)
