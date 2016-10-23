@@ -130,8 +130,8 @@ namespace FinalWar
 
             mapData = GetMapData(mapID);
 
-            mScore = mapData.score1;
-            oScore = mapData.score2;
+            mScore = mapData.mScore;
+            oScore = mapData.oScore;
 
             mMoney = oMoney = DEFAULT_MONEY;
 
@@ -1911,11 +1911,11 @@ namespace FinalWar
                 {
                     if (changeMapBelong)
                     {
-                        if(mapData.base1 == nowPos)
+                        if(mapData.mBase == nowPos)
                         {
                             oWin = true;
                         }
-                        else if(mapData.base2 == nowPos)
+                        else if(mapData.oBase == nowPos)
                         {
                             mWin = true;
                         }

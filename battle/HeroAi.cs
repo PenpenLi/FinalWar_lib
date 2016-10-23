@@ -150,13 +150,13 @@ namespace FinalWar
 
             if (_isMine)
             {
-                oppBasePos = _battle.mapData.base2;
+                oppBasePos = _battle.mapData.oBase;
                 money = _battle.mMoney;
                 handCards = _battle.mHandCards;
             }
             else
             {
-                oppBasePos = _battle.mapData.base1;
+                oppBasePos = _battle.mapData.mBase;
                 money = _battle.oMoney;
                 handCards = _battle.oHandCards;
             }

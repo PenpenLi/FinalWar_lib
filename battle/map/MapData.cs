@@ -8,11 +8,11 @@ public class MapData
 
     public int size;
 
-    public int base1 = -1;
-    public int base2 = -1;
+    public int mBase = -1;
+    public int oBase = -1;
 
-    public int score1;
-    public int score2;
+    public int mScore;
+    public int oScore;
 
     public Dictionary<int, bool> dic = new Dictionary<int, bool>();
 
@@ -38,8 +38,8 @@ public class MapData
         _bw.Write(mapWidth);
         _bw.Write(mapHeight);
 
-        _bw.Write(base1);
-        _bw.Write(base2);
+        _bw.Write(mBase);
+        _bw.Write(oBase);
 
         _bw.Write(dic.Count);
 
@@ -66,8 +66,8 @@ public class MapData
         mapWidth = _br.ReadInt32();
         mapHeight = _br.ReadInt32();
 
-        base1 = _br.ReadInt32();
-        base2 = _br.ReadInt32();
+        mBase = _br.ReadInt32();
+        oBase = _br.ReadInt32();
 
         size = mapWidth * mapHeight - mapHeight / 2;
 
@@ -101,11 +101,11 @@ public class MapData
 
             if (enumerator.Current.Value)
             {
-                score1++;
+                mScore++;
             }
             else
             {
-                score2++;
+                oScore++;
             }
 
             int[] vec = GetNeighbourPosVec(pos);
