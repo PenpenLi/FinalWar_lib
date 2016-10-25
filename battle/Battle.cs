@@ -66,6 +66,7 @@ namespace FinalWar
         private Action<MemoryStream> clientSendDataCallBack;
         private Action clientRefreshDataCallBack;
         private Action<IEnumerator<ValueType>> clientDoActionCallBack;
+        private Action clientBattleOverCallBack;
 
         internal SuperEventListener eventListener = new SuperEventListener();
         internal SuperEventListenerV eventListenerV = new SuperEventListenerV();
@@ -109,11 +110,12 @@ namespace FinalWar
             serverBattleOverCallBack = _serverBattleOverCallBack;
         }
 
-        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<IEnumerator<ValueType>> _clientDoActionCallBack)
+        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<IEnumerator<ValueType>> _clientDoActionCallBack, Action _clientBattleOverCallBack)
         {
             clientSendDataCallBack = _clientSendDataCallBack;
             clientRefreshDataCallBack = _clientRefreshDataCallBack;
             clientDoActionCallBack = _clientDoActionCallBack;
+            clientBattleOverCallBack = _clientBattleOverCallBack;
         }
 
         public void ServerStart(int _mapID, List<int> _mCards, List<int> _oCards, bool _isVsAi, float _mFix, float _oFix)
@@ -194,6 +196,12 @@ namespace FinalWar
 
                             ServerDoAction(_isMine, br);
                             
+                            break;
+
+                        case PackageTag.C2S_QUIT:
+
+                            ServerQuitBattle();
+
                             break;
                     }
                 }
@@ -375,6 +383,12 @@ namespace FinalWar
                     ClientDoAction(br);
 
                     break;
+
+                case PackageTag.S2C_QUIT:
+
+                    clientBattleOverCallBack();
+
+                    break;
             }
         }
 
@@ -516,6 +530,19 @@ namespace FinalWar
         public void ClientRequestUnsummon(int _cardUid)
         {
             summon.Remove(_cardUid);
+        }
+
+        public void ClientRequestQuitBattle()
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (BinaryWriter bw = new BinaryWriter(ms))
+                {
+                    bw.Write((short)PackageTag.C2S_QUIT);
+
+                    clientSendDataCallBack(ms);
+                }
+            }
         }
 
         public bool ClientRequestAction(int _pos, int _targetPos)
@@ -917,6 +944,26 @@ namespace FinalWar
             {
                 BattleOver();
             }
+        }
+
+        private void ServerQuitBattle()
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (BinaryWriter bw = new BinaryWriter(ms))
+                {
+                    bw.Write((short)PackageTag.S2C_QUIT);
+
+                    serverSendDataCallBack(true, ms);
+
+                    if (!isVsAi)
+                    {
+                        serverSendDataCallBack(false, ms);
+                    }
+                }
+            }
+
+            BattleOver();
         }
 
         private void BattleOver()
