@@ -2888,5 +2888,10 @@ namespace FinalWar
 
             return result;
         }
+
+        public bool GetClientCanAction()
+        {
+            return !(clientIsMine ? mOver : oOver);
+        }
     }
 }
