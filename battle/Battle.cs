@@ -608,20 +608,19 @@ namespace FinalWar
             {
                 if(b != hero.isMine && heroMapDic.ContainsKey(_targetPos))
                 {
-                    tmpList = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
+                    List<int> tmpList2 = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
 
-                    if (tmpList.Contains(_targetPos))
+                    if (tmpList2.Contains(_targetPos))
                     {
                         if (hero.CheckCanDoAction(Hero.HeroAction.SHOOT))
                         {
-                            //检测射击隔了一个敌人
-                            int midPos = (_pos + _targetPos) / 2;
-
-                            if (heroMapDic.ContainsKey(midPos))
+                            for(int i = 0; i < tmpList.Count; i++)
                             {
-                                Hero midHero = heroMapDic[midPos];
+                                int pos = tmpList[i];
 
-                                if(midHero.isMine != hero.isMine)
+                                b = GetPosIsMine(pos);
+
+                                if(b != hero.isMine && heroMapDic.ContainsKey(pos))
                                 {
                                     return false;
                                 }
@@ -1237,9 +1236,9 @@ namespace FinalWar
             }
             else
             {
-                arr = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
+                List<int> arr2 = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
 
-                if (arr.Contains(_targetPos))
+                if (arr2.Contains(_targetPos))
                 {
                     if (hero.isMine == targetPosIsMine)
                     {
@@ -1249,14 +1248,13 @@ namespace FinalWar
                     {
                         if (heroMapDic.ContainsKey(_targetPos))
                         {
-                            //检测射击隔了一个敌人
-                            int midPos = (_pos + _targetPos) / 2;
-
-                            if (heroMapDic.ContainsKey(midPos))
+                            for(int i = 0; i < arr.Count; i++)
                             {
-                                Hero midHero = heroMapDic[midPos];
+                                int pos = arr[i];
 
-                                if(midHero.isMine != hero.isMine)
+                                targetPosIsMine = GetPosIsMine(pos);
+
+                                if(targetPosIsMine != hero.isMine && heroMapDic.ContainsKey(pos))
                                 {
                                     throw new Exception("shoot error2");
                                 }
@@ -2733,6 +2731,20 @@ namespace FinalWar
 
             bool isMine = GetPosIsMine(_pos);
 
+            List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+
+            for(int i = 0; i < posList2.Count; i++)
+            {
+                int pos = posList2[i];
+
+                bool b = GetPosIsMine(pos);
+
+                if(b != isMine && heroMapDic.ContainsKey(pos))
+                {
+                    return result;
+                }
+            }
+
             List<int> posList = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
 
             for (int i = 0; i < posList.Count; i++)
@@ -2743,16 +2755,6 @@ namespace FinalWar
 
                 if (b != isMine && heroMapDic.ContainsKey(pos))
                 {
-                    //检测射击隔了一个敌人
-                    int midPos = (_pos + pos) / 2;
-
-                    b = GetPosIsMine(midPos);
-
-                    if(b != isMine && heroMapDic.ContainsKey(midPos))
-                    {
-                        continue;
-                    }
-
                     result.Add(pos);
                 }
             }
