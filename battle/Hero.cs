@@ -108,13 +108,14 @@ namespace FinalWar
 
         internal void ShieldChange(int _value)
         {
+            if(_value > 0)
+            {
+                throw new System.Exception("shield change can not bigger than zero!")
+            }
+
             nowShield += _value;
 
-            if(nowShield > sds.GetShield())
-            {
-                nowShield = sds.GetShield();
-            }
-            else if(nowShield < 0)
+            if(nowShield < 0)
             {
                 nowShield = 0;
             }
