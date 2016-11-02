@@ -14,8 +14,7 @@ namespace FinalWar
             SHOOT,
             ATTACK,
             DEATH,
-            POWERCHANGE,
-            HPCHANGE
+            CHANGE
         }
         public static void WriteDataToStream(List<ValueType> _voList, BinaryWriter _bw)
         {
@@ -129,28 +128,11 @@ namespace FinalWar
                         _bw.Write(death.deads[m]);
                     }
                 }
-                else if (vo is BattlePowerChangeVO)
+                else if(vo is BattleChangeVO)
                 {
-                    _bw.Write((int)BattleVOType.POWERCHANGE);
+                    _bw.Write((int)BattleVOType.CHANGE);
 
-                    BattlePowerChangeVO powerChange = (BattlePowerChangeVO)vo;
-
-                    _bw.Write(powerChange.pos.Count);
-
-                    for(int m = 0; m < powerChange.pos.Count; m++)
-                    {
-                        _bw.Write(powerChange.pos[m]);
-
-                        _bw.Write(powerChange.powerChange[m]);
-
-                        _bw.Write(powerChange.isDizz[m]);
-                    }
-                }
-                else if(vo is BattleHpChangeVO)
-                {
-                    _bw.Write((int)BattleVOType.HPCHANGE);
-
-                    BattleHpChangeVO hpChange = (BattleHpChangeVO)vo;
+                    BattleChangeVO hpChange = (BattleChangeVO)vo;
 
                     _bw.Write(hpChange.pos.Count);
 
@@ -309,39 +291,10 @@ namespace FinalWar
                         result.Add(new BattleDeathVO(deads));
 
                         break;
+                        
+                    case BattleVOType.CHANGE:
 
-                    case BattleVOType.POWERCHANGE:
-
-                        List<int> posList = new List<int>();
-
-                        List<int> powerChangeList = new List<int>();
-
-                        List<bool> isDizzList = new List<bool>();
-
-                        int powerChangeNum = _br.ReadInt32();
-
-                        for (int m = 0; m < powerChangeNum; m++)
-                        {
-                            int pos = _br.ReadInt32();
-
-                            posList.Add(pos);
-
-                            int powerChange = _br.ReadInt32();
-
-                            powerChangeList.Add(powerChange);
-
-                            bool isDizz = _br.ReadBoolean();
-
-                            isDizzList.Add(isDizz);
-                        }
-
-                        result.Add(new BattlePowerChangeVO(posList, powerChangeList, isDizzList));
-
-                        break;
-
-                    case BattleVOType.HPCHANGE:
-
-                        posList = new List<int>();
+                        List<int>  posList = new List<int>();
 
                         List<int> hpChangeList = new List<int>();
 
@@ -358,7 +311,7 @@ namespace FinalWar
                             hpChangeList.Add(hpChange);
                         }
 
-                        result.Add(new BattleHpChangeVO(posList, hpChangeList));
+                        result.Add(new BattleChangeVO(posList, hpChangeList));
 
                         break;
                 }

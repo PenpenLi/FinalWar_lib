@@ -20,11 +20,11 @@ public enum SkillTarget
 public enum SkillEffect
 {
     DAMAGE,
-    DAMAGE_WITH_LEADER,
+    SHIELD_DAMAGE,
+    HP_CHANGE,
     FIX_ATTACK,
     FIX_SHOOT,
     RECOVER,
-    POWERCHANGE
 }
 
 public interface ISkillSDS
