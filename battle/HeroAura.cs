@@ -21,7 +21,7 @@ namespace FinalWar
 
                 IAuraSDS auraSDS = Battle.GetAuraData(auraID);
 
-                SuperEventListenerV.EventCallBack<float> dele = delegate (SuperEvent e, ref float _value)
+                SuperEventListenerV.EventCallBack<int> dele = delegate (SuperEvent e, ref int _value)
                 {
                     TriggerAura(_battle, _hero, auraSDS, e, ref _value);
                 };
@@ -42,7 +42,7 @@ namespace FinalWar
             _battle.eventListener.AddListener(HeroSkill.GetEventName(_hero.uid, SkillTime.DIE), dieDele);
         }
         
-        private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, SuperEvent e, ref float _value)
+        private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, SuperEvent e, ref int _value)
         {
             Hero targetHero = e.datas[0] as Hero;
 
@@ -55,7 +55,7 @@ namespace FinalWar
 
             if (pos.Contains(targetHero.pos))
             {
-                _value = _value * _auraSDS.GetAuraDatas()[0];
+                _value += _auraSDS.GetAuraDatas()[0];
             }
         }
     }

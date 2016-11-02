@@ -36,6 +36,8 @@ namespace FinalWar
 
         internal int shootFix = 0;
 
+        private SuperEventListenerV eventListenerV;
+
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos)
         {
             isMine = _isMine;
@@ -51,6 +53,8 @@ namespace FinalWar
 
         internal Hero(Battle _battle, bool _isMine, IHeroSDS _sds, int _pos, int _uid)
         {
+            eventListenerV = _battle.eventListenerV;
+
             isMine = _isMine;
 
             sds = _sds;
@@ -110,7 +114,7 @@ namespace FinalWar
         {
             if(_value > 0)
             {
-                throw new System.Exception("shield change can not bigger than zero!")
+                throw new System.Exception("shield change can not bigger than zero!");
             }
 
             nowShield += _value;
@@ -137,6 +141,34 @@ namespace FinalWar
             }
 
             return false;
+        }
+
+        internal void SetAttackFix(int _value)
+        {
+            attackFix += _value;
+        }
+
+        internal void SetShootFix(int _value)
+        {
+            shootFix += _value;
+        }
+
+        internal int GetShootDamage()
+        {
+            int shootFixV = 0;
+
+            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_SHOOT), ref shootFixV);
+
+            return sds.GetShoot() + shootFix + shootFixV;
+        }
+
+        internal int GetAttackDamage()
+        {
+            int attackFixV = 0;
+
+            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_ATTACK), ref attackFixV);
+
+            return sds.GetAttack() + attackFix + attackFixV;
         }
     }
 }

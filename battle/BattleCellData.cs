@@ -13,5 +13,7 @@ namespace FinalWar
         public List<Hero> attackOvers = new List<Hero>();
 
         public List<Hero> supporters = new List<Hero>();
+
+        internal bool hasProcessed = false;
     }
 }

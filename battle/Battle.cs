@@ -994,7 +994,7 @@ namespace FinalWar
                 ServerAddHero(_battleData, summonList[i]);
             }
 
-            ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList);
+            ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, false);
         }
 
         private Hero SummonOneUnit(int _uid, int _pos, bool _isMine, BattleData _battleData)
@@ -1238,7 +1238,7 @@ namespace FinalWar
                 eventListener.DispatchEvent(HeroSkill.GetEventName(enumerator.Current.uid, SkillTime.ROUNDSTART), shieldChangeDic, hpChangeDic, damageDic);
             }
 
-            ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList);
+            ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, false);
         }
 
         private void ServerDoShoot(BattleData _battleData, List<ValueType> _voList)
@@ -1320,7 +1320,7 @@ namespace FinalWar
                 }
             }
 
-            ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList);
+            ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, true);
         }
 
         private void ServerDoRush(BattleData _battleData, List<ValueType> _voList)
@@ -1416,7 +1416,7 @@ namespace FinalWar
                     }
                 }
 
-                ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList);
+                ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, true);
 
                 if (quit)
                 {
@@ -1468,7 +1468,7 @@ namespace FinalWar
                     {
                         Hero hero = cellData.supporters[i];
 
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.COUNTER), pair.Key, supporters, attackers, hpChangeDic, powerChangeDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.COUNTER), pair.Key, supporters, attackers, shieldChangeDic, hpChangeDic, damageDic);
                     }
                 }
             }
@@ -1499,7 +1499,7 @@ namespace FinalWar
 
                     if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                     {
-                        defenseDamage = cellData.stander.GetCounterDamage();
+                        defenseDamage = cellData.stander.GetAttackDamage();
                     }
                     else
                     {
@@ -1512,7 +1512,7 @@ namespace FinalWar
 
                         supporters.Add(hero.pos);
 
-                        defenseDamage += hero.GetCounterDamage();
+                        defenseDamage += hero.GetAttackDamage();
                     }
 
                     for (int i = 0; i < cellData.attackers.Count; i++)
@@ -1737,7 +1737,12 @@ namespace FinalWar
                 }
             }
 
-            ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList);
+            ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, true);
+        }
+
+        private void ProcessCellDataAttack(BattleData _battleData, BattleCellData _cellData)
+        {
+
         }
 
         private void ServerDoMove(BattleData _battleData, List<ValueType> _voList)
@@ -1791,7 +1796,7 @@ namespace FinalWar
                 eventListener.DispatchEvent(HeroSkill.GetEventName(enumerator.Current.uid, SkillTime.RECOVER), shieldChangeDic, hpChangeDic, damageDic);
             }
 
-            ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList);
+            ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, false);
         }
 
         private void ServerRemoveHero(BattleData _battleData, Hero _hero)
@@ -2113,13 +2118,18 @@ namespace FinalWar
             return result;
         }
 
-        private void ProcessChangeDic(BattleData _battleData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero,int> _damageDic, List<ValueType> _voList)
+        private void ProcessChangeDic(BattleData _battleData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero,int> _damageDic, List<ValueType> _voList, bool _isBattle)
         {
             while (_shieldChangeDic.Count > 0 || _hpChangeDic.Count > 0 || _damageDic.Count > 0)
             {
                 List<int> diePos = null;
 
                 Dictionary<Hero, KeyValuePair<int, int>> recordDic = null;
+
+                if (!_isBattle)
+                {
+                    recordDic = new Dictionary<Hero, KeyValuePair<int, int>>();
+                }
 
                 Dictionary<Hero, int>.Enumerator enumerator3 = _shieldChangeDic.GetEnumerator();
 
@@ -2129,12 +2139,10 @@ namespace FinalWar
 
                     Hero hero = pair.Key;
 
-                    if(recordDic == null)
+                    if (!_isBattle)
                     {
-                        recordDic = new Dictionary<Hero, KeyValuePair<int, int>>();
+                        recordDic.Add(hero, new KeyValuePair<int, int>(hero.nowShield, hero.nowHp));
                     }
-
-                    recordDic.Add(hero, new KeyValuePair<int, int>(hero.nowShield, hero.nowHp));
 
                     hero.ShieldChange(pair.Value);
                 }
@@ -2149,13 +2157,7 @@ namespace FinalWar
                     
                     Hero hero = pair.Key;
 
-                    if (recordDic == null)
-                    {
-                        recordDic = new Dictionary<Hero, KeyValuePair<int, int>>();
-
-                        recordDic.Add(hero, new KeyValuePair<int, int>(hero.nowShield, hero.nowHp));
-                    }
-                    else if (!recordDic.ContainsKey(hero))
+                    if (!_isBattle && !recordDic.ContainsKey(hero))
                     {
                         recordDic.Add(hero, new KeyValuePair<int, int>(hero.nowShield, hero.nowHp));
                     }
@@ -2185,13 +2187,7 @@ namespace FinalWar
 
                     Hero hero = pair.Key;
 
-                    if (recordDic == null)
-                    {
-                        recordDic = new Dictionary<Hero, KeyValuePair<int, int>>();
-
-                        recordDic.Add(hero, new KeyValuePair<int, int>(hero.nowShield, hero.nowHp));
-                    }
-                    else if (!recordDic.ContainsKey(hero))
+                    if (!_isBattle && !recordDic.ContainsKey(hero))
                     {
                         recordDic.Add(hero, new KeyValuePair<int, int>(hero.nowShield, hero.nowHp));
                     }
@@ -2226,6 +2222,11 @@ namespace FinalWar
                 }
 
                 _damageDic.Clear();
+
+                if (!_isBattle)
+                {
+
+                }
 
                 //if (posList != null)
                 //{
@@ -2304,10 +2305,6 @@ namespace FinalWar
                 else if (vo is BattleDeathVO)
                 {
                     ClientDoDie((BattleDeathVO)vo);
-                }
-                else if (vo is BattlePowerChangeVO)
-                {
-                    ClientDoPowerChange((BattlePowerChangeVO)vo);
                 }
                 else if (vo is BattleHpChangeVO)
                 {
@@ -2394,14 +2391,14 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_vo.stander];
 
-            hero.ClientHpChange(_vo.damage);
+            hero.HpChange(_vo.damage);
         }
 
         private void ClientDoShoot(BattleShootVO _vo)
         {
             Hero hero = heroMapDic[_vo.stander];
 
-            hero.ClientHpChange(_vo.damage);
+            hero.HpChange(_vo.damage);
         }
 
         private void ClientDoAttack(BattleAttackVO _vo)
@@ -2410,21 +2407,21 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.attackers[i]];
 
-                hero.ClientHpChange(_vo.attackersDamage[i]);
+                hero.HpChange(_vo.attackersDamage[i]);
             }
 
             for (int i = 0; i < _vo.supporters.Count; i++)
             {
                 Hero hero = heroMapDic[_vo.supporters[i]];
 
-                hero.ClientHpChange(_vo.supportersDamage[i]);
+                hero.HpChange(_vo.supportersDamage[i]);
             }
 
             if (_vo.defenderDamage < 0)
             {
                 Hero hero = heroMapDic[_vo.defender];
 
-                hero.ClientHpChange(_vo.defenderDamage);
+                hero.HpChange(_vo.defenderDamage);
             }
         }
 
@@ -2433,16 +2430,6 @@ namespace FinalWar
             for(int i = 0; i < _vo.deads.Count; i++)
             {
                 heroMapDic.Remove(_vo.deads[i]);
-            }
-        }
-
-        private void ClientDoPowerChange(BattlePowerChangeVO _vo)
-        {
-            for(int i = 0; i < _vo.pos.Count; i++)
-            {
-                Hero hero = heroMapDic[_vo.pos[i]];
-
-                hero.PowerChange(_vo.powerChange[i]);
             }
         }
 
@@ -2682,45 +2669,42 @@ namespace FinalWar
                     {
                         Hero hero = heroMapDic[pos];
 
-                        if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
+                        if (isThreat)
                         {
-                            if (isThreat)
+                            return true;
+                        }
+
+                        bool canAttack = true;
+
+                        List<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, pos);
+
+                        for (int m = 0; m < tmpPosList.Count; m++)
+                        {
+                            int tmpPos = tmpPosList[m];
+
+                            if (tmpPos == _pos)
                             {
-                                return true;
+                                continue;
                             }
 
-                            bool canAttack = true;
+                            b = GetPosIsMine(tmpPos);
 
-                            List<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, pos);
-
-                            for(int m = 0; m < tmpPosList.Count; m++)
+                            if (b == isMine && heroMapDic.ContainsKey(tmpPos))
                             {
-                                int tmpPos = tmpPosList[m];
+                                Hero tmpHero = heroMapDic[tmpPos];
 
-                                if(tmpPos == _pos)
+                                if (tmpHero.sds.GetThreat())
                                 {
-                                    continue;
-                                }
+                                    canAttack = false;
 
-                                b = GetPosIsMine(tmpPos);
-
-                                if(b == isMine && heroMapDic.ContainsKey(tmpPos))
-                                {
-                                    Hero tmpHero = heroMapDic[tmpPos];
-
-                                    if (tmpHero.sds.GetThreat())
-                                    {
-                                        canAttack = false;
-
-                                        break;
-                                    }
+                                    break;
                                 }
                             }
+                        }
 
-                            if (canAttack)
-                            {
-                                return true;
-                            }
+                        if (canAttack)
+                        {
+                            return true;
                         }
                     }
                 }

@@ -235,24 +235,6 @@ namespace FinalWar
 
                     break;
 
-                case SkillEffect.FIX_COUNTER:
-
-                    for (int i = 0; i < _heros.Count; i++)
-                    {
-                        _heros[i].SetCounterFix(_skillSDS.GetSkillDatas()[0]);
-                    }
-
-                    break;
-
-                case SkillEffect.FIX_DEFENSE:
-
-                    for (int i = 0; i < _heros.Count; i++)
-                    {
-                        _heros[i].SetDfenseFix(_skillSDS.GetSkillDatas()[0]);
-                    }
-
-                    break;
-
                 case SkillEffect.POWERCHANGE:
 
                     for (int i = 0; i < _heros.Count; i++)

@@ -6,13 +6,15 @@ namespace FinalWar
     {
         public List<int> shooters;
         public int stander;
-        public int damage;
+        public int shieldDamage;
+        public int hpDamage;
         
-        public BattleShootVO(List<int> _shooters, int _stander, int _damage)
+        public BattleShootVO(List<int> _shooters, int _stander, int _shieldDamage, int _hpDamage)
         {
             shooters = _shooters;
             stander = _stander;
-            damage = _damage;
+            shieldDamage = _shieldDamage;
+            hpDamage = _hpDamage;
         }
     }
 }
