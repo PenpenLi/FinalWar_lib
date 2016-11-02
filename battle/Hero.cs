@@ -9,7 +9,6 @@ namespace FinalWar
         public enum HeroAction
         {
             ATTACK,
-            ATTACKOVER,
             SHOOT,
             SUPPORT,
             DEFENSE,

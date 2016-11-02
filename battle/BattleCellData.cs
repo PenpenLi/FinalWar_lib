@@ -10,10 +10,8 @@ namespace FinalWar
 
         public List<Hero> attackers = new List<Hero>();
 
-        public List<Hero> attackOvers = new List<Hero>();
-
         public List<Hero> supporters = new List<Hero>();
 
-        internal bool hasProcessed = false;
+        internal bool attackHasBeenProcessed = false;
     }
 }

@@ -38,86 +38,74 @@ namespace FinalWar
 
                         List<int> result = null;
 
-                        if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
+                        List<int> attackList = _battle.GetCanAttackPos(hero.pos);
+
+                        if (attackList.Count > 0)
                         {
-                            List<int> attackList = _battle.GetCanAttackPos(hero.pos);
-
-                            if(attackList.Count > 0)
-                            {
-                                result = attackList;
-                            }
-
-                            attackList = _battle.GetCanAttackerHeroPos(hero.pos);
-
-                            if (attackList.Count > 0)
-                            {
-                                result.InsertRange(result.Count, attackList);
-                            }
+                            result = attackList;
                         }
 
-                        if (hero.CheckCanDoAction(Hero.HeroAction.SHOOT))
-                        {
-                            List<int> shootList = _battle.GetCanShootPos(hero.pos);
+                        attackList = _battle.GetCanAttackerHeroPos(hero.pos);
 
-                            if(shootList.Count > 0)
-                            {
-                                if(result != null)
-                                {
-                                    result.InsertRange(result.Count, shootList);
-                                }
-                                else
-                                {
-                                    result = shootList;
-                                }
-                            }
+                        if (attackList.Count > 0)
+                        {
+                            result.InsertRange(result.Count, attackList);
                         }
 
-                        if (hero.CheckCanDoAction(Hero.HeroAction.SUPPORT))
+                        List<int> shootList = _battle.GetCanShootPos(hero.pos);
+
+                        if (shootList.Count > 0)
                         {
-                            List<int> supportList = _battle.GetCanSupportPos(hero.pos);
-
-                            if(supportList.Count > 0)
+                            if (result != null)
                             {
-                                if(result != null)
-                                {
-                                    result.InsertRange(result.Count, supportList);
-                                }
-                                else
-                                {
-                                    result = supportList;
-                                }
-                            }
-
-                            if(result != null)
-                            {
-                                int index = (int)(Battle.random.NextDouble() * result.Count);
-
-                                action.Add(new KeyValuePair<int, int>(hero.pos, result[index]));
+                                result.InsertRange(result.Count, shootList);
                             }
                             else
                             {
-                                int targetPos;
+                                result = shootList;
+                            }
+                        }
 
-                                if (hero.isMine)
-                                {
-                                    targetPos = _battle.mapData.moveMap[hero.pos].Key;
-                                }
-                                else
-                                {
-                                    targetPos = _battle.mapData.moveMap[hero.pos].Value;
-                                }
+                        List<int> supportList = _battle.GetCanSupportPos(hero.pos);
 
-                                if(_battle.GetPosIsMine(targetPos) == hero.isMine)
-                                {
-                                    action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
-                                }
-                                else
-                                {
-                                    if (hero.CheckCanDoAction(Hero.HeroAction.ATTACK))
-                                    {
-                                        action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
-                                    }
-                                }
+                        if (supportList.Count > 0)
+                        {
+                            if (result != null)
+                            {
+                                result.InsertRange(result.Count, supportList);
+                            }
+                            else
+                            {
+                                result = supportList;
+                            }
+                        }
+
+                        if (result != null)
+                        {
+                            int index = (int)(Battle.random.NextDouble() * result.Count);
+
+                            action.Add(new KeyValuePair<int, int>(hero.pos, result[index]));
+                        }
+                        else
+                        {
+                            int targetPos;
+
+                            if (hero.isMine)
+                            {
+                                targetPos = _battle.mapData.moveMap[hero.pos].Key;
+                            }
+                            else
+                            {
+                                targetPos = _battle.mapData.moveMap[hero.pos].Value;
+                            }
+
+                            if (_battle.GetPosIsMine(targetPos) == hero.isMine)
+                            {
+                                action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
+                            }
+                            else
+                            {
+                                action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
                             }
                         }
                     }
