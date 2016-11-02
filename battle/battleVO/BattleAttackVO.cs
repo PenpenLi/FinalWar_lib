@@ -7,18 +7,24 @@ namespace FinalWar
         public List<int> attackers;
         public List<int> supporters;
         public int defender;
-        public List<int> attackersDamage;
-        public List<int> supportersDamage;
-        public int defenderDamage;
+        public List<int> attackersShieldDamage;
+        public List<int> attackersHpDamage;
+        public List<int> supportersShieldDamage;
+        public List<int> supportersHpDamage;
+        public int defenderShieldDamage;
+        public int defenderHpDamage;
         
-        public BattleAttackVO(List<int> _attackers, List<int> _supporters, int _defender, List<int> _attackersDamage, List<int> _supportersDamage, int _defenderDamage)
+        public BattleAttackVO(List<int> _attackers, List<int> _supporters, int _defender, List<int> _attackersShieldDamage, List<int> _attackersHpDamage, List<int> _supportersShieldDamage, List<int> _supportersHpDamage, int _defenderShieldDamage, int _defenderHpDamage)
         {
             attackers = _attackers;
             supporters = _supporters;
             defender = _defender;
-            attackersDamage = _attackersDamage;
-            supportersDamage = _supportersDamage;
-            defenderDamage = _defenderDamage;
+            attackersShieldDamage = _attackersShieldDamage;
+            attackersHpDamage = _attackersHpDamage;
+            supportersShieldDamage = _supportersShieldDamage;
+            supportersHpDamage = _supportersHpDamage;
+            defenderShieldDamage = _defenderShieldDamage;
+            defenderHpDamage = _defenderHpDamage;
         }
     }
 }

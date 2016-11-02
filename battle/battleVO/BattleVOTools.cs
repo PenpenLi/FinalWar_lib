@@ -68,7 +68,9 @@ namespace FinalWar
 
                     _bw.Write(rush.stander);
 
-                    _bw.Write(rush.damage);
+                    _bw.Write(rush.shieldDamage);
+
+                    _bw.Write(rush.hpDamage);
                 }
                 else if (vo is BattleShootVO)
                 {
@@ -85,7 +87,9 @@ namespace FinalWar
 
                     _bw.Write(shoot.stander);
 
-                    _bw.Write(shoot.damage);
+                    _bw.Write(shoot.shieldDamage);
+
+                    _bw.Write(shoot.hpDamage);
                 }
                 else if (vo is BattleAttackVO)
                 {
@@ -99,7 +103,9 @@ namespace FinalWar
                     {
                         _bw.Write(attack.attackers[m]);
 
-                        _bw.Write(attack.attackersDamage[m]);
+                        _bw.Write(attack.attackersShieldDamage[m]);
+
+                        _bw.Write(attack.attackersHpDamage[m]);
                     }
 
                     _bw.Write(attack.supporters.Count);
@@ -108,12 +114,16 @@ namespace FinalWar
                     {
                         _bw.Write(attack.supporters[m]);
 
-                        _bw.Write(attack.supportersDamage[m]);
+                        _bw.Write(attack.supportersShieldDamage[m]);
+
+                        _bw.Write(attack.supportersHpDamage[m]);
                     }
 
                     _bw.Write(attack.defender);
 
-                    _bw.Write(attack.defenderDamage);
+                    _bw.Write(attack.defenderShieldDamage);
+
+                    _bw.Write(attack.defenderHpDamage);
                 }
                 else if (vo is BattleDeathVO)
                 {
@@ -132,15 +142,17 @@ namespace FinalWar
                 {
                     _bw.Write((int)BattleVOType.CHANGE);
 
-                    BattleChangeVO hpChange = (BattleChangeVO)vo;
+                    BattleChangeVO change = (BattleChangeVO)vo;
 
-                    _bw.Write(hpChange.pos.Count);
+                    _bw.Write(change.pos.Count);
 
-                    for (int m = 0; m < hpChange.pos.Count; m++)
+                    for (int m = 0; m < change.pos.Count; m++)
                     {
-                        _bw.Write(hpChange.pos[m]);
+                        _bw.Write(change.pos[m]);
 
-                        _bw.Write(hpChange.hpChange[m]);
+                        _bw.Write(change.shieldChange[m]);
+
+                        _bw.Write(change.hpChange[m]);
                     }
                 }
             }
@@ -204,9 +216,11 @@ namespace FinalWar
 
                         int stander = _br.ReadInt32();
 
-                        int damage = _br.ReadInt32();
+                        int shieldDamage = _br.ReadInt32();
 
-                        result.Add(new BattleRushVO(attackers, stander, damage));
+                        int hpDamage = _br.ReadInt32();
+
+                        result.Add(new BattleRushVO(attackers, stander, shieldDamage, hpDamage));
 
                         break;
 
@@ -225,9 +239,11 @@ namespace FinalWar
 
                         stander = _br.ReadInt32();
 
-                        damage = _br.ReadInt32();
+                        shieldDamage = _br.ReadInt32();
 
-                        result.Add(new BattleShootVO(shooters, stander, damage));
+                        hpDamage = _br.ReadInt32();
+
+                        result.Add(new BattleShootVO(shooters, stander, shieldDamage, hpDamage));
 
                         break;
 
@@ -235,11 +251,15 @@ namespace FinalWar
 
                         attackers = new List<int>();
 
-                        List<int> attackersDamage = new List<int>();
+                        List<int> attackersShieldDamage = new List<int>();
+
+                        List<int> attackersHpDamage = new List<int>();
 
                         List<int> supporters = new List<int>();
 
-                        List<int> supportersDamage = new List<int>();
+                        List<int> supportersShieldDamage = new List<int>();
+
+                        List<int> supportersHpDamage = new List<int>();
 
                         attackerNum = _br.ReadInt32();
 
@@ -247,11 +267,15 @@ namespace FinalWar
                         {
                             int pos = _br.ReadInt32();
 
-                            int attackerDamage = _br.ReadInt32();
-
                             attackers.Add(pos);
 
-                            attackersDamage.Add(attackerDamage);
+                            int attackerShieldDamage = _br.ReadInt32();
+
+                            attackersShieldDamage.Add(attackerShieldDamage);
+
+                            int attackerHpDamage = _br.ReadInt32();
+
+                            attackersHpDamage.Add(attackerHpDamage);
                         }
 
                         attackerNum = _br.ReadInt32();
@@ -260,18 +284,24 @@ namespace FinalWar
                         {
                             int pos = _br.ReadInt32();
 
-                            int supporterDamage = _br.ReadInt32();
-
                             supporters.Add(pos);
 
-                            supportersDamage.Add(supporterDamage);
+                            int supporterShieldDamage = _br.ReadInt32();
+
+                            supportersShieldDamage.Add(supporterShieldDamage);
+
+                            int supporterHpDamage = _br.ReadInt32();
+
+                            supportersHpDamage.Add(supporterHpDamage);
                         }
 
                         int defender = _br.ReadInt32();
 
-                        int defenderDamage = _br.ReadInt32();
+                        int defenderShieldDamage = _br.ReadInt32();
 
-                        result.Add(new BattleAttackVO(attackers, supporters, defender, attackersDamage, supportersDamage, defenderDamage));
+                        int defenderHpDamage = _br.ReadInt32();
+
+                        result.Add(new BattleAttackVO(attackers, supporters, defender, attackersShieldDamage, attackersHpDamage, supportersShieldDamage, supportersHpDamage, defenderShieldDamage, defenderHpDamage));
 
                         break;
 
@@ -296,22 +326,28 @@ namespace FinalWar
 
                         List<int>  posList = new List<int>();
 
+                        List<int> shieldChangeList = new List<int>();
+
                         List<int> hpChangeList = new List<int>();
 
-                        int hpChangeNum = _br.ReadInt32();
+                        int changeNum = _br.ReadInt32();
 
-                        for (int m = 0; m < hpChangeNum; m++)
+                        for (int m = 0; m < changeNum; m++)
                         {
                             int pos = _br.ReadInt32();
 
                             posList.Add(pos);
+
+                            int shieldChange = _br.ReadInt32();
+
+                            shieldChangeList.Add(shieldChange);
 
                             int hpChange = _br.ReadInt32();
 
                             hpChangeList.Add(hpChange);
                         }
 
-                        result.Add(new BattleChangeVO(posList, hpChangeList));
+                        result.Add(new BattleChangeVO(posList, shieldChangeList, hpChangeList));
 
                         break;
                 }

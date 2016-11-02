@@ -4,6 +4,8 @@ namespace FinalWar
 {
     public class BattleCellData
     {
+        public int pos;
+
         public Hero stander;
 
         public List<Hero> shooters = new List<Hero>();
@@ -13,5 +15,10 @@ namespace FinalWar
         public List<Hero> supporters = new List<Hero>();
 
         internal bool attackHasBeenProcessed = false;
+
+        public BattleCellData(int _pos)
+        {
+            pos = _pos;
+        }
     }
 }
