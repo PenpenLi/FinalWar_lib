@@ -169,5 +169,12 @@ namespace FinalWar
 
             return sds.GetAttack() + attackFix + attackFixV;
         }
+
+        internal void Recover()
+        {
+            nowShield = sds.GetShield();
+
+            attackFix = shootFix = 0;
+        }
     }
 }

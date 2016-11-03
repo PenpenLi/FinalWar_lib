@@ -1612,80 +1612,94 @@ namespace FinalWar
                     attackDamage += hero.GetAttackDamage();
                 }
 
-                for (int i = 0; defenseDamage > 0 && i < _cellData.attackers.Count; i++)
+                for (int i = 0; i < _cellData.attackers.Count; i++)
                 {
-                    Hero hero = _cellData.attackers[i];
-
-                    int tmpShield = hero.nowShield;
-
-                    if (_shieldChangeDic.ContainsKey(hero))
+                    if(defenseDamage > 0)
                     {
-                        tmpShield += _shieldChangeDic[hero];
+                        Hero hero = _cellData.attackers[i];
 
-                        if (tmpShield < 0)
+                        int tmpShield = hero.nowShield;
+
+                        if (_shieldChangeDic.ContainsKey(hero))
                         {
+                            tmpShield += _shieldChangeDic[hero];
+
+                            if (tmpShield < 0)
+                            {
+                                tmpShield = 0;
+                            }
+                        }
+
+                        if (tmpShield >= defenseDamage)
+                        {
+                            tmpShield -= defenseDamage;
+
+                            BattlePublicTools.AccumulateDicData(_shieldChangeDic, hero, -defenseDamage);
+
+                            defenseDamage = 0;
+                        }
+                        else
+                        {
+                            BattlePublicTools.AccumulateDicData(_shieldChangeDic, hero, -tmpShield);
+
+                            defenseDamage -= tmpShield;
+
                             tmpShield = 0;
                         }
-                    }
 
-                    if (tmpShield >= defenseDamage)
-                    {
-                        tmpShield -= defenseDamage;
+                        int shieldDamage = tmpShield - hero.nowShield;
 
-                        BattlePublicTools.AccumulateDicData(_shieldChangeDic, hero, -defenseDamage);
-
-                        defenseDamage = 0;
+                        attackersShieldDamage.Add(shieldDamage);
                     }
                     else
                     {
-                        BattlePublicTools.AccumulateDicData(_shieldChangeDic, hero, -tmpShield);
-
-                        defenseDamage -= tmpShield;
-
-                        tmpShield = 0;
+                        attackersShieldDamage.Add(0);
                     }
-
-                    int shieldDamage = tmpShield - hero.nowShield;
-
-                    attackersShieldDamage.Add(shieldDamage);
                 }
 
-                for (int i = 0; defenseDamage > 0 && i < _cellData.attackers.Count; i++)
+                for (int i = 0; i < _cellData.attackers.Count; i++)
                 {
-                    Hero hero = _cellData.attackers[i];
-
-                    int tmpHp = hero.nowHp;
-
-                    if (_hpChangeDic.ContainsKey(hero))
+                    if(defenseDamage > 0)
                     {
-                        tmpHp += _hpChangeDic[hero];
+                        Hero hero = _cellData.attackers[i];
 
-                        if (tmpHp < 0)
+                        int tmpHp = hero.nowHp;
+
+                        if (_hpChangeDic.ContainsKey(hero))
                         {
+                            tmpHp += _hpChangeDic[hero];
+
+                            if (tmpHp < 0)
+                            {
+                                tmpHp = 0;
+                            }
+                        }
+
+                        if (tmpHp >= defenseDamage)
+                        {
+                            tmpHp -= defenseDamage;
+
+                            BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, -defenseDamage);
+
+                            defenseDamage = 0;
+                        }
+                        else
+                        {
+                            BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, -tmpHp);
+
+                            defenseDamage -= tmpHp;
+
                             tmpHp = 0;
                         }
-                    }
 
-                    if (tmpHp >= defenseDamage)
-                    {
-                        tmpHp -= defenseDamage;
+                        int hpDamage = tmpHp - hero.nowHp;
 
-                        BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, -defenseDamage);
-
-                        defenseDamage = 0;
+                        attackersHpDamage.Add(hpDamage);
                     }
                     else
                     {
-                        BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, -tmpHp);
-
-                        defenseDamage -= tmpHp;
-
-                        tmpHp = 0;
+                        attackersHpDamage.Add(0);
                     }
-
-                    int hpDamage = tmpHp - hero.nowHp;
-
-                    attackersHpDamage.Add(hpDamage);
                 }
 
                 if (attackDamage > 0 && _cellData.stander != null && _cellData.stander.action == Hero.HeroAction.DEFENSE)
@@ -1724,42 +1738,49 @@ namespace FinalWar
                     defenderShieldDamage = tmpShield - hero.nowShield;
                 }
 
-                for (int i = 0; attackDamage > 0 && i < _cellData.supporters.Count; i++)
+                for (int i = 0; i < _cellData.supporters.Count; i++)
                 {
-                    Hero hero = _cellData.supporters[i];
-
-                    int tmpShield = hero.nowShield;
-
-                    if (_shieldChangeDic.ContainsKey(hero))
+                    if(attackDamage > 0)
                     {
-                        tmpShield += _shieldChangeDic[hero];
+                        Hero hero = _cellData.supporters[i];
 
-                        if (tmpShield < 0)
+                        int tmpShield = hero.nowShield;
+
+                        if (_shieldChangeDic.ContainsKey(hero))
                         {
+                            tmpShield += _shieldChangeDic[hero];
+
+                            if (tmpShield < 0)
+                            {
+                                tmpShield = 0;
+                            }
+                        }
+
+                        if (tmpShield >= attackDamage)
+                        {
+                            tmpShield -= attackDamage;
+
+                            BattlePublicTools.AccumulateDicData(_shieldChangeDic, hero, -attackDamage);
+
+                            attackDamage = 0;
+                        }
+                        else
+                        {
+                            BattlePublicTools.AccumulateDicData(_shieldChangeDic, hero, -tmpShield);
+
+                            attackDamage -= tmpShield;
+
                             tmpShield = 0;
                         }
-                    }
 
-                    if (tmpShield >= attackDamage)
-                    {
-                        tmpShield -= attackDamage;
+                        int shieldDamage = tmpShield - hero.nowShield;
 
-                        BattlePublicTools.AccumulateDicData(_shieldChangeDic, hero, -attackDamage);
-
-                        attackDamage = 0;
+                        supportersShieldDamage.Add(shieldDamage);
                     }
                     else
                     {
-                        BattlePublicTools.AccumulateDicData(_shieldChangeDic, hero, -tmpShield);
-
-                        attackDamage -= tmpShield;
-
-                        tmpShield = 0;
+                        supportersShieldDamage.Add(0);
                     }
-
-                    int shieldDamage = tmpShield - hero.nowShield;
-
-                    supportersShieldDamage.Add(shieldDamage);
                 }
 
                 if (attackDamage > 0 && _cellData.stander != null && _cellData.stander.action == Hero.HeroAction.DEFENSE)
@@ -1798,42 +1819,49 @@ namespace FinalWar
                     defenderHpDamage = tmpHp - hero.nowHp;
                 }
 
-                for (int i = 0; attackDamage > 0 && i < _cellData.supporters.Count; i++)
+                for (int i = 0; i < _cellData.supporters.Count; i++)
                 {
-                    Hero hero = _cellData.supporters[i];
-
-                    int tmpHp = hero.nowHp;
-
-                    if (_hpChangeDic.ContainsKey(hero))
+                    if(attackDamage > 0)
                     {
-                        tmpHp += _hpChangeDic[hero];
+                        Hero hero = _cellData.supporters[i];
 
-                        if (tmpHp < 0)
+                        int tmpHp = hero.nowHp;
+
+                        if (_hpChangeDic.ContainsKey(hero))
                         {
+                            tmpHp += _hpChangeDic[hero];
+
+                            if (tmpHp < 0)
+                            {
+                                tmpHp = 0;
+                            }
+                        }
+
+                        if (tmpHp >= attackDamage)
+                        {
+                            tmpHp -= attackDamage;
+
+                            BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, -attackDamage);
+
+                            attackDamage = 0;
+                        }
+                        else
+                        {
+                            BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, -tmpHp);
+
+                            attackDamage -= tmpHp;
+
                             tmpHp = 0;
                         }
-                    }
 
-                    if (tmpHp >= attackDamage)
-                    {
-                        tmpHp -= attackDamage;
+                        int hpDamage = tmpHp - hero.nowHp;
 
-                        BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, -attackDamage);
-
-                        attackDamage = 0;
+                        supportersHpDamage.Add(hpDamage);
                     }
                     else
                     {
-                        BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, -tmpHp);
-
-                        attackDamage -= tmpHp;
-
-                        tmpHp = 0;
+                        supportersHpDamage.Add(0);
                     }
-
-                    int hpDamage = tmpHp - hero.nowHp;
-
-                    supportersHpDamage.Add(hpDamage);
                 }
 
                 if (attackDamage > 0 && _cellData.stander != null && _cellData.stander.action != Hero.HeroAction.DEFENSE)
@@ -1847,67 +1875,51 @@ namespace FinalWar
                         ProcessCellDataAttack(_battleData, _battleData.actionDic[hero.actionTarget], _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
                     }
 
-                    int tmpShield = hero.nowShield;
+                    int recShield = hero.nowShield;
 
                     if (_shieldChangeDic.ContainsKey(hero))
                     {
-                        tmpShield += _shieldChangeDic[hero];
+                        recShield += _shieldChangeDic[hero];
 
-                        if (tmpShield < 0)
+                        if (recShield < 0)
                         {
-                            tmpShield = 0;
+                            recShield = 0;
                         }
                     }
 
-                    if (tmpShield >= attackDamage)
+                    if (recShield >= attackDamage)
                     {
-                        tmpShield -= attackDamage;
-
-                        BattlePublicTools.AccumulateDicData(_shieldChangeDic, hero, -attackDamage);
+                        defenderShieldDamage = -attackDamage;
 
                         attackDamage = 0;
                     }
                     else
                     {
-                        BattlePublicTools.AccumulateDicData(_shieldChangeDic, hero, -tmpShield);
+                        defenderShieldDamage = -recShield;
 
-                        attackDamage -= tmpShield;
-
-                        tmpShield = 0;
+                        attackDamage -= recShield;
                     }
 
-                    defenderShieldDamage = tmpShield - hero.nowShield;
-
-                    int tmpHp = hero.nowHp;
+                    int recHp = hero.nowHp;
 
                     if (_hpChangeDic.ContainsKey(hero))
                     {
-                        tmpHp += _hpChangeDic[hero];
+                        recHp += _hpChangeDic[hero];
 
-                        if (tmpHp < 0)
+                        if (recHp < 0)
                         {
-                            tmpHp = 0;
+                            recHp = 0;
                         }
                     }
 
-                    if (tmpHp >= attackDamage)
+                    if (recHp >= attackDamage)
                     {
-                        tmpHp -= attackDamage;
-
-                        BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, -attackDamage);
-
-                        attackDamage = 0;
+                        defenderHpDamage = -attackDamage;
                     }
                     else
                     {
-                        BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, -tmpHp);
-
-                        attackDamage -= tmpHp;
-
-                        tmpHp = 0;
+                        defenderHpDamage = -recHp;
                     }
-
-                    defenderHpDamage = tmpHp - hero.nowHp;
                 }
 
                 BattleAttackVO vo = new BattleAttackVO(attackers, supporters, _cellData.pos, attackersShieldDamage, attackersHpDamage, supportersShieldDamage, supportersHpDamage, defenderShieldDamage, defenderHpDamage);
@@ -1964,6 +1976,8 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
+                enumerator.Current.Recover();
+
                 eventListener.DispatchEvent(HeroSkill.GetEventName(enumerator.Current.uid, SkillTime.RECOVER), shieldChangeDic, hpChangeDic, damageDic);
             }
 
@@ -2283,6 +2297,8 @@ namespace FinalWar
             {
                 List<int> diePos = null;
 
+                List<Hero> dieHero = null;
+
                 Dictionary<Hero, KeyValuePair<int, int>> recordDic = null;
 
                 if (!_isBattle)
@@ -2328,9 +2344,13 @@ namespace FinalWar
                         if (diePos == null)
                         {
                             diePos = new List<int>();
+
+                            dieHero = new List<Hero>();
                         }
 
                         diePos.Add(hero.pos);
+
+                        dieHero.Add(hero);
 
                         ServerRemoveHero(_battleData, hero);
                     }
@@ -2351,28 +2371,32 @@ namespace FinalWar
                         recordDic.Add(hero, new KeyValuePair<int, int>(hero.nowShield, hero.nowHp));
                     }
 
-                    if(hero.nowShield >= pair.Value)
+                    if(hero.nowShield >= -pair.Value)
                     {
-                        hero.ShieldChange(-pair.Value);
+                        hero.ShieldChange(pair.Value);
                     }
                     else
                     {
-                        int damage = pair.Value - hero.nowShield;
+                        int damage = hero.nowShield + pair.Value;
 
                         hero.ShieldChange(-hero.nowShield);
 
                         if (hero.nowHp > 0)
                         {
-                            bool die = hero.HpChange(-damage);
+                            bool die = hero.HpChange(damage);
 
                             if (die)
                             {
                                 if (diePos == null)
                                 {
                                     diePos = new List<int>();
+
+                                    dieHero = new List<Hero>();
                                 }
 
                                 diePos.Add(hero.pos);
+
+                                dieHero.Add(hero);
 
                                 ServerRemoveHero(_battleData, hero);
                             }
@@ -2416,7 +2440,7 @@ namespace FinalWar
 
                     for (int i = 0; i < diePos.Count; i++)
                     {
-                        ServerDoHeroDie(heroMapDic[diePos[i]], _shieldChangeDic, _hpChangeDic, _damageDic);
+                        ServerDoHeroDie(dieHero[i], _shieldChangeDic, _hpChangeDic, _damageDic);
                     }
                 }
             }
@@ -2668,6 +2692,13 @@ namespace FinalWar
             }
 
             RecoverMoney();
+
+            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                enumerator.Current.Recover();
+            }
 
             if (clientIsMine)
             {
