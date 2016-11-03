@@ -5,8 +5,7 @@ namespace FinalWar
 {
     public class Hero
     {
-        //为了DamageCalculator才设置为public
-        public enum HeroAction
+        internal enum HeroAction
         {
             ATTACK,
             SHOOT,
@@ -81,8 +80,7 @@ namespace FinalWar
             }
         }
 
-        //为了DamageCalculator才设置为public
-        public Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
+        internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
         {
             isMine = _isMine;
 
@@ -104,8 +102,7 @@ namespace FinalWar
             actionTarget = _actionTarget;
         }
 
-        //为了DamageCalculator才设置为public
-        public void SetAction(HeroAction _action)
+        internal void SetAction(HeroAction _action)
         {
             action = _action;
         }
@@ -162,7 +159,7 @@ namespace FinalWar
         {
             int shootFixV = 0;
 
-            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_SHOOT), ref shootFixV);
+            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_SHOOT), ref shootFixV, this);
 
             return sds.GetShoot() + shootFix + shootFixV;
         }
@@ -171,7 +168,7 @@ namespace FinalWar
         {
             int attackFixV = 0;
 
-            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_ATTACK), ref attackFixV);
+            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_ATTACK), ref attackFixV, this);
 
             return sds.GetAttack() + attackFix + attackFixV;
         }
