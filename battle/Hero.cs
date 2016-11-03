@@ -47,6 +47,8 @@ namespace FinalWar
 
             nowHp = sds.GetHp();
 
+            nowShield = sds.GetShield();
+
             action = HeroAction.NULL;
         }
 
@@ -63,6 +65,8 @@ namespace FinalWar
             uid = _uid;
 
             nowHp = sds.GetHp();
+
+            nowShield = sds.GetShield();
 
             action = HeroAction.NULL;
 
@@ -87,6 +91,8 @@ namespace FinalWar
             PosChange(_pos);
 
             nowHp = _nowHp;
+
+            nowShield = sds.GetShield();
 
             action = HeroAction.NULL;
         }

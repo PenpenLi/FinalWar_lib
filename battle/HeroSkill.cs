@@ -210,7 +210,7 @@ namespace FinalWar
 
                     for (int i = 0; i < _heros.Count; i++)
                     {
-                        BattlePublicTools.AccumulateDicData(_damageDic, _heros[i], (int)_skillSDS.GetSkillDatas()[0]);
+                        BattlePublicTools.AccumulateDicData(_damageDic, _heros[i], _skillSDS.GetSkillDatas()[0]);
                     }
 
                     break;
@@ -219,7 +219,7 @@ namespace FinalWar
 
                     for (int i = 0; i < _heros.Count; i++)
                     {
-                        BattlePublicTools.AccumulateDicData(_shieldChangeDic, _heros[i], (int)_skillSDS.GetSkillDatas()[0]);
+                        BattlePublicTools.AccumulateDicData(_shieldChangeDic, _heros[i], _skillSDS.GetSkillDatas()[0]);
                     }
 
                     break;
@@ -229,7 +229,7 @@ namespace FinalWar
 
                     for(int i = 0; i < _heros.Count; i++)
                     {
-                        BattlePublicTools.AccumulateDicData(_hpChangeDic, _heros[i], (int)_skillSDS.GetSkillDatas()[0]);
+                        BattlePublicTools.AccumulateDicData(_hpChangeDic, _heros[i], _skillSDS.GetSkillDatas()[0]);
                     }
 
                     break;
