@@ -2125,8 +2125,8 @@ namespace FinalWar
 
         private int GetHeroAutoAction(Hero _hero)
         {
-            //优先攻击英雄
-            List<int> posList = GetCanAttackerHeroPos(_hero.pos);
+            //首先射击英雄
+            List<int> posList = GetCanShootPos(_hero.pos);
 
             if (posList.Count > 0)
             {
@@ -2135,25 +2135,19 @@ namespace FinalWar
                 return posList[index];
             }
 
-            //然后射击英雄
-            posList = GetCanShootPos(_hero.pos);
+            //然后攻击英雄
+            posList = GetCanAttackerHeroPos(_hero.pos);
 
             if (posList.Count > 0)
             {
                 int index = (int)(random.NextDouble() * posList.Count);
 
                 return posList[index];
-            }
-            
-            //如果自己可能会被攻击  则防御
-            if (CheckPosCanBeAttack(_hero.pos))
-            {
-                return _hero.pos;
             }
 
             //援护英雄
             posList = GetCanSupportHeroPos(_hero.pos);
-                
+
             if (posList.Count > 0)
             {
                 int index = (int)(random.NextDouble() * posList.Count);
