@@ -38,46 +38,53 @@ namespace FinalWar
 
                         List<int> result = null;
 
-                        List<int> attackList = _battle.GetCanAttackPos(hero.pos);
+                        List<int> posList = _battle.GetCanAttackPos(hero.pos);
 
-                        if (attackList.Count > 0)
+                        if (posList.Count > 0)
                         {
-                            result = attackList;
+                            result = posList;
                         }
 
-                        attackList = _battle.GetCanAttackerHeroPos(hero.pos);
+                        posList = _battle.GetCanAttackerHeroPos(hero.pos);
 
-                        if (attackList.Count > 0)
+                        if (posList.Count > 0)
                         {
-                            result.InsertRange(result.Count, attackList);
+                            result.InsertRange(result.Count, posList);
                         }
 
-                        List<int> shootList = _battle.GetCanShootPos(hero.pos);
+                        posList = _battle.GetCanShootPos(hero.pos);
 
-                        if (shootList.Count > 0)
+                        if (posList.Count > 0)
                         {
                             if (result != null)
                             {
-                                result.InsertRange(result.Count, shootList);
+                                result.InsertRange(result.Count, posList);
                             }
                             else
                             {
-                                result = shootList;
+                                result = posList;
                             }
                         }
 
-                        List<int> supportList = _battle.GetCanSupportPos(hero.pos);
+                        posList = _battle.GetCanSupportPos(hero.pos);
 
-                        if (supportList.Count > 0)
+                        if (posList.Count > 0)
                         {
                             if (result != null)
                             {
-                                result.InsertRange(result.Count, supportList);
+                                result.InsertRange(result.Count, posList);
                             }
                             else
                             {
-                                result = supportList;
+                                result = posList;
                             }
+                        }
+
+                        posList = _battle.GetCanSupportHeroPos(hero.pos);
+
+                        if(posList.Count > 0)
+                        {
+                            result.InsertRange(result.Count, posList);
                         }
 
                         if (result != null)
@@ -99,14 +106,7 @@ namespace FinalWar
                                 targetPos = _battle.mapData.moveMap[hero.pos].Value;
                             }
 
-                            if (_battle.GetPosIsMine(targetPos) == hero.isMine)
-                            {
-                                action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
-                            }
-                            else
-                            {
-                                action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
-                            }
+                            action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
                         }
                     }
                     else

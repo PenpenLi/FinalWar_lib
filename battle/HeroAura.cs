@@ -6,11 +6,6 @@ namespace FinalWar
 {
     internal class HeroAura
     {
-        internal static string GetEventName(bool _isMine, AuraEffect _auraEffect)
-        {
-            return string.Format("{0}_{1}", _isMine, _auraEffect);
-        }
-
         internal static void Init(Battle _battle, Hero _hero)
         {
             int[] eventIDs = new int[_hero.sds.GetAuras().Length];
@@ -26,7 +21,7 @@ namespace FinalWar
                     TriggerAura(_battle, _hero, auraSDS, e, ref _value);
                 };
 
-                eventIDs[i] = _battle.eventListenerV.AddListener(GetEventName(auraSDS.GetAuraTarget() == AuraTarget.ALLY ? _hero.isMine : !_hero.isMine, auraSDS.GetAuraEffect()), dele);
+                eventIDs[i] = _battle.eventListenerV.AddListener(auraSDS.GetAuraEffect().ToString(), dele);
             }
 
             Action<SuperEvent> dieDele = delegate (SuperEvent e)
@@ -46,17 +41,51 @@ namespace FinalWar
         {
             Hero targetHero = e.datas[0] as Hero;
 
-            if(targetHero == _hero)
+            switch (_auraSDS.GetAuraTarget())
             {
-                return;
+                case AuraTarget.SELF:
+
+                    if(targetHero != _hero)
+                    {
+                        return;
+                    }
+
+                    break;
+
+                case AuraTarget.ALLY:
+
+                    if(targetHero.isMine != _hero.isMine)
+                    {
+                        return;
+                    }
+
+                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, _hero.pos);
+
+                    if (!posList.Contains(targetHero.pos))
+                    {
+                        return;
+                    }
+
+                    break;
+
+                case AuraTarget.ENEMY:
+
+                    if (targetHero.isMine == _hero.isMine)
+                    {
+                        return;
+                    }
+
+                    posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, _hero.pos);
+
+                    if (!posList.Contains(targetHero.pos))
+                    {
+                        return;
+                    }
+
+                    break;
             }
 
-            List<int> pos = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, _hero.pos);
-
-            if (pos.Contains(targetHero.pos))
-            {
-                _value += _auraSDS.GetAuraDatas()[0];
-            }
+            _value += _auraSDS.GetAuraDatas()[0];
         }
     }
 }

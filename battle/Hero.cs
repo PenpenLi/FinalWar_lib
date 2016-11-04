@@ -159,7 +159,7 @@ namespace FinalWar
         {
             int shootFixV = 0;
 
-            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_SHOOT), ref shootFixV, this);
+            eventListenerV.DispatchEvent(AuraEffect.FIX_SHOOT.ToString(), ref shootFixV, this);
 
             return sds.GetShoot() + shootFix + shootFixV;
         }
@@ -168,9 +168,14 @@ namespace FinalWar
         {
             int attackFixV = 0;
 
-            eventListenerV.DispatchEvent(HeroAura.GetEventName(isMine, AuraEffect.FIX_ATTACK), ref attackFixV, this);
+            eventListenerV.DispatchEvent(AuraEffect.FIX_ATTACK.ToString(), ref attackFixV, this);
 
             return sds.GetAttack() + attackFix + attackFixV;
+        }
+
+        internal void BeShoot(ref int _damage)
+        {
+            eventListenerV.DispatchEvent(AuraEffect.FIX_SHOOT_DAMAGE.ToString(), ref _damage, this);
         }
 
         internal void Recover()

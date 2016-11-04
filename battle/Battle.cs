@@ -1299,6 +1299,8 @@ namespace FinalWar
                     damage += shooter.GetShootDamage();
                 }
 
+                eventListenerV.DispatchEvent(AuraEffect.FIX_SHOOT_DAMAGE.ToString(), ref damage, stander);
+                
                 if (damage > 0)
                 {
                     BattlePublicTools.AccumulateDicData(_damageDic, stander, -damage);
@@ -1316,17 +1318,20 @@ namespace FinalWar
                     }
                 }
 
-                if(shield >= damage)
+                if(damage > 0)
                 {
-                    shield -= damage;
+                    if (shield >= damage)
+                    {
+                        shield -= damage;
 
-                    damage = 0;
-                }
-                else
-                {
-                    damage -= shield;
+                        damage = 0;
+                    }
+                    else
+                    {
+                        damage -= shield;
 
-                    shield = 0;
+                        shield = 0;
+                    }
                 }
 
                 int shieldDamage = shield - stander.nowShield;
@@ -1343,15 +1348,16 @@ namespace FinalWar
                     }
                 }
 
-                if (hp >= damage)
+                if(damage > 0)
                 {
-                    hp -= damage;
-
-                    damage = 0;
-                }
-                else
-                {
-                    hp = 0;
+                    if (hp >= damage)
+                    {
+                        hp -= damage;
+                    }
+                    else
+                    {
+                        hp = 0;
+                    }
                 }
 
                 int hpDamage = hp - stander.nowHp;
@@ -2168,14 +2174,7 @@ namespace FinalWar
                     targetPos = mapData.moveMap[_hero.pos].Value;
                 }
 
-                if (GetPosIsMine(targetPos) == _hero.isMine)
-                {
-                    return targetPos;
-                }
-                else
-                {
-                    return targetPos;
-                }
+                return targetPos;
             }
         }
 
@@ -2831,11 +2830,11 @@ namespace FinalWar
 
             bool isMine = GetPosIsMine(_pos);
 
-            List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
 
-            for(int i = 0; i < posList2.Count; i++)
+            for(int i = 0; i < posList.Count; i++)
             {
-                int pos = posList2[i];
+                int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
@@ -2845,7 +2844,7 @@ namespace FinalWar
                 }
             }
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
+            posList = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
 
             for (int i = 0; i < posList.Count; i++)
             {
