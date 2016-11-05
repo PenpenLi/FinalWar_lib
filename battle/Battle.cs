@@ -2125,8 +2125,10 @@ namespace FinalWar
 
         private int GetHeroAutoAction(Hero _hero)
         {
-            //首先射击英雄
-            List<int> posList = GetCanShootPos(_hero.pos);
+            List<int> posList;
+
+            //攻击英雄
+            posList = GetCanAttackerHeroPos(_hero);
 
             if (posList.Count > 0)
             {
@@ -2135,8 +2137,18 @@ namespace FinalWar
                 return posList[index];
             }
 
-            //然后攻击英雄
-            posList = GetCanAttackerHeroPos(_hero.pos);
+            //援护一定会被攻击的英雄
+            posList = GetMustSupportHeroPos(_hero);
+
+            if (posList.Count > 0)
+            {
+                int index = (int)(random.NextDouble() * posList.Count);
+
+                return posList[index];
+            }
+
+            //射击英雄
+            posList = GetCanShootPos(_hero);
 
             if (posList.Count > 0)
             {
@@ -2146,7 +2158,7 @@ namespace FinalWar
             }
 
             //援护英雄
-            posList = GetCanSupportHeroPos(_hero.pos);
+            posList = GetCanSupportHeroPos(_hero);
 
             if (posList.Count > 0)
             {
@@ -2720,13 +2732,11 @@ namespace FinalWar
             return mapData.dic[_pos] != mapBelongDic.ContainsKey(_pos);
         }
 
-        public List<int> GetCanAttackerHeroPos(int _pos)
+        public List<int> GetCanAttackerHeroPos(Hero _hero)
         {
             List<int> result = new List<int>();
 
-            bool isMine = GetPosIsMine(_pos);
-
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
 
             bool getThreat = false;
 
@@ -2736,7 +2746,7 @@ namespace FinalWar
 
                 bool b = GetPosIsMine(pos);
 
-                if (b != isMine && heroMapDic.ContainsKey(pos))
+                if (b != _hero.isMine && heroMapDic.ContainsKey(pos))
                 {
                     Hero hero = heroMapDic[pos];
 
@@ -2768,13 +2778,11 @@ namespace FinalWar
         }
 
 
-        public List<int> GetCanAttackPos(int _pos)
+        public List<int> GetCanAttackPos(Hero _hero)
         {
             List<int> result = new List<int>();
 
-            bool isMine = GetPosIsMine(_pos);
-
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
 
             bool getThreat = false;
 
@@ -2784,7 +2792,7 @@ namespace FinalWar
 
                 bool b = GetPosIsMine(pos);
 
-                if(b != isMine)
+                if(b != _hero.isMine)
                 {
                     if (heroMapDic.ContainsKey(pos))
                     {
@@ -2818,13 +2826,11 @@ namespace FinalWar
             return result;
         }
 
-        public List<int> GetCanShootPos(int _pos)
+        public List<int> GetCanShootPos(Hero _hero)
         {
             List<int> result = new List<int>();
 
-            bool isMine = GetPosIsMine(_pos);
-
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
 
             for(int i = 0; i < posList.Count; i++)
             {
@@ -2832,13 +2838,13 @@ namespace FinalWar
 
                 bool b = GetPosIsMine(pos);
 
-                if(b != isMine && heroMapDic.ContainsKey(pos))
+                if(b != _hero.isMine && heroMapDic.ContainsKey(pos))
                 {
                     return result;
                 }
             }
 
-            posList = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
+            posList = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _hero.pos);
 
             for (int i = 0; i < posList.Count; i++)
             {
@@ -2846,7 +2852,7 @@ namespace FinalWar
 
                 bool b = GetPosIsMine(pos);
 
-                if (b != isMine && heroMapDic.ContainsKey(pos))
+                if (b != _hero.isMine && heroMapDic.ContainsKey(pos))
                 {
                     result.Add(pos);
                 }
@@ -2929,13 +2935,11 @@ namespace FinalWar
             return false;
         }
 
-        public List<int> GetCanSupportHeroPos(int _pos)
+        public List<int> GetCanSupportHeroPos(Hero _hero)
         {
             List<int> result = new List<int>();
 
-            bool isMine = GetPosIsMine(_pos);
-
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
 
             for (int i = 0; i < posList.Count; i++)
             {
@@ -2943,7 +2947,7 @@ namespace FinalWar
 
                 bool b = GetPosIsMine(pos);
 
-                if (b == isMine && heroMapDic.ContainsKey(pos))
+                if (b == _hero.isMine && heroMapDic.ContainsKey(pos))
                 {
                     if (CheckPosCanBeAttack(pos))
                     {
@@ -2955,13 +2959,11 @@ namespace FinalWar
             return result;
         }
 
-        public List<int> GetCanSupportPos(int _pos)
+        public List<int> GetCanSupportPos(Hero _hero)
         {
             List<int> result = new List<int>();
 
-            bool isMine = GetPosIsMine(_pos);
-
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
 
             for (int i = 0; i < posList.Count; i++)
             {
@@ -2969,7 +2971,7 @@ namespace FinalWar
 
                 bool b = GetPosIsMine(pos);
 
-                if (b == isMine)
+                if (b == _hero.isMine)
                 {
                     if (CheckPosCanBeAttack(pos))
                     {
@@ -2979,6 +2981,85 @@ namespace FinalWar
             }
 
             return result;
+        }
+
+        public List<int> GetMustSupportHeroPos(Hero _hero)
+        {
+            List<int> result = new List<int>();
+
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                bool b = GetPosIsMine(pos);
+
+                if (b == _hero.isMine && heroMapDic.ContainsKey(pos))
+                {
+                    if (CheckHeroMustBeAttack(heroMapDic[pos]))
+                    {
+                        result.Add(pos);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public bool CheckHeroMustBeAttack(Hero _hero)
+        {
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                bool b = GetPosIsMine(pos);
+
+                if (b != _hero.isMine && heroMapDic.ContainsKey(pos))
+                {
+                    Hero hero = heroMapDic[pos];
+
+                    if (!hero.sds.GetCanControl())
+                    {
+                        bool mushBeAttack = true;
+
+                        List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, pos);
+
+                        for (int m = 0; m < posList2.Count; m++)
+                        {
+                            int pos2 = posList2[m];
+
+                            if (pos2 == _hero.pos)
+                            {
+                                continue;
+                            }
+
+                            b = GetPosIsMine(pos2);
+
+                            if (b == _hero.isMine && heroMapDic.ContainsKey(pos2))
+                            {
+                                hero = heroMapDic[pos2];
+
+                                if (hero.sds.GetThreat() || !_hero.sds.GetThreat())
+                                {
+                                    mushBeAttack = false;
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (mushBeAttack)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         public bool GetClientCanAction()

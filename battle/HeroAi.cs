@@ -38,21 +38,21 @@ namespace FinalWar
 
                         List<int> result = null;
 
-                        List<int> posList = _battle.GetCanAttackPos(hero.pos);
+                        List<int> posList = _battle.GetCanAttackPos(hero);
 
                         if (posList.Count > 0)
                         {
                             result = posList;
                         }
 
-                        posList = _battle.GetCanAttackerHeroPos(hero.pos);
+                        posList = _battle.GetCanAttackerHeroPos(hero);
 
                         if (posList.Count > 0)
                         {
                             result.InsertRange(result.Count, posList);
                         }
 
-                        posList = _battle.GetCanShootPos(hero.pos);
+                        posList = _battle.GetCanShootPos(hero);
 
                         if (posList.Count > 0)
                         {
@@ -66,7 +66,7 @@ namespace FinalWar
                             }
                         }
 
-                        posList = _battle.GetCanSupportPos(hero.pos);
+                        posList = _battle.GetCanSupportPos(hero);
 
                         if (posList.Count > 0)
                         {
@@ -80,7 +80,7 @@ namespace FinalWar
                             }
                         }
 
-                        posList = _battle.GetCanSupportHeroPos(hero.pos);
+                        posList = _battle.GetCanSupportHeroPos(hero);
 
                         if(posList.Count > 0)
                         {
