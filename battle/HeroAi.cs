@@ -188,7 +188,7 @@ namespace FinalWar
 
                     nowCheckPos.RemoveAt(0);
 
-                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, nowPos);
+                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, nowPos);
 
                     for (int i = 0; i < posList.Count; i++)
                     {
@@ -219,7 +219,7 @@ namespace FinalWar
                 {
                     int nowPos = resultList[i];
 
-                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, nowPos);
+                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, nowPos);
 
                     for (int m = 0; m < posList.Count; m++)
                     {

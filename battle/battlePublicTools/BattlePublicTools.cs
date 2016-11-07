@@ -3,38 +3,59 @@ using System;
 
 public class BattlePublicTools
 {
-    public static List<int> GetNeighbourPos(Dictionary<int, int[]> _neighbourPosMap, int _pos)
+    public static List<int> GetNeighbourPos(MapData _mapData, int _pos)
     {
         List<int> result = new List<int>();
 
-        int[] arr = _neighbourPosMap[_pos];
+        int[] arr = _mapData.neighbourPosMap[_pos];
 
         for(int i = 0; i < 6; i++)
         {
-            if (arr[i] != -1)
+            int pos = arr[i];
+
+            if (pos != -1)
             {
-                result.Add(arr[i]);
+                MapData.MapUnitType mapUnitType = _mapData.dic[pos];
+
+                if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
+                {
+                    result.Add(arr[i]);
+                }
             }
         }
 
         return result;
     }
 
-    public static List<int> GetNeighbourPos2(Dictionary<int, int[]> _neighbourPosMap, int _pos)
+    public static List<int> GetNeighbourPos2(MapData _mapData, int _pos)
     {
         List<int> result = new List<int>();
 
-        int[] arr = _neighbourPosMap[_pos];
+        int[] arr = _mapData.neighbourPosMap[_pos];
 
         for (int i = 0; i < 6; i++)
         {
-            if (arr[i] != -1)
-            {
-                int[] arr2 = _neighbourPosMap[arr[i]];
+            int pos = arr[i];
 
-                if (arr2[i] != -1)
+            if (pos != -1)
+            {
+                MapData.MapUnitType mapUnitType = _mapData.dic[pos];
+
+                if (mapUnitType != MapData.MapUnitType.HILL)
                 {
-                    result.Add(arr2[i]);
+                    int[] arr2 = _mapData.neighbourPosMap[pos];
+
+                    pos = arr2[i];
+
+                    if (pos != -1)
+                    {
+                        mapUnitType = _mapData.dic[pos];
+
+                        if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
+                        { 
+                            result.Add(arr2[i]);
+                        }
+                    }
                 }
             }
         }

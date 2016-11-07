@@ -3,6 +3,14 @@ using System.IO;
 
 public class MapData
 {
+    public enum MapUnitType
+    {
+        M_AREA,
+        O_AREA,
+        RIVER,
+        HILL
+    }
+
     public int mapWidth;
     public int mapHeight;
 
@@ -14,7 +22,7 @@ public class MapData
     public int mScore;
     public int oScore;
 
-    public Dictionary<int, bool> dic = new Dictionary<int, bool>();
+    public Dictionary<int, MapUnitType> dic = new Dictionary<int, MapUnitType>();
 
     public Dictionary<int, int[]> neighbourPosMap = new Dictionary<int, int[]>();
 
@@ -43,21 +51,26 @@ public class MapData
 
         _bw.Write(dic.Count);
 
-        Dictionary<int, bool>.Enumerator enumerator = dic.GetEnumerator();
+        Dictionary<int, MapUnitType>.Enumerator enumerator = dic.GetEnumerator();
 
         while (enumerator.MoveNext())
         {
-            KeyValuePair<int, bool> pair2 = enumerator.Current;
+            KeyValuePair<int, MapUnitType> pair2 = enumerator.Current;
 
             _bw.Write(pair2.Key);
 
-            _bw.Write(pair2.Value);
+            MapUnitType mapUnitType = pair2.Value;
 
-            KeyValuePair<int, int> pair = moveMap[pair2.Key];
+            _bw.Write((int)mapUnitType);
 
-            _bw.Write(pair.Key);
+            if (mapUnitType == MapUnitType.M_AREA || mapUnitType == MapUnitType.O_AREA)
+            {
+                KeyValuePair<int, int> pair = moveMap[pair2.Key];
 
-            _bw.Write(pair.Value);
+                _bw.Write(pair.Key);
+
+                _bw.Write(pair.Value);
+            }
         }
     }
 
@@ -77,15 +90,18 @@ public class MapData
         {
             int pos = _br.ReadInt32();
 
-            bool isMine = _br.ReadBoolean();
+            MapUnitType mapUnitType = (MapUnitType)_br.ReadInt32();
 
-            dic.Add(pos, isMine);
+            dic.Add(pos, mapUnitType);
 
-            int mTarget = _br.ReadInt32();
+            if (mapUnitType == MapUnitType.M_AREA || mapUnitType == MapUnitType.O_AREA)
+            {
+                int mTarget = _br.ReadInt32();
 
-            int oTarget = _br.ReadInt32();
+                int oTarget = _br.ReadInt32();
 
-            moveMap.Add(pos, new KeyValuePair<int, int>(mTarget, oTarget));
+                moveMap.Add(pos, new KeyValuePair<int, int>(mTarget, oTarget));
+            }
         }
 
         SetNeighbourPosMap();
@@ -93,17 +109,19 @@ public class MapData
 
     public void SetNeighbourPosMap()
     {
-        Dictionary<int, bool>.Enumerator enumerator = dic.GetEnumerator();
+        Dictionary<int, MapUnitType>.Enumerator enumerator = dic.GetEnumerator();
 
         while (enumerator.MoveNext())
         {
             int pos = enumerator.Current.Key;
 
-            if (enumerator.Current.Value)
+            MapUnitType mapUnitType = enumerator.Current.Value;
+
+            if (mapUnitType == MapUnitType.M_AREA)
             {
                 mScore++;
             }
-            else
+            else if(mapUnitType == MapUnitType.O_AREA)
             {
                 oScore++;
             }

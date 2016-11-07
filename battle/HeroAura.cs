@@ -59,7 +59,7 @@ namespace FinalWar
                         return;
                     }
 
-                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, _hero.pos);
+                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     if (!posList.Contains(targetHero.pos))
                     {
@@ -75,7 +75,7 @@ namespace FinalWar
                         return;
                     }
 
-                    posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, _hero.pos);
+                    posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     if (!posList.Contains(targetHero.pos))
                     {

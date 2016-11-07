@@ -530,7 +530,7 @@ namespace FinalWar
 
             bool b = GetPosIsMine(_targetPos);
 
-            List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+            List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
 
             if (tmpList.Contains(_targetPos))
             {
@@ -579,24 +579,24 @@ namespace FinalWar
             }
             else
             {
-                if(b != hero.isMine && heroMapDic.ContainsKey(_targetPos))
+                if (b != hero.isMine && heroMapDic.ContainsKey(_targetPos))
                 {
-                    List<int> tmpList2 = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
+                    for (int i = 0; i < tmpList.Count; i++)
+                    {
+                        int pos = tmpList[i];
+
+                        b = GetPosIsMine(pos);
+
+                        if (b != hero.isMine && heroMapDic.ContainsKey(pos))
+                        {
+                            return false;
+                        }
+                    }
+
+                    List<int> tmpList2 = BattlePublicTools.GetNeighbourPos2(mapData, _pos);
 
                     if (tmpList2.Contains(_targetPos))
                     {
-                        for (int i = 0; i < tmpList.Count; i++)
-                        {
-                            int pos = tmpList[i];
-
-                            b = GetPosIsMine(pos);
-
-                            if (b != hero.isMine && heroMapDic.ContainsKey(pos))
-                            {
-                                return false;
-                            }
-                        }
-
                         action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
 
                         return true;
@@ -716,9 +716,20 @@ namespace FinalWar
 
                 int pos = _br.ReadInt32();
 
-                if (cards.ContainsKey(uid) && GetPosIsMine(pos) == _isMine)
+                if (cards.ContainsKey(uid))
                 {
-                    summon.Add(uid, pos);
+                    if (mapData.dic.ContainsKey(pos))
+                    {
+                        MapData.MapUnitType mapUnitType = mapData.dic[pos];
+
+                        if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
+                        {
+                            if (GetPosIsMine(pos) == _isMine)
+                            {
+                                summon.Add(uid, pos);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -732,19 +743,27 @@ namespace FinalWar
 
                 int targetPos = _br.ReadInt32();
 
-                if (heroMapDic.ContainsKey(pos) && heroMapDic[pos].isMine == _isMine)
+                if (mapData.dic.ContainsKey(targetPos))
                 {
-                    if (autoAction.ContainsKey(pos))
+                    MapData.MapUnitType mapUnitType = mapData.dic[targetPos];
+
+                    if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
                     {
-                        if(targetPos != autoAction[pos])
+                        if (heroMapDic.ContainsKey(pos) && heroMapDic[pos].isMine == _isMine)
                         {
-                            continue;
+                            if (autoAction.ContainsKey(pos))
+                            {
+                                if (targetPos != autoAction[pos])
+                                {
+                                    continue;
+                                }
+                            }
+
+                            action.Add(new KeyValuePair<int, int>(pos, targetPos));
+
+                            tmpDic.Add(pos, false);
                         }
                     }
-
-                    action.Add(new KeyValuePair<int, int>(pos, targetPos));
-
-                    tmpDic.Add(pos, false);
                 }
             }
 
@@ -754,7 +773,7 @@ namespace FinalWar
             {
                 KeyValuePair<int, int> pair = enumerator.Current;
 
-                if(GetPosIsMine(pair.Key) == _isMine)
+                if (GetPosIsMine(pair.Key) == _isMine)
                 {
                     if (!tmpDic.ContainsKey(pair.Key))
                     {
@@ -1074,7 +1093,7 @@ namespace FinalWar
 
             bool targetPosIsMine = GetPosIsMine(_targetPos);
 
-            List<int> arr = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+            List<int> arr = BattlePublicTools.GetNeighbourPos(mapData, _pos);
 
             if (arr.Contains(_targetPos))
             {
@@ -1164,61 +1183,54 @@ namespace FinalWar
             }
             else
             {
-                List<int> arr2 = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _pos);
-
-                if (arr2.Contains(_targetPos))
+                if (hero.isMine != targetPosIsMine && heroMapDic.ContainsKey(_targetPos))
                 {
-                    if (hero.isMine == targetPosIsMine)
+                    for (int i = 0; i < arr.Count; i++)
                     {
-                        throw new Exception("shoot error0");
-                    }
-                    else
-                    {
-                        if (heroMapDic.ContainsKey(_targetPos))
-                        {
-                            for(int i = 0; i < arr.Count; i++)
-                            {
-                                int pos = arr[i];
+                        int pos = arr[i];
+                        
+                        targetPosIsMine = GetPosIsMine(pos);
 
-                                targetPosIsMine = GetPosIsMine(pos);
-
-                                if(targetPosIsMine != hero.isMine && heroMapDic.ContainsKey(pos))
-                                {
-                                    throw new Exception("shoot error2");
-                                }
-                            }
-
-                            hero.SetAction(Hero.HeroAction.SHOOT, _targetPos);
-
-                            BattleCellData cellData;
-
-                            if (_battleData.actionDic.ContainsKey(_targetPos))
-                            {
-                                cellData = _battleData.actionDic[_targetPos];
-                            }
-                            else
-                            {
-                                cellData = new BattleCellData(_targetPos);
-
-                                if (heroMapDic.ContainsKey(_targetPos))
-                                {
-                                    cellData.stander = heroMapDic[_targetPos];
-                                }
-
-                                _battleData.actionDic.Add(_targetPos, cellData);
-                            }
-
-                            cellData.shooters.Add(hero);
-                        }
-                        else
+                        if (targetPosIsMine != hero.isMine && heroMapDic.ContainsKey(pos))
                         {
                             throw new Exception("shoot error1");
                         }
                     }
+
+                    List<int> arr2 = BattlePublicTools.GetNeighbourPos2(mapData, _pos);
+
+                    if (arr2.Contains(_targetPos))
+                    {
+                        hero.SetAction(Hero.HeroAction.SHOOT, _targetPos);
+
+                        BattleCellData cellData;
+
+                        if (_battleData.actionDic.ContainsKey(_targetPos))
+                        {
+                            cellData = _battleData.actionDic[_targetPos];
+                        }
+                        else
+                        {
+                            cellData = new BattleCellData(_targetPos);
+
+                            if (heroMapDic.ContainsKey(_targetPos))
+                            {
+                                cellData.stander = heroMapDic[_targetPos];
+                            }
+
+                            _battleData.actionDic.Add(_targetPos, cellData);
+                        }
+
+                        cellData.shooters.Add(hero);
+                    }
+                    else
+                    {
+                        throw new Exception("shoot error2");
+                    }
                 }
                 else
                 {
-                    throw new Exception("shoot error2");
+                    throw new Exception("shoot error0");
                 }
             }
         }
@@ -2729,14 +2741,27 @@ namespace FinalWar
 
         public bool GetPosIsMine(int _pos)
         {
-            return mapData.dic[_pos] != mapBelongDic.ContainsKey(_pos);
+            MapData.MapUnitType mapUnitType = mapData.dic[_pos];
+
+            if (mapUnitType == MapData.MapUnitType.M_AREA)
+            {
+                return !mapBelongDic.ContainsKey(_pos);
+            }
+            else if (mapUnitType == MapData.MapUnitType.O_AREA)
+            {
+                return mapBelongDic.ContainsKey(_pos);
+            }
+            else
+            {
+                throw new Exception("GetPosIsMine error!");
+            }
         }
 
         public List<int> GetCanAttackerHeroPos(Hero _hero)
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
             bool getThreat = false;
 
@@ -2782,7 +2807,7 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
             bool getThreat = false;
 
@@ -2830,7 +2855,7 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
             for(int i = 0; i < posList.Count; i++)
             {
@@ -2844,7 +2869,7 @@ namespace FinalWar
                 }
             }
 
-            posList = BattlePublicTools.GetNeighbourPos2(mapData.neighbourPosMap, _hero.pos);
+            posList = BattlePublicTools.GetNeighbourPos2(mapData, _hero.pos);
 
             for (int i = 0; i < posList.Count; i++)
             {
@@ -2877,7 +2902,7 @@ namespace FinalWar
 
             bool isMine = GetPosIsMine(_pos);
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
 
             for (int i = 0; i < posList.Count; i++)
             {
@@ -2898,7 +2923,7 @@ namespace FinalWar
 
                         bool canAttack = true;
 
-                        List<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, pos);
+                        List<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData, pos);
 
                         for (int m = 0; m < tmpPosList.Count; m++)
                         {
@@ -2939,7 +2964,7 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
             for (int i = 0; i < posList.Count; i++)
             {
@@ -2963,7 +2988,7 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
             for (int i = 0; i < posList.Count; i++)
             {
@@ -2987,7 +3012,7 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
             for (int i = 0; i < posList.Count; i++)
             {
@@ -3009,7 +3034,7 @@ namespace FinalWar
 
         public bool CheckHeroMustBeAttack(Hero _hero)
         {
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
             for (int i = 0; i < posList.Count; i++)
             {
@@ -3025,7 +3050,7 @@ namespace FinalWar
                     {
                         bool mushBeAttack = true;
 
-                        List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData.neighbourPosMap, pos);
+                        List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
 
                         for (int m = 0; m < posList2.Count; m++)
                         {

@@ -86,7 +86,7 @@ namespace FinalWar
 
                     List<Hero> heros = null;
 
-                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, _hero.pos);
+                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     for (int i = 0; i < posList.Count; i++)
                     {
@@ -126,7 +126,7 @@ namespace FinalWar
 
                     heros = null;
 
-                    posList = BattlePublicTools.GetNeighbourPos(_battle.mapData.neighbourPosMap, _hero.pos);
+                    posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     for (int i = 0; i < posList.Count; i++)
                     {
