@@ -52,7 +52,7 @@ public class BattlePublicTools
                         mapUnitType = _mapData.dic[pos];
 
                         if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
-                        { 
+                        {
                             result.Add(arr2[i]);
                         }
                     }
@@ -63,7 +63,7 @@ public class BattlePublicTools
         return result;
     }
 
-    public static void AccumulateDicData<T>(Dictionary<T,int> _dic,T _key,int _data)
+    public static void AccumulateDicData<T>(Dictionary<T, int> _dic, T _key, int _data)
     {
         if (_data != 0)
         {

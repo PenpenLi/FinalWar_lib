@@ -11,7 +11,7 @@ namespace FinalWar
             return string.Format("{0}_{1}", _heroUid, _skillTime);
         }
 
-        internal static void Init(Battle _battle,Hero _hero)
+        internal static void Init(Battle _battle, Hero _hero)
         {
             if (_hero.sds.GetSkills().Length > 0)
             {
@@ -54,7 +54,7 @@ namespace FinalWar
                 case SkillTime.RUSH:
 
                 case SkillTime.ATTACK:
-                    
+
                 case SkillTime.COUNTER:
 
                     ShootRushAttackCounter(_battle, _hero, _skillSDS, (int)e.datas[0], e.datas[1] as List<Hero>, e.datas[2] as List<Hero>, e.datas[3] as Dictionary<Hero, int>, e.datas[4] as Dictionary<Hero, int>, e.datas[5] as Dictionary<Hero, int>);
@@ -167,7 +167,7 @@ namespace FinalWar
             }
         }
 
-        private static void ShootRushAttackCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, int _pos, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero,int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic)
+        private static void ShootRushAttackCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, int _pos, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic)
         {
             switch (_skillSDS.GetSkillTarget())
             {
@@ -178,7 +178,7 @@ namespace FinalWar
                     break;
 
                 case SkillTarget.ALLY:
-                    
+
                     List<Hero> myHeros = new List<Hero>(_myHeros);
 
                     if (myHeros.Count > _skillSDS.GetTargetNum())
@@ -205,7 +205,7 @@ namespace FinalWar
             }
         }
 
-        private static void SkillTakeEffect(ISkillSDS _skillSDS, List<Hero> _heros, Dictionary<Hero,int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic)
+        private static void SkillTakeEffect(ISkillSDS _skillSDS, List<Hero> _heros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic)
         {
             switch (_skillSDS.GetSkillEffect())
             {

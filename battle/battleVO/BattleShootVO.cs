@@ -8,7 +8,7 @@ namespace FinalWar
         public int stander;
         public int shieldDamage;
         public int hpDamage;
-        
+
         public BattleShootVO(List<int> _shooters, int _stander, int _shieldDamage, int _hpDamage)
         {
             shooters = _shooters;

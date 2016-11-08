@@ -130,7 +130,7 @@ namespace FinalWar
         }
 
         private static void DoSummon(Battle _battle, bool _isMine, double _wrongValue)
-        { 
+        {
             //---summon
             int money;
             Dictionary<int, int> handCards;

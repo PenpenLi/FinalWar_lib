@@ -185,7 +185,7 @@ namespace FinalWar
             }
         }
 
-        public void ServerGetPackage(byte[] _bytes,bool _isMine)
+        public void ServerGetPackage(byte[] _bytes, bool _isMine)
         {
             using (MemoryStream ms = new MemoryStream(_bytes))
             {
@@ -204,7 +204,7 @@ namespace FinalWar
                         case PackageTag.C2S_DOACTION:
 
                             ServerDoAction(_isMine, br);
-                            
+
                             break;
 
                         case PackageTag.C2S_QUIT:
@@ -370,7 +370,7 @@ namespace FinalWar
         {
             MemoryStream ms = new MemoryStream(_bytes);
             BinaryReader br = new BinaryReader(ms);
-                
+
             byte tag = br.ReadByte();
 
             switch (tag)
@@ -838,7 +838,7 @@ namespace FinalWar
         private void ServerStartBattle()
         {
             List<ValueType> voList = new List<ValueType>();
-            
+
             BattleData battleData = GetBattleData();
 
             action.Clear();
@@ -1087,14 +1087,14 @@ namespace FinalWar
             BattleData battleData = new BattleData();
 
             for (int i = 0; i < action.Count; i++)
-            { 
+            {
                 int pos = action[i].Key;
 
                 int targetPos = action[i].Value;
 
                 GetOneUnitAction(pos, targetPos, battleData);
             }
-            
+
             return battleData;
         }
 
@@ -1204,7 +1204,7 @@ namespace FinalWar
                     for (int i = 0; i < arr.Count; i++)
                     {
                         int pos = arr[i];
-                        
+
                         targetPosIsMine = GetPosIsMine(pos);
 
                         if (targetPosIsMine != hero.isMine && heroMapDic.ContainsKey(pos))
@@ -1328,7 +1328,7 @@ namespace FinalWar
                 }
 
                 eventListenerV.DispatchEvent(AuraEffect.FIX_SHOOT_DAMAGE.ToString(), ref damage, stander);
-                
+
                 if (damage > 0)
                 {
                     BattlePublicTools.AccumulateDicData(_damageDic, stander, -damage);
@@ -1614,7 +1614,7 @@ namespace FinalWar
                 int defenderShieldDamage = 0;
 
                 int defenderHpDamage = 0;
-                
+
                 int defenseDamage;
 
                 int attackDamage = 0;
@@ -2021,7 +2021,7 @@ namespace FinalWar
         private void ServerRemoveHero(BattleData _battleData, Hero _hero)
         {
             heroMapDic.Remove(_hero.pos);
-            
+
             RemoveHeroAction(_battleData, _hero);
 
             if (_battleData.actionDic.ContainsKey(_hero.pos))
@@ -2077,7 +2077,7 @@ namespace FinalWar
                 Hero hero = null;
 
                 bool changeMapBelong = false;
-                
+
                 for (int i = 0; i < cellData.supporters.Count; i++)
                 {
                     Hero tmpHero = cellData.supporters[i];
@@ -2345,7 +2345,7 @@ namespace FinalWar
             return result;
         }
 
-        private void ProcessChangeDic(BattleData _battleData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero,int> _damageDic, List<ValueType> _voList, bool _isBattle)
+        private void ProcessChangeDic(BattleData _battleData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<ValueType> _voList, bool _isBattle)
         {
             while (_shieldChangeDic.Count > 0 || _hpChangeDic.Count > 0 || _damageDic.Count > 0)
             {
@@ -2383,7 +2383,7 @@ namespace FinalWar
                 while (enumerator3.MoveNext())
                 {
                     KeyValuePair<Hero, int> pair = enumerator3.Current;
-                    
+
                     Hero hero = pair.Key;
 
                     if (!_isBattle && !recordDic.ContainsKey(hero))
@@ -2815,7 +2815,7 @@ namespace FinalWar
                     if (hero.sds.GetThreat())
                     {
                         if (!getThreat)
-                        { 
+                        {
                             getThreat = true;
 
                             if (result.Count > 0)

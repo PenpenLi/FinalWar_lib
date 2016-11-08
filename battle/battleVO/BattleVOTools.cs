@@ -321,10 +321,10 @@ namespace FinalWar
                         result.Add(new BattleDeathVO(deads));
 
                         break;
-                        
+
                     case BattleVOType.CHANGE:
 
-                        List<int>  posList = new List<int>();
+                        List<int> posList = new List<int>();
 
                         List<int> shieldChangeList = new List<int>();
 

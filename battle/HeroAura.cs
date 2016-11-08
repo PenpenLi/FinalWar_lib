@@ -39,7 +39,7 @@ namespace FinalWar
                 _battle.eventListener.AddListener(HeroSkill.GetEventName(_hero.uid, SkillTime.DIE), dieDele);
             }
         }
-        
+
         private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, SuperEvent e, ref int _value)
         {
             Hero targetHero = e.datas[0] as Hero;

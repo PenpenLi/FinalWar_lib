@@ -13,7 +13,7 @@ namespace FinalWar
         public List<int> supportersHpDamage;
         public int defenderShieldDamage;
         public int defenderHpDamage;
-        
+
         public BattleAttackVO(List<int> _attackers, List<int> _supporters, int _defender, List<int> _attackersShieldDamage, List<int> _attackersHpDamage, List<int> _supportersShieldDamage, List<int> _supportersHpDamage, int _defenderShieldDamage, int _defenderHpDamage)
         {
             attackers = _attackers;

@@ -91,7 +91,7 @@ namespace superEvent
             }
         }
 
-        internal void DispatchEvent(string _eventName,params object[] _objs)
+        internal void DispatchEvent(string _eventName, params object[] _objs)
         {
             if (dicWithEvent.ContainsKey(_eventName))
             {
