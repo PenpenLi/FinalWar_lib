@@ -5,6 +5,7 @@
     int GetShield();
     int GetCost();
     bool GetCanControl();
+    bool GetCanMove();
     bool GetThreat();
     int GetAttack();
     int GetShoot();

@@ -36,24 +36,9 @@ namespace FinalWar
 
         private SuperEventListenerV eventListenerV;
 
-        internal Hero(bool _isMine, IHeroSDS _sds, int _pos)
+        internal Hero(SuperEventListenerV _eventListenerV, bool _isMine, IHeroSDS _sds, int _pos, int _uid)
         {
-            isMine = _isMine;
-
-            sds = _sds;
-
-            PosChange(_pos);
-
-            nowHp = sds.GetHp();
-
-            nowShield = sds.GetShield();
-
-            action = HeroAction.NULL;
-        }
-
-        internal Hero(Battle _battle, bool _isMine, IHeroSDS _sds, int _pos, int _uid)
-        {
-            eventListenerV = _battle.eventListenerV;
+            eventListenerV = _eventListenerV;
 
             isMine = _isMine;
 
@@ -68,16 +53,6 @@ namespace FinalWar
             nowShield = sds.GetShield();
 
             action = HeroAction.NULL;
-
-            if(sds.GetSkills().Length > 0)
-            {
-                HeroSkill.Init(_battle, this);
-            }
-
-            if(sds.GetAuras().Length > 0)
-            {
-                HeroAura.Init(_battle, this);
-            }
         }
 
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
@@ -114,14 +89,14 @@ namespace FinalWar
 
         internal void ShieldChange(int _value)
         {
-            if(_value > 0)
+            if (_value > 0)
             {
                 throw new System.Exception("shield change can not bigger than zero!");
             }
 
             nowShield += _value;
 
-            if(nowShield < 0)
+            if (nowShield < 0)
             {
                 nowShield = 0;
             }
@@ -131,11 +106,11 @@ namespace FinalWar
         {
             nowHp += _value;
 
-            if(nowHp > sds.GetHp())
+            if (nowHp > sds.GetHp())
             {
                 nowHp = sds.GetHp();
             }
-            else if(nowHp < 1)
+            else if (nowHp < 1)
             {
                 nowHp = 0;
 

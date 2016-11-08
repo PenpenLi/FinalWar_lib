@@ -123,7 +123,7 @@ namespace superEvent
                 {
                     KeyValuePair<Delegate, SuperEvent> pair = arr[i];
 
-                    if(pair.Key is EventCallBack<T>)
+                    if (pair.Key is EventCallBack<T>)
                     {
                         EventCallBack<T> callBack = pair.Key as EventCallBack<T>;
 

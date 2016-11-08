@@ -8,33 +8,36 @@ namespace FinalWar
     {
         internal static void Init(Battle _battle, Hero _hero)
         {
-            int[] eventIDs = new int[_hero.sds.GetAuras().Length];
-
-            for (int i = 0; i < _hero.sds.GetAuras().Length; i++)
+            if (_hero.sds.GetAuras().Length > 0)
             {
-                int auraID = _hero.sds.GetAuras()[i];
+                int[] eventIDs = new int[_hero.sds.GetAuras().Length];
 
-                IAuraSDS auraSDS = Battle.GetAuraData(auraID);
-
-                SuperEventListenerV.EventCallBack<int> dele = delegate (SuperEvent e, ref int _value)
+                for (int i = 0; i < _hero.sds.GetAuras().Length; i++)
                 {
-                    TriggerAura(_battle, _hero, auraSDS, e, ref _value);
-                };
+                    int auraID = _hero.sds.GetAuras()[i];
 
-                eventIDs[i] = _battle.eventListenerV.AddListener(auraSDS.GetAuraEffect().ToString(), dele);
-            }
+                    IAuraSDS auraSDS = Battle.GetAuraData(auraID);
 
-            Action<SuperEvent> dieDele = delegate (SuperEvent e)
-            {
-                for (int i = 0; i < eventIDs.Length; i++)
-                {
-                    _battle.eventListenerV.RemoveListener(eventIDs[i]);
+                    SuperEventListenerV.EventCallBack<int> dele = delegate (SuperEvent e, ref int _value)
+                    {
+                        TriggerAura(_battle, _hero, auraSDS, e, ref _value);
+                    };
+
+                    eventIDs[i] = _battle.eventListenerV.AddListener(auraSDS.GetAuraEffect().ToString(), dele);
                 }
 
-                _battle.eventListener.RemoveListener(e.index);
-            };
+                Action<SuperEvent> dieDele = delegate (SuperEvent e)
+                {
+                    for (int i = 0; i < eventIDs.Length; i++)
+                    {
+                        _battle.eventListenerV.RemoveListener(eventIDs[i]);
+                    }
 
-            _battle.eventListener.AddListener(HeroSkill.GetEventName(_hero.uid, SkillTime.DIE), dieDele);
+                    _battle.eventListener.RemoveListener(e.index);
+                };
+
+                _battle.eventListener.AddListener(HeroSkill.GetEventName(_hero.uid, SkillTime.DIE), dieDele);
+            }
         }
         
         private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, SuperEvent e, ref int _value)
@@ -45,7 +48,7 @@ namespace FinalWar
             {
                 case AuraTarget.SELF:
 
-                    if(targetHero != _hero)
+                    if (targetHero != _hero)
                     {
                         return;
                     }
@@ -54,7 +57,7 @@ namespace FinalWar
 
                 case AuraTarget.ALLY:
 
-                    if(targetHero.isMine != _hero.isMine)
+                    if (targetHero.isMine != _hero.isMine)
                     {
                         return;
                     }

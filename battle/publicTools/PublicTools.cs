@@ -9,7 +9,7 @@ namespace publicTools
         {
             List<T> tmpList = new List<T>(_list);
 
-            for(int i = 0; i < _list.Count; i++)
+            for (int i = 0; i < _list.Count; i++)
             {
                 int index = (int)(_random.NextDouble() * tmpList.Count);
 
@@ -23,18 +23,18 @@ namespace publicTools
         {
             double d = 0;
 
-            for(int i = 0; i < _list1.Count; i++)
+            for (int i = 0; i < _list1.Count; i++)
             {
                 d += _list1[i];
             }
 
             double value = _random.NextDouble() * d;
 
-            for(int i = 0; i < _list1.Count; i++)
+            for (int i = 0; i < _list1.Count; i++)
             {
                 double v = _list1[i];
 
-                if(value < v)
+                if (value < v)
                 {
                     return i;
                 }

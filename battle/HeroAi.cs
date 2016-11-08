@@ -30,7 +30,7 @@ namespace FinalWar
                     {
                         if (_battle.CheckPosCanBeAttack(hero.pos))
                         {
-                            if(Battle.random.NextDouble() < 0.5)
+                            if (Battle.random.NextDouble() < 0.5)
                             {
                                 continue;
                             }
@@ -82,7 +82,7 @@ namespace FinalWar
 
                         posList = _battle.GetCanSupportHeroPos(hero);
 
-                        if(posList.Count > 0)
+                        if (posList.Count > 0)
                         {
                             result.InsertRange(result.Count, posList);
                         }
@@ -115,7 +115,7 @@ namespace FinalWar
                         {
                             int targetPos = _battle.autoAction[hero.pos];
 
-                            if(targetPos != hero.pos)
+                            if (targetPos != hero.pos)
                             {
                                 action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
                             }
@@ -162,7 +162,7 @@ namespace FinalWar
 
                 IHeroSDS heroSDS = Battle.GetHeroData(cardID);
 
-                if(heroSDS.GetCost() <= money)
+                if (heroSDS.GetCost() <= money)
                 {
                     cards.Add(pair.Key);
 
@@ -170,7 +170,7 @@ namespace FinalWar
                 }
             }
 
-            if(cards.Count > 0)
+            if (cards.Count > 0)
             {
                 List<int> resultList = new List<int>();
 
@@ -225,7 +225,7 @@ namespace FinalWar
                     {
                         int pos = posList[m];
 
-                        if(!_battle.heroMapDic.ContainsKey(pos) && !resultList.Contains(pos) && !resultList2.Contains(pos))
+                        if (!_battle.heroMapDic.ContainsKey(pos) && !resultList.Contains(pos) && !resultList2.Contains(pos))
                         {
                             bool b = _battle.GetPosIsMine(pos);
 
@@ -251,11 +251,11 @@ namespace FinalWar
 
                     IHeroSDS heroSDS = Battle.GetHeroData(cardID);
 
-                    if(heroSDS.GetCost() <= money)
+                    if (heroSDS.GetCost() <= money)
                     {
                         List<int> summonPosList;
 
-                        if(resultList.Count > 0 && resultList2.Count > 0)
+                        if (resultList.Count > 0 && resultList2.Count > 0)
                         {
                             if (Battle.random.NextDouble() < 0.6)
                             {
@@ -266,7 +266,7 @@ namespace FinalWar
                                 summonPosList = resultList2;
                             }
                         }
-                        else if(resultList.Count > 0)
+                        else if (resultList.Count > 0)
                         {
                             summonPosList = resultList;
                         }
@@ -307,9 +307,9 @@ namespace FinalWar
 
                 bool b = _battle.GetPosIsMine(pos);
 
-                if(b == _isMine)
+                if (b == _isMine)
                 {
-                    if(delList == null)
+                    if (delList == null)
                     {
                         delList = new List<int>();
                     }
@@ -318,7 +318,7 @@ namespace FinalWar
                 }
             }
 
-            if(delList != null)
+            if (delList != null)
             {
                 for (int i = 0; i < delList.Count; i++)
                 {
@@ -326,7 +326,7 @@ namespace FinalWar
                 }
             }
 
-            for(int i = _battle.action.Count - 1; i > -1; i--)
+            for (int i = _battle.action.Count - 1; i > -1; i--)
             {
                 KeyValuePair<int, int> pair = _battle.action[i];
 

@@ -9,7 +9,7 @@ public class BattlePublicTools
 
         int[] arr = _mapData.neighbourPosMap[_pos];
 
-        for(int i = 0; i < 6; i++)
+        for (int i = 0; i < 6; i++)
         {
             int pos = arr[i];
 
@@ -65,13 +65,13 @@ public class BattlePublicTools
 
     public static void AccumulateDicData<T>(Dictionary<T,int> _dic,T _key,int _data)
     {
-        if(_data != 0)
+        if (_data != 0)
         {
             if (_dic.ContainsKey(_key))
             {
                 _dic[_key] += _data;
 
-                if(_dic[_key] == 0)
+                if (_dic[_key] == 0)
                 {
                     _dic.Remove(_key);
                 }

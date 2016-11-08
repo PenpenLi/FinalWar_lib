@@ -105,7 +105,7 @@ namespace FinalWar
             clientBattleOverCallBack = _clientBattleOverCallBack;
         }
 
-        public void ServerStart(int _mapID, List<int> _mCards, List<int> _oCards, bool _isVsAi)
+        public void ServerStart(int _mapID, Dictionary<int, int> _heros, List<int> _mCards, List<int> _oCards, bool _isVsAi)
         {
             Log.Write("Battle Start!");
 
@@ -132,7 +132,7 @@ namespace FinalWar
 
             for (int i = 0; i < DEFAULT_HAND_CARD_NUM; i++)
             {
-                if(mCards.Count > 0)
+                if (mCards.Count > 0)
                 {
                     int index = (int)(random.NextDouble() * mCards.Count);
 
@@ -141,13 +141,39 @@ namespace FinalWar
                     mCards.RemoveAt(index);
                 }
 
-                if(oCards.Count > 0)
+                if (oCards.Count > 0)
                 {
                     int index = (int)(random.NextDouble() * oCards.Count);
 
                     oHandCards.Add(GetCardUid(), oCards[index]);
 
                     oCards.RemoveAt(index);
+                }
+            }
+
+            if (_heros != null)
+            {
+                Dictionary<int, int>.Enumerator enumerator = _heros.GetEnumerator();
+
+                while (enumerator.MoveNext())
+                {
+                    KeyValuePair<int, int> pair = enumerator.Current;
+
+                    int pos = pair.Key;
+
+                    int id = pair.Value;
+
+                    bool isMine = GetPosIsMine(pos);
+
+                    IHeroSDS heroSDS = GetHeroData(id);
+
+                    Hero hero = new Hero(eventListenerV, isMine, heroSDS, pos, GetHeroUid());
+
+                    HeroSkill.Init(this, hero);
+
+                    HeroAura.Init(this, hero);
+
+                    heroMapDic.Add(pos, hero);
                 }
             }
 
@@ -302,7 +328,7 @@ namespace FinalWar
 
                         bw.Write(num);
 
-                        for(int i = 0; i < num; i++)
+                        for (int i = 0; i < num; i++)
                         {
                             bw.Write(tmpList[i].Key);
 
@@ -327,7 +353,7 @@ namespace FinalWar
 
                         bw.Write(num);
 
-                        for(int i = 0; i < num; i++)
+                        for (int i = 0; i < num; i++)
                         {
                             bw.Write(tmpList[i].Key);
 
@@ -391,7 +417,7 @@ namespace FinalWar
 
             int num = _br.ReadInt32();
 
-            for(int i = 0; i < num; i++)
+            for (int i = 0; i < num; i++)
             {
                 int pos = _br.ReadInt32();
 
@@ -402,7 +428,7 @@ namespace FinalWar
 
             num = _br.ReadInt32();
 
-            for(int i = 0; i < num; i++)
+            for (int i = 0; i < num; i++)
             {
                 int id = _br.ReadInt32();
 
@@ -445,7 +471,7 @@ namespace FinalWar
 
             num = _br.ReadInt32();
 
-            for(int i = 0; i < num; i++)
+            for (int i = 0; i < num; i++)
             {
                 int uid = _br.ReadInt32();
 
@@ -534,7 +560,7 @@ namespace FinalWar
 
             if (tmpList.Contains(_targetPos))
             {
-                if(b == hero.isMine)
+                if (b == hero.isMine)
                 {
                     action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
 
@@ -609,7 +635,7 @@ namespace FinalWar
 
         public void ClientRequestUnaction(int _pos)
         {
-            for(int i = 0; i < action.Count; i++)
+            for (int i = 0; i < action.Count; i++)
             {
                 if (action[i].Key == _pos)
                 {
@@ -643,7 +669,7 @@ namespace FinalWar
 
                     bw.Write(action.Count);
 
-                    for(int i = 0; i < action.Count; i++)
+                    for (int i = 0; i < action.Count; i++)
                     {
                         bw.Write(action[i].Key);
 
@@ -710,7 +736,7 @@ namespace FinalWar
 
             int num = _br.ReadInt32();
 
-            for(int i = 0; i < num; i++)
+            for (int i = 0; i < num; i++)
             {
                 int uid = _br.ReadInt32();
 
@@ -777,7 +803,7 @@ namespace FinalWar
                 {
                     if (!tmpDic.ContainsKey(pair.Key))
                     {
-                        if(pair.Key != pair.Value)
+                        if (pair.Key != pair.Value)
                         {
                             action.Add(pair);
                         }
@@ -798,20 +824,6 @@ namespace FinalWar
 
                 ServerStartBattle();
             }
-        }
-
-        private Hero AddHero(bool _isMine, IHeroSDS _sds, int _pos, int _uid)
-        {
-            return new Hero(this, _isMine, _sds, _pos, _uid);
-        }
-
-        private Hero ClientAddHero(bool _isMine, IHeroSDS _sds, int _pos)
-        {
-            Hero hero = new Hero(_isMine, _sds, _pos);
-
-            heroMapDic.Add(_pos, hero);
-
-            return hero;
         }
 
         private Hero ClientAddHero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
@@ -849,7 +861,7 @@ namespace FinalWar
 
             ServerDoRecover(battleData, voList);
 
-            if(!mWin && !oWin)
+            if (!mWin && !oWin)
             {
                 ServerDoAutoAction();
             }
@@ -922,7 +934,7 @@ namespace FinalWar
                 }
             }
 
-            if(!mWin && !oWin)
+            if (!mWin && !oWin)
             {
                 RecoverMoney();
 
@@ -1008,7 +1020,7 @@ namespace FinalWar
                 eventListener.DispatchEvent(HeroSkill.GetEventName(summonHero.uid, SkillTime.SUMMON), shieldChangeDic, hpChangeDic, damageDic);
             }
 
-            for(int i = 0; i < summonList.Count; i++)
+            for (int i = 0; i < summonList.Count; i++)
             {
                 ServerAddHero(_battleData, summonList[i]);
             }
@@ -1044,7 +1056,11 @@ namespace FinalWar
                 oHandCards.Remove(_uid);
             }
 
-            Hero hero = AddHero(_isMine, sds, _pos, GetHeroUid());
+            Hero hero = new Hero(eventListenerV, _isMine, sds, _pos, GetHeroUid());
+
+            HeroSkill.Init(this, hero);
+
+            HeroAura.Init(this, hero);
 
             return hero;
         }
@@ -1330,7 +1346,7 @@ namespace FinalWar
                     }
                 }
 
-                if(damage > 0)
+                if (damage > 0)
                 {
                     if (shield >= damage)
                     {
@@ -1360,7 +1376,7 @@ namespace FinalWar
                     }
                 }
 
-                if(damage > 0)
+                if (damage > 0)
                 {
                     if (hp >= damage)
                     {
@@ -1544,7 +1560,7 @@ namespace FinalWar
 
                     List<Hero> attackers = new List<Hero>(cellData.attackers);
 
-                    for(int i = 0; i < cellData.attackers.Count; i++)
+                    for (int i = 0; i < cellData.attackers.Count; i++)
                     {
                         Hero hero = cellData.attackers[i];
 
@@ -1632,7 +1648,7 @@ namespace FinalWar
 
                 for (int i = 0; i < _cellData.attackers.Count; i++)
                 {
-                    if(defenseDamage > 0)
+                    if (defenseDamage > 0)
                     {
                         Hero hero = _cellData.attackers[i];
 
@@ -1677,7 +1693,7 @@ namespace FinalWar
 
                 for (int i = 0; i < _cellData.attackers.Count; i++)
                 {
-                    if(defenseDamage > 0)
+                    if (defenseDamage > 0)
                     {
                         Hero hero = _cellData.attackers[i];
 
@@ -1758,7 +1774,7 @@ namespace FinalWar
 
                 for (int i = 0; i < _cellData.supporters.Count; i++)
                 {
-                    if(attackDamage > 0)
+                    if (attackDamage > 0)
                     {
                         Hero hero = _cellData.supporters[i];
 
@@ -1839,7 +1855,7 @@ namespace FinalWar
 
                 for (int i = 0; i < _cellData.supporters.Count; i++)
                 {
-                    if(attackDamage > 0)
+                    if (attackDamage > 0)
                     {
                         Hero hero = _cellData.supporters[i];
 
@@ -2061,27 +2077,45 @@ namespace FinalWar
                 Hero hero = null;
 
                 bool changeMapBelong = false;
-
-                if (cellData.supporters.Count > 0)
+                
+                for (int i = 0; i < cellData.supporters.Count; i++)
                 {
-                    hero = cellData.supporters[0];
+                    Hero tmpHero = cellData.supporters[i];
+
+                    if (tmpHero.sds.GetCanMove())
+                    {
+                        hero = tmpHero;
+
+                        break;
+                    }
                 }
-                else if (cellData.attackers.Count > 0)
-                {
-                    hero = cellData.attackers[0];
 
-                    changeMapBelong = true;
+                if (hero == null)
+                {
+                    for (int i = 0; i < cellData.attackers.Count; i++)
+                    {
+                        Hero tmpHero = cellData.attackers[i];
+
+                        if (tmpHero.sds.GetCanMove())
+                        {
+                            hero = tmpHero;
+
+                            changeMapBelong = true;
+
+                            break;
+                        }
+                    }
                 }
 
                 if (hero != null)
                 {
                     if (changeMapBelong)
                     {
-                        if(mapData.mBase == nowPos)
+                        if (mapData.mBase == nowPos)
                         {
                             oWin = true;
                         }
-                        else if(mapData.oBase == nowPos)
+                        else if (mapData.oBase == nowPos)
                         {
                             mWin = true;
                         }
@@ -2127,7 +2161,7 @@ namespace FinalWar
                 {
                     int targetPos = GetHeroAutoAction(hero);
 
-                    if(targetPos != -1)
+                    if (targetPos != -1)
                     {
                         autoAction.Add(hero.pos, targetPos);
                     }
@@ -2178,8 +2212,9 @@ namespace FinalWar
 
                 return posList[index];
             }
+
             //无援护目标时向前进
-            else
+            if (_hero.sds.GetCanMove())
             {
                 int targetPos;
 
@@ -2194,6 +2229,8 @@ namespace FinalWar
 
                 return targetPos;
             }
+
+            return -1;
         }
 
         private void RecoverCards(BinaryWriter _mBw, BinaryWriter _oBw)
@@ -2388,7 +2425,7 @@ namespace FinalWar
                         recordDic.Add(hero, new KeyValuePair<int, int>(hero.nowShield, hero.nowHp));
                     }
 
-                    if(hero.nowShield >= -pair.Value)
+                    if (hero.nowShield >= -pair.Value)
                     {
                         hero.ShieldChange(pair.Value);
                     }
@@ -2557,7 +2594,7 @@ namespace FinalWar
                 }
             }
 
-            ClientAddHero(isMine, sds, _vo.pos);
+            ClientAddHero(isMine, sds, _vo.pos, sds.GetHp());
         }
 
         private void ClientDoMove(BattleMoveVO _vo)
@@ -2625,7 +2662,7 @@ namespace FinalWar
 
         private void ClientDoAttack(BattleAttackVO _vo)
         {
-            for(int i = 0; i < _vo.attackers.Count; i++)
+            for (int i = 0; i < _vo.attackers.Count; i++)
             {
                 Hero hero = heroMapDic[_vo.attackers[i]];
 
@@ -2650,7 +2687,7 @@ namespace FinalWar
                 hero.ShieldChange(_vo.defenderShieldDamage);
             }
 
-            if(_vo.defenderHpDamage < 0)
+            if (_vo.defenderHpDamage < 0)
             {
                 Hero hero = heroMapDic[_vo.defender];
 
@@ -2660,7 +2697,7 @@ namespace FinalWar
 
         private void ClientDoDie(BattleDeathVO _vo)
         {
-            for(int i = 0; i < _vo.deads.Count; i++)
+            for (int i = 0; i < _vo.deads.Count; i++)
             {
                 heroMapDic.Remove(_vo.deads[i]);
             }
@@ -2668,7 +2705,7 @@ namespace FinalWar
 
         private void ClientDoChange(BattleChangeVO _vo)
         {
-            for(int i = 0; i < _vo.pos.Count; i++)
+            for (int i = 0; i < _vo.pos.Count; i++)
             {
                 //Hero hero = heroMapDic[_vo.pos[i]];
 
@@ -2682,7 +2719,7 @@ namespace FinalWar
 
             int num = _br.ReadInt32();
 
-            for(int i = 0; i < num; i++)
+            for (int i = 0; i < num; i++)
             {
                 int pos = _br.ReadInt32();
 
@@ -2728,7 +2765,7 @@ namespace FinalWar
 
             clientRefreshDataCallBack();
 
-            if(mWin)
+            if (mWin)
             {
                 mWin = false;
             }
@@ -2781,7 +2818,7 @@ namespace FinalWar
                         { 
                             getThreat = true;
 
-                            if(result.Count > 0)
+                            if (result.Count > 0)
                             {
                                 result.Clear();
                             }
@@ -2817,7 +2854,7 @@ namespace FinalWar
 
                 bool b = GetPosIsMine(pos);
 
-                if(b != _hero.isMine)
+                if (b != _hero.isMine)
                 {
                     if (heroMapDic.ContainsKey(pos))
                     {
@@ -2829,7 +2866,7 @@ namespace FinalWar
                             {
                                 getThreat = true;
 
-                                if(result.Count > 0)
+                                if (result.Count > 0)
                                 {
                                     result.Clear();
                                 }
@@ -2857,13 +2894,13 @@ namespace FinalWar
 
             List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            for(int i = 0; i < posList.Count; i++)
+            for (int i = 0; i < posList.Count; i++)
             {
                 int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
-                if(b != _hero.isMine && heroMapDic.ContainsKey(pos))
+                if (b != _hero.isMine && heroMapDic.ContainsKey(pos))
                 {
                     return result;
                 }

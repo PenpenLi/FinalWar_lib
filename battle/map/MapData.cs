@@ -121,7 +121,7 @@ public class MapData
             {
                 mScore++;
             }
-            else if(mapUnitType == MapUnitType.O_AREA)
+            else if (mapUnitType == MapUnitType.O_AREA)
             {
                 oScore++;
             }

@@ -61,7 +61,7 @@ namespace FinalWar
 
                     _bw.Write(rush.attackers.Count);
 
-                    for(int m = 0; m < rush.attackers.Count; m++)
+                    for (int m = 0; m < rush.attackers.Count; m++)
                     {
                         _bw.Write(rush.attackers[m]);
                     }
@@ -99,7 +99,7 @@ namespace FinalWar
 
                     _bw.Write(attack.attackers.Count);
 
-                    for(int m = 0; m < attack.attackers.Count; m++)
+                    for (int m = 0; m < attack.attackers.Count; m++)
                     {
                         _bw.Write(attack.attackers[m]);
 
@@ -133,12 +133,12 @@ namespace FinalWar
 
                     _bw.Write(death.deads.Count);
 
-                    for(int m = 0; m < death.deads.Count; m++)
+                    for (int m = 0; m < death.deads.Count; m++)
                     {
                         _bw.Write(death.deads[m]);
                     }
                 }
-                else if(vo is BattleChangeVO)
+                else if (vo is BattleChangeVO)
                 {
                     _bw.Write((int)BattleVOType.CHANGE);
 
@@ -164,7 +164,7 @@ namespace FinalWar
 
             int num = _br.ReadInt32();
 
-            for(int i = 0; i < num; i++)
+            for (int i = 0; i < num; i++)
             {
                 BattleVOType type = (BattleVOType)_br.ReadInt32();
 
@@ -188,7 +188,7 @@ namespace FinalWar
 
                         int moveNum = _br.ReadInt32();
 
-                        for(int m = 0; m < moveNum; m++)
+                        for (int m = 0; m < moveNum; m++)
                         {
                             int pos = _br.ReadInt32();
 
@@ -207,7 +207,7 @@ namespace FinalWar
 
                         int attackerNum = _br.ReadInt32();
 
-                        for(int m = 0; m < attackerNum; m++)
+                        for (int m = 0; m < attackerNum; m++)
                         {
                             int rusher = _br.ReadInt32();
 
@@ -311,7 +311,7 @@ namespace FinalWar
 
                         int deadsNum = _br.ReadInt32();
 
-                        for(int m = 0; m < deadsNum; m++)
+                        for (int m = 0; m < deadsNum; m++)
                         {
                             int deadPos = _br.ReadInt32();
 

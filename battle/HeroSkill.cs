@@ -13,33 +13,36 @@ namespace FinalWar
 
         internal static void Init(Battle _battle,Hero _hero)
         {
-            int[] eventIDs = new int[_hero.sds.GetSkills().Length];
-
-            for (int i = 0; i < _hero.sds.GetSkills().Length; i++)
+            if (_hero.sds.GetSkills().Length > 0)
             {
-                int skillID = _hero.sds.GetSkills()[i];
+                int[] eventIDs = new int[_hero.sds.GetSkills().Length];
 
-                ISkillSDS skillSDS = Battle.GetSkillData(skillID);
-
-                Action<SuperEvent> dele = delegate(SuperEvent e)
+                for (int i = 0; i < _hero.sds.GetSkills().Length; i++)
                 {
-                    TriggerSkill(_battle, _hero, skillSDS, e);
-                };
+                    int skillID = _hero.sds.GetSkills()[i];
 
-                eventIDs[i] = _battle.eventListener.AddListener(GetEventName(_hero.uid, skillSDS.GetSkillTime()), dele);
-            }
+                    ISkillSDS skillSDS = Battle.GetSkillData(skillID);
 
-            Action<SuperEvent> dieDele = delegate (SuperEvent e)
-            {
-                for (int i = 0; i < eventIDs.Length; i++)
-                {
-                    _battle.eventListener.RemoveListener(eventIDs[i]);
+                    Action<SuperEvent> dele = delegate (SuperEvent e)
+                    {
+                        TriggerSkill(_battle, _hero, skillSDS, e);
+                    };
+
+                    eventIDs[i] = _battle.eventListener.AddListener(GetEventName(_hero.uid, skillSDS.GetSkillTime()), dele);
                 }
 
-                _battle.eventListener.RemoveListener(e.index);
-            };
+                Action<SuperEvent> dieDele = delegate (SuperEvent e)
+                {
+                    for (int i = 0; i < eventIDs.Length; i++)
+                    {
+                        _battle.eventListener.RemoveListener(eventIDs[i]);
+                    }
 
-            _battle.eventListener.AddListener(GetEventName(_hero.uid, SkillTime.DIE), dieDele);
+                    _battle.eventListener.RemoveListener(e.index);
+                };
+
+                _battle.eventListener.AddListener(GetEventName(_hero.uid, SkillTime.DIE), dieDele);
+            }
         }
 
         private static void TriggerSkill(Battle _battle, Hero _hero, ISkillSDS _skillSDS, SuperEvent e)
@@ -227,7 +230,7 @@ namespace FinalWar
                 case SkillEffect.HP_CHANGE:
                 case SkillEffect.RECOVER:
 
-                    for(int i = 0; i < _heros.Count; i++)
+                    for (int i = 0; i < _heros.Count; i++)
                     {
                         BattlePublicTools.AccumulateDicData(_hpChangeDic, _heros[i], _skillSDS.GetSkillDatas()[0]);
                     }
@@ -236,7 +239,7 @@ namespace FinalWar
 
                 case SkillEffect.FIX_ATTACK:
 
-                    for(int i = 0; i < _heros.Count; i++)
+                    for (int i = 0; i < _heros.Count; i++)
                     {
                         _heros[i].SetAttackFix(_skillSDS.GetSkillDatas()[0]);
                     }
