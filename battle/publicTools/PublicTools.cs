@@ -11,7 +11,7 @@ namespace publicTools
 
             for (int i = 0; i < _list.Count; i++)
             {
-                int index = (int)(_random.NextDouble() * tmpList.Count);
+                int index = _random.Next(tmpList.Count);
 
                 _list[i] = tmpList[index];
 
@@ -61,6 +61,54 @@ namespace publicTools
             }
 
             return result;
+        }
+
+        public static List<T> ChooseKeysFromDic<T, U>(Dictionary<T, U> _dic, int _num, Random _random)
+        {
+            List<T> list = new List<T>();
+
+            Dictionary<T, U>.KeyCollection.Enumerator enumerator = _dic.Keys.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                list.Add(enumerator.Current);
+            }
+
+            List<T> result = new List<T>();
+
+            for (int i = 0; i < _num && list.Count > 0; i++)
+            {
+                int index = _random.Next(list.Count);
+
+                result.Add(list[index]);
+
+                list.RemoveAt(index);
+            }
+
+            return result;
+        }
+
+        public static T ChooseOneKeyFromDic<T, U>(Dictionary<T, U> _dic, Random _random)
+        {
+            int index = _random.Next(_dic.Count);
+
+            Dictionary<T, U>.KeyCollection.Enumerator enumerator = _dic.Keys.GetEnumerator();
+
+            int i = 0;
+
+            while (enumerator.MoveNext())
+            {
+                if(i == index)
+                {
+                    return enumerator.Current;
+                }
+                else
+                {
+                    i++;
+                }
+            }
+
+            return enumerator.Current;
         }
     }
 }

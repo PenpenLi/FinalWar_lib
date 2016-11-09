@@ -115,7 +115,7 @@ namespace FinalWar
                     {
                         while (heros.Count > _skillSDS.GetTargetNum())
                         {
-                            int index = (int)(Battle.random.NextDouble() * heros.Count);
+                            int index = Battle.random.Next(heros.Count);
 
                             heros.RemoveAt(index);
                         }
@@ -155,7 +155,7 @@ namespace FinalWar
                     {
                         while (heros.Count > _skillSDS.GetTargetNum())
                         {
-                            int index = (int)(Battle.random.NextDouble() * heros.Count);
+                            int index = Battle.random.Next(heros.Count);
 
                             heros.RemoveAt(index);
                         }

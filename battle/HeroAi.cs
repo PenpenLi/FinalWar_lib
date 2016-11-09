@@ -89,7 +89,7 @@ namespace FinalWar
 
                         if (result != null)
                         {
-                            int index = (int)(Battle.random.NextDouble() * result.Count);
+                            int index = Battle.random.Next(result.Count);
 
                             action.Add(new KeyValuePair<int, int>(hero.pos, result[index]));
                         }
@@ -275,7 +275,7 @@ namespace FinalWar
                             summonPosList = resultList2;
                         }
 
-                        int index = (int)(Battle.random.NextDouble() * summonPosList.Count);
+                        int index = Battle.random.Next(summonPosList.Count);
 
                         int summonPos = summonPosList[index];
 
