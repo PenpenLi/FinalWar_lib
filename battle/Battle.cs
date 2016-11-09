@@ -1463,13 +1463,19 @@ namespace FinalWar
 
                 int damage = 0;
 
+                bool doubleDamage = true;
+
+                eventListenerV.DispatchEvent(AuraEffect.FIX_RUSH_DAMAGE.ToString(), ref doubleDamage, stander);
+
+                int damageFix = doubleDamage ? 2 : 1;
+
                 for (int i = 0; i < _cellData.attackers.Count; i++)
                 {
                     Hero attacker = _cellData.attackers[i];
 
                     attackers.Add(attacker.pos);
 
-                    damage += attacker.GetAttackDamage() * 2;
+                    damage += attacker.GetAttackDamage() * damageFix;
                 }
 
                 if (damage > 0)
@@ -1648,22 +1654,22 @@ namespace FinalWar
 
                 for (int i = 0; i < _cellData.attackers.Count; i++)
                 {
+                    Hero hero = _cellData.attackers[i];
+
+                    int tmpShield = hero.nowShield;
+
+                    if (_shieldChangeDic.ContainsKey(hero))
+                    {
+                        tmpShield += _shieldChangeDic[hero];
+
+                        if (tmpShield < 0)
+                        {
+                            tmpShield = 0;
+                        }
+                    }
+
                     if (defenseDamage > 0)
                     {
-                        Hero hero = _cellData.attackers[i];
-
-                        int tmpShield = hero.nowShield;
-
-                        if (_shieldChangeDic.ContainsKey(hero))
-                        {
-                            tmpShield += _shieldChangeDic[hero];
-
-                            if (tmpShield < 0)
-                            {
-                                tmpShield = 0;
-                            }
-                        }
-
                         if (tmpShield >= defenseDamage)
                         {
                             tmpShield -= defenseDamage;
@@ -1680,35 +1686,31 @@ namespace FinalWar
 
                             tmpShield = 0;
                         }
-
-                        int shieldDamage = tmpShield - hero.nowShield;
-
-                        attackersShieldDamage.Add(shieldDamage);
                     }
-                    else
-                    {
-                        attackersShieldDamage.Add(0);
-                    }
+
+                    int shieldDamage = tmpShield - hero.nowShield;
+
+                    attackersShieldDamage.Add(shieldDamage);
                 }
 
                 for (int i = 0; i < _cellData.attackers.Count; i++)
                 {
+                    Hero hero = _cellData.attackers[i];
+
+                    int tmpHp = hero.nowHp;
+
+                    if (_hpChangeDic.ContainsKey(hero))
+                    {
+                        tmpHp += _hpChangeDic[hero];
+
+                        if (tmpHp < 0)
+                        {
+                            tmpHp = 0;
+                        }
+                    }
+
                     if (defenseDamage > 0)
                     {
-                        Hero hero = _cellData.attackers[i];
-
-                        int tmpHp = hero.nowHp;
-
-                        if (_hpChangeDic.ContainsKey(hero))
-                        {
-                            tmpHp += _hpChangeDic[hero];
-
-                            if (tmpHp < 0)
-                            {
-                                tmpHp = 0;
-                            }
-                        }
-
                         if (tmpHp >= defenseDamage)
                         {
                             tmpHp -= defenseDamage;
@@ -1725,18 +1727,14 @@ namespace FinalWar
 
                             tmpHp = 0;
                         }
-
-                        int hpDamage = tmpHp - hero.nowHp;
-
-                        attackersHpDamage.Add(hpDamage);
                     }
-                    else
-                    {
-                        attackersHpDamage.Add(0);
-                    }
+
+                    int hpDamage = tmpHp - hero.nowHp;
+
+                    attackersHpDamage.Add(hpDamage);
                 }
 
-                if (attackDamage > 0 && _cellData.stander != null && _cellData.stander.action == Hero.HeroAction.DEFENSE)
+                if (_cellData.stander != null && _cellData.stander.action == Hero.HeroAction.DEFENSE)
                 {
                     Hero hero = _cellData.stander;
 
@@ -1774,22 +1772,22 @@ namespace FinalWar
 
                 for (int i = 0; i < _cellData.supporters.Count; i++)
                 {
+                    Hero hero = _cellData.supporters[i];
+
+                    int tmpShield = hero.nowShield;
+
+                    if (_shieldChangeDic.ContainsKey(hero))
+                    {
+                        tmpShield += _shieldChangeDic[hero];
+
+                        if (tmpShield < 0)
+                        {
+                            tmpShield = 0;
+                        }
+                    }
+
                     if (attackDamage > 0)
                     {
-                        Hero hero = _cellData.supporters[i];
-
-                        int tmpShield = hero.nowShield;
-
-                        if (_shieldChangeDic.ContainsKey(hero))
-                        {
-                            tmpShield += _shieldChangeDic[hero];
-
-                            if (tmpShield < 0)
-                            {
-                                tmpShield = 0;
-                            }
-                        }
-
                         if (tmpShield >= attackDamage)
                         {
                             tmpShield -= attackDamage;
@@ -1806,18 +1804,14 @@ namespace FinalWar
 
                             tmpShield = 0;
                         }
-
-                        int shieldDamage = tmpShield - hero.nowShield;
-
-                        supportersShieldDamage.Add(shieldDamage);
                     }
-                    else
-                    {
-                        supportersShieldDamage.Add(0);
-                    }
+
+                    int shieldDamage = tmpShield - hero.nowShield;
+
+                    supportersShieldDamage.Add(shieldDamage);
                 }
 
-                if (attackDamage > 0 && _cellData.stander != null && _cellData.stander.action == Hero.HeroAction.DEFENSE)
+                if (_cellData.stander != null && _cellData.stander.action == Hero.HeroAction.DEFENSE)
                 {
                     Hero hero = _cellData.stander;
 
@@ -1855,22 +1849,22 @@ namespace FinalWar
 
                 for (int i = 0; i < _cellData.supporters.Count; i++)
                 {
+                    Hero hero = _cellData.supporters[i];
+
+                    int tmpHp = hero.nowHp;
+
+                    if (_hpChangeDic.ContainsKey(hero))
+                    {
+                        tmpHp += _hpChangeDic[hero];
+
+                        if (tmpHp < 0)
+                        {
+                            tmpHp = 0;
+                        }
+                    }
+
                     if (attackDamage > 0)
                     {
-                        Hero hero = _cellData.supporters[i];
-
-                        int tmpHp = hero.nowHp;
-
-                        if (_hpChangeDic.ContainsKey(hero))
-                        {
-                            tmpHp += _hpChangeDic[hero];
-
-                            if (tmpHp < 0)
-                            {
-                                tmpHp = 0;
-                            }
-                        }
-
                         if (tmpHp >= attackDamage)
                         {
                             tmpHp -= attackDamage;
@@ -1887,15 +1881,11 @@ namespace FinalWar
 
                             tmpHp = 0;
                         }
-
-                        int hpDamage = tmpHp - hero.nowHp;
-
-                        supportersHpDamage.Add(hpDamage);
                     }
-                    else
-                    {
-                        supportersHpDamage.Add(0);
-                    }
+
+                    int hpDamage = tmpHp - hero.nowHp;
+
+                    supportersHpDamage.Add(hpDamage);
                 }
 
                 if (attackDamage > 0 && _cellData.stander != null && _cellData.stander.action != Hero.HeroAction.DEFENSE)

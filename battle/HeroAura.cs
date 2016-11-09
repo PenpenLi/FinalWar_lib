@@ -18,12 +18,32 @@ namespace FinalWar
 
                     IAuraSDS auraSDS = Battle.GetAuraData(auraID);
 
-                    SuperEventListenerV.EventCallBack<int> dele = delegate (SuperEvent e, ref int _value)
+                    switch (auraSDS.GetAuraEffect())
                     {
-                        TriggerAura(_battle, _hero, auraSDS, e, ref _value);
-                    };
+                        case AuraEffect.FIX_ATTACK:
+                        case AuraEffect.FIX_SHOOT:
+                        case AuraEffect.FIX_SHOOT_DAMAGE:
 
-                    eventIDs[i] = _battle.eventListenerV.AddListener(auraSDS.GetAuraEffect().ToString(), dele);
+                            SuperEventListenerV.EventCallBack<int> dele = delegate (SuperEvent e, ref int _value)
+                            {
+                                TriggerAura(_battle, _hero, auraSDS, e, ref _value);
+                            };
+
+                            eventIDs[i] = _battle.eventListenerV.AddListener(auraSDS.GetAuraEffect().ToString(), dele);
+
+                            break;
+
+                        case AuraEffect.FIX_RUSH_DAMAGE:
+
+                            SuperEventListenerV.EventCallBack<bool> dele2 = delegate (SuperEvent e, ref bool _value)
+                            {
+                                TriggerAura(_battle, _hero, auraSDS, e, ref _value);
+                            };
+
+                            eventIDs[i] = _battle.eventListenerV.AddListener(auraSDS.GetAuraEffect().ToString(), dele2);
+
+                            break;
+                    }
                 }
 
                 Action<SuperEvent> dieDele = delegate (SuperEvent e)
@@ -40,55 +60,81 @@ namespace FinalWar
             }
         }
 
-        private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, SuperEvent e, ref int _value)
+        private static bool CheckAuraTakeEffect(Battle _battle, Hero _hero, Hero _targetHero, IAuraSDS _auraSDS)
         {
-            Hero targetHero = e.datas[0] as Hero;
-
             switch (_auraSDS.GetAuraTarget())
             {
                 case AuraTarget.SELF:
 
-                    if (targetHero != _hero)
+                    if (_targetHero != _hero)
                     {
-                        return;
+                        return false;
                     }
 
                     break;
 
                 case AuraTarget.ALLY:
 
-                    if (targetHero.isMine != _hero.isMine)
+                    if (_targetHero.isMine != _hero.isMine)
                     {
-                        return;
+                        return false;
                     }
 
                     List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
-                    if (!posList.Contains(targetHero.pos))
+                    if (!posList.Contains(_targetHero.pos))
                     {
-                        return;
+                        return false;
                     }
 
                     break;
 
                 case AuraTarget.ENEMY:
 
-                    if (targetHero.isMine == _hero.isMine)
+                    if (_targetHero.isMine == _hero.isMine)
                     {
-                        return;
+                        return false;
                     }
 
                     posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
-                    if (!posList.Contains(targetHero.pos))
+                    if (!posList.Contains(_targetHero.pos))
                     {
-                        return;
+                        return false;
                     }
 
                     break;
             }
 
+            return true;
+        }
+
+        private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, SuperEvent e, ref int _value)
+        {
+            Hero targetHero = e.datas[0] as Hero;
+
+            bool b = CheckAuraTakeEffect(_battle, _hero, targetHero, _auraSDS);
+
+            if (!b)
+            {
+                return;
+            }
+
             _value += _auraSDS.GetAuraDatas()[0];
+        }
+
+        private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, SuperEvent e, ref bool _value)
+        {
+            Hero targetHero = e.datas[0] as Hero;
+
+            bool b = CheckAuraTakeEffect(_battle, _hero, targetHero, _auraSDS);
+
+            if (!b)
+            {
+                return;
+            }
+
+            _value = false;
         }
     }
 }

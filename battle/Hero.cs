@@ -52,7 +52,7 @@ namespace FinalWar
 
             nowShield = sds.GetShield();
 
-            action = HeroAction.NULL;
+            SetAction(HeroAction.NULL);
         }
 
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
@@ -67,7 +67,7 @@ namespace FinalWar
 
             nowShield = sds.GetShield();
 
-            action = HeroAction.NULL;
+            SetAction(HeroAction.NULL);
         }
 
         internal void SetAction(HeroAction _action, int _actionTarget)
