@@ -606,7 +606,7 @@ namespace FinalWar
             }
             else
             {
-                if (b != hero.isMine && heroMapDic.ContainsKey(_targetPos))
+                if (hero.sds.GetShoot() > 0 && b != hero.isMine && heroMapDic.ContainsKey(_targetPos))
                 {
                     for (int i = 0; i < tmpList.Count; i++)
                     {
@@ -1227,7 +1227,7 @@ namespace FinalWar
             }
             else
             {
-                if (hero.isMine != targetPosIsMine && heroMapDic.ContainsKey(_targetPos))
+                if (hero.sds.GetShoot() > 0 && hero.isMine != targetPosIsMine && heroMapDic.ContainsKey(_targetPos))
                 {
                     for (int i = 0; i < arr.Count; i++)
                     {
@@ -2212,13 +2212,16 @@ namespace FinalWar
             }
 
             //射击英雄
-            posList = GetCanShootPos(_hero);
-
-            if (posList.Count > 0)
+            if (_hero.sds.GetShoot() > 0)
             {
-                int index = random.Next(posList.Count);
+                posList = GetCanShootPos(_hero);
 
-                return posList[index];
+                if (posList.Count > 0)
+                {
+                    int index = random.Next(posList.Count);
+
+                    return posList[index];
+                }
             }
 
             //援护英雄

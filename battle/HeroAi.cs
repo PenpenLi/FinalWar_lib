@@ -52,17 +52,20 @@ namespace FinalWar
                             result.InsertRange(result.Count, posList);
                         }
 
-                        posList = _battle.GetCanShootPos(hero);
-
-                        if (posList.Count > 0)
+                        if (hero.sds.GetShoot() > 0)
                         {
-                            if (result != null)
+                            posList = _battle.GetCanShootPos(hero);
+
+                            if (posList.Count > 0)
                             {
-                                result.InsertRange(result.Count, posList);
-                            }
-                            else
-                            {
-                                result = posList;
+                                if (result != null)
+                                {
+                                    result.InsertRange(result.Count, posList);
+                                }
+                                else
+                                {
+                                    result = posList;
+                                }
                             }
                         }
 
