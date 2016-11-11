@@ -2484,6 +2484,10 @@ namespace FinalWar
 
                     _voList.Add(new BattleChangeVO(pos, shieldChange, hpChange));
                 }
+                else
+                {
+                    _isBattle = false;
+                }
 
                 if (diePos != null)
                 {
