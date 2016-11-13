@@ -1359,64 +1359,30 @@ namespace FinalWar
 
                 if (damage > 0)
                 {
-                    BattlePublicTools.AccumulateDicData(_damageDic, stander, -damage);
+                    BattlePublicTools.AccumulateDicData(_hpChangeDic, stander, -damage);
                 }
 
-                int shield = stander.nowShield;
+                int shieldDamage;
 
                 if (_shieldChangeDic.ContainsKey(stander))
                 {
-                    shield += _shieldChangeDic[stander];
-
-                    if (shield < 0)
-                    {
-                        shield = 0;
-                    }
+                    shieldDamage = _shieldChangeDic[stander];
                 }
-
-                if (damage > 0)
+                else
                 {
-                    if (shield >= damage)
-                    {
-                        shield -= damage;
-
-                        damage = 0;
-                    }
-                    else
-                    {
-                        damage -= shield;
-
-                        shield = 0;
-                    }
+                    shieldDamage = 0;
                 }
 
-                int shieldDamage = shield - stander.nowShield;
-
-                int hp = stander.nowHp;
+                int hpDamage;
 
                 if (_hpChangeDic.ContainsKey(stander))
                 {
-                    hp += _hpChangeDic[stander];
-
-                    if (hp < 0)
-                    {
-                        hp = 0;
-                    }
+                    hpDamage = _hpChangeDic[stander];
                 }
-
-                if (damage > 0)
+                else
                 {
-                    if (hp >= damage)
-                    {
-                        hp -= damage;
-                    }
-                    else
-                    {
-                        hp = 0;
-                    }
+                    hpDamage = 0;
                 }
-
-                int hpDamage = hp - stander.nowHp;
 
                 BattleShootVO vo = new BattleShootVO(shooters, _cellData.pos, shieldDamage, hpDamage);
 
