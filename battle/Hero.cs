@@ -89,10 +89,10 @@ namespace FinalWar
 
         internal void ShieldChange(int _value)
         {
-            if (_value > 0)
-            {
-                throw new System.Exception("shield change can not bigger than zero!");
-            }
+            //if (_value > 0)
+            //{
+            //    throw new System.Exception("shield change can not bigger than zero!");
+            //}
 
             nowShield += _value;
 
