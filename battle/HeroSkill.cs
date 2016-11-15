@@ -47,6 +47,15 @@ namespace FinalWar
 
         private static void TriggerSkill(Battle _battle, Hero _hero, ISkillSDS _skillSDS, SuperEvent e)
         {
+            bool castSkill = true;
+
+            _battle.eventListenerV.DispatchEvent<bool>(AuraEffect.SILENT.ToString(), ref castSkill, _hero);
+
+            if (!castSkill)
+            {
+                return;
+            }
+
             switch (_skillSDS.GetSkillTime())
             {
                 case SkillTime.SHOOT:

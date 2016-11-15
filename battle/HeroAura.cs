@@ -34,6 +34,7 @@ namespace FinalWar
                             break;
 
                         case AuraEffect.FIX_RUSH_DAMAGE:
+                        case AuraEffect.SILENT:
 
                             SuperEventListenerV.EventCallBack<bool> dele2 = delegate (SuperEvent e, ref bool _value)
                             {
