@@ -1971,14 +1971,34 @@ namespace FinalWar
 
             if (tmpList != null)
             {
-                Dictionary<int, int> tmpMoveDic = new Dictionary<int, int>();
+                Dictionary<int, int> tmpMoveDic = null;
+
+                List<Hero> captureList = null;
 
                 for (int i = 0; i < tmpList.Count; i++)
                 {
-                    OneCellEmpty(_battleData, tmpList[i], tmpMoveDic);
+                    OneCellEmpty(_battleData, tmpList[i], ref tmpMoveDic, ref captureList);
                 }
 
                 _voList.Add(new BattleMoveVO(tmpMoveDic));
+
+                if (captureList != null)
+                {
+                    Dictionary<Hero, int> shieldChangeDic = new Dictionary<Hero, int>();
+
+                    Dictionary<Hero, int> hpChangeDic = new Dictionary<Hero, int>();
+
+                    Dictionary<Hero, int> damageDic = new Dictionary<Hero, int>();
+
+                    for (int i = 0; i < captureList.Count; i++)
+                    {
+                        Hero hero = captureList[i];
+
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.CAPTURE), shieldChangeDic, hpChangeDic, damageDic);
+                    }
+
+                    ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, false);
+                }
             }
         }
 
@@ -2045,7 +2065,7 @@ namespace FinalWar
             _hero.SetAction(Hero.HeroAction.NULL);
         }
 
-        private void OneCellEmpty(BattleData _battleData, int _pos, Dictionary<int, int> _tmpMoveDic)
+        private void OneCellEmpty(BattleData _battleData, int _pos, ref Dictionary<int, int> _tmpMoveDic, ref List<Hero> _captureList)
         {
             int nowPos = _pos;
 
@@ -2059,8 +2079,6 @@ namespace FinalWar
                 BattleCellData cellData = _battleData.actionDic[nowPos];
 
                 Hero hero = null;
-
-                bool changeMapBelong = false;
 
                 for (int i = 0; i < cellData.supporters.Count; i++)
                 {
@@ -2084,7 +2102,30 @@ namespace FinalWar
                         {
                             hero = tmpHero;
 
-                            changeMapBelong = true;
+                            if (_captureList == null)
+                            {
+                                _captureList = new List<Hero>();
+                            }
+
+                            _captureList.Add(hero);
+
+                            if (mapData.mBase == nowPos)
+                            {
+                                oWin = true;
+                            }
+                            else if (mapData.oBase == nowPos)
+                            {
+                                mWin = true;
+                            }
+
+                            if (mapBelongDic.ContainsKey(nowPos))
+                            {
+                                mapBelongDic.Remove(nowPos);
+                            }
+                            else
+                            {
+                                mapBelongDic.Add(nowPos, true);
+                            }
 
                             break;
                         }
@@ -2093,25 +2134,9 @@ namespace FinalWar
 
                 if (hero != null)
                 {
-                    if (changeMapBelong)
+                    if (_tmpMoveDic == null)
                     {
-                        if (mapData.mBase == nowPos)
-                        {
-                            oWin = true;
-                        }
-                        else if (mapData.oBase == nowPos)
-                        {
-                            mWin = true;
-                        }
-
-                        if (mapBelongDic.ContainsKey(nowPos))
-                        {
-                            mapBelongDic.Remove(nowPos);
-                        }
-                        else
-                        {
-                            mapBelongDic.Add(nowPos, true);
-                        }
+                        _tmpMoveDic = new Dictionary<int, int>();
                     }
 
                     _tmpMoveDic.Add(hero.pos, nowPos);

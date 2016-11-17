@@ -78,13 +78,15 @@ namespace FinalWar
 
                 case SkillTime.DIE:
 
-                    RoundStartSummonRecoverDie(_battle, _hero, _skillSDS, e.datas[0] as Dictionary<Hero, int>, e.datas[1] as Dictionary<Hero, int>, e.datas[2] as Dictionary<Hero, int>);
+                case SkillTime.CAPTURE:
+
+                    RoundStartSummonRecoverDieCapture(_battle, _hero, _skillSDS, e.datas[0] as Dictionary<Hero, int>, e.datas[1] as Dictionary<Hero, int>, e.datas[2] as Dictionary<Hero, int>);
 
                     break;
             }
         }
 
-        private static void RoundStartSummonRecoverDie(Battle _battle, Hero _hero, ISkillSDS _skillSDS, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic)
+        private static void RoundStartSummonRecoverDieCapture(Battle _battle, Hero _hero, ISkillSDS _skillSDS, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic)
         {
             switch (_skillSDS.GetSkillTarget())
             {

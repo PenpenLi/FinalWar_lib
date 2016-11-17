@@ -7,7 +7,8 @@
     ATTACK,
     COUNTER,
     RECOVER,
-    DIE
+    DIE,
+    CAPTURE
 }
 
 public enum SkillTarget
