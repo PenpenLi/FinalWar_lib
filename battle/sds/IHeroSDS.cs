@@ -7,6 +7,7 @@
     bool GetCanControl();
     bool GetCanMove();
     bool GetThreat();
+    int GetLevelUp();
     int GetAttack();
     int GetShoot();
     int[] GetSkills();

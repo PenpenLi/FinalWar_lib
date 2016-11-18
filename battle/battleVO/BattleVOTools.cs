@@ -17,7 +17,8 @@ namespace FinalWar
             CHANGE,
             ADDCARDS,
             DELCARDS,
-            MONEYCHANGE
+            MONEYCHANGE,
+            LEVELUP
         }
         public static void WriteDataToStream(IBattleVO _vo, BinaryWriter _bw)
         {
@@ -62,6 +63,10 @@ namespace FinalWar
             else if (_vo is BattleMoneyChangeVO)
             {
                 _bw.Write((int)BattleVOType.MONEYCHANGE);
+            }
+            else if (_vo is BattleLevelUpVO)
+            {
+                _bw.Write((int)BattleVOType.LEVELUP);
             }
 
             _vo.ToBytes(_bw);
@@ -139,10 +144,17 @@ namespace FinalWar
                         vo = new BattleDelCardsVO();
 
                         break;
+                        
+
+                    case BattleVOType.MONEYCHANGE:
+
+                        vo = new BattleMoneyChangeVO();
+
+                        break;
 
                     default:
 
-                        vo = new BattleMoneyChangeVO();
+                        vo = new BattleLevelUpVO();
 
                         break;
                 }

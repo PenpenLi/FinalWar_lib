@@ -11,7 +11,7 @@ namespace FinalWar
             return string.Format("{0}_{1}", _heroUid, _skillTime);
         }
 
-        internal static void Init(Battle _battle, Hero _hero)
+        internal static void Add(Battle _battle, Hero _hero)
         {
             if (_hero.sds.GetSkills().Length > 0)
             {
@@ -31,17 +31,25 @@ namespace FinalWar
                     eventIDs[i] = _battle.eventListener.AddListener(GetEventName(_hero.uid, skillSDS.GetSkillTime()), dele);
                 }
 
-                Action<SuperEvent> dieDele = delegate (SuperEvent e)
+                int dieEventID = 0;
+
+                int levelUpEventID = 0;
+
+                Action<SuperEvent> removeDele = delegate (SuperEvent e)
                 {
                     for (int i = 0; i < eventIDs.Length; i++)
                     {
                         _battle.eventListener.RemoveListener(eventIDs[i]);
                     }
 
-                    _battle.eventListener.RemoveListener(e.index);
+                    _battle.eventListener.RemoveListener(dieEventID);
+
+                    _battle.eventListener.RemoveListener(levelUpEventID);
                 };
 
-                _battle.eventListener.AddListener(GetEventName(_hero.uid, SkillTime.DIE), dieDele);
+                dieEventID = _battle.eventListener.AddListener(GetEventName(_hero.uid, SkillTime.DIE), removeDele);
+
+                levelUpEventID = _battle.eventListener.AddListener(GetEventName(_hero.uid, SkillTime.LEVELUP), removeDele);
             }
         }
 
@@ -239,11 +247,24 @@ namespace FinalWar
                     break;
 
                 case SkillEffect.HP_CHANGE:
-                case SkillEffect.RECOVER:
 
                     for (int i = 0; i < _heros.Count; i++)
                     {
                         BattlePublicTools.AccumulateDicData(_hpChangeDic, _heros[i], _skillSDS.GetSkillDatas()[0]);
+                    }
+
+                    break;
+
+                case SkillEffect.RECOVER_ALL_HP:
+
+                    for(int i = 0; i < _heros.Count; i++)
+                    {
+                        Hero hero = _heros[i];
+
+                        if(hero.sds.GetHp() > hero.nowHp)
+                        {
+                            BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, hero.sds.GetHp() - hero.nowHp);
+                        }
                     }
 
                     break;

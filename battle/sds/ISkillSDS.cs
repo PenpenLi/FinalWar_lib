@@ -8,7 +8,8 @@
     COUNTER,
     RECOVER,
     DIE,
-    CAPTURE
+    CAPTURE,
+    LEVELUP
 }
 
 public enum SkillTarget
@@ -25,7 +26,7 @@ public enum SkillEffect
     HP_CHANGE,
     FIX_ATTACK,
     FIX_SHOOT,
-    RECOVER,
+    RECOVER_ALL_HP,
 }
 
 public interface ISkillSDS

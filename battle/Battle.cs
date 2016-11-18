@@ -170,9 +170,9 @@ namespace FinalWar
 
                     Hero hero = new Hero(eventListenerV, isMine, heroSDS, pos, GetHeroUid());
 
-                    HeroSkill.Init(this, hero);
+                    HeroSkill.Add(this, hero);
 
-                    HeroAura.Init(this, hero);
+                    HeroAura.Add(this, hero);
 
                     heroMapDic.Add(pos, hero);
                 }
@@ -1086,9 +1086,9 @@ namespace FinalWar
 
             Hero hero = new Hero(eventListenerV, _isMine, sds, _pos, GetHeroUid());
 
-            HeroSkill.Init(this, hero);
+            HeroSkill.Add(this, hero);
 
-            HeroAura.Init(this, hero);
+            HeroAura.Add(this, hero);
 
             return hero;
         }
@@ -1980,10 +1980,31 @@ namespace FinalWar
                     OneCellEmpty(_battleData, tmpList[i], ref tmpMoveDic, ref captureList);
                 }
 
-                _voList.Add(new BattleMoveVO(tmpMoveDic));
+                if (tmpMoveDic != null)
+                {
+                    _voList.Add(new BattleMoveVO(tmpMoveDic));
+                }
 
                 if (captureList != null)
                 {
+                    for (int i = 0; i < captureList.Count; i++)
+                    {
+                        Hero hero = captureList[i];
+
+                        if (hero.sds.GetLevelUp() != 0)
+                        {
+                            eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.LEVELUP));
+
+                            hero.LevelUp(GetHeroData(hero.sds.GetLevelUp()));
+
+                            HeroSkill.Add(this, hero);
+
+                            HeroAura.Add(this, hero);
+
+                            _voList.Add(new BattleLevelUpVO(hero.pos));
+                        }
+                    }
+
                     Dictionary<Hero, int> shieldChangeDic = new Dictionary<Hero, int>();
 
                     Dictionary<Hero, int> hpChangeDic = new Dictionary<Hero, int>();
@@ -2569,6 +2590,10 @@ namespace FinalWar
                 {
                     ClientDoMoneyChange((BattleMoneyChangeVO)vo);
                 }
+                else if (vo is BattleLevelUpVO)
+                {
+                    ClientDoLevelUp((BattleLevelUpVO)vo);
+                }
 
                 yield return vo;
             }
@@ -2753,6 +2778,15 @@ namespace FinalWar
             {
                 oMoney = _vo.money;
             }
+        }
+
+        private void ClientDoLevelUp(BattleLevelUpVO _vo)
+        {
+            Hero hero = heroMapDic[_vo.pos];
+
+            IHeroSDS sds = GetHeroData(hero.sds.GetLevelUp());
+
+            hero.LevelUp(sds);
         }
 
         private void ClientDoRecover(BinaryReader _br)

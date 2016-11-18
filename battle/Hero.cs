@@ -89,11 +89,6 @@ namespace FinalWar
 
         internal void ShieldChange(int _value)
         {
-            //if (_value > 0)
-            //{
-            //    throw new System.Exception("shield change can not bigger than zero!");
-            //}
-
             nowShield += _value;
 
             if (nowShield < 0)
@@ -118,6 +113,11 @@ namespace FinalWar
             }
 
             return false;
+        }
+
+        internal void LevelUp(IHeroSDS _sds)
+        {
+            sds = _sds;
         }
 
         internal void SetAttackFix(int _value)

@@ -6,7 +6,7 @@ namespace FinalWar
 {
     internal class HeroAura
     {
-        internal static void Init(Battle _battle, Hero _hero)
+        internal static void Add(Battle _battle, Hero _hero)
         {
             if (_hero.sds.GetAuras().Length > 0)
             {
@@ -47,17 +47,25 @@ namespace FinalWar
                     }
                 }
 
-                Action<SuperEvent> dieDele = delegate (SuperEvent e)
+                int dieEventID = 0;
+
+                int levelUpEventID = 0;
+
+                Action<SuperEvent> removeDele = delegate (SuperEvent e)
                 {
                     for (int i = 0; i < eventIDs.Length; i++)
                     {
                         _battle.eventListenerV.RemoveListener(eventIDs[i]);
                     }
 
-                    _battle.eventListener.RemoveListener(e.index);
+                    _battle.eventListener.RemoveListener(dieEventID);
+
+                    _battle.eventListener.RemoveListener(levelUpEventID);
                 };
 
-                _battle.eventListener.AddListener(HeroSkill.GetEventName(_hero.uid, SkillTime.DIE), dieDele);
+                dieEventID = _battle.eventListener.AddListener(HeroSkill.GetEventName(_hero.uid, SkillTime.DIE), removeDele);
+
+                levelUpEventID = _battle.eventListener.AddListener(HeroSkill.GetEventName(_hero.uid, SkillTime.LEVELUP), removeDele);
             }
         }
 
