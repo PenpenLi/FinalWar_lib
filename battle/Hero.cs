@@ -136,7 +136,7 @@ namespace FinalWar
 
             eventListenerV.DispatchEvent(AuraEffect.FIX_SHOOT.ToString(), ref shootFixV, this);
 
-            return sds.GetShoot() + shootFix + shootFixV;
+            return sds.GetAttack() + shootFix + shootFixV;
         }
 
         internal int GetAttackDamage()

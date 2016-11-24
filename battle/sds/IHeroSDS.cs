@@ -1,4 +1,11 @@
-﻿public interface IHeroSDS
+﻿public enum AttackType
+{
+    NULL,
+    SHOOT,
+    SUPPORT
+}
+
+public interface IHeroSDS
 {
     int GetID();
     int GetHp();
@@ -9,7 +16,7 @@
     bool GetThreat();
     int GetLevelUp();
     int GetAttack();
-    int GetShoot();
+    AttackType GetAttackType();
     int[] GetSkills();
     int[] GetAuras();
 }

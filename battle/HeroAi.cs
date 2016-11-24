@@ -52,7 +52,7 @@ namespace FinalWar
                             result.InsertRange(result.Count, posList);
                         }
 
-                        if (hero.sds.GetShoot() > 0)
+                        if (hero.sds.GetAttackType() == AttackType.SHOOT)
                         {
                             posList = _battle.GetCanShootPos(hero);
 

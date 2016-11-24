@@ -606,7 +606,7 @@ namespace FinalWar
             }
             else
             {
-                if (hero.sds.GetShoot() > 0 && b != hero.isMine && heroMapDic.ContainsKey(_targetPos))
+                if (hero.sds.GetAttackType() == AttackType.SHOOT && b != hero.isMine && heroMapDic.ContainsKey(_targetPos))
                 {
                     for (int i = 0; i < tmpList.Count; i++)
                     {
@@ -1227,7 +1227,7 @@ namespace FinalWar
             }
             else
             {
-                if (hero.sds.GetShoot() > 0 && hero.isMine != targetPosIsMine && heroMapDic.ContainsKey(_targetPos))
+                if (hero.sds.GetAttackType() == AttackType.SHOOT && hero.isMine != targetPosIsMine && heroMapDic.ContainsKey(_targetPos))
                 {
                     for (int i = 0; i < arr.Count; i++)
                     {
@@ -1634,7 +1634,11 @@ namespace FinalWar
 
                     supporters.Add(hero.pos);
 
-                    defenseDamage += hero.GetAttackDamage();
+                    //有射击能力的单位在援护时不造成伤害
+                    if (hero.sds.GetAttackType() == AttackType.SUPPORT)
+                    {
+                        defenseDamage += hero.GetAttackDamage();
+                    }
                 }
 
                 for (int i = 0; i < _cellData.attackers.Count; i++)
@@ -2213,18 +2217,8 @@ namespace FinalWar
                 return posList[index];
             }
 
-            //援护一定会被攻击的英雄
-            posList = GetMustSupportHeroPos(_hero);
-
-            if (posList.Count > 0)
-            {
-                int index = random.Next(posList.Count);
-
-                return posList[index];
-            }
-
             //射击英雄
-            if (_hero.sds.GetShoot() > 0)
+            if (_hero.sds.GetAttackType() == AttackType.SHOOT)
             {
                 posList = GetCanShootPos(_hero);
 
@@ -2234,6 +2228,16 @@ namespace FinalWar
 
                     return posList[index];
                 }
+            }
+
+            //援护一定会被攻击的英雄
+            posList = GetMustSupportHeroPos(_hero);
+
+            if (posList.Count > 0)
+            {
+                int index = random.Next(posList.Count);
+
+                return posList[index];
             }
 
             //援护英雄
