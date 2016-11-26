@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using superEvent;
+﻿using superEvent;
 
 namespace FinalWar
 {
@@ -32,7 +31,7 @@ namespace FinalWar
 
         internal int attackFix = 0;
 
-        internal int shootFix = 0;
+        internal int abilityFix = 0;
 
         private SuperEventListenerV eventListenerV;
 
@@ -125,39 +124,82 @@ namespace FinalWar
             attackFix += _value;
         }
 
-        internal void SetShootFix(int _value)
+        internal void SetAbilityFix(int _value)
         {
-            shootFix += _value;
+            abilityFix += _value;
         }
 
         internal int GetShootDamage()
         {
-            int shootFixV = 0;
+            int shootDamage = sds.GetAbilityData() + abilityFix;
 
-            eventListenerV.DispatchEvent(AuraEffect.FIX_SHOOT.ToString(), ref shootFixV, this);
+            eventListenerV.DispatchEvent(AuraEffect.FIX_ABILITY.ToString(), ref shootDamage, this);
 
-            return sds.GetAttack() + shootFix + shootFixV;
+            if (shootDamage > 0)
+            {
+                return shootDamage;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         internal int GetAttackDamage()
         {
-            int attackFixV = 0;
+            int attackDamage = sds.GetAttack() + attackFix;
 
-            eventListenerV.DispatchEvent(AuraEffect.FIX_ATTACK.ToString(), ref attackFixV, this);
+            eventListenerV.DispatchEvent(AuraEffect.FIX_ATTACK.ToString(), ref attackDamage, this);
 
-            return sds.GetAttack() + attackFix + attackFixV;
+            if (attackDamage > 0)
+            {
+                return attackDamage;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
-        internal void BeShoot(ref int _damage)
+        internal int GetCounterDamage()
         {
-            eventListenerV.DispatchEvent(AuraEffect.FIX_SHOOT_DAMAGE.ToString(), ref _damage, this);
+            if (sds.GetAbilityType() == AbilityType.Counter)
+            {
+                int counterDamage = sds.GetAbilityData() + abilityFix;
+
+                eventListenerV.DispatchEvent(AuraEffect.FIX_ABILITY.ToString(), ref counterDamage, this);
+
+                if(counterDamage > 0)
+                {
+                    return counterDamage;
+                }
+            }
+
+            return 0;
+        }
+
+        internal int GetSupportDamage()
+        {
+            if (sds.GetAbilityType() == AbilityType.Support)
+            {
+                int supportDamage = sds.GetAbilityData() + abilityFix;
+
+                eventListenerV.DispatchEvent(AuraEffect.FIX_ABILITY.ToString(), ref supportDamage, this);
+
+                if (supportDamage > 0)
+                {
+                    return supportDamage;
+                }
+            }
+
+            return 0;
         }
 
         internal void Recover()
         {
             nowShield = sds.GetShield();
 
-            attackFix = shootFix = 0;
+            attackFix = abilityFix = 0;
         }
     }
 }

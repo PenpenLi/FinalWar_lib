@@ -1,8 +1,9 @@
-﻿public enum AttackType
+﻿public enum AbilityType
 {
-    NULL,
-    SHOOT,
-    SUPPORT
+    Null,
+    Shoot,
+    Support,
+    Counter
 }
 
 public interface IHeroSDS
@@ -13,10 +14,10 @@ public interface IHeroSDS
     int GetCost();
     bool GetCanControl();
     bool GetCanMove();
-    bool GetThreat();
     int GetLevelUp();
     int GetAttack();
-    AttackType GetAttackType();
+    AbilityType GetAbilityType();
+    int GetAbilityData();
     int[] GetSkills();
     int[] GetAuras();
 }

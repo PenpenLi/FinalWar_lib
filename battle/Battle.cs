@@ -555,6 +555,23 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_pos];
 
+            if (!hero.sds.GetCanControl())
+            {
+                if (_targetPos != autoAction[_pos])
+                {
+                    return false;
+                }
+                else
+                {
+                    if (_pos != _targetPos)
+                    {
+                        action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+                    }
+
+                    return true;
+                }
+            }
+
             bool b = GetPosIsMine(_targetPos);
 
             List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
@@ -573,7 +590,7 @@ namespace FinalWar
                     {
                         Hero targetHero = heroMapDic[_targetPos];
 
-                        if (targetHero.sds.GetThreat())
+                        if (targetHero.sds.GetAbilityType() == AbilityType.Counter)
                         {
                             action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
 
@@ -591,7 +608,7 @@ namespace FinalWar
                             {
                                 Hero targetHero = heroMapDic[pos];
 
-                                if (targetHero.isMine != hero.isMine && targetHero.sds.GetThreat())
+                                if (targetHero.isMine != hero.isMine && targetHero.sds.GetAbilityType() == AbilityType.Counter)
                                 {
                                     return false;
                                 }
@@ -606,7 +623,7 @@ namespace FinalWar
             }
             else
             {
-                if (hero.sds.GetAttackType() == AttackType.SHOOT && b != hero.isMine && heroMapDic.ContainsKey(_targetPos))
+                if (hero.sds.GetAbilityType() == AbilityType.Shoot && b != hero.isMine && heroMapDic.ContainsKey(_targetPos))
                 {
                     for (int i = 0; i < tmpList.Count; i++)
                     {
@@ -778,12 +795,9 @@ namespace FinalWar
                     {
                         if (heroMapDic.ContainsKey(pos) && heroMapDic[pos].isMine == _isMine)
                         {
-                            if (autoAction.ContainsKey(pos))
+                            if (autoAction.ContainsKey(pos) && targetPos != autoAction[pos])
                             {
-                                if (targetPos != autoAction[pos])
-                                {
-                                    continue;
-                                }
+                                continue;
                             }
 
                             action.Add(new KeyValuePair<int, int>(pos, targetPos));
@@ -1175,7 +1189,7 @@ namespace FinalWar
                     {
                         Hero targetHero = heroMapDic[_targetPos];
 
-                        if (targetHero.sds.GetThreat())
+                        if (targetHero.sds.GetAbilityType() == AbilityType.Counter)
                         {
                             needCheckOthers = false;
                         }
@@ -1196,7 +1210,7 @@ namespace FinalWar
                             {
                                 Hero tmpHero = heroMapDic[tmpPos];
 
-                                if (tmpHero.isMine != hero.isMine && tmpHero.sds.GetThreat())
+                                if (tmpHero.isMine != hero.isMine && tmpHero.sds.GetAbilityType() == AbilityType.Counter)
                                 {
                                     throw new Exception("attack error1");
                                 }
@@ -1227,7 +1241,7 @@ namespace FinalWar
             }
             else
             {
-                if (hero.sds.GetAttackType() == AttackType.SHOOT && hero.isMine != targetPosIsMine && heroMapDic.ContainsKey(_targetPos))
+                if (hero.sds.GetAbilityType() == AbilityType.Shoot && hero.isMine != targetPosIsMine && heroMapDic.ContainsKey(_targetPos))
                 {
                     for (int i = 0; i < arr.Count; i++)
                     {
@@ -1621,7 +1635,7 @@ namespace FinalWar
 
                 if (_cellData.stander != null && _cellData.stander.action == Hero.HeroAction.DEFENSE)
                 {
-                    defenseDamage = _cellData.stander.GetAttackDamage();
+                    defenseDamage = _cellData.stander.GetCounterDamage();
                 }
                 else
                 {
@@ -1634,11 +1648,7 @@ namespace FinalWar
 
                     supporters.Add(hero.pos);
 
-                    //有射击能力的单位在援护时不造成伤害
-                    if (hero.sds.GetAttackType() == AttackType.SUPPORT)
-                    {
-                        defenseDamage += hero.GetAttackDamage();
-                    }
+                    defenseDamage += hero.GetSupportDamage();
                 }
 
                 for (int i = 0; i < _cellData.attackers.Count; i++)
@@ -2195,10 +2205,7 @@ namespace FinalWar
                 {
                     int targetPos = GetHeroAutoAction(hero);
 
-                    if (targetPos != -1)
-                    {
-                        autoAction.Add(hero.pos, targetPos);
-                    }
+                    autoAction.Add(hero.pos, targetPos);
                 }
             }
         }
@@ -2207,31 +2214,50 @@ namespace FinalWar
         {
             List<int> posList;
 
+            switch (_hero.sds.GetAbilityType())
+            {
+                case AbilityType.Shoot:
+
+                    //射击英雄
+                    posList = GetCanShootPos(_hero);
+
+                    if (posList.Count > 0)
+                    {
+                        int index = random.Next(posList.Count);
+
+                        return posList[index];
+                    }
+
+                    break;
+
+                case AbilityType.Counter:
+
+                    if (CheckPosCanBeAttack(_hero.pos))
+                    {
+                        return _hero.pos;
+                    }
+
+                    break;
+
+                case AbilityType.Support:
+
+                    if (!CheckPosCanBeAttack(_hero.pos))
+                    {
+                        posList = GetCanSupportHeroPos(_hero);
+
+                        if (posList.Count > 0)
+                        {
+                            int index = random.Next(posList.Count);
+
+                            return posList[index];
+                        }
+                    }
+
+                    break;
+            }
+
             //攻击英雄
             posList = GetCanAttackerHeroPos(_hero);
-
-            if (posList.Count > 0)
-            {
-                int index = random.Next(posList.Count);
-
-                return posList[index];
-            }
-
-            //射击英雄
-            if (_hero.sds.GetAttackType() == AttackType.SHOOT)
-            {
-                posList = GetCanShootPos(_hero);
-
-                if (posList.Count > 0)
-                {
-                    int index = random.Next(posList.Count);
-
-                    return posList[index];
-                }
-            }
-
-            //援护一定会被攻击的英雄
-            posList = GetMustSupportHeroPos(_hero);
 
             if (posList.Count > 0)
             {
@@ -2267,7 +2293,7 @@ namespace FinalWar
                 return targetPos;
             }
 
-            return -1;
+            return _hero.pos;
         }
 
         private void ServerDoRecoverCardsAndMoney(bool _isMine, List<IBattleVO> _voList)
@@ -2877,7 +2903,7 @@ namespace FinalWar
                 {
                     Hero hero = heroMapDic[pos];
 
-                    if (hero.sds.GetThreat())
+                    if (hero.sds.GetAbilityType() == AbilityType.Counter)
                     {
                         if (!getThreat)
                         {
@@ -2925,7 +2951,7 @@ namespace FinalWar
                     {
                         Hero hero = heroMapDic[pos];
 
-                        if (hero.sds.GetThreat())
+                        if (hero.sds.GetAbilityType() == AbilityType.Counter)
                         {
                             if (!getThreat)
                             {
@@ -2996,7 +3022,7 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_pos];
 
-                if (hero.sds.GetThreat())
+                if (hero.sds.GetAbilityType() == AbilityType.Counter)
                 {
                     isThreat = true;
                 }
@@ -3042,7 +3068,7 @@ namespace FinalWar
                             {
                                 Hero tmpHero = heroMapDic[tmpPos];
 
-                                if (tmpHero.sds.GetThreat())
+                                if (tmpHero.sds.GetAbilityType() == AbilityType.Counter)
                                 {
                                     canAttack = false;
 
@@ -3110,84 +3136,84 @@ namespace FinalWar
             return result;
         }
 
-        public List<int> GetMustSupportHeroPos(Hero _hero)
-        {
-            List<int> result = new List<int>();
+        //public List<int> GetMustSupportHeroPos(Hero _hero)
+        //{
+        //    List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+        //    List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            for (int i = 0; i < posList.Count; i++)
-            {
-                int pos = posList[i];
+        //    for (int i = 0; i < posList.Count; i++)
+        //    {
+        //        int pos = posList[i];
 
-                bool b = GetPosIsMine(pos);
+        //        bool b = GetPosIsMine(pos);
 
-                if (b == _hero.isMine && heroMapDic.ContainsKey(pos))
-                {
-                    if (CheckHeroMustBeAttack(heroMapDic[pos]))
-                    {
-                        result.Add(pos);
-                    }
-                }
-            }
+        //        if (b == _hero.isMine && heroMapDic.ContainsKey(pos))
+        //        {
+        //            if (CheckHeroMustBeAttack(heroMapDic[pos]))
+        //            {
+        //                result.Add(pos);
+        //            }
+        //        }
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public bool CheckHeroMustBeAttack(Hero _hero)
-        {
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+        //public bool CheckHeroMustBeAttack(Hero _hero)
+        //{
+        //    List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            for (int i = 0; i < posList.Count; i++)
-            {
-                int pos = posList[i];
+        //    for (int i = 0; i < posList.Count; i++)
+        //    {
+        //        int pos = posList[i];
 
-                bool b = GetPosIsMine(pos);
+        //        bool b = GetPosIsMine(pos);
 
-                if (b != _hero.isMine && heroMapDic.ContainsKey(pos))
-                {
-                    Hero hero = heroMapDic[pos];
+        //        if (b != _hero.isMine && heroMapDic.ContainsKey(pos))
+        //        {
+        //            Hero hero = heroMapDic[pos];
 
-                    if (!hero.sds.GetCanControl())
-                    {
-                        bool mushBeAttack = true;
+        //            if (!hero.sds.GetCanControl())
+        //            {
+        //                bool mushBeAttack = true;
 
-                        List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
+        //                List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
 
-                        for (int m = 0; m < posList2.Count; m++)
-                        {
-                            int pos2 = posList2[m];
+        //                for (int m = 0; m < posList2.Count; m++)
+        //                {
+        //                    int pos2 = posList2[m];
 
-                            if (pos2 == _hero.pos)
-                            {
-                                continue;
-                            }
+        //                    if (pos2 == _hero.pos)
+        //                    {
+        //                        continue;
+        //                    }
 
-                            b = GetPosIsMine(pos2);
+        //                    b = GetPosIsMine(pos2);
 
-                            if (b == _hero.isMine && heroMapDic.ContainsKey(pos2))
-                            {
-                                hero = heroMapDic[pos2];
+        //                    if (b == _hero.isMine && heroMapDic.ContainsKey(pos2))
+        //                    {
+        //                        hero = heroMapDic[pos2];
 
-                                if (hero.sds.GetThreat() || !_hero.sds.GetThreat())
-                                {
-                                    mushBeAttack = false;
+        //                        if (hero.sds.GetAbilityType() == AbilityType.THREAT || _hero.sds.GetAbilityType() != AbilityType.THREAT)
+        //                        {
+        //                            mushBeAttack = false;
 
-                                    break;
-                                }
-                            }
-                        }
+        //                            break;
+        //                        }
+        //                    }
+        //                }
 
-                        if (mushBeAttack)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
+        //                if (mushBeAttack)
+        //                {
+        //                    return true;
+        //                }
+        //            }
+        //        }
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         public bool GetClientCanAction()
         {

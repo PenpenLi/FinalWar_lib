@@ -278,11 +278,11 @@ namespace FinalWar
 
                     break;
 
-                case SkillEffect.FIX_SHOOT:
+                case SkillEffect.FIX_ABILITY:
 
                     for (int i = 0; i < _heros.Count; i++)
                     {
-                        _heros[i].SetShootFix(_skillSDS.GetSkillDatas()[0]);
+                        _heros[i].SetAbilityFix(_skillSDS.GetSkillDatas()[0]);
                     }
 
                     break;

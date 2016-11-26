@@ -21,7 +21,7 @@ namespace FinalWar
                     switch (auraSDS.GetAuraEffect())
                     {
                         case AuraEffect.FIX_ATTACK:
-                        case AuraEffect.FIX_SHOOT:
+                        case AuraEffect.FIX_ABILITY:
                         case AuraEffect.FIX_SHOOT_DAMAGE:
 
                             SuperEventListenerV.EventCallBack<int> dele = delegate (SuperEvent e, ref int _value)
