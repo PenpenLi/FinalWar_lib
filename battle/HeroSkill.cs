@@ -74,6 +74,8 @@ namespace FinalWar
 
                 case SkillTime.COUNTER:
 
+                case SkillTime.SUPPORT:
+
                     ShootRushAttackCounter(_battle, _hero, _skillSDS, (int)e.datas[0], e.datas[1] as List<Hero>, e.datas[2] as List<Hero>, e.datas[3] as Dictionary<Hero, int>, e.datas[4] as Dictionary<Hero, int>, e.datas[5] as Dictionary<Hero, int>);
 
                     break;
@@ -274,15 +276,6 @@ namespace FinalWar
                     for (int i = 0; i < _heros.Count; i++)
                     {
                         _heros[i].SetAttackFix(_skillSDS.GetSkillDatas()[0]);
-                    }
-
-                    break;
-
-                case SkillEffect.FIX_ABILITY:
-
-                    for (int i = 0; i < _heros.Count; i++)
-                    {
-                        _heros[i].SetAbilityFix(_skillSDS.GetSkillDatas()[0]);
                     }
 
                     break;

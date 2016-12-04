@@ -31,8 +31,6 @@ namespace FinalWar
 
         internal int attackFix = 0;
 
-        internal int abilityFix = 0;
-
         private SuperEventListenerV eventListenerV;
 
         internal Hero(SuperEventListenerV _eventListenerV, bool _isMine, IHeroSDS _sds, int _pos, int _uid)
@@ -124,27 +122,6 @@ namespace FinalWar
             attackFix += _value;
         }
 
-        internal void SetAbilityFix(int _value)
-        {
-            abilityFix += _value;
-        }
-
-        internal int GetShootDamage()
-        {
-            int shootDamage = sds.GetAbilityData() + abilityFix;
-
-            eventListenerV.DispatchEvent(AuraEffect.FIX_ABILITY.ToString(), ref shootDamage, this);
-
-            if (shootDamage > 0)
-            {
-                return shootDamage;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
         internal int GetAttackDamage()
         {
             int attackDamage = sds.GetAttack() + attackFix;
@@ -161,45 +138,33 @@ namespace FinalWar
             }
         }
 
+        internal int GetShootDamage()
+        {
+            return GetAttackDamage();
+        }
+
         internal int GetCounterDamage()
         {
-            if (sds.GetAbilityType() == AbilityType.Counter)
-            {
-                int counterDamage = sds.GetAbilityData() + abilityFix;
-
-                eventListenerV.DispatchEvent(AuraEffect.FIX_ABILITY.ToString(), ref counterDamage, this);
-
-                if(counterDamage > 0)
-                {
-                    return counterDamage;
-                }
-            }
-
-            return 0;
+            return GetAttackDamage();
         }
 
         internal int GetSupportDamage()
         {
             if (sds.GetAbilityType() == AbilityType.Support)
             {
-                int supportDamage = sds.GetAbilityData() + abilityFix;
-
-                eventListenerV.DispatchEvent(AuraEffect.FIX_ABILITY.ToString(), ref supportDamage, this);
-
-                if (supportDamage > 0)
-                {
-                    return supportDamage;
-                }
+                return GetAttackDamage();
             }
-
-            return 0;
+            else
+            {
+                return 0;
+            }
         }
 
         internal void Recover()
         {
             nowShield = sds.GetShield();
 
-            attackFix = abilityFix = 0;
+            attackFix = 0;
         }
     }
 }

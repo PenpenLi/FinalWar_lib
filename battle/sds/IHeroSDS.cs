@@ -3,7 +3,8 @@
     Null,
     Shoot,
     Support,
-    Counter
+    Counter,
+    Root
 }
 
 public interface IHeroSDS
@@ -13,11 +14,9 @@ public interface IHeroSDS
     int GetShield();
     int GetCost();
     bool GetCanControl();
-    bool GetCanMove();
     int GetLevelUp();
     int GetAttack();
     AbilityType GetAbilityType();
-    int GetAbilityData();
     int[] GetSkills();
     int[] GetAuras();
 }

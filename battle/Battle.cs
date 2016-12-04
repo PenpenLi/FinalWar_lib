@@ -178,6 +178,8 @@ namespace FinalWar
                 }
             }
 
+            ServerDoAutoAction();
+
             ServerRefreshData(true);
 
             if (!isVsAi)
@@ -528,14 +530,69 @@ namespace FinalWar
             clientRefreshDataCallBack();
         }
 
-        public void ClientRequestSummon(int _cardUid, int _pos)
+        public bool ClientRequestSummon(int _cardUid, int _pos)
         {
+            if (summon.ContainsValue(_pos) || heroMapDic.ContainsKey(_pos) || GetPosIsMine(_pos) != clientIsMine)
+            {
+                return false;
+            }
+
+            Dictionary<int, int> handCards = clientIsMine ? mHandCards : oHandCards;
+
+            int cardID = handCards[_cardUid];
+
+            IHeroSDS heroSDS = GetHeroData(cardID);
+
+            if (ClientGetMoney() < heroSDS.GetCost())
+            {
+                return false;
+            }
+
+            List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+
+            for (int i = 0; i < tmpList.Count; i++)
+            {
+                int pos = tmpList[i];
+
+                if (GetPosIsMine(pos) != clientIsMine && heroMapDic.ContainsKey(pos))
+                {
+                    Hero hero = heroMapDic[pos];
+
+                    if (hero.sds.GetAbilityType() == AbilityType.Root)
+                    {
+                        return false;
+                    }
+                }
+            }
+
             summon.Add(_cardUid, _pos);
+
+            return true;
         }
 
         public void ClientRequestUnsummon(int _cardUid)
         {
             summon.Remove(_cardUid);
+        }
+
+        public int ClientGetMoney()
+        {
+            int money = clientIsMine ? mMoney : oMoney;
+
+            Dictionary<int, int> cards = clientIsMine ? mHandCards : oHandCards;
+
+            Dictionary<int, int>.KeyCollection.Enumerator enumerator = summon.Keys.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                int cardID = cards[enumerator.Current];
+
+                IHeroSDS heroSDS = GetHeroData(cardID);
+
+                money -= heroSDS.GetCost();
+            }
+
+            return money;
         }
 
         public void ClientRequestQuitBattle()
@@ -762,17 +819,9 @@ namespace FinalWar
 
                 if (cards.ContainsKey(uid))
                 {
-                    if (mapData.dic.ContainsKey(pos))
+                    if (GetPosIsMine(pos) == _isMine)
                     {
-                        MapData.MapUnitType mapUnitType = mapData.dic[pos];
-
-                        if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
-                        {
-                            if (GetPosIsMine(pos) == _isMine)
-                            {
-                                summon.Add(uid, pos);
-                            }
-                        }
+                        summon.Add(uid, pos);
                     }
                 }
             }
@@ -1039,7 +1088,7 @@ namespace FinalWar
 
             Dictionary<Hero, int> damageDic = new Dictionary<Hero, int>();
 
-            List<Hero> summonList = new List<Hero>();
+            Dictionary<int, Hero> summonDic = null;
 
             Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
@@ -1051,54 +1100,104 @@ namespace FinalWar
 
                 int pos = pair.Value;
 
-                bool isMine = GetPosIsMine(pos);
+                if (heroMapDic.ContainsKey(pos) || (summonDic != null && summonDic.ContainsKey(pos)))
+                {
+                    Log.Write("Summon error0");
 
-                Hero summonHero = SummonOneUnit(tmpCardUid, pos, isMine, _battleData);
+                    continue;
+                }
 
-                summonList.Add(summonHero);
+                Hero summonHero = SummonOneUnit(tmpCardUid, pos, _battleData);
 
-                _voList.Add(new BattleSummonVO(tmpCardUid, summonHero.sds.GetID(), pos));
+                if (summonHero != null)
+                {
+                    if (summonDic == null)
+                    {
+                        summonDic = new Dictionary<int, Hero>();
+                    }
 
-                eventListener.DispatchEvent(HeroSkill.GetEventName(summonHero.uid, SkillTime.SUMMON), shieldChangeDic, hpChangeDic, damageDic);
+                    summonDic.Add(pos, summonHero);
+
+                    _voList.Add(new BattleSummonVO(tmpCardUid, summonHero.sds.GetID(), pos));
+
+                    eventListener.DispatchEvent(HeroSkill.GetEventName(summonHero.uid, SkillTime.SUMMON), shieldChangeDic, hpChangeDic, damageDic);
+                }
+                else
+                {
+                    Log.Write("Summon error1");
+                }
             }
 
-            for (int i = 0; i < summonList.Count; i++)
+            if (summonDic != null)
             {
-                ServerAddHero(_battleData, summonList[i]);
+                Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = summonDic.Values.GetEnumerator();
+
+                while (enumerator2.MoveNext())
+                {
+                    ServerAddHero(_battleData, enumerator2.Current);
+                }
             }
 
             ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, false);
         }
 
-        private Hero SummonOneUnit(int _uid, int _pos, bool _isMine, BattleData _battleData)
+        private Hero SummonOneUnit(int _uid, int _pos, BattleData _battleData)
         {
+            bool isMine = GetPosIsMine(_pos);
+
             int heroID;
 
-            if (_isMine)
+            IHeroSDS sds;
+
+            if (isMine)
             {
                 heroID = mHandCards[_uid];
-            }
-            else
-            {
-                heroID = oHandCards[_uid];
-            }
 
-            IHeroSDS sds = GetHeroData(heroID);
+                sds = GetHeroData(heroID);
 
-            if (_isMine)
-            {
+                if (mMoney < sds.GetCost())
+                {
+                    return null;
+                }
+
                 mMoney -= sds.GetCost();
 
                 mHandCards.Remove(_uid);
             }
             else
             {
+                heroID = oHandCards[_uid];
+
+                sds = GetHeroData(heroID);
+
+                if (oMoney < sds.GetCost())
+                {
+                    return null;
+                }
+
                 oMoney -= sds.GetCost();
 
                 oHandCards.Remove(_uid);
             }
 
-            Hero hero = new Hero(eventListenerV, _isMine, sds, _pos, GetHeroUid());
+            List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+
+            for (int i = 0; i < tmpList.Count; i++)
+            {
+                int pos = tmpList[i];
+
+                if (GetPosIsMine(pos) != isMine && heroMapDic.ContainsKey(pos))
+                {
+                    Hero tmpHero = heroMapDic[pos];
+
+                    if (tmpHero.sds.GetAbilityType() == AbilityType.Root)
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            Hero hero = new Hero(eventListenerV, isMine, sds, _pos, GetHeroUid());
 
             HeroSkill.Add(this, hero);
 
@@ -1371,32 +1470,91 @@ namespace FinalWar
 
                 eventListenerV.DispatchEvent(AuraEffect.FIX_SHOOT_DAMAGE.ToString(), ref damage, stander);
 
+                //射击不穿甲
                 if (damage > 0)
                 {
-                    BattlePublicTools.AccumulateDicData(_hpChangeDic, stander, -damage);
+                    BattlePublicTools.AccumulateDicData(_damageDic, stander, -damage);
                 }
 
-                int shieldDamage;
+                int shield = stander.nowShield;
 
                 if (_shieldChangeDic.ContainsKey(stander))
                 {
-                    shieldDamage = _shieldChangeDic[stander];
+                    shield += _shieldChangeDic[stander];
+
+                    if (shield < 0)
+                    {
+                        shield = 0;
+                    }
+                }
+
+                if (shield >= damage)
+                {
+                    shield -= damage;
+
+                    damage = 0;
                 }
                 else
                 {
-                    shieldDamage = 0;
+                    damage -= shield;
+
+                    shield = 0;
                 }
 
-                int hpDamage;
+                int shieldDamage = shield - stander.nowShield;
+
+                int hp = stander.nowHp;
 
                 if (_hpChangeDic.ContainsKey(stander))
                 {
-                    hpDamage = _hpChangeDic[stander];
+                    hp += _hpChangeDic[stander];
+
+                    if (hp < 0)
+                    {
+                        hp = 0;
+                    }
+                }
+
+                if (hp >= damage)
+                {
+                    hp -= damage;
                 }
                 else
                 {
-                    hpDamage = 0;
+                    hp = 0;
                 }
+
+                int hpDamage = hp - stander.nowHp;
+                //----
+
+                //射击穿甲
+                //if (damage > 0)
+                //{
+                //    BattlePublicTools.AccumulateDicData(_hpChangeDic, stander, -damage);
+                //}
+
+                //int shieldDamage;
+
+                //if (_shieldChangeDic.ContainsKey(stander))
+                //{
+                //    shieldDamage = _shieldChangeDic[stander];
+                //}
+                //else
+                //{
+                //    shieldDamage = 0;
+                //}
+
+                //int hpDamage;
+
+                //if (_hpChangeDic.ContainsKey(stander))
+                //{
+                //    hpDamage = _hpChangeDic[stander];
+                //}
+                //else
+                //{
+                //    hpDamage = 0;
+                //}
+                //----
 
                 BattleShootVO vo = new BattleShootVO(shooters, _cellData.pos, shieldDamage, hpDamage);
 
@@ -1533,8 +1691,6 @@ namespace FinalWar
                 if (hp >= damage)
                 {
                     hp -= damage;
-
-                    damage = 0;
                 }
                 else
                 {
@@ -1590,7 +1746,7 @@ namespace FinalWar
                     {
                         Hero hero = cellData.supporters[i];
 
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.COUNTER), cellData.pos, supporters, attackers, shieldChangeDic, hpChangeDic, damageDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.SUPPORT), cellData.pos, supporters, attackers, shieldChangeDic, hpChangeDic, damageDic);
                     }
                 }
             }
@@ -2119,7 +2275,7 @@ namespace FinalWar
                 {
                     Hero tmpHero = cellData.supporters[i];
 
-                    if (tmpHero.sds.GetCanMove())
+                    if (tmpHero.sds.GetAbilityType() != AbilityType.Root)
                     {
                         hero = tmpHero;
 
@@ -2133,7 +2289,7 @@ namespace FinalWar
                     {
                         Hero tmpHero = cellData.attackers[i];
 
-                        if (tmpHero.sds.GetCanMove())
+                        if (tmpHero.sds.GetAbilityType() != AbilityType.Root)
                         {
                             hero = tmpHero;
 
@@ -2277,7 +2433,7 @@ namespace FinalWar
             }
 
             //无援护目标时向前进
-            if (_hero.sds.GetCanMove())
+            if (_hero.sds.GetAbilityType() != AbilityType.Root)
             {
                 int targetPos;
 

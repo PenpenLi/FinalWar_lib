@@ -5,6 +5,7 @@
     SHOOT,
     RUSH,
     ATTACK,
+    SUPPORT,
     COUNTER,
     RECOVER,
     DIE,
@@ -25,7 +26,6 @@ public enum SkillEffect
     SHIELD_DAMAGE,
     HP_CHANGE,
     FIX_ATTACK,
-    FIX_ABILITY,
     RECOVER_ALL_HP,
 }
 
