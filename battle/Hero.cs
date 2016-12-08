@@ -29,7 +29,9 @@ namespace FinalWar
 
         public int nowShield { get; private set; }
 
-        internal int attackFix = 0;
+        private int attackFix = 0;
+
+        private int abilityFix = 0;
 
         private SuperEventListenerV eventListenerV;
 
@@ -122,6 +124,11 @@ namespace FinalWar
             attackFix += _value;
         }
 
+        internal void SetAbilityFix(int _value)
+        {
+            abilityFix += _value;
+        }
+
         internal int GetAttackDamage()
         {
             int attackDamage = sds.GetAttack() + attackFix;
@@ -138,21 +145,37 @@ namespace FinalWar
             }
         }
 
+        private int GetAbilityFix()
+        {
+            int result = abilityFix;
+
+            eventListenerV.DispatchEvent(AuraEffect.FIX_ABILITY.ToString(), ref result, this);
+
+            return result;
+        }
+
         internal int GetShootDamage()
         {
-            return GetAttackDamage();
+            return GetAttackDamage() + GetAbilityFix();
         }
 
         internal int GetCounterDamage()
         {
-            return GetAttackDamage();
+            if (sds.GetAbilityType() == AbilityType.Counter)
+            {
+                return GetAttackDamage() + GetAbilityFix();
+            }
+            else
+            {
+                return GetAttackDamage();
+            }
         }
 
         internal int GetSupportDamage()
         {
             if (sds.GetAbilityType() == AbilityType.Support)
             {
-                return GetAttackDamage();
+                return GetAttackDamage() + GetAbilityFix();
             }
             else
             {
@@ -164,7 +187,7 @@ namespace FinalWar
         {
             nowShield = sds.GetShield();
 
-            attackFix = 0;
+            attackFix = abilityFix = 0;
         }
     }
 }

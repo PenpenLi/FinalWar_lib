@@ -259,11 +259,11 @@ namespace FinalWar
 
                 case SkillEffect.RECOVER_ALL_HP:
 
-                    for(int i = 0; i < _heros.Count; i++)
+                    for (int i = 0; i < _heros.Count; i++)
                     {
                         Hero hero = _heros[i];
 
-                        if(hero.sds.GetHp() > hero.nowHp)
+                        if (hero.sds.GetHp() > hero.nowHp)
                         {
                             BattlePublicTools.AccumulateDicData(_hpChangeDic, hero, hero.sds.GetHp() - hero.nowHp);
                         }
@@ -276,6 +276,15 @@ namespace FinalWar
                     for (int i = 0; i < _heros.Count; i++)
                     {
                         _heros[i].SetAttackFix(_skillSDS.GetSkillDatas()[0]);
+                    }
+
+                    break;
+
+                case SkillEffect.FIX_ABILITY:
+
+                    for (int i = 0; i < _heros.Count; i++)
+                    {
+                        _heros[i].SetAbilityFix(_skillSDS.GetSkillDatas()[0]);
                     }
 
                     break;
