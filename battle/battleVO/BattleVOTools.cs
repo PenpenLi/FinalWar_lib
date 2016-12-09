@@ -18,7 +18,8 @@ namespace FinalWar
             ADDCARDS,
             DELCARDS,
             MONEYCHANGE,
-            LEVELUP
+            LEVELUP,
+            RECOVER_SHIELD
         }
         public static void WriteDataToStream(IBattleVO _vo, BinaryWriter _bw)
         {
@@ -67,6 +68,10 @@ namespace FinalWar
             else if (_vo is BattleLevelUpVO)
             {
                 _bw.Write((int)BattleVOType.LEVELUP);
+            }
+            else if (_vo is BattleRecoverShieldVO)
+            {
+                _bw.Write((int)BattleVOType.RECOVER_SHIELD);
             }
 
             _vo.ToBytes(_bw);
@@ -144,11 +149,17 @@ namespace FinalWar
                         vo = new BattleDelCardsVO();
 
                         break;
-                        
+
 
                     case BattleVOType.MONEYCHANGE:
 
                         vo = new BattleMoneyChangeVO();
+
+                        break;
+
+                    case BattleVOType.RECOVER_SHIELD:
+
+                        vo = new BattleRecoverShieldVO();
 
                         break;
 

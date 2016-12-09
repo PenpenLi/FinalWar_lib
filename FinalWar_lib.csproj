@@ -68,6 +68,7 @@
     <Compile Include="battle\battleVO\BattleLevelUpVO.cs" />
     <Compile Include="battle\battleVO\BattleMoneyChangeVO.cs" />
     <Compile Include="battle\battleVO\BattleMoveVO.cs" />
+    <Compile Include="battle\battleVO\BattleRecoverShieldVO.cs" />
     <Compile Include="battle\battleVO\BattleRushVO.cs" />
     <Compile Include="battle\battleVO\BattleShootVO.cs" />
     <Compile Include="battle\battleVO\BattleSummonVO.cs" />

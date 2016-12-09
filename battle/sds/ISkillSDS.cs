@@ -9,8 +9,7 @@
     COUNTER,
     RECOVER,
     DIE,
-    CAPTURE,
-    LEVELUP
+    CAPTURE
 }
 
 public enum SkillTarget
@@ -28,11 +27,14 @@ public enum SkillEffect
     FIX_ATTACK,
     FIX_ABILITY,
     RECOVER_ALL_HP,
+    LEVEL_UP,
+    DISABLE_RECOVER_SHIELD
 }
 
 public interface ISkillSDS
 {
     SkillTime GetSkillTime();
+    int GetPriority();
     SkillTarget GetSkillTarget();
     int GetTargetNum();
     SkillEffect GetSkillEffect();

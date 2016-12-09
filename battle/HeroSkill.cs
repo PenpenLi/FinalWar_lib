@@ -11,6 +11,11 @@ namespace FinalWar
             return string.Format("{0}_{1}", _heroUid, _skillTime);
         }
 
+        internal static string GetEventName(int _heroUid, string _skillTime)
+        {
+            return string.Format("{0}_{1}", _heroUid, _skillTime);
+        }
+
         internal static void Add(Battle _battle, Hero _hero)
         {
             if (_hero.sds.GetSkills().Length > 0)
@@ -28,12 +33,12 @@ namespace FinalWar
                         TriggerSkill(_battle, _hero, skillSDS, e);
                     };
 
-                    eventIDs[i] = _battle.eventListener.AddListener(GetEventName(_hero.uid, skillSDS.GetSkillTime()), dele);
+                    eventIDs[i] = _battle.eventListener.AddListener(GetEventName(_hero.uid, skillSDS.GetSkillTime()), dele, skillSDS.GetPriority());
                 }
 
                 int dieEventID = 0;
 
-                int levelUpEventID = 0;
+                int removeEventID = 0;
 
                 Action<SuperEvent> removeDele = delegate (SuperEvent e)
                 {
@@ -44,12 +49,12 @@ namespace FinalWar
 
                     _battle.eventListener.RemoveListener(dieEventID);
 
-                    _battle.eventListener.RemoveListener(levelUpEventID);
+                    _battle.eventListener.RemoveListener(removeEventID);
                 };
 
-                dieEventID = _battle.eventListener.AddListener(GetEventName(_hero.uid, SkillTime.DIE), removeDele);
+                dieEventID = _battle.eventListener.AddListener(GetEventName(_hero.uid, SkillTime.DIE), removeDele, SuperEventListener.MAX_PRIORITY);
 
-                levelUpEventID = _battle.eventListener.AddListener(GetEventName(_hero.uid, SkillTime.LEVELUP), removeDele);
+                removeEventID = _battle.eventListener.AddListener(GetEventName(_hero.uid, Battle.REMOVE_EVENT_NAME), removeDele, SuperEventListener.MAX_PRIORITY);
             }
         }
 
@@ -76,7 +81,7 @@ namespace FinalWar
 
                 case SkillTime.SUPPORT:
 
-                    ShootRushAttackCounter(_battle, _hero, _skillSDS, (int)e.datas[0], e.datas[1] as List<Hero>, e.datas[2] as List<Hero>, e.datas[3] as Dictionary<Hero, int>, e.datas[4] as Dictionary<Hero, int>, e.datas[5] as Dictionary<Hero, int>);
+                    ShootRushAttackCounter(_battle, _hero, _skillSDS, (int)e.datas[0], e.datas[1] as List<Hero>, e.datas[2] as List<Hero>, e.datas[3] as Dictionary<Hero, int>, e.datas[4] as Dictionary<Hero, int>, e.datas[5] as Dictionary<Hero, int>, e.datas[6] as List<IBattleVO>);
 
                     break;
 
@@ -90,19 +95,19 @@ namespace FinalWar
 
                 case SkillTime.CAPTURE:
 
-                    RoundStartSummonRecoverDieCapture(_battle, _hero, _skillSDS, e.datas[0] as Dictionary<Hero, int>, e.datas[1] as Dictionary<Hero, int>, e.datas[2] as Dictionary<Hero, int>);
+                    RoundStartSummonRecoverDieCapture(_battle, _hero, _skillSDS, e.datas[0] as Dictionary<Hero, int>, e.datas[1] as Dictionary<Hero, int>, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as List<IBattleVO>);
 
                     break;
             }
         }
 
-        private static void RoundStartSummonRecoverDieCapture(Battle _battle, Hero _hero, ISkillSDS _skillSDS, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic)
+        private static void RoundStartSummonRecoverDieCapture(Battle _battle, Hero _hero, ISkillSDS _skillSDS, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList)
         {
             switch (_skillSDS.GetSkillTarget())
             {
                 case SkillTarget.SELF:
 
-                    SkillTakeEffect(_skillSDS, new List<Hero>() { _hero }, _shieldChangeDic, _hpChangeDic, _damageDic);
+                    SkillTakeEffect(_battle, _skillSDS, new List<Hero>() { _hero }, _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
 
                     break;
 
@@ -141,7 +146,7 @@ namespace FinalWar
                             heros.RemoveAt(index);
                         }
 
-                        SkillTakeEffect(_skillSDS, heros, _shieldChangeDic, _hpChangeDic, _damageDic);
+                        SkillTakeEffect(_battle, _skillSDS, heros, _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
                     }
 
                     break;
@@ -181,20 +186,20 @@ namespace FinalWar
                             heros.RemoveAt(index);
                         }
 
-                        SkillTakeEffect(_skillSDS, heros, _shieldChangeDic, _hpChangeDic, _damageDic);
+                        SkillTakeEffect(_battle, _skillSDS, heros, _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
                     }
 
                     break;
             }
         }
 
-        private static void ShootRushAttackCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, int _pos, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic)
+        private static void ShootRushAttackCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, int _pos, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList)
         {
             switch (_skillSDS.GetSkillTarget())
             {
                 case SkillTarget.SELF:
 
-                    SkillTakeEffect(_skillSDS, new List<Hero>() { _hero }, _shieldChangeDic, _hpChangeDic, _damageDic);
+                    SkillTakeEffect(_battle, _skillSDS, new List<Hero>() { _hero }, _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
 
                     break;
 
@@ -207,7 +212,7 @@ namespace FinalWar
                         myHeros.RemoveRange(_skillSDS.GetTargetNum(), myHeros.Count - _skillSDS.GetTargetNum());
                     }
 
-                    SkillTakeEffect(_skillSDS, myHeros, _shieldChangeDic, _hpChangeDic, _damageDic);
+                    SkillTakeEffect(_battle, _skillSDS, myHeros, _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
 
                     break;
 
@@ -220,13 +225,13 @@ namespace FinalWar
                         oppHeros.RemoveRange(_skillSDS.GetTargetNum(), oppHeros.Count - _skillSDS.GetTargetNum());
                     }
 
-                    SkillTakeEffect(_skillSDS, oppHeros, _shieldChangeDic, _hpChangeDic, _damageDic);
+                    SkillTakeEffect(_battle, _skillSDS, oppHeros, _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
 
                     break;
             }
         }
 
-        private static void SkillTakeEffect(ISkillSDS _skillSDS, List<Hero> _heros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic)
+        private static void SkillTakeEffect(Battle _battle, ISkillSDS _skillSDS, List<Hero> _heros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList)
         {
             switch (_skillSDS.GetSkillEffect())
             {
@@ -285,6 +290,24 @@ namespace FinalWar
                     for (int i = 0; i < _heros.Count; i++)
                     {
                         _heros[i].SetAbilityFix(_skillSDS.GetSkillDatas()[0]);
+                    }
+
+                    break;
+
+                case SkillEffect.LEVEL_UP:
+
+                    for (int i = 0; i < _heros.Count; i++)
+                    {
+                        _battle.HeroLevelUp(_heros[i], _skillSDS.GetSkillDatas()[0], _voList);
+                    }
+
+                    break;
+
+                case SkillEffect.DISABLE_RECOVER_SHIELD:
+
+                    for (int i = 0; i < _heros.Count; i++)
+                    {
+                        _heros[i].DisableRecoverShield();
                     }
 
                     break;

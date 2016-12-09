@@ -1,4 +1,5 @@
 ﻿using superEvent;
+using System.Collections.Generic;
 
 namespace FinalWar
 {
@@ -32,6 +33,8 @@ namespace FinalWar
         private int attackFix = 0;
 
         private int abilityFix = 0;
+
+        private bool recoverShield = true;
 
         private SuperEventListenerV eventListenerV;
 
@@ -129,6 +132,11 @@ namespace FinalWar
             abilityFix += _value;
         }
 
+        internal void DisableRecoverShield()
+        {
+            recoverShield = false;
+        }
+
         internal int GetAttackDamage()
         {
             int attackDamage = sds.GetAttack() + attackFix;
@@ -183,11 +191,32 @@ namespace FinalWar
             }
         }
 
-        internal void Recover()
+        internal void ServerRecover(List<IBattleVO> _voList)
         {
-            nowShield = sds.GetShield();
+            if (recoverShield)
+            {
+                bool tmpRecoverShield = true;
+
+                eventListenerV.DispatchEvent<bool>(AuraEffect.DISABLE_RECOVER_SHIELD.ToString(), ref tmpRecoverShield, this);
+
+                if (tmpRecoverShield)
+                {
+                    nowShield = sds.GetShield();
+
+                    _voList.Add(new BattleRecoverShieldVO(pos));
+                }
+            }
+            else
+            {
+                recoverShield = true;
+            }
 
             attackFix = abilityFix = 0;
+        }
+
+        internal void ClientRecover()
+        {
+            nowShield = sds.GetShield();
         }
     }
 }

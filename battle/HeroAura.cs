@@ -35,6 +35,7 @@ namespace FinalWar
 
                         case AuraEffect.FIX_RUSH_DAMAGE:
                         case AuraEffect.SILENT:
+                        case AuraEffect.DISABLE_RECOVER_SHIELD:
 
                             SuperEventListenerV.EventCallBack<bool> dele2 = delegate (SuperEvent e, ref bool _value)
                             {
@@ -49,7 +50,7 @@ namespace FinalWar
 
                 int dieEventID = 0;
 
-                int levelUpEventID = 0;
+                int removeEventID = 0;
 
                 Action<SuperEvent> removeDele = delegate (SuperEvent e)
                 {
@@ -60,12 +61,12 @@ namespace FinalWar
 
                     _battle.eventListener.RemoveListener(dieEventID);
 
-                    _battle.eventListener.RemoveListener(levelUpEventID);
+                    _battle.eventListener.RemoveListener(removeEventID);
                 };
 
-                dieEventID = _battle.eventListener.AddListener(HeroSkill.GetEventName(_hero.uid, SkillTime.DIE), removeDele);
+                dieEventID = _battle.eventListener.AddListener(HeroSkill.GetEventName(_hero.uid, SkillTime.DIE), removeDele, SuperEventListener.MAX_PRIORITY);
 
-                levelUpEventID = _battle.eventListener.AddListener(HeroSkill.GetEventName(_hero.uid, SkillTime.LEVELUP), removeDele);
+                removeEventID = _battle.eventListener.AddListener(HeroSkill.GetEventName(_hero.uid, Battle.REMOVE_EVENT_NAME), removeDele, SuperEventListener.MAX_PRIORITY);
             }
         }
 
@@ -124,12 +125,10 @@ namespace FinalWar
 
             bool b = CheckAuraTakeEffect(_battle, _hero, targetHero, _auraSDS);
 
-            if (!b)
+            if (b)
             {
-                return;
+                _value += _auraSDS.GetAuraDatas()[0];
             }
-
-            _value += _auraSDS.GetAuraDatas()[0];
         }
 
         private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, SuperEvent e, ref bool _value)
@@ -138,12 +137,10 @@ namespace FinalWar
 
             bool b = CheckAuraTakeEffect(_battle, _hero, targetHero, _auraSDS);
 
-            if (!b)
+            if (b)
             {
-                return;
+                _value = false;
             }
-
-            _value = false;
         }
     }
 }

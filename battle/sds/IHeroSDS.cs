@@ -14,7 +14,6 @@ public interface IHeroSDS
     int GetShield();
     int GetCost();
     bool GetCanControl();
-    int GetLevelUp();
     int GetAttack();
     AbilityType GetAbilityType();
     int[] GetSkills();

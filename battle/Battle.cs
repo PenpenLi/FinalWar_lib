@@ -8,6 +8,8 @@ namespace FinalWar
 {
     public class Battle
     {
+        internal const string REMOVE_EVENT_NAME = "remove";
+
         internal static readonly Random random = new Random();
 
         internal static Func<int, MapData> GetMapData;
@@ -1120,7 +1122,7 @@ namespace FinalWar
 
                     _voList.Add(new BattleSummonVO(tmpCardUid, summonHero.sds.GetID(), pos));
 
-                    eventListener.DispatchEvent(HeroSkill.GetEventName(summonHero.uid, SkillTime.SUMMON), shieldChangeDic, hpChangeDic, damageDic);
+                    eventListener.DispatchEvent(HeroSkill.GetEventName(summonHero.uid, SkillTime.SUMMON), shieldChangeDic, hpChangeDic, damageDic, _voList);
                 }
                 else
                 {
@@ -1404,7 +1406,7 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                eventListener.DispatchEvent(HeroSkill.GetEventName(enumerator.Current.uid, SkillTime.ROUNDSTART), shieldChangeDic, hpChangeDic, damageDic);
+                eventListener.DispatchEvent(HeroSkill.GetEventName(enumerator.Current.uid, SkillTime.ROUNDSTART), shieldChangeDic, hpChangeDic, damageDic, _voList);
             }
 
             ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, false);
@@ -1430,7 +1432,7 @@ namespace FinalWar
                     {
                         Hero shooter = cellData.shooters[i];
 
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(shooter.uid, SkillTime.SHOOT), cellData.pos, new List<Hero>() { shooter }, new List<Hero>() { cellData.stander }, shieldChangeDic, hpChangeDic, damageDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(shooter.uid, SkillTime.SHOOT), cellData.pos, new List<Hero>() { shooter }, new List<Hero>() { cellData.stander }, shieldChangeDic, hpChangeDic, damageDic, _voList);
                     }
                 }
             }
@@ -1590,9 +1592,9 @@ namespace FinalWar
                         {
                             Hero attacker = cellData.attackers[i];
 
-                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), cellData.pos, attackers, new List<Hero>() { cellData.stander }, shieldChangeDic, hpChangeDic, damageDic);
+                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), cellData.pos, attackers, new List<Hero>() { cellData.stander }, shieldChangeDic, hpChangeDic, damageDic, _voList);
 
-                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), cellData.pos, attackers, new List<Hero>() { cellData.stander }, shieldChangeDic, hpChangeDic, damageDic);
+                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), cellData.pos, attackers, new List<Hero>() { cellData.stander }, shieldChangeDic, hpChangeDic, damageDic, _voList);
                         }
                     }
                 }
@@ -1734,19 +1736,19 @@ namespace FinalWar
                     {
                         Hero hero = cellData.attackers[i];
 
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.ATTACK), cellData.pos, attackers, supporters, shieldChangeDic, hpChangeDic, damageDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.ATTACK), cellData.pos, attackers, supporters, shieldChangeDic, hpChangeDic, damageDic, _voList);
                     }
 
                     if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                     {
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(cellData.stander.uid, SkillTime.COUNTER), cellData.pos, supporters, attackers, shieldChangeDic, hpChangeDic, damageDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(cellData.stander.uid, SkillTime.COUNTER), cellData.pos, supporters, attackers, shieldChangeDic, hpChangeDic, damageDic, _voList);
                     }
 
                     for (int i = 0; i < cellData.supporters.Count; i++)
                     {
                         Hero hero = cellData.supporters[i];
 
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.SUPPORT), cellData.pos, supporters, attackers, shieldChangeDic, hpChangeDic, damageDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.SUPPORT), cellData.pos, supporters, attackers, shieldChangeDic, hpChangeDic, damageDic, _voList);
                     }
                 }
             }
@@ -2157,24 +2159,6 @@ namespace FinalWar
 
                 if (captureList != null)
                 {
-                    for (int i = 0; i < captureList.Count; i++)
-                    {
-                        Hero hero = captureList[i];
-
-                        if (hero.sds.GetLevelUp() != 0)
-                        {
-                            eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.LEVELUP));
-
-                            hero.LevelUp(GetHeroData(hero.sds.GetLevelUp()));
-
-                            HeroSkill.Add(this, hero);
-
-                            HeroAura.Add(this, hero);
-
-                            _voList.Add(new BattleLevelUpVO(hero.pos));
-                        }
-                    }
-
                     Dictionary<Hero, int> shieldChangeDic = new Dictionary<Hero, int>();
 
                     Dictionary<Hero, int> hpChangeDic = new Dictionary<Hero, int>();
@@ -2185,12 +2169,25 @@ namespace FinalWar
                     {
                         Hero hero = captureList[i];
 
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.CAPTURE), shieldChangeDic, hpChangeDic, damageDic);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.CAPTURE), shieldChangeDic, hpChangeDic, damageDic, _voList);
                     }
 
                     ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, false);
                 }
             }
+        }
+
+        internal void HeroLevelUp(Hero _hero, int _id, List<IBattleVO> _voList)
+        {
+            eventListener.DispatchEvent(HeroSkill.GetEventName(_hero.uid, REMOVE_EVENT_NAME));
+
+            _hero.LevelUp(GetHeroData(_id));
+
+            HeroSkill.Add(this, _hero);
+
+            HeroAura.Add(this, _hero);
+
+            _voList.Add(new BattleLevelUpVO(_hero.pos, _id));
         }
 
         private void ServerDoRecover(BattleData _battleData, List<IBattleVO> _voList)
@@ -2205,12 +2202,17 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                enumerator.Current.Recover();
-
-                eventListener.DispatchEvent(HeroSkill.GetEventName(enumerator.Current.uid, SkillTime.RECOVER), shieldChangeDic, hpChangeDic, damageDic);
+                eventListener.DispatchEvent(HeroSkill.GetEventName(enumerator.Current.uid, SkillTime.RECOVER), shieldChangeDic, hpChangeDic, damageDic, _voList);
             }
 
             ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, false);
+
+            enumerator = heroMapDic.Values.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                enumerator.Current.ServerRecover(_voList);
+            }
         }
 
         private void ServerRemoveHero(BattleData _battleData, Hero _hero)
@@ -2225,11 +2227,11 @@ namespace FinalWar
             }
         }
 
-        private void ServerDoHeroDie(Hero _hero, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic)
+        private void ServerDoHeroDie(Hero _hero, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList)
         {
             string eventName = HeroSkill.GetEventName(_hero.uid, SkillTime.DIE);
 
-            eventListener.DispatchEvent(eventName, _shieldChangeDic, _hpChangeDic, _damageDic);
+            eventListener.DispatchEvent(eventName, _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
         }
 
         private void RemoveHeroAction(BattleData _battleData, Hero _hero)
@@ -2693,7 +2695,7 @@ namespace FinalWar
 
                     for (int i = 0; i < diePos.Count; i++)
                     {
-                        ServerDoHeroDie(dieHero[i], _shieldChangeDic, _hpChangeDic, _damageDic);
+                        ServerDoHeroDie(dieHero[i], _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
                     }
                 }
             }
@@ -2779,6 +2781,10 @@ namespace FinalWar
                 else if (vo is BattleLevelUpVO)
                 {
                     ClientDoLevelUp((BattleLevelUpVO)vo);
+                }
+                else if (vo is BattleRecoverShieldVO)
+                {
+                    ClientDoRecoverShield((BattleRecoverShieldVO)vo);
                 }
 
                 yield return vo;
@@ -2970,9 +2976,16 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_vo.pos];
 
-            IHeroSDS sds = GetHeroData(hero.sds.GetLevelUp());
+            IHeroSDS sds = GetHeroData(_vo.id);
 
             hero.LevelUp(sds);
+        }
+
+        private void ClientDoRecoverShield(BattleRecoverShieldVO _vo)
+        {
+            Hero hero = heroMapDic[_vo.pos];
+
+            hero.ClientRecover();
         }
 
         private void ClientDoRecover(BinaryReader _br)
@@ -2993,13 +3006,6 @@ namespace FinalWar
             mWin = _br.ReadBoolean();
 
             oWin = _br.ReadBoolean();
-
-            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                enumerator.Current.Recover();
-            }
 
             if (clientIsMine)
             {

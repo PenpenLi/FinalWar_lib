@@ -11,7 +11,8 @@ public enum AuraEffect
     FIX_ABILITY,
     FIX_SHOOT_DAMAGE,
     FIX_RUSH_DAMAGE,
-    SILENT
+    SILENT,
+    DISABLE_RECOVER_SHIELD
 }
 
 public interface IAuraSDS
