@@ -16,7 +16,7 @@ namespace FinalWar
 
         public bool isMine { get; private set; }
 
-        public int uid { get; private set; }
+        internal int uid { get; private set; }
 
         public IHeroSDS sds { get; private set; }
 

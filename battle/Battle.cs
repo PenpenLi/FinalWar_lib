@@ -2456,9 +2456,16 @@ namespace FinalWar
 
         private void ServerDoRecoverCardsAndMoney(bool _isMine, List<IBattleVO> _voList)
         {
+            ServerAddMoney(_isMine, ADD_MONEY, _voList);
+
+            ServerAddCards(_isMine, 1, _voList);
+        }
+
+        internal void ServerAddMoney(bool _isMine, int _money, List<IBattleVO> _voList)
+        {
             if (_isMine)
             {
-                mMoney += ADD_MONEY;
+                mMoney += _money;
 
                 if (mMoney > MAX_MONEY)
                 {
@@ -2467,7 +2474,7 @@ namespace FinalWar
             }
             else
             {
-                oMoney += ADD_MONEY;
+                oMoney += _money;
 
                 if (oMoney > MAX_MONEY)
                 {
@@ -2479,12 +2486,19 @@ namespace FinalWar
             {
                 _voList.Add(new BattleMoneyChangeVO(_isMine ? mMoney : oMoney));
             }
+        }
 
+        internal void ServerAddCards(bool _isMine, int _num, List<IBattleVO> _voList)
+        {
             Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
 
             List<int> cards = _isMine ? mCards : oCards;
 
-            if (cards.Count > 0)
+            List<int> delList = null;
+
+            Dictionary<int, int> addDic = null;
+
+            for (int i = 0; i < _num && cards.Count > 0; i++)
             {
                 if (handCardsDic.Count == MAX_HAND_CARD_NUM)
                 {
@@ -2494,7 +2508,12 @@ namespace FinalWar
 
                     if (_voList != null)
                     {
-                        _voList.Add(new BattleDelCardsVO(new List<int>() { uid }));
+                        if (delList == null)
+                        {
+                            delList = new List<int>();
+                        }
+
+                        delList.Add(uid);
                     }
                 }
 
@@ -2510,12 +2529,23 @@ namespace FinalWar
 
                 if (_voList != null)
                 {
-                    Dictionary<int, int> tmpDic = new Dictionary<int, int>();
+                    if (addDic == null)
+                    {
+                        addDic = new Dictionary<int, int>();
+                    }
 
-                    tmpDic.Add(tmpCardUid, id);
-
-                    _voList.Add(new BattleAddCardsVO(tmpDic));
+                    addDic.Add(tmpCardUid, id);
                 }
+            }
+
+            if (delList != null)
+            {
+                _voList.Add(new BattleDelCardsVO(delList));
+            }
+
+            if (addDic != null)
+            {
+                _voList.Add(new BattleAddCardsVO(addDic));
             }
         }
 
