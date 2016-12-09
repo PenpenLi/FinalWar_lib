@@ -52,9 +52,9 @@ namespace FinalWar
                     _battle.eventListener.RemoveListener(removeEventID);
                 };
 
-                dieEventID = _battle.eventListener.AddListener(GetEventName(_hero.uid, SkillTime.DIE), removeDele, SuperEventListener.MAX_PRIORITY);
+                dieEventID = _battle.eventListener.AddListener(GetEventName(_hero.uid, SkillTime.DIE), removeDele, SuperEventListener.MAX_PRIORITY - 1);
 
-                removeEventID = _battle.eventListener.AddListener(GetEventName(_hero.uid, Battle.REMOVE_EVENT_NAME), removeDele, SuperEventListener.MAX_PRIORITY);
+                removeEventID = _battle.eventListener.AddListener(GetEventName(_hero.uid, Battle.REMOVE_EVENT_NAME), removeDele, SuperEventListener.MAX_PRIORITY - 1);
             }
         }
 

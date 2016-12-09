@@ -21,7 +21,7 @@ namespace superEvent
             }
         }
 
-        internal const int MAX_PRIORITY = 15;
+        internal const int MAX_PRIORITY = 16;
 
         private Dictionary<int, SuperEventListenerUnit> dicWithID = new Dictionary<int, SuperEventListenerUnit>();
         private Dictionary<string, Dictionary<Action<SuperEvent>, SuperEventListenerUnit>> dicWithEvent = new Dictionary<string, Dictionary<Action<SuperEvent>, SuperEventListenerUnit>>();
