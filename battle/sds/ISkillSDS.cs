@@ -22,7 +22,7 @@ public enum SkillTarget
 public enum SkillEffect
 {
     DAMAGE,
-    SHIELD_DAMAGE,
+    SHIELD_CHANGE,
     HP_CHANGE,
     FIX_ATTACK,
     FIX_ABILITY,

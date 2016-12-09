@@ -244,7 +244,7 @@ namespace FinalWar
 
                     break;
 
-                case SkillEffect.SHIELD_DAMAGE:
+                case SkillEffect.SHIELD_CHANGE:
 
                     for (int i = 0; i < _heros.Count; i++)
                     {

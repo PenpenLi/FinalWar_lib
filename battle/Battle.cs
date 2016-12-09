@@ -1633,7 +1633,7 @@ namespace FinalWar
 
                 bool doubleDamage = true;
 
-                eventListenerV.DispatchEvent(AuraEffect.FIX_RUSH_DAMAGE.ToString(), ref doubleDamage, stander);
+                eventListenerV.DispatchEvent(AuraEffect.HALF_RUSH_DAMAGE.ToString(), ref doubleDamage, stander);
 
                 int damageFix = doubleDamage ? 2 : 1;
 
@@ -1645,6 +1645,8 @@ namespace FinalWar
 
                     damage += attacker.GetAttackDamage() * damageFix;
                 }
+
+                eventListenerV.DispatchEvent(AuraEffect.FIX_RUSH_DAMAGE.ToString(), ref damage, stander);
 
                 if (damage > 0)
                 {
@@ -2456,29 +2458,37 @@ namespace FinalWar
 
         private void ServerDoRecoverCardsAndMoney(bool _isMine, List<IBattleVO> _voList)
         {
-            ServerAddMoney(_isMine, ADD_MONEY, _voList);
+            ServerMoneyChange(_isMine, ADD_MONEY, _voList);
 
             ServerAddCards(_isMine, 1, _voList);
         }
 
-        internal void ServerAddMoney(bool _isMine, int _money, List<IBattleVO> _voList)
+        internal void ServerMoneyChange(bool _isMine, int _num, List<IBattleVO> _voList)
         {
             if (_isMine)
             {
-                mMoney += _money;
+                mMoney += _num;
 
                 if (mMoney > MAX_MONEY)
                 {
                     mMoney = MAX_MONEY;
                 }
+                else if (mMoney < 0)
+                {
+                    mMoney = 0;
+                }
             }
             else
             {
-                oMoney += _money;
+                oMoney += _num;
 
                 if (oMoney > MAX_MONEY)
                 {
                     oMoney = MAX_MONEY;
+                }
+                else if (oMoney < 0)
+                {
+                    oMoney = 0;
                 }
             }
 
@@ -2490,62 +2500,82 @@ namespace FinalWar
 
         internal void ServerAddCards(bool _isMine, int _num, List<IBattleVO> _voList)
         {
-            Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
-
             List<int> cards = _isMine ? mCards : oCards;
 
-            List<int> delList = null;
-
-            Dictionary<int, int> addDic = null;
-
-            for (int i = 0; i < _num && cards.Count > 0; i++)
+            if (cards.Count > 0)
             {
-                if (handCardsDic.Count == MAX_HAND_CARD_NUM)
+                if (_num > cards.Count)
                 {
-                    int uid = PublicTools.ChooseOneKeyFromDic(handCardsDic, random);
+                    _num = cards.Count;
+                }
 
-                    handCardsDic.Remove(uid);
+                Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
+
+                if (handCardsDic.Count + _num > MAX_HAND_CARD_NUM)
+                {
+                    int delNum = handCardsDic.Count + _num - MAX_HAND_CARD_NUM;
+
+                    ServerDelCards(_isMine, delNum, _voList);
+                }
+
+                Dictionary<int, int> addDic = null;
+
+                for (int i = 0; i < _num && cards.Count > 0; i++)
+                {
+                    int index = random.Next(cards.Count);
+
+                    int id = cards[index];
+
+                    cards.RemoveAt(index);
+
+                    int tmpCardUid = GetCardUid();
+
+                    handCardsDic.Add(tmpCardUid, id);
 
                     if (_voList != null)
                     {
-                        if (delList == null)
+                        if (addDic == null)
                         {
-                            delList = new List<int>();
+                            addDic = new Dictionary<int, int>();
                         }
 
-                        delList.Add(uid);
+                        addDic.Add(tmpCardUid, id);
                     }
                 }
 
-                int index = random.Next(cards.Count);
+                if (addDic != null)
+                {
+                    _voList.Add(new BattleAddCardsVO(addDic));
+                }
+            }
+        }
 
-                int id = cards[index];
+        internal void ServerDelCards(bool _isMine, int _num, List<IBattleVO> _voList)
+        {
+            Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
 
-                cards.RemoveAt(index);
+            List<int> delList = null;
 
-                int tmpCardUid = GetCardUid();
+            for (int i = 0; i < _num && handCardsDic.Count > 0; i++)
+            {
+                int uid = PublicTools.ChooseOneKeyFromDic(handCardsDic, random);
 
-                handCardsDic.Add(tmpCardUid, id);
+                handCardsDic.Remove(uid);
 
                 if (_voList != null)
                 {
-                    if (addDic == null)
+                    if (delList == null)
                     {
-                        addDic = new Dictionary<int, int>();
+                        delList = new List<int>();
                     }
 
-                    addDic.Add(tmpCardUid, id);
+                    delList.Add(uid);
                 }
             }
 
             if (delList != null)
             {
                 _voList.Add(new BattleDelCardsVO(delList));
-            }
-
-            if (addDic != null)
-            {
-                _voList.Add(new BattleAddCardsVO(addDic));
             }
         }
 
