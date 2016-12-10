@@ -28,7 +28,7 @@ namespace FinalWar
             defenderHpDamage = _defenderHpDamage;
         }
 
-        public void ToBytes(BinaryWriter _bw)
+        public void ToBytes(bool _isMine, BinaryWriter _bw)
         {
             _bw.Write(attackers.Count);
 

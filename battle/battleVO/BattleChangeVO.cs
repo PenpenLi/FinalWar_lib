@@ -16,7 +16,7 @@ namespace FinalWar
             hpChange = _hpChange;
         }
 
-        public void ToBytes(BinaryWriter _bw)
+        public void ToBytes(bool _isMine, BinaryWriter _bw)
         {
             _bw.Write(pos.Count);
 

@@ -21,74 +21,75 @@ namespace FinalWar
             LEVELUP,
             RECOVER_SHIELD
         }
-        public static void WriteDataToStream(IBattleVO _vo, BinaryWriter _bw)
+
+        public static void WriteDataToStream(bool _isMine, List<IBattleVO> _voList, BinaryWriter _bw)
         {
-            _bw.Write(true);
+            _bw.Write(_voList.Count);
 
-            if (_vo is BattleSummonVO)
+            for (int i = 0; i < _voList.Count; i++)
             {
-                _bw.Write((int)BattleVOType.SUMMON);
-            }
-            else if (_vo is BattleMoveVO)
-            {
-                _bw.Write((int)BattleVOType.MOVE);
-            }
-            else if (_vo is BattleRushVO)
-            {
-                _bw.Write((int)BattleVOType.RUSH);
-            }
-            else if (_vo is BattleShootVO)
-            {
-                _bw.Write((int)BattleVOType.SHOOT);
-            }
-            else if (_vo is BattleAttackVO)
-            {
-                _bw.Write((int)BattleVOType.ATTACK);
-            }
-            else if (_vo is BattleDeathVO)
-            {
-                _bw.Write((int)BattleVOType.DEATH);
-            }
-            else if (_vo is BattleChangeVO)
-            {
-                _bw.Write((int)BattleVOType.CHANGE);
-            }
-            else if (_vo is BattleAddCardsVO)
-            {
-                _bw.Write((int)BattleVOType.ADDCARDS);
-            }
-            else if (_vo is BattleDelCardsVO)
-            {
-                _bw.Write((int)BattleVOType.DELCARDS);
-            }
-            else if (_vo is BattleMoneyChangeVO)
-            {
-                _bw.Write((int)BattleVOType.MONEYCHANGE);
-            }
-            else if (_vo is BattleLevelUpVO)
-            {
-                _bw.Write((int)BattleVOType.LEVELUP);
-            }
-            else if (_vo is BattleRecoverShieldVO)
-            {
-                _bw.Write((int)BattleVOType.RECOVER_SHIELD);
-            }
+                IBattleVO vo = _voList[i];
 
-            _vo.ToBytes(_bw);
-        }
+                if (vo is BattleSummonVO)
+                {
+                    _bw.Write((int)BattleVOType.SUMMON);
+                }
+                else if (vo is BattleMoveVO)
+                {
+                    _bw.Write((int)BattleVOType.MOVE);
+                }
+                else if (vo is BattleRushVO)
+                {
+                    _bw.Write((int)BattleVOType.RUSH);
+                }
+                else if (vo is BattleShootVO)
+                {
+                    _bw.Write((int)BattleVOType.SHOOT);
+                }
+                else if (vo is BattleAttackVO)
+                {
+                    _bw.Write((int)BattleVOType.ATTACK);
+                }
+                else if (vo is BattleDeathVO)
+                {
+                    _bw.Write((int)BattleVOType.DEATH);
+                }
+                else if (vo is BattleChangeVO)
+                {
+                    _bw.Write((int)BattleVOType.CHANGE);
+                }
+                else if (vo is BattleAddCardsVO)
+                {
+                    _bw.Write((int)BattleVOType.ADDCARDS);
+                }
+                else if (vo is BattleDelCardsVO)
+                {
+                    _bw.Write((int)BattleVOType.DELCARDS);
+                }
+                else if (vo is BattleMoneyChangeVO)
+                {
+                    _bw.Write((int)BattleVOType.MONEYCHANGE);
+                }
+                else if (vo is BattleLevelUpVO)
+                {
+                    _bw.Write((int)BattleVOType.LEVELUP);
+                }
+                else if (vo is BattleRecoverShieldVO)
+                {
+                    _bw.Write((int)BattleVOType.RECOVER_SHIELD);
+                }
 
-        public static void WriteDataToStreamEnd(BinaryWriter _bw)
-        {
-            _bw.Write(false);
+                vo.ToBytes(_isMine, _bw);
+            }
         }
 
         public static List<IBattleVO> ReadDataFromStream(BinaryReader _br)
         {
             List<IBattleVO> result = new List<IBattleVO>();
 
-            bool b = _br.ReadBoolean();
+            int num = _br.ReadInt32();
 
-            while (b)
+            for (int i = 0; i < num; i++)
             {
                 BattleVOType type = (BattleVOType)_br.ReadInt32();
 
@@ -150,7 +151,6 @@ namespace FinalWar
 
                         break;
 
-
                     case BattleVOType.MONEYCHANGE:
 
                         vo = new BattleMoneyChangeVO();
@@ -173,8 +173,6 @@ namespace FinalWar
                 vo.FromBytes(_br);
 
                 result.Add(vo);
-
-                b = _br.ReadBoolean();
             }
 
             return result;

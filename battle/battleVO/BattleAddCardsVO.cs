@@ -5,15 +5,19 @@ namespace FinalWar
 {
     public struct BattleAddCardsVO : IBattleVO
     {
+        public bool isMine;
         public Dictionary<int, int> addCards;
 
-        public BattleAddCardsVO(Dictionary<int, int> _addCards)
+        public BattleAddCardsVO(bool _isMine, Dictionary<int, int> _addCards)
         {
+            isMine = _isMine;
             addCards = _addCards;
         }
 
-        public void ToBytes(BinaryWriter _bw)
+        public void ToBytes(bool _isMine, BinaryWriter _bw)
         {
+            _bw.Write(isMine);
+
             _bw.Write(addCards.Count);
 
             Dictionary<int, int>.Enumerator enumerator = addCards.GetEnumerator();
@@ -24,17 +28,26 @@ namespace FinalWar
 
                 _bw.Write(pair.Key);
 
-                _bw.Write(pair.Value);
+                if (isMine == _isMine)
+                {
+                    _bw.Write(pair.Value);
+                }
+                else
+                {
+                    _bw.Write(0);
+                }
             }
         }
 
         public void FromBytes(BinaryReader _br)
         {
+            isMine = _br.ReadBoolean();
+
             addCards = new Dictionary<int, int>();
 
             int num = _br.ReadInt32();
 
-            for(int i = 0; i < num; i++)
+            for (int i = 0; i < num; i++)
             {
                 int uid = _br.ReadInt32();
 

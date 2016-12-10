@@ -28,7 +28,9 @@ public enum SkillEffect
     FIX_ABILITY,
     RECOVER_ALL_HP,
     LEVEL_UP,
-    DISABLE_RECOVER_SHIELD
+    DISABLE_RECOVER_SHIELD,
+    ADD_CARDS,
+    DEL_CARDS
 }
 
 public interface ISkillSDS

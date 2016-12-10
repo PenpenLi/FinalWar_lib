@@ -5,15 +5,19 @@ namespace FinalWar
 {
     public struct BattleDelCardsVO : IBattleVO
     {
+        public bool isMine;
         public List<int> delCards;
 
-        public BattleDelCardsVO(List<int> _delCards)
+        public BattleDelCardsVO(bool _isMine, List<int> _delCards)
         {
+            isMine = _isMine;
             delCards = _delCards;
         }
 
-        public void ToBytes(BinaryWriter _bw)
+        public void ToBytes(bool _isMine, BinaryWriter _bw)
         {
+            _bw.Write(isMine);
+
             _bw.Write(delCards.Count);
 
             for (int m = 0; m < delCards.Count; m++)
@@ -24,6 +28,8 @@ namespace FinalWar
 
         public void FromBytes(BinaryReader _br)
         {
+            isMine = _br.ReadBoolean();
+
             delCards = new List<int>();
 
             int num = _br.ReadInt32();

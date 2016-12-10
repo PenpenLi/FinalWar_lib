@@ -311,6 +311,24 @@ namespace FinalWar
                     }
 
                     break;
+
+                case SkillEffect.ADD_CARDS:
+
+                    for (int i = 0; i < _heros.Count; i++)
+                    {
+                        _battle.ServerAddCards(_heros[i].isMine, _skillSDS.GetSkillDatas()[0], _voList);
+                    }
+
+                    break;
+
+                case SkillEffect.DEL_CARDS:
+
+                    for (int i = 0; i < _heros.Count; i++)
+                    {
+                        _battle.ServerDelCards(_heros[i].isMine, _skillSDS.GetSkillDatas()[0], _voList);
+                    }
+
+                    break;
             }
         }
     }

@@ -4,7 +4,7 @@ namespace FinalWar
 {
     public interface IBattleVO
     {
-        void ToBytes(BinaryWriter _bw);
+        void ToBytes(bool _isMine, BinaryWriter _bw);
 
         void FromBytes(BinaryReader _br);
     }

@@ -13,7 +13,7 @@ namespace FinalWar
             id = _id;
         }
 
-        public void ToBytes(BinaryWriter _bw)
+        public void ToBytes(bool _isMine, BinaryWriter _bw)
         {
             _bw.Write(pos);
             _bw.Write(id);
