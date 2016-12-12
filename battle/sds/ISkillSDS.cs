@@ -30,7 +30,8 @@ public enum SkillEffect
     LEVEL_UP,
     DISABLE_RECOVER_SHIELD,
     ADD_CARDS,
-    DEL_CARDS
+    DEL_CARDS,
+    DISABLE_MOVE
 }
 
 public interface ISkillSDS

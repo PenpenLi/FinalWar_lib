@@ -329,6 +329,15 @@ namespace FinalWar
                     }
 
                     break;
+
+                case SkillEffect.DISABLE_MOVE:
+
+                    for (int i = 0; i < _heros.Count; i++)
+                    {
+                        _heros[i].DisableMove();
+                    }
+
+                    break;
             }
         }
     }

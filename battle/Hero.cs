@@ -36,6 +36,8 @@ namespace FinalWar
 
         private bool recoverShield = true;
 
+        public bool canMove { get; private set; }
+
         private SuperEventListenerV eventListenerV;
 
         internal Hero(SuperEventListenerV _eventListenerV, bool _isMine, IHeroSDS _sds, int _pos, int _uid)
@@ -54,10 +56,12 @@ namespace FinalWar
 
             nowShield = sds.GetShield();
 
+            canMove = true;
+
             SetAction(HeroAction.NULL);
         }
 
-        internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
+        internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield)
         {
             isMine = _isMine;
 
@@ -67,7 +71,9 @@ namespace FinalWar
 
             nowHp = _nowHp;
 
-            nowShield = sds.GetShield();
+            nowShield = _nowShield;
+
+            canMove = true;
 
             SetAction(HeroAction.NULL);
         }
@@ -137,6 +143,11 @@ namespace FinalWar
             recoverShield = false;
         }
 
+        internal void DisableMove()
+        {
+            canMove = false;
+        }
+
         internal int GetAttackDamage()
         {
             int attackDamage = sds.GetAttack() + attackFix;
@@ -162,16 +173,21 @@ namespace FinalWar
             return result;
         }
 
-        internal int GetShootDamage()
+        private int GetAbilityDamage()
         {
             return GetAttackDamage() + GetAbilityFix();
+        }
+
+        internal int GetShootDamage()
+        {
+            return GetAbilityDamage();
         }
 
         internal int GetCounterDamage()
         {
             if (sds.GetAbilityType() == AbilityType.Counter)
             {
-                return GetAttackDamage() + GetAbilityFix();
+                return GetAbilityDamage();
             }
             else
             {
@@ -183,12 +199,17 @@ namespace FinalWar
         {
             if (sds.GetAbilityType() == AbilityType.Support)
             {
-                return GetAttackDamage() + GetAbilityFix();
+                return GetAbilityDamage();
             }
             else
             {
                 return 0;
             }
+        }
+
+        internal int GetHelpDamage()
+        {
+            return GetAbilityDamage();
         }
 
         internal void ServerRecover(List<IBattleVO> _voList)
@@ -212,6 +233,8 @@ namespace FinalWar
             }
 
             attackFix = abilityFix = 0;
+
+            canMove = true;
         }
 
         internal void ClientRecover()

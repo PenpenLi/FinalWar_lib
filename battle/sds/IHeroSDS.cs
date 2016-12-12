@@ -4,7 +4,8 @@
     Shoot,
     Support,
     Counter,
-    Root
+    Help,
+    Building
 }
 
 public interface IHeroSDS

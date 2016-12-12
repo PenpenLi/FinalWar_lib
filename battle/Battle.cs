@@ -265,6 +265,8 @@ namespace FinalWar
                         bw.Write(hero.pos);
 
                         bw.Write(hero.nowHp);
+
+                        bw.Write(hero.nowShield);
                     }
 
                     bw.Write(autoAction.Count);
@@ -463,7 +465,9 @@ namespace FinalWar
 
                 int nowHp = _br.ReadInt32();
 
-                ClientAddHero(heroIsMine, GetHeroData(id), pos, nowHp);
+                int nowShield = _br.ReadInt32();
+
+                ClientAddHero(heroIsMine, GetHeroData(id), pos, nowHp, nowShield);
             }
 
             autoAction.Clear();
@@ -597,7 +601,7 @@ namespace FinalWar
                 {
                     Hero hero = heroMapDic[pos];
 
-                    if (hero.sds.GetAbilityType() == AbilityType.Root)
+                    if (hero.sds.GetAbilityType() == AbilityType.Building)
                     {
                         return false;
                     }
@@ -929,9 +933,9 @@ namespace FinalWar
             }
         }
 
-        private Hero ClientAddHero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp)
+        private Hero ClientAddHero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield)
         {
-            Hero hero = new Hero(_isMine, _sds, _pos, _nowHp);
+            Hero hero = new Hero(_isMine, _sds, _pos, _nowHp, _nowShield);
 
             heroMapDic.Add(_pos, hero);
 
@@ -1217,7 +1221,7 @@ namespace FinalWar
                 {
                     Hero tmpHero = heroMapDic[pos];
 
-                    if (tmpHero.sds.GetAbilityType() == AbilityType.Root)
+                    if (tmpHero.sds.GetAbilityType() == AbilityType.Building)
                     {
                         return null;
                     }
@@ -1656,19 +1660,37 @@ namespace FinalWar
 
                 int damage = 0;
 
-                bool doubleDamage = true;
-
-                eventListenerV.DispatchEvent(AuraEffect.HALF_RUSH_DAMAGE.ToString(), ref doubleDamage, stander);
-
-                int damageFix = doubleDamage ? 2 : 1;
-
                 for (int i = 0; i < _cellData.attackers.Count; i++)
                 {
                     Hero attacker = _cellData.attackers[i];
 
                     attackers.Add(attacker.pos);
 
-                    damage += attacker.GetAttackDamage() * damageFix;
+                    damage += attacker.GetAttackDamage();
+
+                    if (_battleData.actionDic.ContainsKey(attacker.pos))
+                    {
+                        BattleCellData tmpCellData = _battleData.actionDic[attacker.pos];
+
+                        for (int m = 0; m < tmpCellData.supporters.Count; m++)
+                        {
+                            Hero tmpHero = tmpCellData.supporters[m];
+
+                            if (tmpHero.sds.GetAbilityType() == AbilityType.Help)
+                            {
+                                damage += tmpHero.GetHelpDamage();
+                            }
+                        }
+                    }
+                }
+
+                bool doubleDamage = true;
+
+                eventListenerV.DispatchEvent(AuraEffect.HALF_RUSH_DAMAGE.ToString(), ref doubleDamage, stander);
+
+                if (doubleDamage)
+                {
+                    damage *= 2;
                 }
 
                 eventListenerV.DispatchEvent(AuraEffect.FIX_RUSH_DAMAGE.ToString(), ref damage, stander);
@@ -1843,6 +1865,21 @@ namespace FinalWar
                     attackers.Add(hero.pos);
 
                     attackDamage += hero.GetAttackDamage();
+
+                    if (_battleData.actionDic.ContainsKey(hero.pos))
+                    {
+                        BattleCellData tmpCellData = _battleData.actionDic[hero.pos];
+
+                        for (int m = 0; m < tmpCellData.supporters.Count; m++)
+                        {
+                            Hero tmpHero = tmpCellData.supporters[m];
+
+                            if (tmpHero.sds.GetAbilityType() == AbilityType.Help)
+                            {
+                                attackDamage += tmpHero.GetHelpDamage();
+                            }
+                        }
+                    }
                 }
 
                 for (int i = 0; i < _cellData.attackers.Count; i++)
@@ -2304,7 +2341,7 @@ namespace FinalWar
                 {
                     Hero tmpHero = cellData.supporters[i];
 
-                    if (tmpHero.sds.GetAbilityType() != AbilityType.Root)
+                    if (tmpHero.sds.GetAbilityType() != AbilityType.Building && tmpHero.canMove)
                     {
                         hero = tmpHero;
 
@@ -2318,7 +2355,7 @@ namespace FinalWar
                     {
                         Hero tmpHero = cellData.attackers[i];
 
-                        if (tmpHero.sds.GetAbilityType() != AbilityType.Root)
+                        if (tmpHero.sds.GetAbilityType() != AbilityType.Building && tmpHero.canMove)
                         {
                             hero = tmpHero;
 
@@ -2439,6 +2476,22 @@ namespace FinalWar
                     }
 
                     break;
+
+                case AbilityType.Help:
+
+                    if (!CheckPosCanBeAttack(_hero.pos))
+                    {
+                        posList = GetCanHelpHeroPos(_hero);
+
+                        if (posList.Count > 0)
+                        {
+                            int index = random.Next(posList.Count);
+
+                            return posList[index];
+                        }
+                    }
+
+                    break;
             }
 
             //攻击英雄
@@ -2462,7 +2515,7 @@ namespace FinalWar
             }
 
             //无援护目标时向前进
-            if (_hero.sds.GetAbilityType() != AbilityType.Root)
+            if (_hero.sds.GetAbilityType() != AbilityType.Building)
             {
                 int targetPos;
 
@@ -2884,7 +2937,7 @@ namespace FinalWar
                 oMoney -= sds.GetCost();
             }
 
-            ClientAddHero(isMine, sds, _vo.pos, sds.GetHp());
+            ClientAddHero(isMine, sds, _vo.pos, sds.GetHp(), sds.GetShield());
         }
 
         private void ClientDoMove(BattleMoveVO _vo)
@@ -3336,6 +3389,41 @@ namespace FinalWar
                     if (CheckPosCanBeAttack(pos))
                     {
                         result.Add(pos);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public List<int> GetCanHelpHeroPos(Hero _hero)
+        {
+            List<int> result = new List<int>();
+
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                bool b = GetPosIsMine(pos);
+
+                if (b == _hero.isMine && heroMapDic.ContainsKey(pos))
+                {
+                    List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
+
+                    for (int m = 0; m < posList2.Count; m++)
+                    {
+                        int pos2 = posList2[m];
+
+                        b = GetPosIsMine(pos2);
+
+                        if (b != _hero.isMine && heroMapDic.ContainsKey(pos2))
+                        {
+                            result.Add(pos);
+
+                            break;
+                        }
                     }
                 }
             }
