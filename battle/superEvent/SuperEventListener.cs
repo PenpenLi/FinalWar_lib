@@ -106,7 +106,7 @@ namespace superEvent
             {
                 Dictionary<Action<SuperEvent>, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                Queue<KeyValuePair<Action<SuperEvent>, SuperEvent>>[] arr = new Queue<KeyValuePair<Action<SuperEvent>, SuperEvent>>[MAX_PRIORITY];
+                LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>>[] arr = new LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>>[MAX_PRIORITY];
 
                 Dictionary<Action<SuperEvent>, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -118,29 +118,29 @@ namespace superEvent
 
                     int priority = pair.Value.priority;
 
-                    Queue<KeyValuePair<Action<SuperEvent>, SuperEvent>> queue;
+                    LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>> list;
 
                     if (arr[priority] == null)
                     {
-                        queue = new Queue<KeyValuePair<Action<SuperEvent>, SuperEvent>>();
+                        list = new LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>>();
 
-                        arr[priority] = queue;
+                        arr[priority] = list;
                     }
                     else
                     {
-                        queue = arr[priority];
+                        list = arr[priority];
                     }
 
-                    queue.Enqueue(new KeyValuePair<Action<SuperEvent>, SuperEvent>(pair.Key, ev));
+                    list.AddLast(new KeyValuePair<Action<SuperEvent>, SuperEvent>(pair.Key, ev));
                 }
 
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    Queue<KeyValuePair<Action<SuperEvent>, SuperEvent>> queue = arr[i];
+                    LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>> list = arr[i];
 
-                    if (queue != null)
+                    if (list != null)
                     {
-                        Queue<KeyValuePair<Action<SuperEvent>, SuperEvent>>.Enumerator enumerator2 = queue.GetEnumerator();
+                        LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>>.Enumerator enumerator2 = list.GetEnumerator();
 
                         while (enumerator2.MoveNext())
                         {

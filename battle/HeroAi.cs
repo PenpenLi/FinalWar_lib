@@ -191,11 +191,13 @@ namespace FinalWar
 
                     nowCheckPos.RemoveAt(0);
 
-                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, nowPos);
+                    LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, nowPos);
 
-                    for (int i = 0; i < posList.Count; i++)
+                    LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+                    while (enumerator.MoveNext())
                     {
-                        int pos = posList[i];
+                        int pos = enumerator.Current;
 
                         if (!checkedPos.ContainsKey(pos))
                         {
@@ -222,11 +224,13 @@ namespace FinalWar
                 {
                     int nowPos = resultList[i];
 
-                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, nowPos);
+                    LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, nowPos);
 
-                    for (int m = 0; m < posList.Count; m++)
+                    LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+                    while (enumerator.MoveNext())
                     {
-                        int pos = posList[m];
+                        int pos = enumerator.Current;
 
                         if (!_battle.heroMapDic.ContainsKey(pos) && !resultList.Contains(pos) && !resultList2.Contains(pos))
                         {

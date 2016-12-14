@@ -591,11 +591,13 @@ namespace FinalWar
                 return false;
             }
 
-            List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+            LinkedList<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
 
-            for (int i = 0; i < tmpList.Count; i++)
+            LinkedList<int>.Enumerator enumerator = tmpList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                int pos = tmpList[i];
+                int pos = enumerator.Current;
 
                 if (GetPosIsMine(pos) != clientIsMine && heroMapDic.ContainsKey(pos))
                 {
@@ -674,7 +676,7 @@ namespace FinalWar
 
             bool b = GetPosIsMine(_targetPos);
 
-            List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+            LinkedList<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
 
             if (tmpList.Contains(_targetPos))
             {
@@ -698,9 +700,11 @@ namespace FinalWar
                         }
                     }
 
-                    for (int i = 0; i < tmpList.Count; i++)
+                    LinkedList<int>.Enumerator enumerator = tmpList.GetEnumerator();
+
+                    while (enumerator.MoveNext())
                     {
-                        int pos = tmpList[i];
+                        int pos = enumerator.Current;
 
                         if (pos != _targetPos)
                         {
@@ -725,9 +729,11 @@ namespace FinalWar
             {
                 if (hero.sds.GetAbilityType() == AbilityType.Shoot && b != hero.isMine && heroMapDic.ContainsKey(_targetPos))
                 {
-                    for (int i = 0; i < tmpList.Count; i++)
+                    LinkedList<int>.Enumerator enumerator = tmpList.GetEnumerator();
+
+                    while (enumerator.MoveNext())
                     {
-                        int pos = tmpList[i];
+                        int pos = enumerator.Current;
 
                         b = GetPosIsMine(pos);
 
@@ -737,7 +743,7 @@ namespace FinalWar
                         }
                     }
 
-                    List<int> tmpList2 = BattlePublicTools.GetNeighbourPos2(mapData, _pos);
+                    LinkedList<int> tmpList2 = BattlePublicTools.GetNeighbourPos2(mapData, _pos);
 
                     if (tmpList2.Contains(_targetPos))
                     {
@@ -944,7 +950,7 @@ namespace FinalWar
 
         private void ServerStartBattle()
         {
-            List<IBattleVO> voList = new List<IBattleVO>();
+            LinkedList<IBattleVO> voList = new LinkedList<IBattleVO>();
 
             BattleData battleData = GetBattleData();
 
@@ -1111,7 +1117,7 @@ namespace FinalWar
             serverBattleOverCallBack();
         }
 
-        private void ServerDoSummon(BattleData _battleData, List<IBattleVO> _voList)
+        private void ServerDoSummon(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             Dictionary<Hero, int> shieldChangeDic = new Dictionary<Hero, int>();
 
@@ -1149,7 +1155,7 @@ namespace FinalWar
 
                     summonDic.Add(pos, summonHero);
 
-                    _voList.Add(new BattleSummonVO(tmpCardUid, summonHero.sds.GetID(), pos));
+                    _voList.AddLast(new BattleSummonVO(tmpCardUid, summonHero.sds.GetID(), pos));
 
                     eventListener.DispatchEvent(HeroSkill.GetEventName(summonHero.uid, SkillTime.SUMMON), shieldChangeDic, hpChangeDic, damageDic, _voList);
                 }
@@ -1211,11 +1217,13 @@ namespace FinalWar
                 oHandCards.Remove(_uid);
             }
 
-            List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+            LinkedList<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
 
-            for (int i = 0; i < tmpList.Count; i++)
+            LinkedList<int>.Enumerator enumerator = tmpList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                int pos = tmpList[i];
+                int pos = enumerator.Current;
 
                 if (GetPosIsMine(pos) != isMine && heroMapDic.ContainsKey(pos))
                 {
@@ -1281,7 +1289,7 @@ namespace FinalWar
 
             bool targetPosIsMine = GetPosIsMine(_targetPos);
 
-            List<int> arr = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+            LinkedList<int> arr = BattlePublicTools.GetNeighbourPos(mapData, _pos);
 
             if (arr.Contains(_targetPos))
             {
@@ -1327,9 +1335,11 @@ namespace FinalWar
 
                     if (needCheckOthers)
                     {
-                        for (int i = 0; i < arr.Count; i++)
+                        LinkedList<int>.Enumerator enumerator = arr.GetEnumerator();
+
+                        while (enumerator.MoveNext())
                         {
-                            int tmpPos = arr[i];
+                            int tmpPos = enumerator.Current;
 
                             if (tmpPos == _targetPos)
                             {
@@ -1373,9 +1383,11 @@ namespace FinalWar
             {
                 if (hero.sds.GetAbilityType() == AbilityType.Shoot && hero.isMine != targetPosIsMine && heroMapDic.ContainsKey(_targetPos))
                 {
-                    for (int i = 0; i < arr.Count; i++)
+                    LinkedList<int>.Enumerator enumerator = arr.GetEnumerator();
+
+                    while (enumerator.MoveNext())
                     {
-                        int pos = arr[i];
+                        int pos = enumerator.Current;
 
                         targetPosIsMine = GetPosIsMine(pos);
 
@@ -1385,7 +1397,7 @@ namespace FinalWar
                         }
                     }
 
-                    List<int> arr2 = BattlePublicTools.GetNeighbourPos2(mapData, _pos);
+                    LinkedList<int> arr2 = BattlePublicTools.GetNeighbourPos2(mapData, _pos);
 
                     if (arr2.Contains(_targetPos))
                     {
@@ -1423,7 +1435,7 @@ namespace FinalWar
             }
         }
 
-        private void ServerDoRoundStart(BattleData _battleData, List<IBattleVO> _voList)
+        private void ServerDoRoundStart(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             Dictionary<Hero, int> shieldChangeDic = new Dictionary<Hero, int>();
 
@@ -1441,7 +1453,7 @@ namespace FinalWar
             ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, false);
         }
 
-        private void ServerDoShoot(BattleData _battleData, List<IBattleVO> _voList)
+        private void ServerDoShoot(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             Dictionary<Hero, int> shieldChangeDic = new Dictionary<Hero, int>();
 
@@ -1478,7 +1490,7 @@ namespace FinalWar
             ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, true);
         }
 
-        private void ProcessCellDataShoot(BattleData _battleData, BattleCellData _cellData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList)
+        private void ProcessCellDataShoot(BattleData _battleData, BattleCellData _cellData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, LinkedList<IBattleVO> _voList)
         {
             if (_cellData.stander != null && _cellData.shooters.Count > 0)
             {
@@ -1589,13 +1601,13 @@ namespace FinalWar
 
                 BattleShootVO vo = new BattleShootVO(shooters, _cellData.pos, shieldDamage, hpDamage);
 
-                _voList.Add(vo);
+                _voList.AddLast(vo);
 
                 _cellData.shooters.Clear();
             }
         }
 
-        private void ServerDoRush(BattleData _battleData, List<IBattleVO> _voList)
+        private void ServerDoRush(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             while (true)
             {
@@ -1646,7 +1658,7 @@ namespace FinalWar
             }
         }
 
-        private void ProcessCellDataRush(BattleData _battleData, BattleCellData _cellData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList, ref bool _quit)
+        private void ProcessCellDataRush(BattleData _battleData, BattleCellData _cellData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, LinkedList<IBattleVO> _voList, ref bool _quit)
         {
             if (!_cellData.attackHasBeenProcessed && _cellData.stander != null && _cellData.attackers.Count > 0 && _cellData.stander.action != Hero.HeroAction.DEFENSE && _cellData.supporters.Count == 0)
             {
@@ -1752,11 +1764,11 @@ namespace FinalWar
 
                 BattleRushVO vo = new BattleRushVO(attackers, _cellData.pos, shieldDamage, hpDamage);
 
-                _voList.Add(vo);
+                _voList.AddLast(vo);
             }
         }
 
-        private void ServerDoAttack(BattleData _battleData, List<IBattleVO> _voList)
+        private void ServerDoAttack(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             Dictionary<Hero, int> shieldChangeDic = new Dictionary<Hero, int>();
 
@@ -1814,7 +1826,7 @@ namespace FinalWar
             ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, true);
         }
 
-        private void ProcessCellDataAttack(BattleData _battleData, BattleCellData _cellData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList)
+        private void ProcessCellDataAttack(BattleData _battleData, BattleCellData _cellData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, LinkedList<IBattleVO> _voList)
         {
             if (!_cellData.attackHasBeenProcessed && _cellData.attackers.Count > 0 && (_cellData.stander != null || _cellData.supporters.Count > 0))
             {
@@ -2178,11 +2190,11 @@ namespace FinalWar
 
                 BattleAttackVO vo = new BattleAttackVO(attackers, supporters, _cellData.pos, attackersShieldDamage, attackersHpDamage, supportersShieldDamage, supportersHpDamage, defenderShieldDamage, defenderHpDamage);
 
-                _voList.Add(vo);
+                _voList.AddLast(vo);
             }
         }
 
-        private void ServerDoMove(BattleData _battleData, List<IBattleVO> _voList)
+        private void ServerDoMove(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             List<int> tmpList = null;
 
@@ -2218,7 +2230,7 @@ namespace FinalWar
 
                 if (tmpMoveDic != null)
                 {
-                    _voList.Add(new BattleMoveVO(tmpMoveDic));
+                    _voList.AddLast(new BattleMoveVO(tmpMoveDic));
                 }
 
                 if (captureList != null)
@@ -2241,7 +2253,7 @@ namespace FinalWar
             }
         }
 
-        internal void HeroLevelUp(Hero _hero, int _id, List<IBattleVO> _voList)
+        internal void HeroLevelUp(Hero _hero, int _id, LinkedList<IBattleVO> _voList)
         {
             eventListener.DispatchEvent(HeroSkill.GetEventName(_hero.uid, REMOVE_EVENT_NAME));
 
@@ -2251,10 +2263,10 @@ namespace FinalWar
 
             HeroAura.Add(this, _hero);
 
-            _voList.Add(new BattleLevelUpVO(_hero.pos, _id));
+            _voList.AddLast(new BattleLevelUpVO(_hero.pos, _id));
         }
 
-        private void ServerDoRecover(BattleData _battleData, List<IBattleVO> _voList)
+        private void ServerDoRecover(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             Dictionary<Hero, int> shieldChangeDic = new Dictionary<Hero, int>();
 
@@ -2291,7 +2303,7 @@ namespace FinalWar
             }
         }
 
-        private void ServerDoHeroDie(Hero _hero, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList)
+        private void ServerDoHeroDie(Hero _hero, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, LinkedList<IBattleVO> _voList)
         {
             string eventName = HeroSkill.GetEventName(_hero.uid, SkillTime.DIE);
 
@@ -2534,7 +2546,7 @@ namespace FinalWar
             return _hero.pos;
         }
 
-        private void ServerDoAddCardsAndMoney(List<IBattleVO> _voList)
+        private void ServerDoAddCardsAndMoney(LinkedList<IBattleVO> _voList)
         {
             ServerMoneyChange(true, ADD_MONEY, _voList);
 
@@ -2545,7 +2557,7 @@ namespace FinalWar
             ServerAddCards(false, ADD_CARD_NUM, _voList);
         }
 
-        internal void ServerMoneyChange(bool _isMine, int _num, List<IBattleVO> _voList)
+        internal void ServerMoneyChange(bool _isMine, int _num, LinkedList<IBattleVO> _voList)
         {
             if (_isMine)
             {
@@ -2574,10 +2586,10 @@ namespace FinalWar
                 }
             }
 
-            _voList.Add(new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney));
+            _voList.AddLast(new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney));
         }
 
-        internal void ServerAddCards(bool _isMine, int _num, List<IBattleVO> _voList)
+        internal void ServerAddCards(bool _isMine, int _num, LinkedList<IBattleVO> _voList)
         {
             List<int> cards = _isMine ? mCards : oCards;
 
@@ -2614,11 +2626,11 @@ namespace FinalWar
                     addDic.Add(tmpCardUid, id);
                 }
 
-                _voList.Add(new BattleAddCardsVO(_isMine, addDic));
+                _voList.AddLast(new BattleAddCardsVO(_isMine, addDic));
             }
         }
 
-        internal void ServerDelCards(bool _isMine, int _num, List<IBattleVO> _voList)
+        internal void ServerDelCards(bool _isMine, int _num, LinkedList<IBattleVO> _voList)
         {
             Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
 
@@ -2640,7 +2652,7 @@ namespace FinalWar
 
             if (delList != null)
             {
-                _voList.Add(new BattleDelCardsVO(_isMine, delList));
+                _voList.AddLast(new BattleDelCardsVO(_isMine, delList));
             }
         }
 
@@ -2667,7 +2679,7 @@ namespace FinalWar
             return result;
         }
 
-        private void ProcessChangeDic(BattleData _battleData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList, bool _isBattle)
+        private void ProcessChangeDic(BattleData _battleData, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, LinkedList<IBattleVO> _voList, bool _isBattle)
         {
             while (_shieldChangeDic.Count > 0 || _hpChangeDic.Count > 0 || _damageDic.Count > 0)
             {
@@ -2807,7 +2819,7 @@ namespace FinalWar
                         hpChange.Add(hero.nowHp - data.Value);
                     }
 
-                    _voList.Add(new BattleChangeVO(pos, shieldChange, hpChange));
+                    _voList.AddLast(new BattleChangeVO(pos, shieldChange, hpChange));
                 }
                 else
                 {
@@ -2816,7 +2828,7 @@ namespace FinalWar
 
                 if (diePos != null)
                 {
-                    _voList.Add(new BattleDeathVO(diePos));
+                    _voList.AddLast(new BattleDeathVO(diePos));
 
                     for (int i = 0; i < diePos.Count; i++)
                     {
@@ -2857,11 +2869,13 @@ namespace FinalWar
 
         private IEnumerator<IBattleVO> ClientDoActionReal(BinaryReader _br)
         {
-            List<IBattleVO> voList = BattleVOTools.ReadDataFromStream(_br);
+            LinkedList<IBattleVO> voList = BattleVOTools.ReadDataFromStream(_br);
 
-            for (int i = 0; i < voList.Count; i++)
+            LinkedList<IBattleVO>.Enumerator enumerator = voList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                IBattleVO vo = voList[i];
+                IBattleVO vo = enumerator.Current;
 
                 if (vo is BattleSummonVO)
                 {
@@ -3173,13 +3187,15 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
             bool getThreat = false;
 
-            for (int i = 0; i < posList.Count; i++)
+            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                int pos = posList[i];
+                int pos = enumerator.Current;
 
                 bool b = GetPosIsMine(pos);
 
@@ -3219,13 +3235,15 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
             bool getThreat = false;
 
-            for (int i = 0; i < posList.Count; i++)
+            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                int pos = posList[i];
+                int pos = enumerator.Current;
 
                 bool b = GetPosIsMine(pos);
 
@@ -3267,11 +3285,13 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            for (int i = 0; i < posList.Count; i++)
+            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                int pos = posList[i];
+                int pos = enumerator.Current;
 
                 bool b = GetPosIsMine(pos);
 
@@ -3283,9 +3303,11 @@ namespace FinalWar
 
             posList = BattlePublicTools.GetNeighbourPos2(mapData, _hero.pos);
 
-            for (int i = 0; i < posList.Count; i++)
+            enumerator = posList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                int pos = posList[i];
+                int pos = enumerator.Current;
 
                 bool b = GetPosIsMine(pos);
 
@@ -3314,11 +3336,13 @@ namespace FinalWar
 
             bool isMine = GetPosIsMine(_pos);
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
 
-            for (int i = 0; i < posList.Count; i++)
+            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                int pos = posList[i];
+                int pos = enumerator.Current;
 
                 bool b = GetPosIsMine(pos);
 
@@ -3335,11 +3359,13 @@ namespace FinalWar
 
                         bool canAttack = true;
 
-                        List<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData, pos);
+                        LinkedList<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData, pos);
 
-                        for (int m = 0; m < tmpPosList.Count; m++)
+                        LinkedList<int>.Enumerator enumerator2 = tmpPosList.GetEnumerator();
+
+                        while (enumerator2.MoveNext())
                         {
-                            int tmpPos = tmpPosList[m];
+                            int tmpPos = enumerator2.Current;
 
                             if (tmpPos == _pos)
                             {
@@ -3376,11 +3402,13 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            for (int i = 0; i < posList.Count; i++)
+            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                int pos = posList[i];
+                int pos = enumerator.Current;
 
                 bool b = GetPosIsMine(pos);
 
@@ -3400,21 +3428,32 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            for (int i = 0; i < posList.Count; i++)
+            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                int pos = posList[i];
+                int pos = enumerator.Current;
 
                 bool b = GetPosIsMine(pos);
 
                 if (b == _hero.isMine && heroMapDic.ContainsKey(pos))
                 {
-                    List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
+                    Hero hero = heroMapDic[pos];
 
-                    for (int m = 0; m < posList2.Count; m++)
+                    if (hero.sds.GetAbilityType() == AbilityType.Counter)
                     {
-                        int pos2 = posList2[m];
+                        continue;
+                    }
+
+                    LinkedList<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
+
+                    LinkedList<int>.Enumerator enumerator2 = posList2.GetEnumerator();
+
+                    while (enumerator2.MoveNext())
+                    {
+                        int pos2 = enumerator2.Current;
 
                         b = GetPosIsMine(pos2);
 
@@ -3435,11 +3474,13 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            for (int i = 0; i < posList.Count; i++)
+            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                int pos = posList[i];
+                int pos = enumerator.Current;
 
                 bool b = GetPosIsMine(pos);
 
@@ -3459,11 +3500,13 @@ namespace FinalWar
         //{
         //    List<int> result = new List<int>();
 
-        //    List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+        //    LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-        //    for (int i = 0; i < posList.Count; i++)
+        //    LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+        //    while (enumerator.MoveNext())
         //    {
-        //        int pos = posList[i];
+        //        int pos = enumerator.Current;
 
         //        bool b = GetPosIsMine(pos);
 
@@ -3481,11 +3524,13 @@ namespace FinalWar
 
         //public bool CheckHeroMustBeAttack(Hero _hero)
         //{
-        //    List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+        //    LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-        //    for (int i = 0; i < posList.Count; i++)
+        //    LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+        //    while (enumerator.MoveNext())
         //    {
-        //        int pos = posList[i];
+        //        int pos = enumerator.Current;
 
         //        bool b = GetPosIsMine(pos);
 
@@ -3497,11 +3542,13 @@ namespace FinalWar
         //            {
         //                bool mushBeAttack = true;
 
-        //                List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
+        //                LinkedList<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
 
-        //                for (int m = 0; m < posList2.Count; m++)
+        //                LinkedList<int>.Enumerator enumerator2 = posList2.GetEnumerator();
+
+        //                while (enumerator2.MoveNext())
         //                {
-        //                    int pos2 = posList2[m];
+        //                    int pos2 = enumerator2.Current;
 
         //                    if (pos2 == _hero.pos)
         //                    {
@@ -3514,7 +3561,7 @@ namespace FinalWar
         //                    {
         //                        hero = heroMapDic[pos2];
 
-        //                        if (hero.sds.GetAbilityType() == AbilityType.THREAT || _hero.sds.GetAbilityType() != AbilityType.THREAT)
+        //                        if (hero.sds.GetAbilityType() == AbilityType.Counter || _hero.sds.GetAbilityType() != AbilityType.Counter)
         //                        {
         //                            mushBeAttack = false;
 

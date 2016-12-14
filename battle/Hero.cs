@@ -212,7 +212,7 @@ namespace FinalWar
             return GetAbilityDamage();
         }
 
-        internal void ServerRecover(List<IBattleVO> _voList)
+        internal void ServerRecover(LinkedList<IBattleVO> _voList)
         {
             if (recoverShield)
             {
@@ -224,7 +224,7 @@ namespace FinalWar
                 {
                     nowShield = sds.GetShield();
 
-                    _voList.Add(new BattleRecoverShieldVO(pos));
+                    _voList.AddLast(new BattleRecoverShieldVO(pos));
                 }
             }
             else

@@ -81,7 +81,7 @@ namespace FinalWar
 
                 case SkillTime.SUPPORT:
 
-                    ShootRushAttackCounter(_battle, _hero, _skillSDS, (int)e.datas[0], e.datas[1] as List<Hero>, e.datas[2] as List<Hero>, e.datas[3] as Dictionary<Hero, int>, e.datas[4] as Dictionary<Hero, int>, e.datas[5] as Dictionary<Hero, int>, e.datas[6] as List<IBattleVO>);
+                    ShootRushAttackCounter(_battle, _hero, _skillSDS, (int)e.datas[0], e.datas[1] as List<Hero>, e.datas[2] as List<Hero>, e.datas[3] as Dictionary<Hero, int>, e.datas[4] as Dictionary<Hero, int>, e.datas[5] as Dictionary<Hero, int>, e.datas[6] as LinkedList<IBattleVO>);
 
                     break;
 
@@ -95,13 +95,13 @@ namespace FinalWar
 
                 case SkillTime.CAPTURE:
 
-                    RoundStartSummonRecoverDieCapture(_battle, _hero, _skillSDS, e.datas[0] as Dictionary<Hero, int>, e.datas[1] as Dictionary<Hero, int>, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as List<IBattleVO>);
+                    RoundStartSummonRecoverDieCapture(_battle, _hero, _skillSDS, e.datas[0] as Dictionary<Hero, int>, e.datas[1] as Dictionary<Hero, int>, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as LinkedList<IBattleVO>);
 
                     break;
             }
         }
 
-        private static void RoundStartSummonRecoverDieCapture(Battle _battle, Hero _hero, ISkillSDS _skillSDS, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList)
+        private static void RoundStartSummonRecoverDieCapture(Battle _battle, Hero _hero, ISkillSDS _skillSDS, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, LinkedList<IBattleVO> _voList)
         {
             switch (_skillSDS.GetSkillTarget())
             {
@@ -115,11 +115,13 @@ namespace FinalWar
 
                     List<Hero> heros = null;
 
-                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
+                    LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
-                    for (int i = 0; i < posList.Count; i++)
+                    LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
+
+                    while (enumerator.MoveNext())
                     {
-                        int pos = posList[i];
+                        int pos = enumerator.Current;
 
                         if (_battle.heroMapDic.ContainsKey(pos))
                         {
@@ -157,9 +159,11 @@ namespace FinalWar
 
                     posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
-                    for (int i = 0; i < posList.Count; i++)
+                    enumerator = posList.GetEnumerator();
+
+                    while (enumerator.MoveNext())
                     {
-                        int pos = posList[i];
+                        int pos = enumerator.Current;
 
                         if (_battle.heroMapDic.ContainsKey(pos))
                         {
@@ -193,7 +197,7 @@ namespace FinalWar
             }
         }
 
-        private static void ShootRushAttackCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, int _pos, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList)
+        private static void ShootRushAttackCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, int _pos, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, LinkedList<IBattleVO> _voList)
         {
             switch (_skillSDS.GetSkillTarget())
             {
@@ -231,7 +235,7 @@ namespace FinalWar
             }
         }
 
-        private static void SkillTakeEffect(Battle _battle, ISkillSDS _skillSDS, List<Hero> _heros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, List<IBattleVO> _voList)
+        private static void SkillTakeEffect(Battle _battle, ISkillSDS _skillSDS, List<Hero> _heros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, LinkedList<IBattleVO> _voList)
         {
             switch (_skillSDS.GetSkillEffect())
             {

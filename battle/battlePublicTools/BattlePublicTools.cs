@@ -3,9 +3,9 @@ using System;
 
 public class BattlePublicTools
 {
-    public static List<int> GetNeighbourPos(MapData _mapData, int _pos)
+    public static LinkedList<int> GetNeighbourPos(MapData _mapData, int _pos)
     {
-        List<int> result = new List<int>();
+        LinkedList<int> result = new LinkedList<int>();
 
         int[] arr = _mapData.neighbourPosMap[_pos];
 
@@ -19,7 +19,7 @@ public class BattlePublicTools
 
                 if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
                 {
-                    result.Add(arr[i]);
+                    result.AddLast(arr[i]);
                 }
             }
         }
@@ -27,9 +27,9 @@ public class BattlePublicTools
         return result;
     }
 
-    public static List<int> GetNeighbourPos2(MapData _mapData, int _pos)
+    public static LinkedList<int> GetNeighbourPos2(MapData _mapData, int _pos)
     {
-        List<int> result = new List<int>();
+        LinkedList<int> result = new LinkedList<int>();
 
         int[] arr = _mapData.neighbourPosMap[_pos];
 
@@ -53,7 +53,7 @@ public class BattlePublicTools
 
                         if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
                         {
-                            result.Add(arr2[i]);
+                            result.AddLast(arr2[i]);
                         }
                     }
                 }

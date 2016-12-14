@@ -22,13 +22,15 @@ namespace FinalWar
             RECOVER_SHIELD
         }
 
-        public static void WriteDataToStream(bool _isMine, List<IBattleVO> _voList, BinaryWriter _bw)
+        public static void WriteDataToStream(bool _isMine, LinkedList<IBattleVO> _voList, BinaryWriter _bw)
         {
             _bw.Write(_voList.Count);
 
-            for (int i = 0; i < _voList.Count; i++)
+            LinkedList<IBattleVO>.Enumerator enumerator = _voList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                IBattleVO vo = _voList[i];
+                IBattleVO vo = enumerator.Current;
 
                 if (vo is BattleSummonVO)
                 {
@@ -83,9 +85,9 @@ namespace FinalWar
             }
         }
 
-        public static List<IBattleVO> ReadDataFromStream(BinaryReader _br)
+        public static LinkedList<IBattleVO> ReadDataFromStream(BinaryReader _br)
         {
-            List<IBattleVO> result = new List<IBattleVO>();
+            LinkedList<IBattleVO> result = new LinkedList<IBattleVO>();
 
             int num = _br.ReadInt32();
 
@@ -172,7 +174,7 @@ namespace FinalWar
 
                 vo.FromBytes(_br);
 
-                result.Add(vo);
+                result.AddLast(vo);
             }
 
             return result;
