@@ -6,9 +6,9 @@ namespace FinalWar
     public struct BattleDelCardsVO : IBattleVO
     {
         public bool isMine;
-        public List<int> delCards;
+        public LinkedList<int> delCards;
 
-        public BattleDelCardsVO(bool _isMine, List<int> _delCards)
+        public BattleDelCardsVO(bool _isMine, LinkedList<int> _delCards)
         {
             isMine = _isMine;
             delCards = _delCards;
@@ -20,9 +20,11 @@ namespace FinalWar
 
             _bw.Write(delCards.Count);
 
-            for (int m = 0; m < delCards.Count; m++)
+            LinkedList<int>.Enumerator enumerator = delCards.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                _bw.Write(delCards[m]);
+                _bw.Write(enumerator.Current);
             }
         }
 
@@ -30,7 +32,7 @@ namespace FinalWar
         {
             isMine = _br.ReadBoolean();
 
-            delCards = new List<int>();
+            delCards = new LinkedList<int>();
 
             int num = _br.ReadInt32();
 
@@ -38,7 +40,7 @@ namespace FinalWar
             {
                 int uid = _br.ReadInt32();
 
-                delCards.Add(uid);
+                delCards.AddLast(uid);
             }
         }
     }

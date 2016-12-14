@@ -2196,7 +2196,7 @@ namespace FinalWar
 
         private void ServerDoMove(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
-            List<int> tmpList = null;
+            LinkedList<int> tmpList = null;
 
             Dictionary<int, BattleCellData>.Enumerator enumerator = _battleData.actionDic.GetEnumerator();
 
@@ -2210,10 +2210,10 @@ namespace FinalWar
                 {
                     if (tmpList == null)
                     {
-                        tmpList = new List<int>();
+                        tmpList = new LinkedList<int>();
                     }
 
-                    tmpList.Add(pair.Key);
+                    tmpList.AddLast(pair.Key);
                 }
             }
 
@@ -2221,11 +2221,13 @@ namespace FinalWar
             {
                 Dictionary<int, int> tmpMoveDic = null;
 
-                List<Hero> captureList = null;
+                LinkedList<Hero> captureList = null;
 
-                for (int i = 0; i < tmpList.Count; i++)
+                LinkedList<int>.Enumerator enumerator3 = tmpList.GetEnumerator();
+
+                while (enumerator3.MoveNext())
                 {
-                    OneCellEmpty(_battleData, tmpList[i], ref tmpMoveDic, ref captureList);
+                    OneCellEmpty(_battleData, enumerator3.Current, ref tmpMoveDic, ref captureList);
                 }
 
                 if (tmpMoveDic != null)
@@ -2241,9 +2243,11 @@ namespace FinalWar
 
                     Dictionary<Hero, int> damageDic = new Dictionary<Hero, int>();
 
-                    for (int i = 0; i < captureList.Count; i++)
+                    LinkedList<Hero>.Enumerator enumerator2 = captureList.GetEnumerator();
+
+                    while (enumerator.MoveNext())
                     {
-                        Hero hero = captureList[i];
+                        Hero hero = enumerator2.Current;
 
                         eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.CAPTURE), shieldChangeDic, hpChangeDic, damageDic, _voList);
                     }
@@ -2334,7 +2338,7 @@ namespace FinalWar
             _hero.SetAction(Hero.HeroAction.NULL);
         }
 
-        private void OneCellEmpty(BattleData _battleData, int _pos, ref Dictionary<int, int> _tmpMoveDic, ref List<Hero> _captureList)
+        private void OneCellEmpty(BattleData _battleData, int _pos, ref Dictionary<int, int> _tmpMoveDic, ref LinkedList<Hero> _captureList)
         {
             int nowPos = _pos;
 
@@ -2373,10 +2377,10 @@ namespace FinalWar
 
                             if (_captureList == null)
                             {
-                                _captureList = new List<Hero>();
+                                _captureList = new LinkedList<Hero>();
                             }
 
-                            _captureList.Add(hero);
+                            _captureList.AddLast(hero);
 
                             if (mapData.mBase == nowPos)
                             {
@@ -2634,7 +2638,7 @@ namespace FinalWar
         {
             Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
 
-            List<int> delList = null;
+            LinkedList<int> delList = null;
 
             for (int i = 0; i < _num && handCardsDic.Count > 0; i++)
             {
@@ -2644,10 +2648,10 @@ namespace FinalWar
 
                 if (delList == null)
                 {
-                    delList = new List<int>();
+                    delList = new LinkedList<int>();
                 }
 
-                delList.Add(uid);
+                delList.AddLast(uid);
             }
 
             if (delList != null)
@@ -2683,9 +2687,9 @@ namespace FinalWar
         {
             while (_shieldChangeDic.Count > 0 || _hpChangeDic.Count > 0 || _damageDic.Count > 0)
             {
-                List<int> diePos = null;
+                LinkedList<int> diePos = null;
 
-                List<Hero> dieHero = null;
+                LinkedList<Hero> dieHero = null;
 
                 Dictionary<Hero, KeyValuePair<int, int>> recordDic = null;
 
@@ -2731,14 +2735,14 @@ namespace FinalWar
                     {
                         if (diePos == null)
                         {
-                            diePos = new List<int>();
+                            diePos = new LinkedList<int>();
 
-                            dieHero = new List<Hero>();
+                            dieHero = new LinkedList<Hero>();
                         }
 
-                        diePos.Add(hero.pos);
+                        diePos.AddLast(hero.pos);
 
-                        dieHero.Add(hero);
+                        dieHero.AddLast(hero);
 
                         ServerRemoveHero(_battleData, hero);
                     }
@@ -2777,14 +2781,14 @@ namespace FinalWar
                             {
                                 if (diePos == null)
                                 {
-                                    diePos = new List<int>();
+                                    diePos = new LinkedList<int>();
 
-                                    dieHero = new List<Hero>();
+                                    dieHero = new LinkedList<Hero>();
                                 }
 
-                                diePos.Add(hero.pos);
+                                diePos.AddLast(hero.pos);
 
-                                dieHero.Add(hero);
+                                dieHero.AddLast(hero);
 
                                 ServerRemoveHero(_battleData, hero);
                             }
@@ -2830,9 +2834,11 @@ namespace FinalWar
                 {
                     _voList.AddLast(new BattleDeathVO(diePos));
 
-                    for (int i = 0; i < diePos.Count; i++)
+                    LinkedList<Hero>.Enumerator enumerator = dieHero.GetEnumerator();
+
+                    while (enumerator.MoveNext())
                     {
-                        ServerDoHeroDie(dieHero[i], _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
+                        ServerDoHeroDie(enumerator.Current, _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
                     }
                 }
             }
@@ -3054,9 +3060,11 @@ namespace FinalWar
 
         private void ClientDoDie(BattleDeathVO _vo)
         {
-            for (int i = 0; i < _vo.deads.Count; i++)
+            LinkedList<int>.Enumerator enumerator = _vo.deads.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                heroMapDic.Remove(_vo.deads[i]);
+                heroMapDic.Remove(enumerator.Current);
             }
         }
 
@@ -3090,9 +3098,11 @@ namespace FinalWar
         {
             Dictionary<int, int> handCards = _vo.isMine ? mHandCards : oHandCards;
 
-            for (int i = 0; i < _vo.delCards.Count; i++)
+            LinkedList<int>.Enumerator enumerator = _vo.delCards.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                handCards.Remove(_vo.delCards[i]);
+                handCards.Remove(enumerator.Current);
             }
         }
 
