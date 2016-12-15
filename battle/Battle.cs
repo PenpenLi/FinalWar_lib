@@ -10,19 +10,20 @@ namespace FinalWar
     {
         internal const string REMOVE_EVENT_NAME = "remove";
 
-        internal static readonly Random random = new Random();
+        public static readonly Random random = new Random();
 
         internal static Func<int, MapData> GetMapData;
         internal static Func<int, IHeroSDS> GetHeroData;
         internal static Func<int, ISkillSDS> GetSkillData;
         internal static Func<int, IAuraSDS> GetAuraData;
 
-        private const int DEFAULT_HAND_CARD_NUM = 5;
-        private const int MAX_HAND_CARD_NUM = 7;
-        private const int ADD_CARD_NUM = 1;
-        private const int DEFAULT_MONEY = 5;
-        private const int ADD_MONEY = 3;
-        private const int MAX_MONEY = 10;
+        public const int DECK_CARD_NUM = 20;
+        public const int DEFAULT_HAND_CARD_NUM = 5;
+        public const int MAX_HAND_CARD_NUM = 7;
+        public const int ADD_CARD_NUM = 1;
+        public const int DEFAULT_MONEY = 5;
+        public const int ADD_MONEY = 3;
+        public const int MAX_MONEY = 10;
 
         public int mapID;
         public MapData mapData;
