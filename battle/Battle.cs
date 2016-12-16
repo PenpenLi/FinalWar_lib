@@ -22,8 +22,8 @@ namespace FinalWar
         public const int MAX_HAND_CARD_NUM = 7;
         public const int ADD_CARD_NUM = 1;
         public const int DEFAULT_MONEY = 5;
-        public const int ADD_MONEY = 3;
-        public const int AI_ADD_MONEY = 5;
+        public const int ADD_MONEY = 2;
+        public const int AI_ADD_MONEY = 3;
         public const int MAX_MONEY = 10;
 
         public int mapID;
@@ -1650,71 +1650,101 @@ namespace FinalWar
                     }
                 }
 
-                bool doubleDamage = true;
-
-                eventListenerV.DispatchEvent(AuraEffect.HALF_RUSH_DAMAGE.ToString(), ref doubleDamage, stander);
-
-                if (doubleDamage)
-                {
-                    damage *= 2;
-                }
-
                 eventListenerV.DispatchEvent(AuraEffect.FIX_RUSH_DAMAGE.ToString(), ref damage, stander);
 
+                //突袭穿甲
                 if (damage > 0)
                 {
-                    BattlePublicTools.AccumulateDicData(_damageDic, stander, -damage);
+                    BattlePublicTools.AccumulateDicData(_hpChangeDic, stander, -damage);
                 }
 
-                int shield = stander.nowShield;
+                int shieldDamage;
 
                 if (_shieldChangeDic.ContainsKey(stander))
                 {
-                    shield += _shieldChangeDic[stander];
-
-                    if (shield < 0)
-                    {
-                        shield = 0;
-                    }
-                }
-
-                if (shield >= damage)
-                {
-                    shield -= damage;
-
-                    damage = 0;
+                    shieldDamage = _shieldChangeDic[stander];
                 }
                 else
                 {
-                    damage -= shield;
-
-                    shield = 0;
+                    shieldDamage = 0;
                 }
 
-                int shieldDamage = shield - stander.nowShield;
-
-                int hp = stander.nowHp;
+                int hpDamage;
 
                 if (_hpChangeDic.ContainsKey(stander))
                 {
-                    hp += _hpChangeDic[stander];
-
-                    if (hp < 0)
-                    {
-                        hp = 0;
-                    }
-                }
-
-                if (hp >= damage)
-                {
-                    hp -= damage;
+                    hpDamage = _hpChangeDic[stander];
                 }
                 else
                 {
-                    hp = 0;
+                    hpDamage = 0;
                 }
+                //----
 
-                int hpDamage = hp - stander.nowHp;
+                //突袭造成双倍伤害
+                //bool doubleDamage = true;
+
+                //eventListenerV.DispatchEvent(AuraEffect.HALF_RUSH_DAMAGE.ToString(), ref doubleDamage, stander);
+
+                //if (doubleDamage)
+                //{
+                //    damage *= 2;
+                //}
+
+                //if (damage > 0)
+                //{
+                //    BattlePublicTools.AccumulateDicData(_damageDic, stander, -damage);
+                //}
+
+                //int shield = stander.nowShield;
+
+                //if (_shieldChangeDic.ContainsKey(stander))
+                //{
+                //    shield += _shieldChangeDic[stander];
+
+                //    if (shield < 0)
+                //    {
+                //        shield = 0;
+                //    }
+                //}
+
+                //if (shield >= damage)
+                //{
+                //    shield -= damage;
+
+                //    damage = 0;
+                //}
+                //else
+                //{
+                //    damage -= shield;
+
+                //    shield = 0;
+                //}
+
+                //int shieldDamage = shield - stander.nowShield;
+
+                //int hp = stander.nowHp;
+
+                //if (_hpChangeDic.ContainsKey(stander))
+                //{
+                //    hp += _hpChangeDic[stander];
+
+                //    if (hp < 0)
+                //    {
+                //        hp = 0;
+                //    }
+                //}
+
+                //if (hp >= damage)
+                //{
+                //    hp -= damage;
+                //}
+                //else
+                //{
+                //    hp = 0;
+                //}
+
+                //int hpDamage = hp - stander.nowHp;
 
                 BattleRushVO vo = new BattleRushVO(attackers, _cellData.pos, shieldDamage, hpDamage);
 
