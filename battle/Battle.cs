@@ -1644,10 +1644,7 @@ namespace FinalWar
                         {
                             Hero tmpHero = tmpCellData.supporters[m];
 
-                            if (tmpHero.sds.GetAbilityType() == AbilityType.Help)
-                            {
-                                damage += tmpHero.GetHelpDamage();
-                            }
+                            damage += tmpHero.GetHelpDamage();
                         }
                     }
                 }
@@ -1842,10 +1839,7 @@ namespace FinalWar
                         {
                             Hero tmpHero = tmpCellData.supporters[m];
 
-                            if (tmpHero.sds.GetAbilityType() == AbilityType.Help)
-                            {
-                                attackDamage += tmpHero.GetHelpDamage();
-                            }
+                            attackDamage += tmpHero.GetHelpDamage();
                         }
                     }
                 }

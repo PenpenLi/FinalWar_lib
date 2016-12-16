@@ -148,20 +148,18 @@ namespace FinalWar
             canMove = false;
         }
 
-        internal int GetAttackDamage()
+        private int GetAttackFix()
         {
-            int attackDamage = sds.GetAttack() + attackFix;
+            int attack = sds.GetAttack() + attackFix;
 
-            eventListenerV.DispatchEvent(AuraEffect.FIX_ATTACK.ToString(), ref attackDamage, this);
+            eventListenerV.DispatchEvent(AuraEffect.FIX_ATTACK.ToString(), ref attack, this);
 
-            if (attackDamage > 0)
+            if (attack < 0)
             {
-                return attackDamage;
+                attack = 0;
             }
-            else
-            {
-                return 0;
-            }
+
+            return attack;
         }
 
         private int GetAbilityFix()
@@ -173,25 +171,53 @@ namespace FinalWar
             return result;
         }
 
-        private int GetAbilityDamage()
+        internal int GetAttackDamage()
         {
-            return GetAttackDamage() + GetAbilityFix();
+            if (sds.GetAbilityType() == AbilityType.Null || sds.GetAbilityType() == AbilityType.Building)
+            {
+                int attackDamage = GetAttackFix() + GetAbilityFix();
+
+                if (attackDamage < 0)
+                {
+                    attackDamage = 0;
+                }
+
+                return attackDamage;
+            }
+            else
+            {
+                return GetAttackFix();
+            }
         }
 
         internal int GetShootDamage()
         {
-            return GetAbilityDamage();
+            int shootDamage = GetAttackFix() + GetAbilityFix();
+
+            if (shootDamage < 0)
+            {
+                shootDamage = 0;
+            }
+
+            return shootDamage;
         }
 
         internal int GetCounterDamage()
         {
             if (sds.GetAbilityType() == AbilityType.Counter)
             {
-                return GetAbilityDamage();
+                int counterDamage = GetAttackFix() + GetAbilityFix();
+
+                if (counterDamage < 0)
+                {
+                    counterDamage = 0;
+                }
+
+                return counterDamage;
             }
             else
             {
-                return GetAttackDamage();
+                return GetAttackFix();
             }
         }
 
@@ -199,7 +225,14 @@ namespace FinalWar
         {
             if (sds.GetAbilityType() == AbilityType.Support)
             {
-                return GetAbilityDamage();
+                int supportDamage = GetAttackFix() + GetAbilityFix();
+
+                if (supportDamage < 0)
+                {
+                    supportDamage = 0;
+                }
+
+                return supportDamage;
             }
             else
             {
@@ -209,7 +242,21 @@ namespace FinalWar
 
         internal int GetHelpDamage()
         {
-            return GetAbilityDamage();
+            if (sds.GetAbilityType() == AbilityType.Help)
+            {
+                int helpDamage = GetAttackFix() + GetAbilityFix();
+
+                if (helpDamage < 0)
+                {
+                    helpDamage = 0;
+                }
+
+                return helpDamage;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         internal void ServerRecover(LinkedList<IBattleVO> _voList)
