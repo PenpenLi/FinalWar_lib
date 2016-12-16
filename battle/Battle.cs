@@ -592,25 +592,6 @@ namespace FinalWar
                 return false;
             }
 
-            LinkedList<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
-
-            LinkedList<int>.Enumerator enumerator = tmpList.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                int pos = enumerator.Current;
-
-                if (GetPosIsMine(pos) != clientIsMine && heroMapDic.ContainsKey(pos))
-                {
-                    Hero hero = heroMapDic[pos];
-
-                    if (hero.sds.GetAbilityType() == AbilityType.Building)
-                    {
-                        return false;
-                    }
-                }
-            }
-
             summon.Add(_cardUid, _pos);
 
             return true;
@@ -1147,23 +1128,16 @@ namespace FinalWar
 
                 Hero summonHero = SummonOneUnit(tmpCardUid, pos, _battleData);
 
-                if (summonHero != null)
+                if (summonDic == null)
                 {
-                    if (summonDic == null)
-                    {
-                        summonDic = new Dictionary<int, Hero>();
-                    }
-
-                    summonDic.Add(pos, summonHero);
-
-                    _voList.AddLast(new BattleSummonVO(tmpCardUid, summonHero.sds.GetID(), pos));
-
-                    eventListener.DispatchEvent(HeroSkill.GetEventName(summonHero.uid, SkillTime.SUMMON), shieldChangeDic, hpChangeDic, damageDic, _voList);
+                    summonDic = new Dictionary<int, Hero>();
                 }
-                else
-                {
-                    Log.Write("Summon error1");
-                }
+
+                summonDic.Add(pos, summonHero);
+
+                _voList.AddLast(new BattleSummonVO(tmpCardUid, summonHero.sds.GetID(), pos));
+
+                eventListener.DispatchEvent(HeroSkill.GetEventName(summonHero.uid, SkillTime.SUMMON), shieldChangeDic, hpChangeDic, damageDic, _voList);
             }
 
             if (summonDic != null)
@@ -1216,25 +1190,6 @@ namespace FinalWar
                 oMoney -= sds.GetCost();
 
                 oHandCards.Remove(_uid);
-            }
-
-            LinkedList<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
-
-            LinkedList<int>.Enumerator enumerator = tmpList.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                int pos = enumerator.Current;
-
-                if (GetPosIsMine(pos) != isMine && heroMapDic.ContainsKey(pos))
-                {
-                    Hero tmpHero = heroMapDic[pos];
-
-                    if (tmpHero.sds.GetAbilityType() == AbilityType.Building)
-                    {
-                        return null;
-                    }
-                }
             }
 
             Hero hero = new Hero(eventListenerV, isMine, sds, _pos, GetHeroUid());
