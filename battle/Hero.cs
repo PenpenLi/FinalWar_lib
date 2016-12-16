@@ -154,11 +154,6 @@ namespace FinalWar
 
             eventListenerV.DispatchEvent(AuraEffect.FIX_ATTACK.ToString(), ref attack, this);
 
-            if (attack < 0)
-            {
-                attack = 0;
-            }
-
             return attack;
         }
 
@@ -173,21 +168,23 @@ namespace FinalWar
 
         internal int GetAttackDamage()
         {
-            if (sds.GetAbilityType() == AbilityType.Null || sds.GetAbilityType() == AbilityType.Building)
+            int attackDamage;
+
+            if (sds.GetAbilityType() == AbilityType.Null)
             {
-                int attackDamage = GetAttackFix() + GetAbilityFix();
-
-                if (attackDamage < 0)
-                {
-                    attackDamage = 0;
-                }
-
-                return attackDamage;
+                attackDamage = GetAttackFix() + GetAbilityFix();
             }
             else
             {
-                return GetAttackFix();
+                attackDamage = GetAttackFix();
             }
+
+            if (attackDamage < 0)
+            {
+                attackDamage = 0;
+            }
+
+            return attackDamage;
         }
 
         internal int GetShootDamage()
@@ -204,21 +201,23 @@ namespace FinalWar
 
         internal int GetCounterDamage()
         {
+            int counterDamage;
+
             if (sds.GetAbilityType() == AbilityType.Counter)
             {
-                int counterDamage = GetAttackFix() + GetAbilityFix();
-
-                if (counterDamage < 0)
-                {
-                    counterDamage = 0;
-                }
-
-                return counterDamage;
+                counterDamage = GetAttackFix() + GetAbilityFix();
             }
             else
             {
-                return GetAttackFix();
+                counterDamage = GetAttackFix();
             }
+
+            if (counterDamage < 0)
+            {
+                counterDamage = 0;
+            }
+
+            return counterDamage;
         }
 
         internal int GetSupportDamage()
