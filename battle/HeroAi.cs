@@ -292,10 +292,6 @@ namespace FinalWar
 
                         money -= heroSDS.GetCost();
                     }
-                    else
-                    {
-                        break;
-                    }
                 }
             }
         }

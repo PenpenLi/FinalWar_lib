@@ -23,6 +23,7 @@ namespace FinalWar
         public const int ADD_CARD_NUM = 1;
         public const int DEFAULT_MONEY = 5;
         public const int ADD_MONEY = 3;
+        public const int AI_ADD_MONEY = 5;
         public const int MAX_MONEY = 10;
 
         public int mapID;
@@ -2504,7 +2505,14 @@ namespace FinalWar
         {
             ServerMoneyChange(true, ADD_MONEY, _voList);
 
-            ServerMoneyChange(false, ADD_MONEY, _voList);
+            if (!isVsAi)
+            {
+                ServerMoneyChange(false, ADD_MONEY, _voList);
+            }
+            else
+            {
+                ServerMoneyChange(false, AI_ADD_MONEY, _voList);
+            }
 
             ServerAddCards(true, ADD_CARD_NUM, _voList);
 
@@ -2894,7 +2902,7 @@ namespace FinalWar
 
             IHeroSDS sds = GetHeroData(_vo.heroID);
 
-            if (clientIsMine)
+            if (isMine)
             {
                 mHandCards.Remove(_vo.cardUid);
 
