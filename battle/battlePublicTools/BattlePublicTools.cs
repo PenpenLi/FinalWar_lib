@@ -33,6 +33,10 @@ public class BattlePublicTools
 
         int[] arr = _mapData.neighbourPosMap[_pos];
 
+        Dictionary<int, bool> checkedDic = new Dictionary<int, bool>();
+
+        int[] indexArr = new int[3];
+
         for (int i = 0; i < 6; i++)
         {
             int pos = arr[i];
@@ -43,17 +47,40 @@ public class BattlePublicTools
 
                 if (mapUnitType != MapData.MapUnitType.HILL)
                 {
+                    indexArr[0] = i;
+
+                    if (i == 5)
+                    {
+                        indexArr[1] = 4;
+                        indexArr[2] = 0;
+                    }
+                    else if (i == 0)
+                    {
+                        indexArr[1] = 5;
+                        indexArr[2] = 1;
+                    }
+                    else
+                    {
+                        indexArr[1] = i - 1;
+                        indexArr[2] = i + 1;
+                    }
+
                     int[] arr2 = _mapData.neighbourPosMap[pos];
 
-                    pos = arr2[i];
-
-                    if (pos != -1)
+                    for (int m = 0; m < 3; m++)
                     {
-                        mapUnitType = _mapData.dic[pos];
+                        pos = arr2[indexArr[m]];
 
-                        if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
+                        if (pos != -1 && !checkedDic.ContainsKey(pos))
                         {
-                            result.AddLast(arr2[i]);
+                            checkedDic.Add(pos, false);
+
+                            mapUnitType = _mapData.dic[pos];
+
+                            if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
+                            {
+                                result.AddLast(pos);
+                            }
                         }
                     }
                 }
