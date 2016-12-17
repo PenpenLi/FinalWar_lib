@@ -22,8 +22,6 @@ namespace FinalWar
                     {
                         case AuraEffect.FIX_ATTACK:
                         case AuraEffect.FIX_ABILITY:
-                        case AuraEffect.FIX_SHOOT_DAMAGE:
-                        case AuraEffect.FIX_RUSH_DAMAGE:
 
                             SuperEventListenerV.EventCallBack<int> dele = delegate (SuperEvent e, ref int _value)
                             {
@@ -34,7 +32,6 @@ namespace FinalWar
 
                             break;
 
-                        case AuraEffect.HALF_RUSH_DAMAGE:
                         case AuraEffect.SILENT:
                         case AuraEffect.DISABLE_RECOVER_SHIELD:
 

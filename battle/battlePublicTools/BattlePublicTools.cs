@@ -27,43 +27,43 @@ public class BattlePublicTools
         return result;
     }
 
-    //public static LinkedList<int> GetNeighbourPos2(MapData _mapData, int _pos)
-    //{
-    //    LinkedList<int> result = new LinkedList<int>();
-
-    //    int[] arr = _mapData.neighbourPosMap[_pos];
-
-    //    for (int i = 0; i < 6; i++)
-    //    {
-    //        int pos = arr[i];
-
-    //        if (pos != -1)
-    //        {
-    //            MapData.MapUnitType mapUnitType = _mapData.dic[pos];
-
-    //            if (mapUnitType != MapData.MapUnitType.HILL)
-    //            {
-    //                int[] arr2 = _mapData.neighbourPosMap[pos];
-
-    //                pos = arr2[i];
-
-    //                if (pos != -1)
-    //                {
-    //                    mapUnitType = _mapData.dic[pos];
-
-    //                    if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
-    //                    {
-    //                        result.AddLast(pos);
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    return result;
-    //}
-
     public static LinkedList<int> GetNeighbourPos2(MapData _mapData, int _pos)
+    {
+        LinkedList<int> result = new LinkedList<int>();
+
+        int[] arr = _mapData.neighbourPosMap[_pos];
+
+        for (int i = 0; i < 6; i++)
+        {
+            int pos = arr[i];
+
+            if (pos != -1)
+            {
+                MapData.MapUnitType mapUnitType = _mapData.dic[pos];
+
+                if (mapUnitType != MapData.MapUnitType.HILL)
+                {
+                    int[] arr2 = _mapData.neighbourPosMap[pos];
+
+                    pos = arr2[i];
+
+                    if (pos != -1)
+                    {
+                        mapUnitType = _mapData.dic[pos];
+
+                        if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
+                        {
+                            result.AddLast(pos);
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static LinkedList<int> GetNeighbourPos3(MapData _mapData, int _pos)
     {
         LinkedList<int> result = new LinkedList<int>();
 

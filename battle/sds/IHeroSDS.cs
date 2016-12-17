@@ -5,6 +5,7 @@
     Support,
     Counter,
     Help,
+    Throw,
     Building
 }
 
