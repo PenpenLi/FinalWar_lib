@@ -1708,6 +1708,11 @@ namespace FinalWar
                 if (_hpChangeDic.ContainsKey(stander))
                 {
                     hpDamage = _hpChangeDic[stander];
+
+                    if (stander.nowHp + hpDamage < 0)
+                    {
+                        hpDamage = -stander.nowHp;
+                    }
                 }
                 else
                 {
