@@ -1663,6 +1663,8 @@ namespace FinalWar
 
                 List<int> attackers = new List<int>();
 
+                List<List<int>> helpers = new List<List<int>>();
+
                 int damage = 0;
 
                 for (int i = 0; i < _cellData.attackers.Count; i++)
@@ -1673,6 +1675,10 @@ namespace FinalWar
 
                     damage += attacker.GetAttackDamage();
 
+                    List<int> tmpList = new List<int>();
+
+                    helpers.Add(tmpList);
+
                     if (_battleData.actionDic.ContainsKey(attacker.pos))
                     {
                         BattleCellData tmpCellData = _battleData.actionDic[attacker.pos];
@@ -1682,6 +1688,8 @@ namespace FinalWar
                             Hero tmpHero = tmpCellData.supporters[m];
 
                             damage += tmpHero.GetHelpDamage();
+
+                            tmpList.Add(tmpHero.pos);
                         }
                     }
                 }
@@ -1785,7 +1793,7 @@ namespace FinalWar
 
                 //int hpDamage = hp - stander.nowHp;
 
-                BattleRushVO vo = new BattleRushVO(attackers, _cellData.pos, shieldDamage, hpDamage);
+                BattleRushVO vo = new BattleRushVO(attackers, helpers, _cellData.pos, shieldDamage, hpDamage);
 
                 _voList.AddLast(vo);
             }
@@ -1857,6 +1865,8 @@ namespace FinalWar
 
                 List<int> attackers = new List<int>();
 
+                List<List<int>> helpers = new List<List<int>>();
+
                 List<int> supporters = new List<int>();
 
                 List<int> attackersShieldDamage = new List<int>();
@@ -1901,6 +1911,10 @@ namespace FinalWar
 
                     attackDamage += hero.GetAttackDamage();
 
+                    List<int> tmpList = new List<int>();
+
+                    helpers.Add(tmpList);
+
                     if (_battleData.actionDic.ContainsKey(hero.pos))
                     {
                         BattleCellData tmpCellData = _battleData.actionDic[hero.pos];
@@ -1908,6 +1922,8 @@ namespace FinalWar
                         for (int m = 0; m < tmpCellData.supporters.Count; m++)
                         {
                             Hero tmpHero = tmpCellData.supporters[m];
+
+                            tmpList.Add(tmpHero.pos);
 
                             attackDamage += tmpHero.GetHelpDamage();
                         }
@@ -2208,7 +2224,7 @@ namespace FinalWar
                     }
                 }
 
-                BattleAttackVO vo = new BattleAttackVO(attackers, supporters, _cellData.pos, attackersShieldDamage, attackersHpDamage, supportersShieldDamage, supportersHpDamage, defenderShieldDamage, defenderHpDamage);
+                BattleAttackVO vo = new BattleAttackVO(attackers, helpers, supporters, _cellData.pos, attackersShieldDamage, attackersHpDamage, supportersShieldDamage, supportersHpDamage, defenderShieldDamage, defenderHpDamage);
 
                 _voList.AddLast(vo);
             }

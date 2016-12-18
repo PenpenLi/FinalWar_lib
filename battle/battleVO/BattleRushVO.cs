@@ -6,13 +6,15 @@ namespace FinalWar
     public struct BattleRushVO : IBattleVO
     {
         public List<int> attackers;
+        public List<List<int>> helpers;
         public int stander;
         public int shieldDamage;
         public int hpDamage;
 
-        public BattleRushVO(List<int> _attackers, int _stander, int _shieldDamage, int _hpDamage)
+        public BattleRushVO(List<int> _attackers, List<List<int>> _helpers, int _stander, int _shieldDamage, int _hpDamage)
         {
             attackers = _attackers;
+            helpers = _helpers;
             stander = _stander;
             shieldDamage = _shieldDamage;
             hpDamage = _hpDamage;
@@ -25,6 +27,15 @@ namespace FinalWar
             for (int m = 0; m < attackers.Count; m++)
             {
                 _bw.Write(attackers[m]);
+
+                List<int> tmpList = helpers[m];
+
+                _bw.Write(tmpList.Count);
+
+                for (int i = 0; i < tmpList.Count; i++)
+                {
+                    _bw.Write(tmpList[i]);
+                }
             }
 
             _bw.Write(stander);
@@ -38,6 +49,8 @@ namespace FinalWar
         {
             attackers = new List<int>();
 
+            helpers = new List<List<int>>();
+
             int attackerNum = _br.ReadInt32();
 
             for (int m = 0; m < attackerNum; m++)
@@ -45,6 +58,17 @@ namespace FinalWar
                 int rusher = _br.ReadInt32();
 
                 attackers.Add(rusher);
+
+                List<int> tmpList = new List<int>();
+
+                helpers.Add(tmpList);
+
+                int num = _br.ReadInt32();
+
+                for (int i = 0; i < num; i++)
+                {
+                    tmpList.Add(_br.ReadInt32());
+                }
             }
 
             stander = _br.ReadInt32();
