@@ -1687,9 +1687,12 @@ namespace FinalWar
                         {
                             Hero tmpHero = tmpCellData.supporters[m];
 
-                            damage += tmpHero.GetHelpDamage();
+                            if (tmpHero.sds.GetAbilityType() == AbilityType.Help)
+                            {
+                                damage += tmpHero.GetHelpDamage();
 
-                            tmpList.Add(tmpHero.pos);
+                                tmpList.Add(tmpHero.pos);
+                            }
                         }
                     }
                 }
@@ -1900,7 +1903,10 @@ namespace FinalWar
 
                     supporters.Add(hero.pos);
 
-                    defenseDamage += hero.GetSupportDamage();
+                    if (hero.sds.GetAbilityType() == AbilityType.Support)
+                    {
+                        defenseDamage += hero.GetSupportDamage();
+                    }
                 }
 
                 for (int i = 0; i < _cellData.attackers.Count; i++)
@@ -1923,9 +1929,12 @@ namespace FinalWar
                         {
                             Hero tmpHero = tmpCellData.supporters[m];
 
-                            tmpList.Add(tmpHero.pos);
+                            if (tmpHero.sds.GetAbilityType() == AbilityType.Help)
+                            {
+                                tmpList.Add(tmpHero.pos);
 
-                            attackDamage += tmpHero.GetHelpDamage();
+                                attackDamage += tmpHero.GetHelpDamage();
+                            }
                         }
                     }
                 }

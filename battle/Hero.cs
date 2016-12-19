@@ -222,40 +222,26 @@ namespace FinalWar
 
         internal int GetSupportDamage()
         {
-            if (sds.GetAbilityType() == AbilityType.Support)
-            {
-                int supportDamage = GetAttackFix() + GetAbilityFix();
+            int supportDamage = GetAttackFix() + GetAbilityFix();
 
-                if (supportDamage < 0)
-                {
-                    supportDamage = 0;
-                }
-
-                return supportDamage;
-            }
-            else
+            if (supportDamage < 0)
             {
-                return 0;
+                supportDamage = 0;
             }
+
+            return supportDamage;
         }
 
         internal int GetHelpDamage()
         {
-            if (sds.GetAbilityType() == AbilityType.Help)
-            {
-                int helpDamage = GetAttackFix() + GetAbilityFix();
+            int helpDamage = GetAttackFix() + GetAbilityFix();
 
-                if (helpDamage < 0)
-                {
-                    helpDamage = 0;
-                }
-
-                return helpDamage;
-            }
-            else
+            if (helpDamage < 0)
             {
-                return 0;
+                helpDamage = 0;
             }
+
+            return helpDamage;
         }
 
         internal void ServerRecover(LinkedList<IBattleVO> _voList)
