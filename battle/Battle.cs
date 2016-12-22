@@ -22,6 +22,7 @@ namespace FinalWar
         public const int MAX_HAND_CARD_NUM = 7;
         public const int ADD_CARD_NUM = 1;
         public const int DEFAULT_MONEY = 5;
+        public const int AI_DEFAULT_MONEY = 7;
         public const int ADD_MONEY = 2;
         public const int AI_ADD_MONEY = 3;
         public const int MAX_MONEY = 10;
@@ -124,7 +125,16 @@ namespace FinalWar
             mScore = mapData.mScore;
             oScore = mapData.oScore;
 
-            mMoney = oMoney = DEFAULT_MONEY;
+            mMoney = DEFAULT_MONEY;
+
+            if (!isVsAi)
+            {
+                oMoney = DEFAULT_MONEY;
+            }
+            else
+            {
+                oMoney = AI_DEFAULT_MONEY;
+            }
 
             mWin = oWin = false;
 
