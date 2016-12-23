@@ -27,8 +27,8 @@ namespace FinalWar
         public const int AI_ADD_MONEY = 3;
         public const int MAX_MONEY = 10;
 
-        public int mapID;
-        public MapData mapData;
+        public int mapID { get; private set; }
+        public MapData mapData { get; private set; }
 
         private Dictionary<int, bool> mapBelongDic = new Dictionary<int, bool>();
         public Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
@@ -39,11 +39,11 @@ namespace FinalWar
         public Dictionary<int, int> mHandCards = new Dictionary<int, int>();
         public Dictionary<int, int> oHandCards = new Dictionary<int, int>();
 
-        public int mScore;
-        public int oScore;
+        public int mScore { get; private set; }
+        public int oScore { get; private set; }
 
-        public int mMoney;
-        public int oMoney;
+        public int mMoney { get; private set; }
+        public int oMoney { get; private set; }
 
         public Dictionary<int, int> summon = new Dictionary<int, int>();
 
@@ -54,13 +54,13 @@ namespace FinalWar
         private int cardUid;
         private int heroUid;
 
-        public bool mOver;
-        public bool oOver;
+        public bool mOver { get; private set; }
+        public bool oOver { get; private set; }
 
         private Action<bool, MemoryStream> serverSendDataCallBack;
         private Action serverBattleOverCallBack;
 
-        public bool clientIsMine;
+        public bool clientIsMine { get; private set; }
 
         private Action<MemoryStream> clientSendDataCallBack;
         private Action clientRefreshDataCallBack;
@@ -70,8 +70,8 @@ namespace FinalWar
         internal SuperEventListener eventListener = new SuperEventListener();
         internal SuperEventListenerV eventListenerV = new SuperEventListenerV();
 
-        public bool mWin = false;
-        public bool oWin = false;
+        public bool mWin { get; private set; }
+        public bool oWin { get; private set; }
 
         private bool isVsAi;
 
