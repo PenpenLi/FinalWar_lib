@@ -1511,15 +1511,14 @@ namespace FinalWar
                     }
                 }
 
-                //射击不穿甲
                 if (shootDamage > 0)
                 {
-                    BattlePublicTools.AccumulateDicData(_damageDic, stander, -shootDamage);
+                    BattlePublicTools.AccumulateDicData(_hpChangeDic, stander, -shootDamage);
                 }
 
                 if (throwDamage > 0)
                 {
-                    BattlePublicTools.AccumulateDicData(_shieldChangeDic, stander, -throwDamage);
+                    BattlePublicTools.AccumulateDicData(_damageDic, stander, -throwDamage);
                 }
 
                 int shield = stander.nowShield;
