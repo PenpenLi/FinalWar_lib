@@ -1533,15 +1533,15 @@ namespace FinalWar
                     }
                 }
 
-                if (shield >= shootDamage)
+                if (shield >= throwDamage)
                 {
-                    shield -= shootDamage;
+                    shield -= throwDamage;
 
-                    shootDamage = 0;
+                    throwDamage = 0;
                 }
                 else
                 {
-                    shootDamage -= shield;
+                    throwDamage -= shield;
 
                     shield = 0;
                 }
@@ -1560,9 +1560,9 @@ namespace FinalWar
                     }
                 }
 
-                if (hp >= shootDamage)
+                if (hp >= throwDamage)
                 {
-                    hp -= shootDamage;
+                    hp -= throwDamage;
                 }
                 else
                 {
