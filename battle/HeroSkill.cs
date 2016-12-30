@@ -141,11 +141,14 @@ namespace FinalWar
 
                     if (heros != null)
                     {
-                        while (_skillSDS.GetTargetNum() != -1 && heros.Count > _skillSDS.GetTargetNum())
+                        if (_skillSDS.GetTargetNum() != -1)
                         {
-                            int index = Battle.random.Next(heros.Count);
+                            while (heros.Count > _skillSDS.GetTargetNum())
+                            {
+                                int index = Battle.random.Next(heros.Count);
 
-                            heros.RemoveAt(index);
+                                heros.RemoveAt(index);
+                            }
                         }
 
                         SkillTakeEffect(_battle, _skillSDS, heros, _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
@@ -183,11 +186,14 @@ namespace FinalWar
 
                     if (heros != null)
                     {
-                        while (_skillSDS.GetTargetNum() != -1 && heros.Count > _skillSDS.GetTargetNum())
+                        if (_skillSDS.GetTargetNum() != -1)
                         {
-                            int index = Battle.random.Next(heros.Count);
+                            while (heros.Count > _skillSDS.GetTargetNum())
+                            {
+                                int index = Battle.random.Next(heros.Count);
 
-                            heros.RemoveAt(index);
+                                heros.RemoveAt(index);
+                            }
                         }
 
                         SkillTakeEffect(_battle, _skillSDS, heros, _shieldChangeDic, _hpChangeDic, _damageDic, _voList);
