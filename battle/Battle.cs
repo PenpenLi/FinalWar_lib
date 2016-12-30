@@ -1627,6 +1627,8 @@ namespace FinalWar
                 {
                     BattleCellData cellData = enumerator.Current;
 
+                    List<Hero> defenders = new List<Hero>() { cellData.stander };
+
                     if (!cellData.attackHasBeenProcessed && cellData.stander != null && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
                     {
                         List<Hero> attackers = new List<Hero>(cellData.attackers);
@@ -1635,9 +1637,9 @@ namespace FinalWar
                         {
                             Hero attacker = cellData.attackers[i];
 
-                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), cellData.pos, attackers, new List<Hero>() { cellData.stander }, shieldChangeDic, hpChangeDic, damageDic, _voList);
+                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), cellData.pos, attackers, defenders, shieldChangeDic, hpChangeDic, damageDic, _voList);
 
-                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), cellData.pos, attackers, new List<Hero>() { cellData.stander }, shieldChangeDic, hpChangeDic, damageDic, _voList);
+                            eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), cellData.pos, attackers, defenders, shieldChangeDic, hpChangeDic, damageDic, _voList);
                         }
                     }
                 }
@@ -1827,11 +1829,22 @@ namespace FinalWar
 
                 if (!cellData.attackHasBeenProcessed && cellData.attackers.Count > 0 && (cellData.stander != null || cellData.supporters.Count > 0))
                 {
+                    List<Hero> defenders = new List<Hero>(cellData.supporters);
+
                     List<Hero> supporters = new List<Hero>(cellData.supporters);
 
-                    if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
+                    if (cellData.stander != null)
                     {
-                        supporters.Add(cellData.stander);
+                        if (cellData.stander.action == Hero.HeroAction.DEFENSE)
+                        {
+                            defenders.Insert(0, cellData.stander);
+
+                            supporters.Insert(0, cellData.stander);
+                        }
+                        else
+                        {
+                            defenders.Add(cellData.stander);
+                        }
                     }
 
                     List<Hero> attackers = new List<Hero>(cellData.attackers);
@@ -1840,7 +1853,7 @@ namespace FinalWar
                     {
                         Hero hero = cellData.attackers[i];
 
-                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.ATTACK), cellData.pos, attackers, supporters, shieldChangeDic, hpChangeDic, damageDic, _voList);
+                        eventListener.DispatchEvent(HeroSkill.GetEventName(hero.uid, SkillTime.ATTACK), cellData.pos, attackers, defenders, shieldChangeDic, hpChangeDic, damageDic, _voList);
                     }
 
                     if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)

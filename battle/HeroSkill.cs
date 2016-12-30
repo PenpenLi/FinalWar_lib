@@ -141,7 +141,7 @@ namespace FinalWar
 
                     if (heros != null)
                     {
-                        while (heros.Count > _skillSDS.GetTargetNum())
+                        while (_skillSDS.GetTargetNum() != -1 && heros.Count > _skillSDS.GetTargetNum())
                         {
                             int index = Battle.random.Next(heros.Count);
 
@@ -183,7 +183,7 @@ namespace FinalWar
 
                     if (heros != null)
                     {
-                        while (heros.Count > _skillSDS.GetTargetNum())
+                        while (_skillSDS.GetTargetNum() != -1 && heros.Count > _skillSDS.GetTargetNum())
                         {
                             int index = Battle.random.Next(heros.Count);
 
@@ -211,7 +211,12 @@ namespace FinalWar
 
                     List<Hero> myHeros = new List<Hero>(_myHeros);
 
-                    if (myHeros.Count > _skillSDS.GetTargetNum())
+                    if (myHeros.Contains(_hero))
+                    {
+                        myHeros.Remove(_hero);
+                    }
+
+                    if (_skillSDS.GetTargetNum() != -1 && myHeros.Count > _skillSDS.GetTargetNum())
                     {
                         myHeros.RemoveRange(_skillSDS.GetTargetNum(), myHeros.Count - _skillSDS.GetTargetNum());
                     }
@@ -224,7 +229,7 @@ namespace FinalWar
 
                     List<Hero> oppHeros = new List<Hero>(_oppHeros);
 
-                    if (oppHeros.Count > _skillSDS.GetTargetNum())
+                    if (_skillSDS.GetTargetNum() != -1 && oppHeros.Count > _skillSDS.GetTargetNum())
                     {
                         oppHeros.RemoveRange(_skillSDS.GetTargetNum(), oppHeros.Count - _skillSDS.GetTargetNum());
                     }
