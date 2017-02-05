@@ -45,7 +45,7 @@ namespace FinalWar
                             result = posList;
                         }
 
-                        posList = _battle.GetCanAttackerHeroPos(hero);
+                        posList = _battle.GetCanAttackHeroPos(hero);
 
                         if (posList.Count > 0)
                         {

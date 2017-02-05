@@ -170,7 +170,7 @@ namespace FinalWar
         {
             int attackDamage;
 
-            if (sds.GetAbilityType() == AbilityType.Null)
+            if (sds.GetAbilityType() == AbilityType.Null || sds.GetAbilityType() == AbilityType.Attacker)
             {
                 attackDamage = GetAttackFix() + GetAbilityFix();
             }

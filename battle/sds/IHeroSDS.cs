@@ -6,6 +6,7 @@
     Counter,
     Help,
     Throw,
+    Attacker,
     Building
 }
 
