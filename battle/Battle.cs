@@ -1368,7 +1368,7 @@ namespace FinalWar
 
                                 if (tmpHero.isMine != hero.isMine)
                                 {
-                                    if (isAttackingAttacker)
+                                    if (isAttackingEnemyArea)
                                     {
                                         throw new Exception("attack error1");
                                     }
