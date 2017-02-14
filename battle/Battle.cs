@@ -2583,7 +2583,7 @@ namespace FinalWar
             {
                 case AbilityType.Shoot:
 
-                    posList = GetCanShootPos(_hero);
+                    posList = GetCanShootHeroPos(_hero);
 
                     if (posList.Count > 0)
                     {
@@ -2597,7 +2597,7 @@ namespace FinalWar
                 case AbilityType.Throw:
                 case AbilityType.Building:
 
-                    posList = GetCanThrowPos(_hero);
+                    posList = GetCanThrowHeroPos(_hero);
 
                     if (posList.Count > 0)
                     {
@@ -3513,7 +3513,7 @@ namespace FinalWar
             return result;
         }
 
-        public List<int> GetCanShootPos(Hero _hero)
+        public List<int> GetCanShootHeroPos(Hero _hero)
         {
             List<int> result = new List<int>();
 
@@ -3552,7 +3552,7 @@ namespace FinalWar
             return result;
         }
 
-        public List<int> GetCanThrowPos(Hero _hero)
+        public List<int> GetCanThrowHeroPos(Hero _hero)
         {
             List<int> result = new List<int>();
 

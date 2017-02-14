@@ -49,6 +49,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="bt">
+      <HintPath>..\..\bt\bin\x64\Debug\bt.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -57,6 +60,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="battle\ai\AiData.cs" />
+    <Compile Include="battle\ai\node\AddCanAttackPosNode.cs" />
+    <Compile Include="battle\ai\node\CheckHeroCanBeAttackConditionNode.cs" />
     <Compile Include="battle\Battle.cs" />
     <Compile Include="battle\BattleCellData.cs" />
     <Compile Include="battle\BattleData.cs" />
@@ -75,7 +81,7 @@
     <Compile Include="battle\battleVO\BattleVOTools.cs" />
     <Compile Include="battle\battleVO\IBattleVO.cs" />
     <Compile Include="battle\Hero.cs" />
-    <Compile Include="battle\HeroAi.cs" />
+    <Compile Include="battle\ai\HeroAi.cs" />
     <Compile Include="battle\HeroSkill.cs" />
     <Compile Include="battle\log\Log.cs" />
     <Compile Include="battle\map\MapData.cs" />

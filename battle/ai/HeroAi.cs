@@ -3,9 +3,9 @@ using publicTools;
 
 namespace FinalWar
 {
-    public class HeroAi
+    internal class HeroAi
     {
-        public static void Start(Battle _battle, bool _isMine, double _wrongValue)
+        internal static void Start(Battle _battle, bool _isMine, double _wrongValue)
         {
             ClearAction(_battle, _isMine);
 
@@ -54,7 +54,7 @@ namespace FinalWar
 
                         if (hero.sds.GetAbilityType() == AbilityType.Shoot)
                         {
-                            posList = _battle.GetCanShootPos(hero);
+                            posList = _battle.GetCanShootHeroPos(hero);
 
                             if (posList.Count > 0)
                             {
@@ -70,7 +70,7 @@ namespace FinalWar
                         }
                         else if (hero.sds.GetAbilityType() == AbilityType.Throw || hero.sds.GetAbilityType() == AbilityType.Building)
                         {
-                            posList = _battle.GetCanThrowPos(hero);
+                            posList = _battle.GetCanThrowHeroPos(hero);
 
                             if (posList.Count > 0)
                             {
