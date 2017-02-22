@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace FinalWar
 {
-    internal class AddCanAttackPosNode : ConditionNode<Battle,Hero,AiData>
+    internal class GetCanSupportPosNode : ConditionNode<Battle, Hero, AiData>
     {
         public override bool Enter(Battle _t, Hero _u, AiData _v)
         {
-            List<int> posList = _t.GetCanAttackPos(_u);
+            List<int> posList = _t.GetCanSupportPos(_u);
 
             if (posList.Count > 0)
             {
-                _v.posList.InsertRange(_v.posList.Count, posList);
+                _v.posListDic.Add("canSupportPos", posList);
             }
 
             return true;

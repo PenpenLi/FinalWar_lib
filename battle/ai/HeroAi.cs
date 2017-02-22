@@ -3,9 +3,9 @@ using publicTools;
 
 namespace FinalWar
 {
-    internal class HeroAi
+    public class HeroAi
     {
-        internal static void Start(Battle _battle, bool _isMine, double _wrongValue)
+        public static void Start(Battle _battle, bool _isMine, double _wrongValue)
         {
             ClearAction(_battle, _isMine);
 

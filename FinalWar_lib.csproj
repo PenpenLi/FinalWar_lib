@@ -61,8 +61,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="battle\ai\AiData.cs" />
-    <Compile Include="battle\ai\node\AddCanAttackPosNode.cs" />
+    <Compile Include="battle\ai\node\CheckHasTargetPosConditionNode.cs" />
+    <Compile Include="battle\ai\node\CheckAbilityTypeConditionNode.cs" />
+    <Compile Include="battle\ai\node\ChooseTargetPosActionNode.cs" />
+    <Compile Include="battle\ai\node\GetCanAttackPosNode.cs" />
+    <Compile Include="battle\ai\node\GetCanHelpHeroPosNode.cs" />
+    <Compile Include="battle\ai\node\GetCanShootHeroPosNode.cs" />
+    <Compile Include="battle\ai\node\GetCanSupportHeroPosNode.cs" />
+    <Compile Include="battle\ai\node\GetCanThrowHeroPosNode.cs" />
     <Compile Include="battle\ai\node\CheckHeroCanBeAttackConditionNode.cs" />
+    <Compile Include="battle\ai\node\GetCanAttackHeroPosNode.cs" />
+    <Compile Include="battle\ai\node\GetCanSupportPosNode.cs" />
+    <Compile Include="battle\ai\node\MergePosListNode.cs" />
+    <Compile Include="battle\ai\node\MoveForwardActionNode.cs" />
     <Compile Include="battle\Battle.cs" />
     <Compile Include="battle\BattleCellData.cs" />
     <Compile Include="battle\BattleData.cs" />
