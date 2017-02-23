@@ -1556,6 +1556,10 @@ namespace FinalWar
                     {
                         throwDamage += shooter.GetShootDamage();
                     }
+                    else if (shooter.sds.GetAbilityType() == AbilityType.Building)
+                    {
+                        shootDamage += shooter.GetShootDamage();
+                    }
                     else
                     {
                         int midPos = (shooter.pos + stander.pos) / 2;

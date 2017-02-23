@@ -83,6 +83,23 @@ namespace FinalWar
                                     result = posList;
                                 }
                             }
+
+                        }
+                        else if (hero.sds.GetAbilityType() == AbilityType.Help)
+                        {
+                            posList = _battle.GetCanHelpHeroPos(hero);
+
+                            if (posList.Count > 0)
+                            {
+                                if (result != null)
+                                {
+                                    result.InsertRange(result.Count, posList);
+                                }
+                                else
+                                {
+                                    result = posList;
+                                }
+                            }
                         }
 
                         posList = _battle.GetCanSupportPos(hero);
