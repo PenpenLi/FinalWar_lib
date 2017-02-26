@@ -990,11 +990,11 @@ namespace FinalWar
 
             ServerDoRoundStart(battleData, voList);
 
+            ServerDoShoot(battleData, voList);
+
             ServerDoSummon(battleData, voList);
 
             summon.Clear();
-
-            ServerDoShoot(battleData, voList);
 
             ServerDoRush(battleData, voList);
 
