@@ -1650,36 +1650,6 @@ namespace FinalWar
             }
 
             int hpDamage = hp - stander.nowHp;
-            //----
-
-            //射击穿甲
-            //if (damage > 0)
-            //{
-            //    BattlePublicTools.AccumulateDicData(_hpChangeDic, stander, -damage);
-            //}
-
-            //int shieldDamage;
-
-            //if (_shieldChangeDic.ContainsKey(stander))
-            //{
-            //    shieldDamage = _shieldChangeDic[stander];
-            //}
-            //else
-            //{
-            //    shieldDamage = 0;
-            //}
-
-            //int hpDamage;
-
-            //if (_hpChangeDic.ContainsKey(stander))
-            //{
-            //    hpDamage = _hpChangeDic[stander];
-            //}
-            //else
-            //{
-            //    hpDamage = 0;
-            //}
-            //----
 
             BattleShootVO vo = new BattleShootVO(shooters, _cellData.pos, shieldDamage, hpDamage);
 
