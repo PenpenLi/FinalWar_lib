@@ -1703,15 +1703,18 @@ namespace FinalWar
 
                             eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), attackers, defenders, shieldChangeDic, hpChangeDic, damageDic, _voList);
 
-                            BattleCellData tmpCellData = _battleData.actionDic[attacker.pos];
-
-                            for (int m = 0; m < tmpCellData.supporters.Count; m++)
+                            if (_battleData.actionDic.ContainsKey(attacker.pos))
                             {
-                                Hero tmpHero = tmpCellData.supporters[m];
+                                BattleCellData tmpCellData = _battleData.actionDic[attacker.pos];
 
-                                if (tmpHero.sds.GetAbilityType() == AbilityType.Help)
+                                for (int m = 0; m < tmpCellData.supporters.Count; m++)
                                 {
-                                    eventListener.DispatchEvent(HeroSkill.GetEventName(tmpHero.uid, SkillTime.HELP), attackers, defenders, shieldChangeDic, hpChangeDic, damageDic, _voList);
+                                    Hero tmpHero = tmpCellData.supporters[m];
+
+                                    if (tmpHero.sds.GetAbilityType() == AbilityType.Help)
+                                    {
+                                        eventListener.DispatchEvent(HeroSkill.GetEventName(tmpHero.uid, SkillTime.HELP), attackers, defenders, shieldChangeDic, hpChangeDic, damageDic, _voList);
+                                    }
                                 }
                             }
                         }
@@ -1872,15 +1875,18 @@ namespace FinalWar
 
                         eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), attackers, defenders, shieldChangeDic, hpChangeDic, damageDic, _voList);
 
-                        BattleCellData tmpCellData = _battleData.actionDic[attacker.pos];
-
-                        for (int m = 0; m < tmpCellData.supporters.Count; m++)
+                        if (_battleData.actionDic.ContainsKey(attacker.pos))
                         {
-                            Hero tmpHero = tmpCellData.supporters[m];
+                            BattleCellData tmpCellData = _battleData.actionDic[attacker.pos];
 
-                            if (tmpHero.sds.GetAbilityType() == AbilityType.Help)
+                            for (int m = 0; m < tmpCellData.supporters.Count; m++)
                             {
-                                eventListener.DispatchEvent(HeroSkill.GetEventName(tmpHero.uid, SkillTime.HELP), attackers, defenders, shieldChangeDic, hpChangeDic, damageDic, _voList);
+                                Hero tmpHero = tmpCellData.supporters[m];
+
+                                if (tmpHero.sds.GetAbilityType() == AbilityType.Help)
+                                {
+                                    eventListener.DispatchEvent(HeroSkill.GetEventName(tmpHero.uid, SkillTime.HELP), attackers, defenders, shieldChangeDic, hpChangeDic, damageDic, _voList);
+                                }
                             }
                         }
                     }
