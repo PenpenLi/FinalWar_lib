@@ -100,7 +100,6 @@
     <Compile Include="battle\publicTools\PublicTools.cs" />
     <Compile Include="battle\sds\IAuraSDS.cs" />
     <Compile Include="battle\sds\ISkillSDS.cs" />
-    <Compile Include="battle\superEvent\SuperEvent.cs" />
     <Compile Include="battle\superEvent\SuperEventListener.cs" />
     <Compile Include="battle\superEvent\SuperEventListenerV.cs" />
     <Compile Include="battle\HeroAura.cs" />

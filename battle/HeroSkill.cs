@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using superEvent;
 
 namespace FinalWar
@@ -28,9 +27,9 @@ namespace FinalWar
 
                     ISkillSDS skillSDS = Battle.GetSkillData(skillID);
 
-                    Action<SuperEvent> dele = delegate (SuperEvent e)
+                    SuperEventListener.SuperFunctionCallBack dele = delegate (int _index, object[] _datas)
                     {
-                        TriggerSkill(_battle, _hero, skillSDS, e);
+                        TriggerSkill(_battle, _hero, skillSDS, _datas);
                     };
 
                     eventIDs[i] = _battle.eventListener.AddListener(GetEventName(_hero.uid, skillSDS.GetSkillTime()), dele, skillSDS.GetPriority());
@@ -40,7 +39,7 @@ namespace FinalWar
 
                 int removeEventID = 0;
 
-                Action<SuperEvent> removeDele = delegate (SuperEvent e)
+                SuperEventListener.SuperFunctionCallBack removeDele = delegate (int _index, object[] _datas)
                 {
                     for (int i = 0; i < eventIDs.Length; i++)
                     {
@@ -58,7 +57,7 @@ namespace FinalWar
             }
         }
 
-        private static void TriggerSkill(Battle _battle, Hero _hero, ISkillSDS _skillSDS, SuperEvent e)
+        private static void TriggerSkill(Battle _battle, Hero _hero, ISkillSDS _skillSDS, object[] _datas)
         {
             bool castSkill = true;
 
@@ -83,7 +82,7 @@ namespace FinalWar
 
                 case SkillTime.SUPPORT:
 
-                    ShootRushAttackHelpCounter(_battle, _hero, _skillSDS, e.datas[1] as List<Hero>, e.datas[2] as List<Hero>, e.datas[3] as Dictionary<Hero, int>, e.datas[4] as Dictionary<Hero, int>, e.datas[5] as Dictionary<Hero, int>, e.datas[6] as LinkedList<IBattleVO>);
+                    ShootRushAttackHelpCounter(_battle, _hero, _skillSDS, _datas[0] as List<Hero>, _datas[1] as List<Hero>, _datas[2] as Dictionary<Hero, int>, _datas[3] as Dictionary<Hero, int>, _datas[4] as Dictionary<Hero, int>, _datas[5] as LinkedList<IBattleVO>);
 
                     break;
 
@@ -97,7 +96,7 @@ namespace FinalWar
 
                 case SkillTime.CAPTURE:
 
-                    RoundStartSummonRecoverDieCapture(_battle, _hero, _skillSDS, e.datas[0] as Dictionary<Hero, int>, e.datas[1] as Dictionary<Hero, int>, e.datas[2] as Dictionary<Hero, int>, e.datas[3] as LinkedList<IBattleVO>);
+                    RoundStartSummonRecoverDieCapture(_battle, _hero, _skillSDS, _datas[0] as Dictionary<Hero, int>, _datas[1] as Dictionary<Hero, int>, _datas[2] as Dictionary<Hero, int>, _datas[3] as LinkedList<IBattleVO>);
 
                     break;
             }

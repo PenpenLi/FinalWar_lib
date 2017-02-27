@@ -5,39 +5,43 @@ namespace superEvent
 {
     internal class SuperEventListenerV
     {
-        internal delegate void EventCallBack<T>(SuperEvent e, ref T _value) where T : struct;
-
-        private class SuperEventListenerUnitBase
+        private class SuperEventListenerUnit
         {
             internal int index;
             internal string eventName;
             internal Delegate callBack;
-        }
+            internal int priority;
 
-        private class SuperEventListenerUnit<T> : SuperEventListenerUnitBase where T : struct
-        {
-            internal SuperEventListenerUnit(int _index, string _eventName, EventCallBack<T> _callBack)
+            internal SuperEventListenerUnit(int _index, string _eventName, Delegate _callBack, int _priority)
             {
                 index = _index;
                 eventName = _eventName;
                 callBack = _callBack;
+                priority = _priority;
             }
         }
 
-        private Dictionary<int, SuperEventListenerUnitBase> dicWithID = new Dictionary<int, SuperEventListenerUnitBase>();
-        private Dictionary<string, Dictionary<Delegate, SuperEventListenerUnitBase>> dicWithEvent = new Dictionary<string, Dictionary<Delegate, SuperEventListenerUnitBase>>();
+        public delegate void SuperFunctionCallBackV<T>(int _index, ref T v, params object[] _datas) where T : struct;
+
+        private Dictionary<int, SuperEventListenerUnit> dicWithID = new Dictionary<int, SuperEventListenerUnit>();
+        private Dictionary<string, Dictionary<Delegate, SuperEventListenerUnit>> dicWithEvent = new Dictionary<string, Dictionary<Delegate, SuperEventListenerUnit>>();
 
         private int nowIndex;
 
-        internal int AddListener<T>(string _eventName, EventCallBack<T> _callBack) where T : struct
+        internal int AddListener<T>(string _eventName, SuperFunctionCallBackV<T> _callBack) where T : struct
         {
-            SuperEventListenerUnit<T> unit = new SuperEventListenerUnit<T>(nowIndex, _eventName, _callBack);
+            return AddListener(_eventName, _callBack, 0);
+        }
+
+        internal int AddListener<T>(string _eventName, SuperFunctionCallBackV<T> _callBack, int _priority) where T : struct
+        {
+            SuperEventListenerUnit unit = new SuperEventListenerUnit(nowIndex, _eventName, _callBack, _priority);
 
             nowIndex++;
 
             dicWithID.Add(unit.index, unit);
 
-            Dictionary<Delegate, SuperEventListenerUnitBase> dic;
+            Dictionary<Delegate, SuperEventListenerUnit> dic;
 
             if (dicWithEvent.ContainsKey(_eventName))
             {
@@ -45,7 +49,7 @@ namespace superEvent
             }
             else
             {
-                dic = new Dictionary<Delegate, SuperEventListenerUnitBase>();
+                dic = new Dictionary<Delegate, SuperEventListenerUnit>();
 
                 dicWithEvent.Add(_eventName, dic);
             }
@@ -59,11 +63,11 @@ namespace superEvent
         {
             if (dicWithID.ContainsKey(_index))
             {
-                SuperEventListenerUnitBase unit = dicWithID[_index];
+                SuperEventListenerUnit unit = dicWithID[_index];
 
                 dicWithID.Remove(_index);
 
-                Dictionary<Delegate, SuperEventListenerUnitBase> dic = dicWithEvent[unit.eventName];
+                Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[unit.eventName];
 
                 dic.Remove(unit.callBack);
 
@@ -74,15 +78,15 @@ namespace superEvent
             }
         }
 
-        internal void RemoveListener<T>(string _eventName, EventCallBack<T> _callBack) where T : struct
+        internal void RemoveListener<T>(string _eventName, SuperFunctionCallBackV<T> _callBack) where T : struct
         {
             if (dicWithEvent.ContainsKey(_eventName))
             {
-                Dictionary<Delegate, SuperEventListenerUnitBase> dic = dicWithEvent[_eventName];
+                Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
                 if (dic.ContainsKey(_callBack))
                 {
-                    SuperEventListenerUnitBase unit = dic[_callBack];
+                    SuperEventListenerUnit unit = dic[_callBack];
 
                     dicWithID.Remove(unit.index);
 
@@ -100,34 +104,53 @@ namespace superEvent
         {
             if (dicWithEvent.ContainsKey(_eventName))
             {
-                Dictionary<Delegate, SuperEventListenerUnitBase> dic = dicWithEvent[_eventName];
+                Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<Delegate, SuperEvent>[] arr = new KeyValuePair<Delegate, SuperEvent>[dic.Count];
+                LinkedList<KeyValuePair<Delegate, int>>[] arr = new LinkedList<KeyValuePair<Delegate, int>>[SuperEventListener.MAX_PRIORITY];
 
-                Dictionary<Delegate, SuperEventListenerUnitBase>.Enumerator enumerator = dic.GetEnumerator();
-
-                int i = 0;
+                Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
                 while (enumerator.MoveNext())
                 {
-                    KeyValuePair<Delegate, SuperEventListenerUnitBase> pair = enumerator.Current;
+                    KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
-                    SuperEvent ev = new SuperEvent(pair.Value.index, _objs);
+                    int priority = pair.Value.priority;
 
-                    arr[i] = new KeyValuePair<Delegate, SuperEvent>(pair.Key, ev);
+                    LinkedList<KeyValuePair<Delegate, int>> list;
 
-                    i++;
+                    if (arr[priority] == null)
+                    {
+                        list = new LinkedList<KeyValuePair<Delegate, int>>();
+
+                        arr[priority] = list;
+                    }
+                    else
+                    {
+                        list = arr[priority];
+                    }
+
+                    list.AddLast(new KeyValuePair<Delegate, int>(pair.Key, pair.Value.index));
                 }
 
-                for (i = 0; i < arr.Length; i++)
+                for (int i = 0; i < SuperEventListener.MAX_PRIORITY; i++)
                 {
-                    KeyValuePair<Delegate, SuperEvent> pair = arr[i];
+                    LinkedList<KeyValuePair<Delegate, int>> list = arr[i];
 
-                    if (pair.Key is EventCallBack<T>)
+                    if (list != null)
                     {
-                        EventCallBack<T> callBack = pair.Key as EventCallBack<T>;
+                        LinkedList<KeyValuePair<Delegate, int>>.Enumerator enumerator2 = list.GetEnumerator();
 
-                        callBack(pair.Value, ref _value);
+                        while (enumerator2.MoveNext())
+                        {
+                            KeyValuePair<Delegate, int> pair = enumerator2.Current;
+
+                            if (pair.Key is SuperFunctionCallBackV<T>)
+                            {
+                                SuperFunctionCallBackV<T> callBack = pair.Key as SuperFunctionCallBackV<T>;
+
+                                callBack(pair.Value, ref _value, _objs);
+                            }
+                        }
                     }
                 }
             }

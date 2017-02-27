@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace superEvent
 {
@@ -9,10 +8,10 @@ namespace superEvent
         {
             internal int index;
             internal string eventName;
-            internal Action<SuperEvent> callBack;
+            internal SuperFunctionCallBack callBack;
             internal int priority;
 
-            internal SuperEventListenerUnit(int _index, string _eventName, Action<SuperEvent> _callBack, int _priority)
+            internal SuperEventListenerUnit(int _index, string _eventName, SuperFunctionCallBack _callBack, int _priority)
             {
                 index = _index;
                 eventName = _eventName;
@@ -21,19 +20,21 @@ namespace superEvent
             }
         }
 
+        internal delegate void SuperFunctionCallBack(int _index, params object[] _datas);
+
         internal const int MAX_PRIORITY = 16;
 
         private Dictionary<int, SuperEventListenerUnit> dicWithID = new Dictionary<int, SuperEventListenerUnit>();
-        private Dictionary<string, Dictionary<Action<SuperEvent>, SuperEventListenerUnit>> dicWithEvent = new Dictionary<string, Dictionary<Action<SuperEvent>, SuperEventListenerUnit>>();
+        private Dictionary<string, Dictionary<SuperFunctionCallBack, SuperEventListenerUnit>> dicWithEvent = new Dictionary<string, Dictionary<SuperFunctionCallBack, SuperEventListenerUnit>>();
 
         private int nowIndex;
 
-        internal int AddListener(string _eventName, Action<SuperEvent> _callBack)
+        internal int AddListener(string _eventName, SuperFunctionCallBack _callBack)
         {
             return AddListener(_eventName, _callBack, 0);
         }
 
-        internal int AddListener(string _eventName, Action<SuperEvent> _callBack, int _priority)
+        internal int AddListener(string _eventName, SuperFunctionCallBack _callBack, int _priority)
         {
             SuperEventListenerUnit unit = new SuperEventListenerUnit(nowIndex, _eventName, _callBack, _priority);
 
@@ -41,7 +42,7 @@ namespace superEvent
 
             dicWithID.Add(unit.index, unit);
 
-            Dictionary<Action<SuperEvent>, SuperEventListenerUnit> dic;
+            Dictionary<SuperFunctionCallBack, SuperEventListenerUnit> dic;
 
             if (dicWithEvent.ContainsKey(_eventName))
             {
@@ -49,7 +50,7 @@ namespace superEvent
             }
             else
             {
-                dic = new Dictionary<Action<SuperEvent>, SuperEventListenerUnit>();
+                dic = new Dictionary<SuperFunctionCallBack, SuperEventListenerUnit>();
 
                 dicWithEvent.Add(_eventName, dic);
             }
@@ -67,7 +68,7 @@ namespace superEvent
 
                 dicWithID.Remove(_index);
 
-                Dictionary<Action<SuperEvent>, SuperEventListenerUnit> dic = dicWithEvent[unit.eventName];
+                Dictionary<SuperFunctionCallBack, SuperEventListenerUnit> dic = dicWithEvent[unit.eventName];
 
                 dic.Remove(unit.callBack);
 
@@ -78,11 +79,11 @@ namespace superEvent
             }
         }
 
-        internal void RemoveListener(string _eventName, Action<SuperEvent> _callBack)
+        internal void RemoveListener(string _eventName, SuperFunctionCallBack _callBack)
         {
             if (dicWithEvent.ContainsKey(_eventName))
             {
-                Dictionary<Action<SuperEvent>, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
+                Dictionary<SuperFunctionCallBack, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
                 if (dic.ContainsKey(_callBack))
                 {
@@ -104,25 +105,23 @@ namespace superEvent
         {
             if (dicWithEvent.ContainsKey(_eventName))
             {
-                Dictionary<Action<SuperEvent>, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
+                Dictionary<SuperFunctionCallBack, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>>[] arr = new LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>>[MAX_PRIORITY];
+                LinkedList<KeyValuePair<SuperFunctionCallBack, int>>[] arr = new LinkedList<KeyValuePair<SuperFunctionCallBack, int>>[MAX_PRIORITY];
 
-                Dictionary<Action<SuperEvent>, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
+                Dictionary<SuperFunctionCallBack, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
                 while (enumerator.MoveNext())
                 {
-                    KeyValuePair<Action<SuperEvent>, SuperEventListenerUnit> pair = enumerator.Current;
-
-                    SuperEvent ev = new SuperEvent(pair.Value.index, _objs);
+                    KeyValuePair<SuperFunctionCallBack, SuperEventListenerUnit> pair = enumerator.Current;
 
                     int priority = pair.Value.priority;
 
-                    LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>> list;
+                    LinkedList<KeyValuePair<SuperFunctionCallBack, int>> list;
 
                     if (arr[priority] == null)
                     {
-                        list = new LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>>();
+                        list = new LinkedList<KeyValuePair<SuperFunctionCallBack, int>>();
 
                         arr[priority] = list;
                     }
@@ -131,22 +130,22 @@ namespace superEvent
                         list = arr[priority];
                     }
 
-                    list.AddLast(new KeyValuePair<Action<SuperEvent>, SuperEvent>(pair.Key, ev));
+                    list.AddLast(new KeyValuePair<SuperFunctionCallBack, int>(pair.Key, pair.Value.index));
                 }
 
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>> list = arr[i];
+                    LinkedList<KeyValuePair<SuperFunctionCallBack, int>> list = arr[i];
 
                     if (list != null)
                     {
-                        LinkedList<KeyValuePair<Action<SuperEvent>, SuperEvent>>.Enumerator enumerator2 = list.GetEnumerator();
+                        LinkedList<KeyValuePair<SuperFunctionCallBack, int>>.Enumerator enumerator2 = list.GetEnumerator();
 
                         while (enumerator2.MoveNext())
                         {
-                            KeyValuePair<Action<SuperEvent>, SuperEvent> pair = enumerator2.Current;
+                            KeyValuePair<SuperFunctionCallBack, int> pair = enumerator2.Current;
 
-                            pair.Key(pair.Value);
+                            pair.Key(pair.Value, _objs);
                         }
                     }
                 }

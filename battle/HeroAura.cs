@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using superEvent;
 
 namespace FinalWar
@@ -23,9 +22,9 @@ namespace FinalWar
                         case AuraEffect.FIX_ATTACK:
                         case AuraEffect.FIX_ABILITY:
 
-                            SuperEventListenerV.EventCallBack<int> dele = delegate (SuperEvent e, ref int _value)
+                            SuperEventListenerV.SuperFunctionCallBackV<int> dele = delegate (int _index, ref int _value, object[] _datas)
                             {
-                                TriggerAura(_battle, _hero, auraSDS, e, ref _value);
+                                TriggerAura(_battle, _hero, auraSDS, ref _value, _datas);
                             };
 
                             eventIDs[i] = _battle.eventListenerV.AddListener(auraSDS.GetAuraEffect().ToString(), dele);
@@ -35,9 +34,9 @@ namespace FinalWar
                         case AuraEffect.SILENT:
                         case AuraEffect.DISABLE_RECOVER_SHIELD:
 
-                            SuperEventListenerV.EventCallBack<bool> dele2 = delegate (SuperEvent e, ref bool _value)
+                            SuperEventListenerV.SuperFunctionCallBackV<bool> dele2 = delegate (int _index, ref bool _value, object[] _datas)
                             {
-                                TriggerAura(_battle, _hero, auraSDS, e, ref _value);
+                                TriggerAura(_battle, _hero, auraSDS, ref _value, _datas);
                             };
 
                             eventIDs[i] = _battle.eventListenerV.AddListener(auraSDS.GetAuraEffect().ToString(), dele2);
@@ -50,7 +49,7 @@ namespace FinalWar
 
                 int removeEventID = 0;
 
-                Action<SuperEvent> removeDele = delegate (SuperEvent e)
+                SuperEventListener.SuperFunctionCallBack removeDele = delegate (int _index, object[] _datas)
                 {
                     for (int i = 0; i < eventIDs.Length; i++)
                     {
@@ -117,9 +116,9 @@ namespace FinalWar
             return true;
         }
 
-        private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, SuperEvent e, ref int _value)
+        private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, ref int _value, object[] _datas)
         {
-            Hero targetHero = e.datas[0] as Hero;
+            Hero targetHero = _datas[0] as Hero;
 
             bool b = CheckAuraTakeEffect(_battle, _hero, targetHero, _auraSDS);
 
@@ -129,9 +128,9 @@ namespace FinalWar
             }
         }
 
-        private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, SuperEvent e, ref bool _value)
+        private static void TriggerAura(Battle _battle, Hero _hero, IAuraSDS _auraSDS, ref bool _value, object[] _datas)
         {
-            Hero targetHero = e.datas[0] as Hero;
+            Hero targetHero = _datas[0] as Hero;
 
             bool b = CheckAuraTakeEffect(_battle, _hero, targetHero, _auraSDS);
 
