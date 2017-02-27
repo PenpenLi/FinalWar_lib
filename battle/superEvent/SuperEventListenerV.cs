@@ -21,7 +21,7 @@ namespace superEvent
             }
         }
 
-        public delegate void SuperFunctionCallBackV<T>(int _index, ref T v, params object[] _datas) where T : struct;
+        public delegate void SuperFunctionCallBackV<T>(int _index, ref T v, object[] _datas) where T : struct;
 
         private Dictionary<int, SuperEventListenerUnit> dicWithID = new Dictionary<int, SuperEventListenerUnit>();
         private Dictionary<string, Dictionary<Delegate, SuperEventListenerUnit>> dicWithEvent = new Dictionary<string, Dictionary<Delegate, SuperEventListenerUnit>>();
@@ -106,7 +106,7 @@ namespace superEvent
             {
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                LinkedList<KeyValuePair<Delegate, int>>[] arr = new LinkedList<KeyValuePair<Delegate, int>>[SuperEventListener.MAX_PRIORITY];
+                LinkedList<KeyValuePair<SuperFunctionCallBackV<T>, int>>[] arr = null;
 
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -114,41 +114,47 @@ namespace superEvent
                 {
                     KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
-                    int priority = pair.Value.priority;
-
-                    LinkedList<KeyValuePair<Delegate, int>> list;
-
-                    if (arr[priority] == null)
+                    if (pair.Key is SuperFunctionCallBackV<T>)
                     {
-                        list = new LinkedList<KeyValuePair<Delegate, int>>();
+                        if (arr == null)
+                        {
+                            arr = new LinkedList<KeyValuePair<SuperFunctionCallBackV<T>, int>>[SuperEventListener.MAX_PRIORITY];
+                        }
 
-                        arr[priority] = list;
-                    }
-                    else
-                    {
-                        list = arr[priority];
-                    }
+                        int priority = pair.Value.priority;
 
-                    list.AddLast(new KeyValuePair<Delegate, int>(pair.Key, pair.Value.index));
+                        LinkedList<KeyValuePair<SuperFunctionCallBackV<T>, int>> list;
+
+                        if (arr[priority] == null)
+                        {
+                            list = new LinkedList<KeyValuePair<SuperFunctionCallBackV<T>, int>>();
+
+                            arr[priority] = list;
+                        }
+                        else
+                        {
+                            list = arr[priority];
+                        }
+
+                        list.AddLast(new KeyValuePair<SuperFunctionCallBackV<T>, int>(pair.Key as SuperFunctionCallBackV<T>, pair.Value.index));
+                    }
                 }
 
-                for (int i = 0; i < SuperEventListener.MAX_PRIORITY; i++)
+                if (arr != null)
                 {
-                    LinkedList<KeyValuePair<Delegate, int>> list = arr[i];
-
-                    if (list != null)
+                    for (int i = 0; i < SuperEventListener.MAX_PRIORITY; i++)
                     {
-                        LinkedList<KeyValuePair<Delegate, int>>.Enumerator enumerator2 = list.GetEnumerator();
+                        LinkedList<KeyValuePair<SuperFunctionCallBackV<T>, int>> list = arr[i];
 
-                        while (enumerator2.MoveNext())
+                        if (list != null)
                         {
-                            KeyValuePair<Delegate, int> pair = enumerator2.Current;
+                            LinkedList<KeyValuePair<SuperFunctionCallBackV<T>, int>>.Enumerator enumerator2 = list.GetEnumerator();
 
-                            if (pair.Key is SuperFunctionCallBackV<T>)
+                            while (enumerator2.MoveNext())
                             {
-                                SuperFunctionCallBackV<T> callBack = pair.Key as SuperFunctionCallBackV<T>;
+                                KeyValuePair<SuperFunctionCallBackV<T>, int> pair = enumerator2.Current;
 
-                                callBack(pair.Value, ref _value, _objs);
+                                pair.Key(pair.Value, ref _value, _objs);
                             }
                         }
                     }

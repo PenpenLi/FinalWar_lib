@@ -20,7 +20,7 @@ namespace superEvent
             }
         }
 
-        internal delegate void SuperFunctionCallBack(int _index, params object[] _datas);
+        internal delegate void SuperFunctionCallBack(int _index, object[] _datas);
 
         internal const int MAX_PRIORITY = 16;
 
@@ -107,12 +107,17 @@ namespace superEvent
             {
                 Dictionary<SuperFunctionCallBack, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                LinkedList<KeyValuePair<SuperFunctionCallBack, int>>[] arr = new LinkedList<KeyValuePair<SuperFunctionCallBack, int>>[MAX_PRIORITY];
+                LinkedList<KeyValuePair<SuperFunctionCallBack, int>>[] arr = null;
 
                 Dictionary<SuperFunctionCallBack, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
                 while (enumerator.MoveNext())
                 {
+                    if (arr == null)
+                    {
+                        arr = new LinkedList<KeyValuePair<SuperFunctionCallBack, int>>[MAX_PRIORITY];
+                    }
+
                     KeyValuePair<SuperFunctionCallBack, SuperEventListenerUnit> pair = enumerator.Current;
 
                     int priority = pair.Value.priority;
@@ -133,19 +138,22 @@ namespace superEvent
                     list.AddLast(new KeyValuePair<SuperFunctionCallBack, int>(pair.Key, pair.Value.index));
                 }
 
-                for (int i = 0; i < MAX_PRIORITY; i++)
+                if (arr != null)
                 {
-                    LinkedList<KeyValuePair<SuperFunctionCallBack, int>> list = arr[i];
-
-                    if (list != null)
+                    for (int i = 0; i < MAX_PRIORITY; i++)
                     {
-                        LinkedList<KeyValuePair<SuperFunctionCallBack, int>>.Enumerator enumerator2 = list.GetEnumerator();
+                        LinkedList<KeyValuePair<SuperFunctionCallBack, int>> list = arr[i];
 
-                        while (enumerator2.MoveNext())
+                        if (list != null)
                         {
-                            KeyValuePair<SuperFunctionCallBack, int> pair = enumerator2.Current;
+                            LinkedList<KeyValuePair<SuperFunctionCallBack, int>>.Enumerator enumerator2 = list.GetEnumerator();
 
-                            pair.Key(pair.Value, _objs);
+                            while (enumerator2.MoveNext())
+                            {
+                                KeyValuePair<SuperFunctionCallBack, int> pair = enumerator2.Current;
+
+                                pair.Key(pair.Value, _objs);
+                            }
                         }
                     }
                 }
