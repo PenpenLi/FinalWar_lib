@@ -77,11 +77,13 @@ namespace FinalWar
 
                 case SkillTime.ATTACK:
 
+                case SkillTime.HELP:
+
                 case SkillTime.COUNTER:
 
                 case SkillTime.SUPPORT:
 
-                    ShootRushAttackCounter(_battle, _hero, _skillSDS, (int)e.datas[0], e.datas[1] as List<Hero>, e.datas[2] as List<Hero>, e.datas[3] as Dictionary<Hero, int>, e.datas[4] as Dictionary<Hero, int>, e.datas[5] as Dictionary<Hero, int>, e.datas[6] as LinkedList<IBattleVO>);
+                    ShootRushAttackHelpCounter(_battle, _hero, _skillSDS, e.datas[1] as List<Hero>, e.datas[2] as List<Hero>, e.datas[3] as Dictionary<Hero, int>, e.datas[4] as Dictionary<Hero, int>, e.datas[5] as Dictionary<Hero, int>, e.datas[6] as LinkedList<IBattleVO>);
 
                     break;
 
@@ -203,7 +205,7 @@ namespace FinalWar
             }
         }
 
-        private static void ShootRushAttackCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, int _pos, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, LinkedList<IBattleVO> _voList)
+        private static void ShootRushAttackHelpCounter(Battle _battle, Hero _hero, ISkillSDS _skillSDS, List<Hero> _myHeros, List<Hero> _oppHeros, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, LinkedList<IBattleVO> _voList)
         {
             switch (_skillSDS.GetSkillTarget())
             {
