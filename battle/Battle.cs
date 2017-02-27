@@ -1556,9 +1556,9 @@ namespace FinalWar
 
             List<int> shooters = new List<int>();
 
-            int shootDamage = 0;
+            int hpDamage = 0;
 
-            int throwDamage = 0;
+            int damage = 0;
 
             for (int i = 0; i < _cellData.shooters.Count; i++)
             {
@@ -1570,11 +1570,11 @@ namespace FinalWar
 
                 if (shooter.sds.GetAbilityType() == AbilityType.Throw)
                 {
-                    throwDamage += shooter.GetShootDamage();
+                    damage += shooter.GetShootDamage();
                 }
                 else if (shooter.sds.GetAbilityType() == AbilityType.Building)
                 {
-                    shootDamage += shooter.GetShootDamage();
+                    hpDamage += shooter.GetShootDamage();
                 }
                 else
                 {
@@ -1582,23 +1582,28 @@ namespace FinalWar
 
                     if (heroMapDic.ContainsKey(midPos))
                     {
-                        shootDamage += shooter.GetShootDamage();
+                        hpDamage += shooter.GetShootDamage();
                     }
                     else
                     {
-                        throwDamage += shooter.GetShootDamage();
+                        damage += shooter.GetShootDamage();
                     }
                 }
             }
 
-            if (shootDamage > 0)
+            if (hpDamage > 0)
             {
-                BattlePublicTools.AccumulateDicData(_hpChangeDic, stander, -shootDamage);
+                BattlePublicTools.AccumulateDicData(_hpChangeDic, stander, -hpDamage);
             }
 
-            if (throwDamage > 0)
+            if (damage > 0)
             {
-                BattlePublicTools.AccumulateDicData(_damageDic, stander, -throwDamage);
+                BattlePublicTools.AccumulateDicData(_damageDic, stander, -damage);
+            }
+
+            if (_damageDic.ContainsKey(stander))
+            {
+                damage = -_damageDic[stander];
             }
 
             int shield = stander.nowShield;
@@ -1613,20 +1618,20 @@ namespace FinalWar
                 }
             }
 
-            if (shield >= throwDamage)
+            if (shield >= damage)
             {
-                shield -= throwDamage;
+                shield -= damage;
 
-                throwDamage = 0;
+                damage = 0;
             }
             else
             {
-                throwDamage -= shield;
+                damage -= shield;
 
                 shield = 0;
             }
 
-            int shieldDamage = shield - stander.nowShield;
+            int shieldBeDamage = shield - stander.nowShield;
 
             int hp = stander.nowHp;
 
@@ -1640,18 +1645,18 @@ namespace FinalWar
                 }
             }
 
-            if (hp >= throwDamage)
+            if (hp >= damage)
             {
-                hp -= throwDamage;
+                hp -= damage;
             }
             else
             {
                 hp = 0;
             }
 
-            int hpDamage = hp - stander.nowHp;
+            int hpBeDamage = hp - stander.nowHp;
 
-            BattleShootVO vo = new BattleShootVO(shooters, _cellData.pos, shieldDamage, hpDamage);
+            BattleShootVO vo = new BattleShootVO(shooters, _cellData.pos, shieldBeDamage, hpBeDamage);
 
             _voList.AddLast(vo);
 
@@ -1749,7 +1754,7 @@ namespace FinalWar
 
             List<List<int>> helpers = new List<List<int>>();
 
-            int damage = 0;
+            int hpDamage = 0;
 
             for (int i = 0; i < _cellData.attackers.Count; i++)
             {
@@ -1757,7 +1762,7 @@ namespace FinalWar
 
                 attackers.Add(attacker.pos);
 
-                damage += attacker.GetAttackDamage();
+                hpDamage += attacker.GetAttackDamage();
 
                 List<int> tmpList = new List<int>();
 
@@ -1773,7 +1778,7 @@ namespace FinalWar
 
                         if (tmpHero.sds.GetAbilityType() == AbilityType.Help)
                         {
-                            damage += tmpHero.GetHelpDamage();
+                            hpDamage += tmpHero.GetHelpDamage();
 
                             tmpList.Add(tmpHero.pos);
                         }
@@ -1781,39 +1786,73 @@ namespace FinalWar
                 }
             }
 
-            if (damage > 0)
+            if (hpDamage > 0)
             {
-                BattlePublicTools.AccumulateDicData(_hpChangeDic, stander, -damage);
+                BattlePublicTools.AccumulateDicData(_hpChangeDic, stander, -hpDamage);
             }
 
-            int shieldDamage;
+            int damage;
+
+            if (_damageDic.ContainsKey(stander))
+            {
+                damage = -_damageDic[stander];
+            }
+            else
+            {
+                damage = 0;
+            }
+
+            int shield = stander.nowShield;
 
             if (_shieldChangeDic.ContainsKey(stander))
             {
-                shieldDamage = _shieldChangeDic[stander];
+                shield += _shieldChangeDic[stander];
+
+                if (shield < 0)
+                {
+                    shield = 0;
+                }
+            }
+
+            if (shield >= damage)
+            {
+                shield -= damage;
+
+                damage = 0;
             }
             else
             {
-                shieldDamage = 0;
+                damage -= shield;
+
+                shield = 0;
             }
 
-            int hpDamage;
+            int shieldBeDamage = shield - stander.nowShield;
+
+            int hp = stander.nowHp;
 
             if (_hpChangeDic.ContainsKey(stander))
             {
-                hpDamage = _hpChangeDic[stander];
+                hp += _hpChangeDic[stander];
 
-                if (stander.nowHp + hpDamage < 0)
+                if (hp < 0)
                 {
-                    hpDamage = -stander.nowHp;
+                    hp = 0;
                 }
+            }
+
+            if (hp >= damage)
+            {
+                hp -= damage;
             }
             else
             {
-                hpDamage = 0;
+                hp = 0;
             }
 
-            BattleRushVO vo = new BattleRushVO(attackers, helpers, _cellData.pos, shieldDamage, hpDamage);
+            int hpBeDamage = hp - stander.nowHp;
+
+            BattleRushVO vo = new BattleRushVO(attackers, helpers, _cellData.pos, shieldBeDamage, hpBeDamage);
 
             _voList.AddLast(vo);
         }
