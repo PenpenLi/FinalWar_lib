@@ -8,8 +8,10 @@ namespace FinalWar
         internal enum HeroAction
         {
             ATTACK,
+            ATTACK_OVER,
             SHOOT,
             SUPPORT,
+            SUPPORT_OVER,
             DEFENSE,
             NULL
         }

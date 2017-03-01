@@ -12,9 +12,11 @@ namespace FinalWar
 
         public List<Hero> attackers = new List<Hero>();
 
+        internal List<Hero> attackOvers = new List<Hero>();
+
         public List<Hero> supporters = new List<Hero>();
 
-        internal bool attackHasBeenProcessed = false;
+        internal List<Hero> supportOvers = new List<Hero>();
 
         public BattleCellData(int _pos)
         {
