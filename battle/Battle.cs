@@ -2122,6 +2122,8 @@ namespace FinalWar
             if (shield >= damage)
             {
                 shield -= damage;
+
+                damage = 0;
             }
             else
             {
