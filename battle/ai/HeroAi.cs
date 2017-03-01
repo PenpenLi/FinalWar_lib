@@ -68,7 +68,7 @@ namespace FinalWar
                                 }
                             }
                         }
-                        else if (hero.sds.GetAbilityType() == AbilityType.Throw || hero.sds.GetAbilityType() == AbilityType.Building)
+                        else if (hero.sds.GetAbilityType() == AbilityType.Throw)
                         {
                             posList = _battle.GetCanThrowHeroPos(hero);
 

@@ -752,7 +752,7 @@ namespace FinalWar
                     {
                         tmpList2 = BattlePublicTools.GetNeighbourPos2(mapData, _pos);
                     }
-                    else if (hero.sds.GetAbilityType() == AbilityType.Throw || hero.sds.GetAbilityType() == AbilityType.Building)
+                    else if (hero.sds.GetAbilityType() == AbilityType.Throw)
                     {
                         tmpList2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
                     }
@@ -980,6 +980,37 @@ namespace FinalWar
 
         private void ServerStartBattle()
         {
+            //记录战前情况
+            FileInfo fi = new FileInfo("e:/aaa.txt");
+
+            if (fi.Exists)
+            {
+                fi.Delete();
+            }
+
+            using (FileStream fs = fi.Create())
+            {
+                using (BinaryWriter bw = new BinaryWriter(fs))
+                {
+                    string str = "";
+
+                    Dictionary<int, Hero>.ValueCollection.Enumerator ee = heroMapDic.Values.GetEnumerator();
+
+                    while (ee.MoveNext())
+                    {
+                        str += "isMine:" + ee.Current.isMine + "  id:" + ee.Current.sds.GetID() + "  pos:" + ee.Current.pos + "  hp:" + ee.Current.nowHp + "  shield:" + ee.Current.nowShield + "\n";
+                    }
+
+                    for (int i = 0; i < action.Count; i++)
+                    {
+                        str += action[i].Key + "--->" + action[i].Value + "\n";
+                    }
+
+                    bw.Write(str);
+                }
+            }
+            //----
+
             LinkedList<IBattleVO> voList = new LinkedList<IBattleVO>();
 
             BattleData battleData = GetBattleData();
@@ -1090,6 +1121,25 @@ namespace FinalWar
                         mBw.Write(mWin);
 
                         mBw.Write(oWin);
+
+                        //下发比对数据
+                        Log.Write("server num:" + heroMapDic.Count);
+
+                        mBw.Write(heroMapDic.Count);
+
+                        Dictionary<int, Hero>.ValueCollection.Enumerator enumeratorX = heroMapDic.Values.GetEnumerator();
+
+                        while (enumeratorX.MoveNext())
+                        {
+                            mBw.Write(enumeratorX.Current.pos);
+
+                            mBw.Write(enumeratorX.Current.nowHp);
+
+                            mBw.Write(enumeratorX.Current.nowShield);
+
+                            Log.Write("client  pos:" + enumeratorX.Current.pos + "  hp:" + enumeratorX.Current.nowHp + "  shield:" + enumeratorX.Current.nowShield);
+                        }
+                        //----
 
                         serverSendDataCallBack(true, mMs);
                     }
@@ -1420,7 +1470,7 @@ namespace FinalWar
                     {
                         arr2 = BattlePublicTools.GetNeighbourPos2(mapData, _pos);
                     }
-                    else if (hero.sds.GetAbilityType() == AbilityType.Throw || hero.sds.GetAbilityType() == AbilityType.Building)
+                    else if (hero.sds.GetAbilityType() == AbilityType.Throw)
                     {
                         arr2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
                     }
@@ -1573,10 +1623,6 @@ namespace FinalWar
                 if (shooter.sds.GetAbilityType() == AbilityType.Throw)
                 {
                     damage += shooter.GetShootDamage();
-                }
-                else if (shooter.sds.GetAbilityType() == AbilityType.Building)
-                {
-                    hpDamage += shooter.GetShootDamage();
                 }
                 else
                 {
@@ -1989,21 +2035,17 @@ namespace FinalWar
 
                     eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), defender, shieldChangeDic, hpChangeDic, damageDic, _voList);
 
-                    BattlePublicTools.AccumulateDicData(damageDic, defender, -attackDamage);
-
-                    BattlePublicTools.AccumulateDicData(damageDic, attacker, -defenseDamage);
-
                     int attackerShieldDamage;
 
                     int attackerHpDamage;
 
-                    CheckIsAlive(attacker, shieldChangeDic, hpChangeDic, damageDic, out attackerShieldDamage, out attackerHpDamage);
+                    CheckIsAlive(attacker, defenseDamage, shieldChangeDic, hpChangeDic, damageDic, out attackerShieldDamage, out attackerHpDamage);
 
                     int defenderShieldDamage;
 
                     int defenderHpDamage;
 
-                    if (!CheckIsAlive(defender, shieldChangeDic, hpChangeDic, damageDic, out defenderShieldDamage, out defenderHpDamage))
+                    if (!CheckIsAlive(defender, attackDamage, shieldChangeDic, hpChangeDic, damageDic, out defenderShieldDamage, out defenderHpDamage))
                     {
                         if (defender.action == Hero.HeroAction.DEFENSE)
                         {
@@ -2011,6 +2053,7 @@ namespace FinalWar
                         }
                         else
                         {
+                            //将该单位放入SUPPORT_OVER数组是因为要在help的时候去查询
                             defender.SetAction(Hero.HeroAction.SUPPORT_OVER, defender.actionTarget);
 
                             cellData.supportOvers.Add(defender);
@@ -2018,6 +2061,10 @@ namespace FinalWar
                             cellData.supporters.RemoveAt(0);
                         }
                     }
+
+                    BattlePublicTools.AccumulateDicData(damageDic, defender, -attackDamage);
+
+                    BattlePublicTools.AccumulateDicData(damageDic, attacker, -defenseDamage);
 
                     BattleAttackVO vo;
 
@@ -2040,7 +2087,7 @@ namespace FinalWar
             }
         }
 
-        private bool CheckIsAlive(Hero _hero, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, out int _shieldDamage, out int _hpDamage)
+        private bool CheckIsAlive(Hero _hero, int _damage, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, out int _shieldDamage, out int _hpDamage)
         {
             int shield = _hero.nowShield;
 
@@ -2075,12 +2122,6 @@ namespace FinalWar
             if (shield >= damage)
             {
                 shield -= damage;
-
-                _shieldDamage = shield - _hero.nowShield;
-
-                _hpDamage = hp - _hero.nowHp;
-
-                return true;
             }
             else
             {
@@ -2091,14 +2132,33 @@ namespace FinalWar
 
             hp -= damage;
 
+            int recShield = shield;
+
+            int recHp = hp;
+
+            if (shield >= _damage)
+            {
+                shield -= _damage;
+
+                _damage = 0;
+            }
+            else
+            {
+                _damage -= shield;
+
+                shield = 0;
+            }
+
+            hp -= _damage;
+
             if (hp < 0)
             {
                 hp = 0;
             }
 
-            _shieldDamage = shield - _hero.nowShield;
+            _shieldDamage = shield - recShield;
 
-            _hpDamage = hp - _hero.nowHp;
+            _hpDamage = hp - recHp;
 
             return hp > 0;
         }
@@ -2276,7 +2336,7 @@ namespace FinalWar
                 {
                     Hero tmpHero = cellData.supporters[i];
 
-                    if (tmpHero.sds.GetAbilityType() != AbilityType.Building && tmpHero.canMove)
+                    if (tmpHero.canMove)
                     {
                         hero = tmpHero;
 
@@ -2290,7 +2350,7 @@ namespace FinalWar
                     {
                         Hero tmpHero = cellData.attackOvers[i];
 
-                        if (tmpHero.sds.GetAbilityType() != AbilityType.Building && tmpHero.canMove)
+                        if (tmpHero.canMove)
                         {
                             hero = tmpHero;
 
@@ -2306,7 +2366,7 @@ namespace FinalWar
                         {
                             Hero tmpHero = cellData.attackers[i];
 
-                            if (tmpHero.sds.GetAbilityType() != AbilityType.Building && tmpHero.canMove)
+                            if (tmpHero.canMove)
                             {
                                 hero = tmpHero;
 
@@ -2395,6 +2455,10 @@ namespace FinalWar
 
             switch (_hero.sds.GetAbilityType())
             {
+                case AbilityType.Building:
+
+                    return _hero.pos;
+
                 case AbilityType.Shoot:
 
                     posList = GetCanShootHeroPos(_hero);
@@ -2409,7 +2473,6 @@ namespace FinalWar
                     break;
 
                 case AbilityType.Throw:
-                case AbilityType.Building:
 
                     posList = GetCanThrowHeroPos(_hero);
 
@@ -2485,23 +2548,18 @@ namespace FinalWar
             }
 
             //无援护目标时向前进
-            if (_hero.sds.GetAbilityType() != AbilityType.Building)
+            int targetPos;
+
+            if (_hero.isMine)
             {
-                int targetPos;
-
-                if (_hero.isMine)
-                {
-                    targetPos = mapData.moveMap[_hero.pos].Key;
-                }
-                else
-                {
-                    targetPos = mapData.moveMap[_hero.pos].Value;
-                }
-
-                return targetPos;
+                targetPos = mapData.moveMap[_hero.pos].Key;
+            }
+            else
+            {
+                targetPos = mapData.moveMap[_hero.pos].Value;
             }
 
-            return _hero.pos;
+            return targetPos;
         }
 
         private void ServerDoAddCardsAndMoney(LinkedList<IBattleVO> _voList)
@@ -2832,6 +2890,8 @@ namespace FinalWar
             autoAction.Clear();
 
             clientDoActionCallBack(ClientDoActionReal(_br));
+
+
         }
 
         private IEnumerator<IBattleVO> ClientDoActionReal(BinaryReader _br)
@@ -2993,6 +3053,8 @@ namespace FinalWar
                 hero.ShieldChange(_vo.attackersShieldDamage[i]);
 
                 hero.HpChange(_vo.attackersHpDamage[i]);
+
+                Log.Write("attacker be damage  shield:" + _vo.attackersShieldDamage[i] + "  hp:" + _vo.attackersHpDamage[i]);
             }
 
             for (int i = 0; i < _vo.supporters.Count; i++)
@@ -3002,20 +3064,19 @@ namespace FinalWar
                 hero.ShieldChange(_vo.supportersShieldDamage[i]);
 
                 hero.HpChange(_vo.supportersHpDamage[i]);
+
+                Log.Write("supporter be damage  shield:" + _vo.supportersShieldDamage[i] + "  hp:" + _vo.supportersHpDamage[i]);
             }
 
-            if (_vo.defenderShieldDamage < 0)
+            if (heroMapDic.ContainsKey(_vo.defender))
             {
                 Hero hero = heroMapDic[_vo.defender];
 
                 hero.ShieldChange(_vo.defenderShieldDamage);
-            }
-
-            if (_vo.defenderHpDamage < 0)
-            {
-                Hero hero = heroMapDic[_vo.defender];
 
                 hero.HpChange(_vo.defenderHpDamage);
+
+                Log.Write("defender be damage  shield:" + _vo.defenderShieldDamage + "  hp:" + _vo.defenderHpDamage);
             }
         }
 
@@ -3097,6 +3158,8 @@ namespace FinalWar
 
         private void ClientDoRecover(BinaryReader _br)
         {
+            Log.Write("ClientDoRecover!");
+
             autoAction.Clear();
 
             int num = _br.ReadInt32();
@@ -3134,6 +3197,40 @@ namespace FinalWar
             {
                 oWin = false;
             }
+
+            //比对下发的数据
+            int numx = _br.ReadInt32();
+
+            Log.Write("client num:" + numx);
+
+            for (int i = 0; i < numx; i++)
+            {
+                int pos = _br.ReadInt32();
+                int hp = _br.ReadInt32();
+                int shield = _br.ReadInt32();
+
+                Log.Write("client  pos:" + pos + "  hp:" + hp + "  shield:" + shield);
+
+                if (heroMapDic.ContainsKey(pos))
+                {
+                    Hero hero = heroMapDic[pos];
+
+                    if (hero.nowHp != hp)
+                    {
+                        throw new Exception("hp error  server:" + hp + "  client:" + hero.nowHp);
+                    }
+
+                    if (hero.nowShield != shield)
+                    {
+                        throw new Exception("shield error  server:" + shield + "  client:" + hero.nowShield);
+                    }
+                }
+                else
+                {
+                    throw new Exception("pos error  server:" + pos);
+                }
+            }
+            //----
         }
 
         public bool GetPosIsMine(int _pos)
