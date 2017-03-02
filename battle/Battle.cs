@@ -1927,11 +1927,9 @@ namespace FinalWar
 
         private void ServerDoAttack(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
-            Dictionary<Hero, int> shieldChangeDic = null;
+            LinkedList<Hero> dieHeroList = null;
 
-            Dictionary<Hero, int> hpChangeDic = null;
-
-            Dictionary<Hero, int> damageDic = null;
+            LinkedList<int> diePos = null;
 
             Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
 
@@ -1941,14 +1939,11 @@ namespace FinalWar
 
                 while (cellData.attackers.Count > 0 && ((cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE) || cellData.supporters.Count > 0))
                 {
-                    if (shieldChangeDic == null)
-                    {
-                        shieldChangeDic = new Dictionary<Hero, int>();
+                    Dictionary<Hero, int> shieldChangeDic = new Dictionary<Hero, int>();
 
-                        hpChangeDic = new Dictionary<Hero, int>();
+                    Dictionary<Hero, int> hpChangeDic = new Dictionary<Hero, int>();
 
-                        damageDic = new Dictionary<Hero, int>();
-                    }
+                    Dictionary<Hero, int> damageDic = new Dictionary<Hero, int>();
 
                     Hero attacker = cellData.attackers[0];
 
@@ -2033,19 +2028,33 @@ namespace FinalWar
 
                     eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.ATTACK), defender, shieldChangeDic, hpChangeDic, damageDic, _voList);
 
-                    eventListener.DispatchEvent(HeroSkill.GetEventName(attacker.uid, SkillTime.RUSH), defender, shieldChangeDic, hpChangeDic, damageDic, _voList);
+                    BattlePublicTools.AccumulateDicData(damageDic, defender, -attackDamage);
+
+                    BattlePublicTools.AccumulateDicData(damageDic, attacker, -defenseDamage);
 
                     int attackerShieldDamage;
 
                     int attackerHpDamage;
 
-                    CheckIsAlive(attacker, defenseDamage, shieldChangeDic, hpChangeDic, damageDic, out attackerShieldDamage, out attackerHpDamage);
+                    if (!CheckIsAlive(attacker, shieldChangeDic, hpChangeDic, damageDic, out attackerShieldDamage, out attackerHpDamage))
+                    {
+                        if (dieHeroList == null)
+                        {
+                            dieHeroList = new LinkedList<Hero>();
+
+                            diePos = new LinkedList<int>();
+                        }
+
+                        dieHeroList.AddLast(attacker);
+
+                        diePos.AddLast(attacker.pos);
+                    }
 
                     int defenderShieldDamage;
 
                     int defenderHpDamage;
 
-                    if (!CheckIsAlive(defender, attackDamage, shieldChangeDic, hpChangeDic, damageDic, out defenderShieldDamage, out defenderHpDamage))
+                    if (!CheckIsAlive(defender, shieldChangeDic, hpChangeDic, damageDic, out defenderShieldDamage, out defenderHpDamage))
                     {
                         if (defender.action == Hero.HeroAction.DEFENSE)
                         {
@@ -2060,11 +2069,18 @@ namespace FinalWar
 
                             cellData.supporters.RemoveAt(0);
                         }
+
+                        if (dieHeroList == null)
+                        {
+                            dieHeroList = new LinkedList<Hero>();
+
+                            diePos = new LinkedList<int>();
+                        }
+
+                        dieHeroList.AddLast(defender);
+
+                        diePos.AddLast(defender.pos);
                     }
-
-                    BattlePublicTools.AccumulateDicData(damageDic, defender, -attackDamage);
-
-                    BattlePublicTools.AccumulateDicData(damageDic, attacker, -defenseDamage);
 
                     BattleAttackVO vo;
 
@@ -2081,31 +2097,46 @@ namespace FinalWar
                 }
             }
 
-            if (shieldChangeDic != null)
+            if (dieHeroList != null)
             {
-                ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, true);
+                _voList.AddLast(new BattleDeathVO(diePos));
+
+                LinkedList<Hero>.Enumerator enumerator2 = dieHeroList.GetEnumerator();
+
+                while (enumerator2.MoveNext())
+                {
+                    ServerRemoveHero(_battleData, enumerator2.Current);
+                }
+
+                Dictionary<Hero, int> shieldChangeDic = new Dictionary<Hero, int>();
+
+                Dictionary<Hero, int> hpChangeDic = new Dictionary<Hero, int>();
+
+                Dictionary<Hero, int> damageDic = new Dictionary<Hero, int>();
+
+                while (enumerator2.MoveNext())
+                {
+                    ServerDoHeroDie(enumerator2.Current, shieldChangeDic, hpChangeDic, damageDic, _voList);
+                }
+
+                ProcessChangeDic(_battleData, shieldChangeDic, hpChangeDic, damageDic, _voList, false);
             }
         }
 
-        private bool CheckIsAlive(Hero _hero, int _damage, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, out int _shieldDamage, out int _hpDamage)
+        private bool CheckIsAlive(Hero _hero, Dictionary<Hero, int> _shieldChangeDic, Dictionary<Hero, int> _hpChangeDic, Dictionary<Hero, int> _damageDic, out int _shieldDamage, out int _hpDamage)
         {
             int shield = _hero.nowShield;
 
             if (_shieldChangeDic.ContainsKey(_hero))
             {
-                shield += _shieldChangeDic[_hero];
-
-                if (shield < 0)
-                {
-                    shield = 0;
-                }
+                _hero.ShieldChange(_shieldChangeDic[_hero]);
             }
 
             int hp = _hero.nowHp;
 
             if (_hpChangeDic.ContainsKey(_hero))
             {
-                hp += _hpChangeDic[_hero];
+                _hero.HpChange(_hpChangeDic[_hero]);
             }
 
             int damage;
@@ -2119,50 +2150,26 @@ namespace FinalWar
                 damage = 0;
             }
 
-            if (shield >= damage)
+            if (_hero.nowShield >= damage)
             {
-                shield -= damage;
+                _hero.ShieldChange(-damage);
 
                 damage = 0;
             }
             else
             {
+                _hero.ShieldChange(-_hero.nowShield);
+
                 damage -= shield;
-
-                shield = 0;
             }
 
-            hp -= damage;
+            bool die = _hero.HpChange(-damage);
 
-            int recShield = shield;
+            _shieldDamage = _hero.nowShield - shield;
 
-            int recHp = hp;
+            _hpDamage = _hero.nowHp - hp;
 
-            if (shield >= _damage)
-            {
-                shield -= _damage;
-
-                _damage = 0;
-            }
-            else
-            {
-                _damage -= shield;
-
-                shield = 0;
-            }
-
-            hp -= _damage;
-
-            if (hp < 0)
-            {
-                hp = 0;
-            }
-
-            _shieldDamage = shield - recShield;
-
-            _hpDamage = hp - recHp;
-
-            return hp > 0;
+            return die;
         }
 
         private void ServerDoMove(BattleData _battleData, LinkedList<IBattleVO> _voList)
