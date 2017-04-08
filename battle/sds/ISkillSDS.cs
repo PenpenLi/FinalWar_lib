@@ -5,7 +5,6 @@
     SHOOT,
     RUSH,
     ATTACK,
-    HELP,
     SUPPORT,
     COUNTER,
     RECOVER,

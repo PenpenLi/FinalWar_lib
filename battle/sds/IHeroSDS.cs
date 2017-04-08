@@ -1,14 +1,14 @@
-﻿public enum AbilityType
-{
-    Null,
-    Shoot,
-    Support,
-    Counter,
-    Help,
-    Throw,
-    Attacker,
-    Building
-}
+﻿//public enum AbilityType
+//{
+//    Null,
+//    Shoot,
+//    Support,
+//    Counter,
+//    Help,
+//    Throw,
+//    Attacker,
+//    Building
+//}
 
 public interface IHeroSDS
 {
@@ -16,10 +16,11 @@ public interface IHeroSDS
     int GetHp();
     int GetShield();
     int GetCost();
-    bool GetCanControl();
+    //bool GetCanControl();
     int GetAttack();
-    AbilityType GetAbilityType();
+    //AbilityType GetAbilityType();
     int[] GetSkills();
     int[] GetAuras();
+    IHeroTypeSDS GetHeroType();
 }
 

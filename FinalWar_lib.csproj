@@ -62,7 +62,6 @@
   <ItemGroup>
     <Compile Include="battle\ai\AiData.cs" />
     <Compile Include="battle\ai\node\CheckHasTargetPosConditionNode.cs" />
-    <Compile Include="battle\ai\node\CheckAbilityTypeConditionNode.cs" />
     <Compile Include="battle\ai\node\ChooseTargetPosActionNode.cs" />
     <Compile Include="battle\ai\node\GetCanAttackPosNode.cs" />
     <Compile Include="battle\ai\node\GetCanHelpHeroPosNode.cs" />
@@ -99,6 +98,7 @@
     <Compile Include="battle\packageTag\PackageTag.cs" />
     <Compile Include="battle\publicTools\PublicTools.cs" />
     <Compile Include="battle\sds\IAuraSDS.cs" />
+    <Compile Include="battle\sds\IHeroTypeSDS.cs" />
     <Compile Include="battle\sds\ISkillSDS.cs" />
     <Compile Include="battle\superEvent\SuperEventListener.cs" />
     <Compile Include="battle\superEvent\SuperEventListenerV.cs" />

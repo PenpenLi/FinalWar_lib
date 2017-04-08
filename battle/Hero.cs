@@ -172,7 +172,7 @@ namespace FinalWar
         {
             int attackDamage;
 
-            if (sds.GetAbilityType() == AbilityType.Null || sds.GetAbilityType() == AbilityType.Attacker)
+            if (sds.GetHeroType().GetCanAddAbilityWhenAttack())
             {
                 attackDamage = GetAttackFix() + GetAbilityFix();
             }
@@ -205,7 +205,7 @@ namespace FinalWar
         {
             int counterDamage;
 
-            if (sds.GetAbilityType() == AbilityType.Counter)
+            if (sds.GetHeroType().GetCanAddAbilityWhenDefense())
             {
                 counterDamage = GetAttackFix() + GetAbilityFix();
             }

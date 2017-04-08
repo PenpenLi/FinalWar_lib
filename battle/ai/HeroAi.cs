@@ -26,7 +26,7 @@ namespace FinalWar
 
                 if (hero.isMine == _isMine)
                 {
-                    if (hero.sds.GetCanControl())
+                    if (hero.sds.GetHeroType().GetCanDoAction())
                     {
                         if (_battle.CheckPosCanBeAttack(hero.pos))
                         {
@@ -52,7 +52,7 @@ namespace FinalWar
                             result.InsertRange(result.Count, posList);
                         }
 
-                        if (hero.sds.GetAbilityType() == AbilityType.Shoot)
+                        if (hero.sds.GetHeroType().GetAdditionAttackType() == AdditionAttackType.SHOOT)
                         {
                             posList = _battle.GetCanShootHeroPos(hero);
 
@@ -68,7 +68,7 @@ namespace FinalWar
                                 }
                             }
                         }
-                        else if (hero.sds.GetAbilityType() == AbilityType.Throw)
+                        else if (hero.sds.GetHeroType().GetAdditionAttackType() == AdditionAttackType.THROW)
                         {
                             posList = _battle.GetCanThrowHeroPos(hero);
 
@@ -85,7 +85,7 @@ namespace FinalWar
                             }
 
                         }
-                        else if (hero.sds.GetAbilityType() == AbilityType.Help)
+                        else if (hero.sds.GetHeroType().GetCanLendDamageWhenSupport())
                         {
                             posList = _battle.GetCanHelpHeroPos(hero);
 
@@ -143,18 +143,6 @@ namespace FinalWar
                             }
 
                             action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
-                        }
-                    }
-                    else
-                    {
-                        if (_battle.autoAction.ContainsKey(hero.pos))
-                        {
-                            int targetPos = _battle.autoAction[hero.pos];
-
-                            if (targetPos != hero.pos)
-                            {
-                                action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
-                            }
                         }
                     }
                 }

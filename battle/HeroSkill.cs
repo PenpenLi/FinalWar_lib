@@ -76,8 +76,6 @@ namespace FinalWar
 
                 case SkillTime.ATTACK:
 
-                case SkillTime.HELP:
-
                 case SkillTime.COUNTER:
 
                 case SkillTime.SUPPORT:
