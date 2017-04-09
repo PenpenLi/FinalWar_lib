@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using superEvent;
-using publicTools;
+using collectionTools;
 
 namespace FinalWar
 {
@@ -2366,7 +2366,7 @@ namespace FinalWar
 
             for (int i = 0; i < _num && handCardsDic.Count > 0; i++)
             {
-                int uid = PublicTools.ChooseOneKeyFromDic(handCardsDic, random);
+                int uid = CollectionTools.ChooseOneKeyFromDic(handCardsDic, random);
 
                 handCardsDic.Remove(uid);
 

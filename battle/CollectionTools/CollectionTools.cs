@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace publicTools
+namespace collectionTools
 {
-    public class PublicTools
+    public class CollectionTools
     {
         public static void ShuffleList<T>(List<T> _list, Random _random)
         {

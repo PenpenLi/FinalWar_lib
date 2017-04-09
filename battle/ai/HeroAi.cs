@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using publicTools;
+using collectionTools;
 
 namespace FinalWar
 {
@@ -148,7 +148,7 @@ namespace FinalWar
                 }
             }
 
-            PublicTools.ShuffleList(action, Battle.random);
+            CollectionTools.ShuffleList(action, Battle.random);
 
             _battle.action.InsertRange(_battle.action.Count, action);
         }
@@ -265,7 +265,7 @@ namespace FinalWar
                     }
                 }
 
-                PublicTools.ShuffleList(cards, Battle.random);
+                CollectionTools.ShuffleList(cards, Battle.random);
 
                 while (Battle.random.NextDouble() < 0.8 && cards.Count > 0 && (resultList.Count > 0 || resultList2.Count > 0))
                 {
