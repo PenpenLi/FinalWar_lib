@@ -263,7 +263,7 @@ namespace superEvent
             {
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<SuperFunctionCallBack, int>[][] arr = null;
+                SuperEventListenerUnit[][] arr = null;
 
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -275,18 +275,18 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new KeyValuePair<SuperFunctionCallBack, int>[MAX_PRIORITY][];
+                            arr = new SuperEventListenerUnit[MAX_PRIORITY][];
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
                         int priority = pair.Value.priority;
 
-                        KeyValuePair<SuperFunctionCallBack, int>[] list;
+                        SuperEventListenerUnit[] list;
 
                         if (arr[priority] == null)
                         {
-                            list = new KeyValuePair<SuperFunctionCallBack, int>[dic.Count];
+                            list = new SuperEventListenerUnit[dic.Count];
 
                             arr[priority] = list;
                         }
@@ -295,7 +295,7 @@ namespace superEvent
                             list = arr[priority];
                         }
 
-                        list[arrIndex] = new KeyValuePair<SuperFunctionCallBack, int>(pair.Key as SuperFunctionCallBack, pair.Value.index);
+                        list[arrIndex] = enumerator.Current.Value;
                     }
 
                     arrIndex++;
@@ -305,7 +305,7 @@ namespace superEvent
                 {
                     for (int i = 0; i < MAX_PRIORITY; i++)
                     {
-                        KeyValuePair<SuperFunctionCallBack, int>[] list = arr[i];
+                        SuperEventListenerUnit[] list = arr[i];
 
                         if (list != null)
                         {
@@ -313,11 +313,11 @@ namespace superEvent
 
                             for (int m = 0; m < length; m++)
                             {
-                                KeyValuePair<SuperFunctionCallBack, int> pair = list[m];
+                                SuperEventListenerUnit unit = list[m];
 
-                                SuperFunctionCallBack cb = pair.Key;
+                                SuperFunctionCallBack cb = unit.callBack as SuperFunctionCallBack;
 
-                                cb(pair.Value);
+                                cb(unit.index);
                             }
                         }
                     }
@@ -331,7 +331,7 @@ namespace superEvent
             {
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<SuperFunctionCallBack1<T1>, int>[][] arr = null;
+                SuperEventListenerUnit[][] arr = null;
 
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -343,18 +343,18 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new KeyValuePair<SuperFunctionCallBack1<T1>, int>[MAX_PRIORITY][];
+                            arr = new SuperEventListenerUnit[MAX_PRIORITY][];
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
                         int priority = pair.Value.priority;
 
-                        KeyValuePair<SuperFunctionCallBack1<T1>, int>[] list;
+                        SuperEventListenerUnit[] list;
 
                         if (arr[priority] == null)
                         {
-                            list = new KeyValuePair<SuperFunctionCallBack1<T1>, int>[dic.Count];
+                            list = new SuperEventListenerUnit[dic.Count];
 
                             arr[priority] = list;
                         }
@@ -363,7 +363,7 @@ namespace superEvent
                             list = arr[priority];
                         }
 
-                        list[arrIndex] = new KeyValuePair<SuperFunctionCallBack1<T1>, int>(pair.Key as SuperFunctionCallBack1<T1>, pair.Value.index);
+                        list[arrIndex] = enumerator.Current.Value;
                     }
 
                     arrIndex++;
@@ -373,7 +373,7 @@ namespace superEvent
                 {
                     for (int i = 0; i < MAX_PRIORITY; i++)
                     {
-                        KeyValuePair<SuperFunctionCallBack1<T1>, int>[] list = arr[i];
+                        SuperEventListenerUnit[] list = arr[i];
 
                         if (list != null)
                         {
@@ -381,11 +381,11 @@ namespace superEvent
 
                             for (int m = 0; m < length; m++)
                             {
-                                KeyValuePair<SuperFunctionCallBack1<T1>, int> pair = list[m];
+                                SuperEventListenerUnit unit = list[m];
 
-                                SuperFunctionCallBack1<T1> cb = pair.Key;
+                                SuperFunctionCallBack1<T1> cb = unit.callBack as SuperFunctionCallBack1<T1>;
 
-                                cb(pair.Value, t1);
+                                cb(unit.index, t1);
                             }
                         }
                     }
@@ -399,7 +399,7 @@ namespace superEvent
             {
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<SuperFunctionCallBack2<T1, T2>, int>[][] arr = null;
+                SuperEventListenerUnit[][] arr = null;
 
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -411,18 +411,18 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new KeyValuePair<SuperFunctionCallBack2<T1, T2>, int>[MAX_PRIORITY][];
+                            arr = new SuperEventListenerUnit[MAX_PRIORITY][];
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
                         int priority = pair.Value.priority;
 
-                        KeyValuePair<SuperFunctionCallBack2<T1, T2>, int>[] list;
+                        SuperEventListenerUnit[] list;
 
                         if (arr[priority] == null)
                         {
-                            list = new KeyValuePair<SuperFunctionCallBack2<T1, T2>, int>[dic.Count];
+                            list = new SuperEventListenerUnit[dic.Count];
 
                             arr[priority] = list;
                         }
@@ -431,7 +431,7 @@ namespace superEvent
                             list = arr[priority];
                         }
 
-                        list[arrIndex] = new KeyValuePair<SuperFunctionCallBack2<T1, T2>, int>(pair.Key as SuperFunctionCallBack2<T1, T2>, pair.Value.index);
+                        list[arrIndex] = enumerator.Current.Value;
                     }
 
                     arrIndex++;
@@ -441,7 +441,7 @@ namespace superEvent
                 {
                     for (int i = 0; i < MAX_PRIORITY; i++)
                     {
-                        KeyValuePair<SuperFunctionCallBack2<T1, T2>, int>[] list = arr[i];
+                        SuperEventListenerUnit[] list = arr[i];
 
                         if (list != null)
                         {
@@ -449,11 +449,11 @@ namespace superEvent
 
                             for (int m = 0; m < length; m++)
                             {
-                                KeyValuePair<SuperFunctionCallBack2<T1, T2>, int> pair = list[m];
+                                SuperEventListenerUnit unit = list[m];
 
-                                SuperFunctionCallBack2<T1, T2> cb = pair.Key;
+                                SuperFunctionCallBack2<T1, T2> cb = unit.callBack as SuperFunctionCallBack2<T1, T2>;
 
-                                cb(pair.Value, t1, t2);
+                                cb(unit.index, t1, t2);
                             }
                         }
                     }
@@ -467,7 +467,7 @@ namespace superEvent
             {
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<SuperFunctionCallBack3<T1, T2, T3>, int>[][] arr = null;
+                SuperEventListenerUnit[][] arr = null;
 
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -479,18 +479,18 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new KeyValuePair<SuperFunctionCallBack3<T1, T2, T3>, int>[MAX_PRIORITY][];
+                            arr = new SuperEventListenerUnit[MAX_PRIORITY][];
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
                         int priority = pair.Value.priority;
 
-                        KeyValuePair<SuperFunctionCallBack3<T1, T2, T3>, int>[] list;
+                        SuperEventListenerUnit[] list;
 
                         if (arr[priority] == null)
                         {
-                            list = new KeyValuePair<SuperFunctionCallBack3<T1, T2, T3>, int>[dic.Count];
+                            list = new SuperEventListenerUnit[dic.Count];
 
                             arr[priority] = list;
                         }
@@ -499,7 +499,7 @@ namespace superEvent
                             list = arr[priority];
                         }
 
-                        list[arrIndex] = new KeyValuePair<SuperFunctionCallBack3<T1, T2, T3>, int>(pair.Key as SuperFunctionCallBack3<T1, T2, T3>, pair.Value.index);
+                        list[arrIndex] = enumerator.Current.Value;
                     }
 
                     arrIndex++;
@@ -509,7 +509,7 @@ namespace superEvent
                 {
                     for (int i = 0; i < MAX_PRIORITY; i++)
                     {
-                        KeyValuePair<SuperFunctionCallBack3<T1, T2, T3>, int>[] list = arr[i];
+                        SuperEventListenerUnit[] list = arr[i];
 
                         if (list != null)
                         {
@@ -517,11 +517,11 @@ namespace superEvent
 
                             for (int m = 0; m < length; m++)
                             {
-                                KeyValuePair<SuperFunctionCallBack3<T1, T2, T3>, int> pair = list[m];
+                                SuperEventListenerUnit unit = list[m];
 
-                                SuperFunctionCallBack3<T1, T2, T3> cb = pair.Key;
+                                SuperFunctionCallBack3<T1, T2, T3> cb = unit.callBack as SuperFunctionCallBack3<T1, T2, T3>;
 
-                                cb(pair.Value, t1, t2, t3);
+                                cb(unit.index, t1, t2, t3);
                             }
                         }
                     }
@@ -535,7 +535,7 @@ namespace superEvent
             {
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<SuperFunctionCallBack4<T1, T2, T3, T4>, int>[][] arr = null;
+                SuperEventListenerUnit[][] arr = null;
 
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -547,18 +547,18 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new KeyValuePair<SuperFunctionCallBack4<T1, T2, T3, T4>, int>[MAX_PRIORITY][];
+                            arr = new SuperEventListenerUnit[MAX_PRIORITY][];
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
                         int priority = pair.Value.priority;
 
-                        KeyValuePair<SuperFunctionCallBack4<T1, T2, T3, T4>, int>[] list;
+                        SuperEventListenerUnit[] list;
 
                         if (arr[priority] == null)
                         {
-                            list = new KeyValuePair<SuperFunctionCallBack4<T1, T2, T3, T4>, int>[dic.Count];
+                            list = new SuperEventListenerUnit[dic.Count];
 
                             arr[priority] = list;
                         }
@@ -567,7 +567,7 @@ namespace superEvent
                             list = arr[priority];
                         }
 
-                        list[arrIndex] = new KeyValuePair<SuperFunctionCallBack4<T1, T2, T3, T4>, int>(pair.Key as SuperFunctionCallBack4<T1, T2, T3, T4>, pair.Value.index);
+                        list[arrIndex] = enumerator.Current.Value;
                     }
 
                     arrIndex++;
@@ -577,7 +577,7 @@ namespace superEvent
                 {
                     for (int i = 0; i < MAX_PRIORITY; i++)
                     {
-                        KeyValuePair<SuperFunctionCallBack4<T1, T2, T3, T4>, int>[] list = arr[i];
+                        SuperEventListenerUnit[] list = arr[i];
 
                         if (list != null)
                         {
@@ -585,11 +585,11 @@ namespace superEvent
 
                             for (int m = 0; m < length; m++)
                             {
-                                KeyValuePair<SuperFunctionCallBack4<T1, T2, T3, T4>, int> pair = list[m];
+                                SuperEventListenerUnit unit = list[m];
 
-                                SuperFunctionCallBack4<T1, T2, T3, T4> cb = pair.Key;
+                                SuperFunctionCallBack4<T1, T2, T3, T4> cb = unit.callBack as SuperFunctionCallBack4<T1, T2, T3, T4>;
 
-                                cb(pair.Value, t1, t2, t3, t4);
+                                cb(unit.index, t1, t2, t3, t4);
                             }
                         }
                     }
@@ -603,7 +603,7 @@ namespace superEvent
             {
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<SuperFunctionCallBackV<T>, int>[][] arr = null;
+                SuperEventListenerUnit[][] arr = null;
 
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -615,18 +615,18 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new KeyValuePair<SuperFunctionCallBackV<T>, int>[MAX_PRIORITY][];
+                            arr = new SuperEventListenerUnit[MAX_PRIORITY][];
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
                         int priority = pair.Value.priority;
 
-                        KeyValuePair<SuperFunctionCallBackV<T>, int>[] list;
+                        SuperEventListenerUnit[] list;
 
                         if (arr[priority] == null)
                         {
-                            list = new KeyValuePair<SuperFunctionCallBackV<T>, int>[dic.Count];
+                            list = new SuperEventListenerUnit[dic.Count];
 
                             arr[priority] = list;
                         }
@@ -635,7 +635,7 @@ namespace superEvent
                             list = arr[priority];
                         }
 
-                        list[arrIndex] = new KeyValuePair<SuperFunctionCallBackV<T>, int>(pair.Key as SuperFunctionCallBackV<T>, pair.Value.index);
+                        list[arrIndex] = enumerator.Current.Value;
                     }
 
                     arrIndex++;
@@ -645,7 +645,7 @@ namespace superEvent
                 {
                     for (int i = 0; i < MAX_PRIORITY; i++)
                     {
-                        KeyValuePair<SuperFunctionCallBackV<T>, int>[] list = arr[i];
+                        SuperEventListenerUnit[] list = arr[i];
 
                         if (list != null)
                         {
@@ -653,11 +653,11 @@ namespace superEvent
 
                             for (int m = 0; m < length; m++)
                             {
-                                KeyValuePair<SuperFunctionCallBackV<T>, int> pair = list[m];
+                                SuperEventListenerUnit unit = list[m];
 
-                                SuperFunctionCallBackV<T> cb = pair.Key;
+                                SuperFunctionCallBackV<T> cb = unit.callBack as SuperFunctionCallBackV<T>;
 
-                                cb(pair.Value, ref t);
+                                cb(unit.index, ref t);
                             }
                         }
                     }
@@ -671,7 +671,7 @@ namespace superEvent
             {
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<SuperFunctionCallBackV1<T, T1>, int>[][] arr = null;
+                SuperEventListenerUnit[][] arr = null;
 
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -683,18 +683,18 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new KeyValuePair<SuperFunctionCallBackV1<T, T1>, int>[MAX_PRIORITY][];
+                            arr = new SuperEventListenerUnit[MAX_PRIORITY][];
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
                         int priority = pair.Value.priority;
 
-                        KeyValuePair<SuperFunctionCallBackV1<T, T1>, int>[] list;
+                        SuperEventListenerUnit[] list;
 
                         if (arr[priority] == null)
                         {
-                            list = new KeyValuePair<SuperFunctionCallBackV1<T, T1>, int>[dic.Count];
+                            list = new SuperEventListenerUnit[dic.Count];
 
                             arr[priority] = list;
                         }
@@ -703,7 +703,7 @@ namespace superEvent
                             list = arr[priority];
                         }
 
-                        list[arrIndex] = new KeyValuePair<SuperFunctionCallBackV1<T, T1>, int>(pair.Key as SuperFunctionCallBackV1<T, T1>, pair.Value.index);
+                        list[arrIndex] = enumerator.Current.Value;
                     }
 
                     arrIndex++;
@@ -713,7 +713,7 @@ namespace superEvent
                 {
                     for (int i = 0; i < MAX_PRIORITY; i++)
                     {
-                        KeyValuePair<SuperFunctionCallBackV1<T, T1>, int>[] list = arr[i];
+                        SuperEventListenerUnit[] list = arr[i];
 
                         if (list != null)
                         {
@@ -721,11 +721,11 @@ namespace superEvent
 
                             for (int m = 0; m < length; m++)
                             {
-                                KeyValuePair<SuperFunctionCallBackV1<T, T1>, int> pair = list[m];
+                                SuperEventListenerUnit unit = list[m];
 
-                                SuperFunctionCallBackV1<T, T1> cb = pair.Key;
+                                SuperFunctionCallBackV1<T, T1> cb = unit.callBack as SuperFunctionCallBackV1<T, T1>;
 
-                                cb(pair.Value, ref t, t1);
+                                cb(unit.index, ref t, t1);
                             }
                         }
                     }
@@ -739,7 +739,7 @@ namespace superEvent
             {
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<SuperFunctionCallBackV2<T, T1, T2>, int>[][] arr = null;
+                SuperEventListenerUnit[][] arr = null;
 
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -751,18 +751,18 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new KeyValuePair<SuperFunctionCallBackV2<T, T1, T2>, int>[MAX_PRIORITY][];
+                            arr = new SuperEventListenerUnit[MAX_PRIORITY][];
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
                         int priority = pair.Value.priority;
 
-                        KeyValuePair<SuperFunctionCallBackV2<T, T1, T2>, int>[] list;
+                        SuperEventListenerUnit[] list;
 
                         if (arr[priority] == null)
                         {
-                            list = new KeyValuePair<SuperFunctionCallBackV2<T, T1, T2>, int>[dic.Count];
+                            list = new SuperEventListenerUnit[dic.Count];
 
                             arr[priority] = list;
                         }
@@ -771,7 +771,7 @@ namespace superEvent
                             list = arr[priority];
                         }
 
-                        list[arrIndex] = new KeyValuePair<SuperFunctionCallBackV2<T, T1, T2>, int>(pair.Key as SuperFunctionCallBackV2<T, T1, T2>, pair.Value.index);
+                        list[arrIndex] = enumerator.Current.Value;
                     }
 
                     arrIndex++;
@@ -781,7 +781,7 @@ namespace superEvent
                 {
                     for (int i = 0; i < MAX_PRIORITY; i++)
                     {
-                        KeyValuePair<SuperFunctionCallBackV2<T, T1, T2>, int>[] list = arr[i];
+                        SuperEventListenerUnit[] list = arr[i];
 
                         if (list != null)
                         {
@@ -789,11 +789,11 @@ namespace superEvent
 
                             for (int m = 0; m < length; m++)
                             {
-                                KeyValuePair<SuperFunctionCallBackV2<T, T1, T2>, int> pair = list[m];
+                                SuperEventListenerUnit unit = list[m];
 
-                                SuperFunctionCallBackV2<T, T1, T2> cb = pair.Key;
+                                SuperFunctionCallBackV2<T, T1, T2> cb = unit.callBack as SuperFunctionCallBackV2<T, T1, T2>;
 
-                                cb(pair.Value, ref t, t1, t2);
+                                cb(unit.index, ref t, t1, t2);
                             }
                         }
                     }
@@ -807,7 +807,7 @@ namespace superEvent
             {
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<SuperFunctionCallBackV3<T, T1, T2, T3>, int>[][] arr = null;
+                SuperEventListenerUnit[][] arr = null;
 
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -819,18 +819,18 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new KeyValuePair<SuperFunctionCallBackV3<T, T1, T2, T3>, int>[MAX_PRIORITY][];
+                            arr = new SuperEventListenerUnit[MAX_PRIORITY][];
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
                         int priority = pair.Value.priority;
 
-                        KeyValuePair<SuperFunctionCallBackV3<T, T1, T2, T3>, int>[] list;
+                        SuperEventListenerUnit[] list;
 
                         if (arr[priority] == null)
                         {
-                            list = new KeyValuePair<SuperFunctionCallBackV3<T, T1, T2, T3>, int>[dic.Count];
+                            list = new SuperEventListenerUnit[dic.Count];
 
                             arr[priority] = list;
                         }
@@ -839,7 +839,7 @@ namespace superEvent
                             list = arr[priority];
                         }
 
-                        list[arrIndex] = new KeyValuePair<SuperFunctionCallBackV3<T, T1, T2, T3>, int>(pair.Key as SuperFunctionCallBackV3<T, T1, T2, T3>, pair.Value.index);
+                        list[arrIndex] = enumerator.Current.Value;
                     }
 
                     arrIndex++;
@@ -849,7 +849,7 @@ namespace superEvent
                 {
                     for (int i = 0; i < MAX_PRIORITY; i++)
                     {
-                        KeyValuePair<SuperFunctionCallBackV3<T, T1, T2, T3>, int>[] list = arr[i];
+                        SuperEventListenerUnit[] list = arr[i];
 
                         if (list != null)
                         {
@@ -857,11 +857,11 @@ namespace superEvent
 
                             for (int m = 0; m < length; m++)
                             {
-                                KeyValuePair<SuperFunctionCallBackV3<T, T1, T2, T3>, int> pair = list[m];
+                                SuperEventListenerUnit unit = list[m];
 
-                                SuperFunctionCallBackV3<T, T1, T2, T3> cb = pair.Key;
+                                SuperFunctionCallBackV3<T, T1, T2, T3> cb = unit.callBack as SuperFunctionCallBackV3<T, T1, T2, T3>;
 
-                                cb(pair.Value, ref t, t1, t2, t3);
+                                cb(unit.index, ref t, t1, t2, t3);
                             }
                         }
                     }
@@ -875,7 +875,7 @@ namespace superEvent
             {
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
 
-                KeyValuePair<SuperFunctionCallBackV4<T, T1, T2, T3, T4>, int>[][] arr = null;
+                SuperEventListenerUnit[][] arr = null;
 
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
@@ -887,18 +887,18 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new KeyValuePair<SuperFunctionCallBackV4<T, T1, T2, T3, T4>, int>[MAX_PRIORITY][];
+                            arr = new SuperEventListenerUnit[MAX_PRIORITY][];
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
                         int priority = pair.Value.priority;
 
-                        KeyValuePair<SuperFunctionCallBackV4<T, T1, T2, T3, T4>, int>[] list;
+                        SuperEventListenerUnit[] list;
 
                         if (arr[priority] == null)
                         {
-                            list = new KeyValuePair<SuperFunctionCallBackV4<T, T1, T2, T3, T4>, int>[dic.Count];
+                            list = new SuperEventListenerUnit[dic.Count];
 
                             arr[priority] = list;
                         }
@@ -907,7 +907,7 @@ namespace superEvent
                             list = arr[priority];
                         }
 
-                        list[arrIndex] = new KeyValuePair<SuperFunctionCallBackV4<T, T1, T2, T3, T4>, int>(pair.Key as SuperFunctionCallBackV4<T, T1, T2, T3, T4>, pair.Value.index);
+                        list[arrIndex] = enumerator.Current.Value;
                     }
 
                     arrIndex++;
@@ -917,7 +917,7 @@ namespace superEvent
                 {
                     for (int i = 0; i < MAX_PRIORITY; i++)
                     {
-                        KeyValuePair<SuperFunctionCallBackV4<T, T1, T2, T3, T4>, int>[] list = arr[i];
+                        SuperEventListenerUnit[] list = arr[i];
 
                         if (list != null)
                         {
@@ -925,11 +925,11 @@ namespace superEvent
 
                             for (int m = 0; m < length; m++)
                             {
-                                KeyValuePair<SuperFunctionCallBackV4<T, T1, T2, T3, T4>, int> pair = list[m];
+                                SuperEventListenerUnit unit = list[m];
 
-                                SuperFunctionCallBackV4<T, T1, T2, T3, T4> cb = pair.Key;
+                                SuperFunctionCallBackV4<T, T1, T2, T3, T4> cb = unit.callBack as SuperFunctionCallBackV4<T, T1, T2, T3, T4>;
 
-                                cb(pair.Value, ref t, t1, t2, t3, t4);
+                                cb(unit.index, ref t, t1, t2, t3, t4);
                             }
                         }
                     }
