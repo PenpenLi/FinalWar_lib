@@ -1,25 +1,4 @@
-﻿public enum SkillTime
-{
-    ROUNDSTART,
-    SUMMON,
-    SHOOT,
-    RUSH,
-    ATTACK,
-    SUPPORT,
-    COUNTER,
-    RECOVER,
-    DIE,
-    CAPTURE
-}
-
-public enum SkillTarget
-{
-    SELF,
-    ALLY,
-    ENEMY
-}
-
-public enum SkillEffect
+﻿public enum SkillEffect
 {
     DAMAGE,
     SHIELD_CHANGE,
@@ -36,10 +15,7 @@ public enum SkillEffect
 
 public interface ISkillSDS
 {
-    SkillTime GetSkillTime();
-    int GetPriority();
-    SkillTarget GetSkillTarget();
-    int GetTargetNum();
+    bool GetSkillTargetAlly();
     SkillEffect GetSkillEffect();
     int[] GetSkillDatas();
 }

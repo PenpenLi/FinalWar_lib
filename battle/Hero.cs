@@ -97,33 +97,59 @@ namespace FinalWar
             pos = _pos;
         }
 
-        internal void ShieldChange(int _value)
+        internal void BeDamage(int _value)
         {
-            nowShield += _value;
-
-            if (nowShield < 0)
+            if(_value > nowShield)
             {
                 nowShield = 0;
+
+                _value -= nowShield;
+
+                nowHp -= _value;
+            }
+            else
+            {
+                nowShield -= _value;
             }
         }
 
-        internal bool HpChange(int _value)
+        internal void BeHpDamage(int _value)
         {
-            nowHp += _value;
-
-            if (nowHp > sds.GetHp())
-            {
-                nowHp = sds.GetHp();
-            }
-            else if (nowHp < 1)
-            {
-                nowHp = 0;
-
-                return true;
-            }
-
-            return false;
+            nowHp -= _value;
         }
+
+        internal bool IsAlive()
+        {
+            return nowHp > 0;
+        }
+
+        //internal void ShieldChange(int _value)
+        //{
+        //    nowShield += _value;
+
+        //    if (nowShield < 0)
+        //    {
+        //        nowShield = 0;
+        //    }
+        //}
+
+        //internal bool HpChange(int _value)
+        //{
+        //    nowHp += _value;
+
+        //    if (nowHp > sds.GetHp())
+        //    {
+        //        nowHp = sds.GetHp();
+        //    }
+        //    else if (nowHp < 1)
+        //    {
+        //        nowHp = 0;
+
+        //        return true;
+        //    }
+
+        //    return false;
+        //}
 
         internal void LevelUp(IHeroSDS _sds)
         {
@@ -150,100 +176,13 @@ namespace FinalWar
             canMove = false;
         }
 
-        private int GetAttackFix()
+        internal int GetDamage()
         {
             int attack = sds.GetAttack() + attackFix;
 
             eventListenerV.DispatchEvent(AuraEffect.FIX_ATTACK.ToString(), ref attack, this);
 
             return attack;
-        }
-
-        private int GetAbilityFix()
-        {
-            int result = abilityFix;
-
-            eventListenerV.DispatchEvent(AuraEffect.FIX_ABILITY.ToString(), ref result, this);
-
-            return result;
-        }
-
-        internal int GetAttackDamage()
-        {
-            int attackDamage;
-
-            if (sds.GetHeroType().GetCanAddAbilityWhenAttack())
-            {
-                attackDamage = GetAttackFix() + GetAbilityFix();
-            }
-            else
-            {
-                attackDamage = GetAttackFix();
-            }
-
-            if (attackDamage < 0)
-            {
-                attackDamage = 0;
-            }
-
-            return attackDamage;
-        }
-
-        internal int GetShootDamage()
-        {
-            int shootDamage = GetAttackFix() + GetAbilityFix();
-
-            if (shootDamage < 0)
-            {
-                shootDamage = 0;
-            }
-
-            return shootDamage;
-        }
-
-        internal int GetCounterDamage()
-        {
-            int counterDamage;
-
-            if (sds.GetHeroType().GetCanAddAbilityWhenDefense())
-            {
-                counterDamage = GetAttackFix() + GetAbilityFix();
-            }
-            else
-            {
-                counterDamage = GetAttackFix();
-            }
-
-            if (counterDamage < 0)
-            {
-                counterDamage = 0;
-            }
-
-            return counterDamage;
-        }
-
-        internal int GetSupportDamage()
-        {
-            int supportDamage = GetAttackFix() + GetAbilityFix();
-
-            if (supportDamage < 0)
-            {
-                supportDamage = 0;
-            }
-
-            return supportDamage;
-        }
-
-        internal int GetHelpDamage()
-        {
-            int helpDamage = GetAttackFix() + GetAbilityFix();
-
-            if (helpDamage < 0)
-            {
-                helpDamage = 0;
-            }
-
-            return helpDamage;
         }
 
         internal void ServerRecover(LinkedList<IBattleVO> _voList)

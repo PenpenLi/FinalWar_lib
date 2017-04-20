@@ -8,15 +8,13 @@ namespace FinalWar
         public List<int> attackers;
         public List<List<int>> helpers;
         public int stander;
-        public int shieldDamage;
         public int hpDamage;
 
-        public BattleRushVO(List<int> _attackers, List<List<int>> _helpers, int _stander, int _shieldDamage, int _hpDamage)
+        public BattleRushVO(List<int> _attackers, List<List<int>> _helpers, int _stander, int _hpDamage)
         {
             attackers = _attackers;
             helpers = _helpers;
             stander = _stander;
-            shieldDamage = _shieldDamage;
             hpDamage = _hpDamage;
         }
 
@@ -39,8 +37,6 @@ namespace FinalWar
             }
 
             _bw.Write(stander);
-
-            _bw.Write(shieldDamage);
 
             _bw.Write(hpDamage);
         }
@@ -72,8 +68,6 @@ namespace FinalWar
             }
 
             stander = _br.ReadInt32();
-
-            shieldDamage = _br.ReadInt32();
 
             hpDamage = _br.ReadInt32();
         }
