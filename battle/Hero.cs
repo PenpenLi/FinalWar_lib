@@ -40,12 +40,8 @@ namespace FinalWar
 
         public bool canMove { get; private set; }
 
-        private SuperEventListenerV eventListenerV;
-
-        internal Hero(SuperEventListenerV _eventListenerV, bool _isMine, IHeroSDS _sds, int _pos, int _uid)
+        internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _uid)
         {
-            eventListenerV = _eventListenerV;
-
             isMine = _isMine;
 
             sds = _sds;
@@ -99,7 +95,7 @@ namespace FinalWar
 
         internal void BeDamage(int _value)
         {
-            if(_value > nowShield)
+            if (_value > nowShield)
             {
                 nowShield = 0;
 
@@ -110,6 +106,30 @@ namespace FinalWar
             else
             {
                 nowShield -= _value;
+            }
+        }
+
+        internal void BeDamage(int _value, out int _shieldDamage, out int _hpDamage)
+        {
+            if(_value > nowShield)
+            {
+                _shieldDamage = nowShield;
+
+                nowShield = 0;
+
+                _value -= nowShield;
+
+                _hpDamage = _value;
+
+                nowHp -= _value;
+            }
+            else
+            {
+                _shieldDamage = _value;
+
+                nowShield -= _value;
+
+                _hpDamage = 0;
             }
         }
 
@@ -180,8 +200,6 @@ namespace FinalWar
         {
             int attack = sds.GetAttack() + attackFix;
 
-            eventListenerV.DispatchEvent(AuraEffect.FIX_ATTACK.ToString(), ref attack, this);
-
             return attack;
         }
 
@@ -189,16 +207,9 @@ namespace FinalWar
         {
             if (recoverShield)
             {
-                bool tmpRecoverShield = true;
+                nowShield = sds.GetShield();
 
-                eventListenerV.DispatchEvent<bool>(AuraEffect.DISABLE_RECOVER_SHIELD.ToString(), ref tmpRecoverShield, this);
-
-                if (tmpRecoverShield)
-                {
-                    nowShield = sds.GetShield();
-
-                    _voList.AddLast(new BattleRecoverShieldVO(pos));
-                }
+                _voList.AddLast(new BattleRecoverShieldVO(pos));
             }
             else
             {

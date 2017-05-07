@@ -64,7 +64,6 @@ namespace FinalWar
         private Action clientBattleOverCallBack;
 
         internal SuperEventListener eventListener = new SuperEventListener();
-        internal SuperEventListenerV eventListenerV = new SuperEventListenerV();
 
         public bool mWin { get; private set; }
         public bool oWin { get; private set; }
@@ -179,7 +178,7 @@ namespace FinalWar
 
                     IHeroSDS heroSDS = GetHeroData(id);
 
-                    Hero hero = new Hero(eventListenerV, isMine, heroSDS, pos, GetHeroUid());
+                    Hero hero = new Hero(isMine, heroSDS, pos, GetHeroUid());
 
                     heroMapDic.Add(pos, hero);
                 }
@@ -1018,8 +1017,6 @@ namespace FinalWar
         {
             eventListener.Clear();
 
-            eventListenerV.Clear();
-
             summon.Clear();
 
             action.Clear();
@@ -1118,7 +1115,7 @@ namespace FinalWar
                 oHandCards.Remove(_uid);
             }
 
-            Hero hero = new Hero(eventListenerV, isMine, sds, _pos, GetHeroUid());
+            Hero hero = new Hero(isMine, sds, _pos, GetHeroUid());
 
             return hero;
         }
@@ -1530,9 +1527,17 @@ namespace FinalWar
                         voSupporters.Add(defender.pos);
                     }
 
-                    defender.BeDamage(attackDamage);
+                    int defenderShieldDamage;
 
-                    attacker.BeDamage(defenseDamage);
+                    int defenderHpDamage;
+
+                    int attackerShieldDamage;
+
+                    int attackerHpDamage;
+
+                    defender.BeDamage(attackDamage, out defenderShieldDamage, out defenderHpDamage);
+
+                    attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
 
                     if (!defender.IsAlive())
                     {
@@ -2087,18 +2092,16 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_vo.stander];
 
-            hero.ShieldChange(_vo.shieldDamage);
-
-            hero.HpChange(_vo.hpDamage);
+            hero.BeHpDamage(_vo.hpDamage);
         }
 
         private void ClientDoShoot(BattleShootVO _vo)
         {
             Hero hero = heroMapDic[_vo.stander];
 
-            hero.ShieldChange(_vo.shieldDamage);
+            //hero.ShieldChange(_vo.shieldDamage);
 
-            hero.HpChange(_vo.hpDamage);
+            //hero.HpChange(_vo.hpDamage);
         }
 
         private void ClientDoAttack(BattleAttackVO _vo)
@@ -2107,9 +2110,7 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.attackers[i]];
 
-                hero.ShieldChange(_vo.attackersShieldDamage[i]);
-
-                hero.HpChange(_vo.attackersHpDamage[i]);
+                hero.BeDamage(_vo.attackersShieldDamage[i] + _vo.attackersHpDamage[i]);
 
                 Log.Write("attacker be damage  shield:" + _vo.attackersShieldDamage[i] + "  hp:" + _vo.attackersHpDamage[i]);
             }
@@ -2118,9 +2119,7 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.supporters[i]];
 
-                hero.ShieldChange(_vo.supportersShieldDamage[i]);
-
-                hero.HpChange(_vo.supportersHpDamage[i]);
+                hero.BeDamage(_vo.supportersShieldDamage[i] + _vo.supportersHpDamage[i]);
 
                 Log.Write("supporter be damage  shield:" + _vo.supportersShieldDamage[i] + "  hp:" + _vo.supportersHpDamage[i]);
             }
@@ -2129,9 +2128,7 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.defender];
 
-                hero.ShieldChange(_vo.defenderShieldDamage);
-
-                hero.HpChange(_vo.defenderHpDamage);
+                hero.BeDamage(_vo.defenderShieldDamage + _vo.defenderHpDamage);
 
                 Log.Write("defender be damage  shield:" + _vo.defenderShieldDamage + "  hp:" + _vo.defenderHpDamage);
             }
@@ -2153,9 +2150,9 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.pos[i]];
 
-                hero.ShieldChange(_vo.shieldChange[i]);
+                //hero.ShieldChange(_vo.shieldChange[i]);
 
-                hero.HpChange(_vo.hpChange[i]);
+                //hero.HpChange(_vo.hpChange[i]);
             }
         }
 
