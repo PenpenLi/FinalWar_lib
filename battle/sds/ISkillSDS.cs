@@ -15,7 +15,6 @@
 
 public interface ISkillSDS
 {
-    bool GetSkillTargetAlly();
     SkillEffect GetSkillEffect();
     int[] GetSkillDatas();
 }

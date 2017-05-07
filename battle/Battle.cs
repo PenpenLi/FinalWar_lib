@@ -677,7 +677,7 @@ namespace FinalWar
                     {
                         ISkillSDS skillSDS = GetSkillData(hero.sds.GetSkill());
 
-                        if ((targetPosIsMine == hero.isMine) == skillSDS.GetSkillTargetAlly())
+                        if (targetPosIsMine != hero.isMine)
                         {
                             action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
 
@@ -1266,7 +1266,7 @@ namespace FinalWar
                     {
                         ISkillSDS skillSDS = GetSkillData(hero.sds.GetSkill());
 
-                        if ((targetPosIsMine == hero.isMine) == skillSDS.GetSkillTargetAlly())
+                        if (targetPosIsMine != hero.isMine)
                         {
                             hero.SetAction(Hero.HeroAction.SHOOT, _targetPos);
 

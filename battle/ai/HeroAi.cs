@@ -52,40 +52,7 @@ namespace FinalWar
                             result.InsertRange(result.Count, posList);
                         }
 
-                        if (hero.sds.GetHeroType().GetAdditionAttackType() == AdditionAttackType.SHOOT)
-                        {
-                            posList = _battle.GetCanShootHeroPos(hero);
-
-                            if (posList.Count > 0)
-                            {
-                                if (result != null)
-                                {
-                                    result.InsertRange(result.Count, posList);
-                                }
-                                else
-                                {
-                                    result = posList;
-                                }
-                            }
-                        }
-                        else if (hero.sds.GetHeroType().GetAdditionAttackType() == AdditionAttackType.THROW)
-                        {
-                            posList = _battle.GetCanThrowHeroPos(hero);
-
-                            if (posList.Count > 0)
-                            {
-                                if (result != null)
-                                {
-                                    result.InsertRange(result.Count, posList);
-                                }
-                                else
-                                {
-                                    result = posList;
-                                }
-                            }
-
-                        }
-                        else if (hero.sds.GetHeroType().GetCanLendDamageWhenSupport())
+                        if (hero.sds.GetHeroType().GetCanLendDamageWhenSupport())
                         {
                             posList = _battle.GetCanHelpHeroPos(hero);
 

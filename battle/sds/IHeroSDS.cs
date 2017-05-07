@@ -6,7 +6,6 @@
     int GetCost();
     int GetAttack();
     int GetSkill();
-    int[] GetAuras();
     IHeroTypeSDS GetHeroType();
 }
 
