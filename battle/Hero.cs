@@ -115,9 +115,9 @@ namespace FinalWar
             {
                 _shieldDamage = -nowShield;
 
-                nowShield = 0;
-
                 _value -= nowShield;
+
+                nowShield = 0;
 
                 _hpDamage = -_value;
 

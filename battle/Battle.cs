@@ -2111,8 +2111,6 @@ namespace FinalWar
                 Hero hero = heroMapDic[_vo.attackers[i]];
 
                 hero.BeDamage(-_vo.attackersShieldDamage[i] - _vo.attackersHpDamage[i]);
-
-                Log.Write("attacker be damage  shield:" + _vo.attackersShieldDamage[i] + "  hp:" + _vo.attackersHpDamage[i]);
             }
 
             for (int i = 0; i < _vo.supporters.Count; i++)
@@ -2120,8 +2118,6 @@ namespace FinalWar
                 Hero hero = heroMapDic[_vo.supporters[i]];
 
                 hero.BeDamage(-_vo.supportersShieldDamage[i] - _vo.supportersHpDamage[i]);
-
-                Log.Write("supporter be damage  shield:" + _vo.supportersShieldDamage[i] + "  hp:" + _vo.supportersHpDamage[i]);
             }
 
             if (heroMapDic.ContainsKey(_vo.defender))
@@ -2129,8 +2125,6 @@ namespace FinalWar
                 Hero hero = heroMapDic[_vo.defender];
 
                 hero.BeDamage(-_vo.defenderShieldDamage - _vo.defenderHpDamage);
-
-                Log.Write("defender be damage  shield:" + _vo.defenderShieldDamage + "  hp:" + _vo.defenderHpDamage);
             }
         }
 
