@@ -2092,7 +2092,7 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_vo.stander];
 
-            hero.BeHpDamage(_vo.hpDamage);
+            hero.BeHpDamage(-_vo.hpDamage);
         }
 
         private void ClientDoShoot(BattleShootVO _vo)
@@ -2110,7 +2110,7 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.attackers[i]];
 
-                hero.BeDamage(_vo.attackersShieldDamage[i] + _vo.attackersHpDamage[i]);
+                hero.BeDamage(-_vo.attackersShieldDamage[i] - _vo.attackersHpDamage[i]);
 
                 Log.Write("attacker be damage  shield:" + _vo.attackersShieldDamage[i] + "  hp:" + _vo.attackersHpDamage[i]);
             }
@@ -2119,7 +2119,7 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.supporters[i]];
 
-                hero.BeDamage(_vo.supportersShieldDamage[i] + _vo.supportersHpDamage[i]);
+                hero.BeDamage(-_vo.supportersShieldDamage[i] - _vo.supportersHpDamage[i]);
 
                 Log.Write("supporter be damage  shield:" + _vo.supportersShieldDamage[i] + "  hp:" + _vo.supportersHpDamage[i]);
             }
@@ -2128,7 +2128,7 @@ namespace FinalWar
             {
                 Hero hero = heroMapDic[_vo.defender];
 
-                hero.BeDamage(_vo.defenderShieldDamage + _vo.defenderHpDamage);
+                hero.BeDamage(-_vo.defenderShieldDamage - _vo.defenderHpDamage);
 
                 Log.Write("defender be damage  shield:" + _vo.defenderShieldDamage + "  hp:" + _vo.defenderHpDamage);
             }
@@ -2240,37 +2240,37 @@ namespace FinalWar
             }
 
             //比对下发的数据
-            int numx = _br.ReadInt32();
+            //int numx = _br.ReadInt32();
 
-            Log.Write("client num:" + numx);
+            //Log.Write("client num:" + numx);
 
-            for (int i = 0; i < numx; i++)
-            {
-                int pos = _br.ReadInt32();
-                int hp = _br.ReadInt32();
-                int shield = _br.ReadInt32();
+            //for (int i = 0; i < numx; i++)
+            //{
+            //    int pos = _br.ReadInt32();
+            //    int hp = _br.ReadInt32();
+            //    int shield = _br.ReadInt32();
 
-                Log.Write("client  pos:" + pos + "  hp:" + hp + "  shield:" + shield);
+            //    Log.Write("client  pos:" + pos + "  hp:" + hp + "  shield:" + shield);
 
-                if (heroMapDic.ContainsKey(pos))
-                {
-                    Hero hero = heroMapDic[pos];
+            //    if (heroMapDic.ContainsKey(pos))
+            //    {
+            //        Hero hero = heroMapDic[pos];
 
-                    if (hero.nowHp != hp)
-                    {
-                        throw new Exception("hp error  server:" + hp + "  client:" + hero.nowHp);
-                    }
+            //        if (hero.nowHp != hp)
+            //        {
+            //            throw new Exception("hp error  server:" + hp + "  client:" + hero.nowHp);
+            //        }
 
-                    if (hero.nowShield != shield)
-                    {
-                        throw new Exception("shield error  server:" + shield + "  client:" + hero.nowShield);
-                    }
-                }
-                else
-                {
-                    throw new Exception("pos error  server:" + pos);
-                }
-            }
+            //        if (hero.nowShield != shield)
+            //        {
+            //            throw new Exception("shield error  server:" + shield + "  client:" + hero.nowShield);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        throw new Exception("pos error  server:" + pos);
+            //    }
+            //}
             //----
         }
 

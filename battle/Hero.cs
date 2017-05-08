@@ -113,19 +113,19 @@ namespace FinalWar
         {
             if(_value > nowShield)
             {
-                _shieldDamage = nowShield;
+                _shieldDamage = -nowShield;
 
                 nowShield = 0;
 
                 _value -= nowShield;
 
-                _hpDamage = _value;
+                _hpDamage = -_value;
 
                 nowHp -= _value;
             }
             else
             {
-                _shieldDamage = _value;
+                _shieldDamage = -_value;
 
                 nowShield -= _value;
 
