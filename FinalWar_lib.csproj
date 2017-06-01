@@ -48,6 +48,14 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Client|AnyCPU'">
+    <OutputPath>bin\Client\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Client|x64'">
+    <OutputPath>bin\x64\Client\</OutputPath>
+    <DefineConstants>CLIENT</DefineConstants>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="bt">
       <HintPath>..\..\bt\bin\x64\Debug\bt.dll</HintPath>
@@ -100,6 +108,7 @@
     <Compile Include="battle\sds\IAuraSDS.cs" />
     <Compile Include="battle\sds\IHeroTypeSDS.cs" />
     <Compile Include="battle\sds\ISkillSDS.cs" />
+    <Compile Include="battle\stepTools\StepTools.cs" />
     <Compile Include="battle\superEvent\SuperEventListener.cs" />
     <Compile Include="battle\HeroAura.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
