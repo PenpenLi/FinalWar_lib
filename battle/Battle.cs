@@ -8,7 +8,10 @@ namespace FinalWar
 {
     public class Battle
     {
+
+#if !CLIENT
         public static readonly Random random = new Random();
+#endif
 
         internal static Func<int, MapData> GetMapData;
         internal static Func<int, IHeroSDS> GetHeroData;
@@ -52,6 +55,9 @@ namespace FinalWar
 
         public bool mOver { get; private set; }
         public bool oOver { get; private set; }
+
+        private List<int> mCardTmpList = new List<int>();
+        private List<int> oCardTmpList = new List<int>();
 
 #if CLIENT
 
@@ -471,7 +477,7 @@ namespace FinalWar
             }
         }
 
-        
+
         private void ServerQuitBattle()
         {
             using (MemoryStream ms = new MemoryStream())
@@ -492,48 +498,12 @@ namespace FinalWar
             BattleOver();
         }
 
-         private void ServerDoAddCards(LinkedList<IBattleVO> _voList)
-        {
-            ServerAddCards(true, ADD_CARD_NUM, _voList);
-
-            ServerAddCards(false, ADD_CARD_NUM, _voList);
-        }
+        
 
 #endif
 
         private void ServerStartBattle()
         {
-            //记录战前情况
-            FileInfo fi = new FileInfo("e:/aaa.txt");
-
-            if (fi.Exists)
-            {
-                fi.Delete();
-            }
-
-            using (FileStream fs = fi.Create())
-            {
-                using (BinaryWriter bw = new BinaryWriter(fs))
-                {
-                    string str = "";
-
-                    Dictionary<int, Hero>.ValueCollection.Enumerator ee = heroMapDic.Values.GetEnumerator();
-
-                    while (ee.MoveNext())
-                    {
-                        str += "isMine:" + ee.Current.isMine + "  id:" + ee.Current.sds.GetID() + "  pos:" + ee.Current.pos + "  hp:" + ee.Current.nowHp + "  shield:" + ee.Current.nowShield + "\n";
-                    }
-
-                    for (int i = 0; i < action.Count; i++)
-                    {
-                        str += action[i].Key + "--->" + action[i].Value + "\n";
-                    }
-
-                    bw.Write(str);
-                }
-            }
-            //----
-
             LinkedList<IBattleVO> voList = new LinkedList<IBattleVO>();
 
             BattleData battleData = GetBattleData();
@@ -556,9 +526,10 @@ namespace FinalWar
 
             ServerDoAddMoney(voList);
 
+            ServerDoAddCards(voList);
+
 #if !CLIENT
 
-            ServerDoAddCards(voList);
 
             if (!isVsAi)
             {
@@ -602,33 +573,10 @@ namespace FinalWar
 
                         mBw.Write(oWin);
 
-                        //下发比对数据
-                        Log.Write("server num:" + heroMapDic.Count);
-
-                        mBw.Write(heroMapDic.Count);
-
-                        Dictionary<int, Hero>.ValueCollection.Enumerator enumeratorX = heroMapDic.Values.GetEnumerator();
-
-                        while (enumeratorX.MoveNext())
-                        {
-                            mBw.Write(enumeratorX.Current.pos);
-
-                            mBw.Write(enumeratorX.Current.nowHp);
-
-                            mBw.Write(enumeratorX.Current.nowShield);
-
-                            Log.Write("client  pos:" + enumeratorX.Current.pos + "  hp:" + enumeratorX.Current.nowHp + "  shield:" + enumeratorX.Current.nowShield);
-                        }
-                        //----
-
                         serverSendDataCallBack(true, mMs);
                     }
                 }
             }
-
-            
-       
-
 
 #endif
 
@@ -667,8 +615,6 @@ namespace FinalWar
 
         private void ServerDoSummon(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
-            Dictionary<int, Hero> summonDic = null;
-
             Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
             while (enumerator.MoveNext())
@@ -679,7 +625,7 @@ namespace FinalWar
 
                 int pos = pair.Value;
 
-                if (heroMapDic.ContainsKey(pos) || (summonDic != null && summonDic.ContainsKey(pos)))
+                if (heroMapDic.ContainsKey(pos))
                 {
                     Log.Write("Summon error0");
 
@@ -688,24 +634,9 @@ namespace FinalWar
 
                 Hero summonHero = SummonOneUnit(tmpCardUid, pos, _battleData);
 
-                if (summonDic == null)
-                {
-                    summonDic = new Dictionary<int, Hero>();
-                }
-
-                summonDic.Add(pos, summonHero);
+                ServerAddHero(_battleData, summonHero);
 
                 _voList.AddLast(new BattleSummonVO(tmpCardUid, summonHero.sds.GetID(), pos));
-            }
-
-            if (summonDic != null)
-            {
-                Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = summonDic.Values.GetEnumerator();
-
-                while (enumerator2.MoveNext())
-                {
-                    ServerAddHero(_battleData, enumerator2.Current);
-                }
             }
         }
 
@@ -1467,72 +1398,7 @@ namespace FinalWar
             _voList.AddLast(new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney));
         }
 
-        internal void ServerAddCards(bool _isMine, int _num, LinkedList<IBattleVO> _voList)
-        {
-            List<int> cards = _isMine ? mCards : oCards;
 
-            if (cards.Count > 0)
-            {
-                if (_num > cards.Count)
-                {
-                    _num = cards.Count;
-                }
-
-                Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
-
-                if (handCardsDic.Count + _num > MAX_HAND_CARD_NUM)
-                {
-                    int delNum = handCardsDic.Count + _num - MAX_HAND_CARD_NUM;
-
-                    ServerDelCards(_isMine, delNum, _voList);
-                }
-
-                Dictionary<int, int> addDic = new Dictionary<int, int>();
-
-                for (int i = 0; i < _num && cards.Count > 0; i++)
-                {
-                    int index = random.Next(cards.Count);
-
-                    int id = cards[index];
-
-                    cards.RemoveAt(index);
-
-                    int tmpCardUid = GetCardUid();
-
-                    handCardsDic.Add(tmpCardUid, id);
-
-                    addDic.Add(tmpCardUid, id);
-                }
-
-                _voList.AddLast(new BattleAddCardsVO(_isMine, addDic));
-            }
-        }
-
-        internal void ServerDelCards(bool _isMine, int _num, LinkedList<IBattleVO> _voList)
-        {
-            Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
-
-            LinkedList<int> delList = null;
-
-            for (int i = 0; i < _num && handCardsDic.Count > 0; i++)
-            {
-                int uid = CollectionTools.ChooseOneKeyFromDic(handCardsDic, random);
-
-                handCardsDic.Remove(uid);
-
-                if (delList == null)
-                {
-                    delList = new LinkedList<int>();
-                }
-
-                delList.AddLast(uid);
-            }
-
-            if (delList != null)
-            {
-                _voList.AddLast(new BattleDelCardsVO(_isMine, delList));
-            }
-        }
 
         private void RecoverOver()
         {
@@ -1575,7 +1441,113 @@ namespace FinalWar
             }
         }
 
+        private void ServerDoAddCards(LinkedList<IBattleVO> _voList)
+        {
+            ServerAddCards(true, ADD_CARD_NUM, _voList);
 
+            ServerAddCards(false, ADD_CARD_NUM, _voList);
+        }
+
+        internal void ServerAddCards(bool _isMine, int _num, LinkedList<IBattleVO> _voList)
+        {
+            List<int> cards = _isMine ? mCards : oCards;
+
+            if (cards.Count > 0)
+            {
+                if (_num > cards.Count)
+                {
+                    _num = cards.Count;
+                }
+
+                Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
+
+                if (handCardsDic.Count + _num > MAX_HAND_CARD_NUM)
+                {
+                    int delNum = handCardsDic.Count + _num - MAX_HAND_CARD_NUM;
+
+                    ServerDelCards(_isMine, delNum, _voList);
+                }
+
+                Dictionary<int, int> addDic = new Dictionary<int, int>();
+
+                for (int i = 0; i < _num && cards.Count > 0; i++)
+                {
+#if !CLIENT
+                    int index = random.Next(cards.Count);
+
+                    int id = cards[index];
+
+                    cards.RemoveAt(index);
+
+                    if (_isMine)
+                    {
+                        mCardTmpList.Add(id);
+                        oCardTmpList.Add(0);
+                    }
+                    else
+                    {
+                        mCardTmpList.Add(0);
+                        oCardTmpList.Add(id);
+                    }
+
+
+#else
+                    List<int> tmpList = _isMine ? mCardTmpList : oCardTmpList;
+
+                    int id = tmpList[0];
+                    tmpList.RemoveAt(0);
+                    
+#endif
+
+                    int tmpCardUid = GetCardUid();
+
+                    handCardsDic.Add(tmpCardUid, id);
+
+                    addDic.Add(tmpCardUid, id);
+                }
+
+                _voList.AddLast(new BattleAddCardsVO(_isMine, addDic));
+            }
+        }
+
+        internal void ServerDelCards(bool _isMine, int _num, LinkedList<IBattleVO> _voList)
+        {
+            Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
+
+            LinkedList<int> delList = null;
+
+            for (int i = 0; i < _num && handCardsDic.Count > 0; i++)
+            {
+#if !CLIENT
+
+                int uid = CollectionTools.ChooseOneKeyFromDic(handCardsDic, random);
+
+                mCardTmpList.Add(uid);
+                oCardTmpList.Add(uid);
+
+#else
+                List<int> tmpList = _isMine ? mCardTmpList : oCardTmpList;
+
+                int uid = tmpList[0];
+                tmpList.RemoveAt(0);
+
+#endif
+
+                handCardsDic.Remove(uid);
+
+                if (delList == null)
+                {
+                    delList = new LinkedList<int>();
+                }
+
+                delList.AddLast(uid);
+            }
+
+            if (delList != null)
+            {
+                _voList.AddLast(new BattleDelCardsVO(_isMine, delList));
+            }
+        }
 
 
 
@@ -2285,40 +2257,6 @@ namespace FinalWar
             {
                 oWin = false;
             }
-
-            //比对下发的数据
-            //int numx = _br.ReadInt32();
-
-            //Log.Write("client num:" + numx);
-
-            //for (int i = 0; i < numx; i++)
-            //{
-            //    int pos = _br.ReadInt32();
-            //    int hp = _br.ReadInt32();
-            //    int shield = _br.ReadInt32();
-
-            //    Log.Write("client  pos:" + pos + "  hp:" + hp + "  shield:" + shield);
-
-            //    if (heroMapDic.ContainsKey(pos))
-            //    {
-            //        Hero hero = heroMapDic[pos];
-
-            //        if (hero.nowHp != hp)
-            //        {
-            //            throw new Exception("hp error  server:" + hp + "  client:" + hero.nowHp);
-            //        }
-
-            //        if (hero.nowShield != shield)
-            //        {
-            //            throw new Exception("shield error  server:" + shield + "  client:" + hero.nowShield);
-            //        }
-            //    }
-            //    else
-            //    {
-            //        throw new Exception("pos error  server:" + pos);
-            //    }
-            //}
-            //----
         }
 
 
@@ -2329,7 +2267,7 @@ namespace FinalWar
 #endif
 
 
-        
+
 
         public List<int> GetCanAttackHeroPos(Hero _hero)
         {
