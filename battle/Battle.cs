@@ -246,6 +246,10 @@ namespace FinalWar
 
                     bw.Write(oScore);
 
+                    bw.Write(heroUid);
+
+                    bw.Write(cardUid);
+
                     bw.Write(mapID);
 
                     bw.Write(mapBelongDic.Count);
@@ -466,14 +470,14 @@ namespace FinalWar
             {
                 if (mOver && oOver)
                 {
-                    ServerStartBattle();
+                    StartBattle();
                 }
             }
             else
             {
                 HeroAi.Start(this, false, 0.2);
 
-                ServerStartBattle();
+                StartBattle();
             }
         }
 
@@ -502,7 +506,7 @@ namespace FinalWar
 
 #endif
 
-        private void ServerStartBattle()
+        private void StartBattle()
         {
             LinkedList<IBattleVO> voList = new LinkedList<IBattleVO>();
 
@@ -510,23 +514,23 @@ namespace FinalWar
 
             action.Clear();
 
-            ServerDoSummon(battleData, voList);
+            DoSummon(battleData, voList);
 
             summon.Clear();
 
-            ServerDoRush(battleData, voList);
+            DoRush(battleData, voList);
 
-            ServerDoAttack(battleData, voList);
+            DoAttack(battleData, voList);
 
-            ServerDoRush(battleData, voList);
+            DoRush(battleData, voList);
 
-            ServerDoMove(battleData, voList);
+            DoMove(battleData, voList);
 
-            ServerDoRecover(battleData, voList);
+            DoRecover(battleData, voList);
 
-            ServerDoAddMoney(voList);
+            DoAddMoney(voList);
 
-            ServerDoAddCards(voList);
+            DoAddCards(voList);
 
 #if !CLIENT
 
@@ -613,7 +617,7 @@ namespace FinalWar
 #endif
         }
 
-        private void ServerDoSummon(BattleData _battleData, LinkedList<IBattleVO> _voList)
+        private void DoSummon(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
@@ -871,7 +875,7 @@ namespace FinalWar
             }
         }
 
-        private void ServerDoRush(BattleData _battleData, LinkedList<IBattleVO> _voList)
+        private void DoRush(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             while (true)
             {
@@ -1001,7 +1005,7 @@ namespace FinalWar
             }
         }
 
-        private void ServerDoAttack(BattleData _battleData, LinkedList<IBattleVO> _voList)
+        private void DoAttack(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
 
@@ -1138,7 +1142,7 @@ namespace FinalWar
             RemoveDieHero(_battleData, _voList);
         }
 
-        private void ServerDoMove(BattleData _battleData, LinkedList<IBattleVO> _voList)
+        private void DoMove(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             LinkedList<int> tmpList = null;
 
@@ -1186,7 +1190,7 @@ namespace FinalWar
             _voList.AddLast(new BattleLevelUpVO(_hero.pos, _id));
         }
 
-        private void ServerDoRecover(BattleData _battleData, LinkedList<IBattleVO> _voList)
+        private void DoRecover(BattleData _battleData, LinkedList<IBattleVO> _voList)
         {
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
 
@@ -1352,7 +1356,7 @@ namespace FinalWar
             }
         }
 
-        private void ServerDoAddMoney(LinkedList<IBattleVO> _voList)
+        private void DoAddMoney(LinkedList<IBattleVO> _voList)
         {
             ServerMoneyChange(true, ADD_MONEY, _voList);
 
@@ -1441,7 +1445,7 @@ namespace FinalWar
             }
         }
 
-        private void ServerDoAddCards(LinkedList<IBattleVO> _voList)
+        private void DoAddCards(LinkedList<IBattleVO> _voList)
         {
             ServerAddCards(true, ADD_CARD_NUM, _voList);
 
@@ -1624,6 +1628,10 @@ namespace FinalWar
             mScore = _br.ReadInt32();
 
             oScore = _br.ReadInt32();
+
+            heroUid = _br.ReadInt32();
+
+            cardUid = _br.ReadInt32();
 
             mapID = _br.ReadInt32();
 
