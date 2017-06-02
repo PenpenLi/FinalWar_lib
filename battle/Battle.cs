@@ -15,6 +15,8 @@ namespace FinalWar
         public static readonly Random random = new Random();
 #endif
 
+
+
         internal static Func<int, MapData> GetMapData;
         internal static Func<int, IHeroSDS> GetHeroData;
         internal static Func<int, ISkillSDS> GetSkillData;
@@ -36,11 +38,11 @@ namespace FinalWar
         private Dictionary<int, bool> mapBelongDic = new Dictionary<int, bool>();
         public Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
 
-        private List<int> mCards;
-        private List<int> oCards;
+        private List<KeyValuePair<int, int>> mCards = new List<KeyValuePair<int, int>>();
+        private List<KeyValuePair<int, int>> oCards = new List<KeyValuePair<int, int>>();
 
-        public Dictionary<int, int> mHandCards = new Dictionary<int, int>();
-        public Dictionary<int, int> oHandCards = new Dictionary<int, int>();
+        public List<KeyValuePair<int, int>> mHandCards = new List<KeyValuePair<int, int>>();
+        public List<KeyValuePair<int, int>> oHandCards = new List<KeyValuePair<int, int>>();
 
         public int mScore { get; private set; }
         public int oScore { get; private set; }
@@ -58,8 +60,8 @@ namespace FinalWar
         public bool mOver { get; private set; }
         public bool oOver { get; private set; }
 
-        private List<int> mCardTmpList = new List<int>();
-        private List<int> oCardTmpList = new List<int>();
+        private List<int> randomList = new List<int>();
+
 
 #if CLIENT
 
@@ -70,6 +72,12 @@ namespace FinalWar
         private Action<StepTools<IBattleVO>> clientDoActionCallBack;
         private Action clientBattleOverCallBack;
 #else
+
+        private Dictionary<int, int> mCardsChangeDic = new Dictionary<int, int>();
+        private Dictionary<int, int> oCardsChangeDic = new Dictionary<int, int>();
+
+        private Dictionary<int, int> mHandCardsChangeDic = new Dictionary<int, int>();
+        private Dictionary<int, int> oHandCardsChangeDic = new Dictionary<int, int>();
 
         private Action<bool, MemoryStream> serverSendDataCallBack;
         private Action serverBattleOverCallBack;
@@ -146,8 +154,15 @@ namespace FinalWar
             cardUid = 1;
             heroUid = 1;
 
-            mCards = new List<int>(_mCards);
-            oCards = new List<int>(_oCards);
+            for (int i = 0; i < _mCards.Count; i++)
+            {
+                mCards.Add(new KeyValuePair<int, int>(i, _mCards[i]));
+            }
+
+            for (int i = 0; i < _oCards.Count; i++)
+            {
+                oCards.Add(new KeyValuePair<int, int>(i, _oCards[i]));
+            }
 
             for (int i = 0; i < DEFAULT_HAND_CARD_NUM; i++)
             {
@@ -155,7 +170,7 @@ namespace FinalWar
                 {
                     int index = random.Next(mCards.Count);
 
-                    mHandCards.Add(GetCardUid(), mCards[index]);
+                    mHandCards.Add(new KeyValuePair<int, int>(GetCardUid(), mCards[index].Value));
 
                     mCards.RemoveAt(index);
                 }
@@ -164,7 +179,7 @@ namespace FinalWar
                 {
                     int index = random.Next(oCards.Count);
 
-                    oHandCards.Add(GetCardUid(), oCards[index]);
+                    oHandCards.Add(new KeyValuePair<int, int>(GetCardUid(), oCards[index].Value));
 
                     oCards.RemoveAt(index);
                 }
@@ -282,30 +297,40 @@ namespace FinalWar
                         bw.Write(hero.nowShield);
                     }
 
-                    Dictionary<int, int> handCards;
+                    List<KeyValuePair<int, int>> handCards;
 
-                    Dictionary<int, int> handCards2;
+                    List<KeyValuePair<int, int>> handCards2;
+
+                    List<KeyValuePair<int, int>> cards;
+
+                    List<KeyValuePair<int, int>> cards2;
 
                     if (_isMine)
                     {
                         handCards = mHandCards;
 
                         handCards2 = oHandCards;
+
+                        cards = mCards;
+
+                        cards2 = oCards;
                     }
                     else
                     {
                         handCards = oHandCards;
 
                         handCards2 = mHandCards;
+
+                        cards = oCards;
+
+                        cards2 = mCards;
                     }
 
                     bw.Write(handCards.Count);
 
-                    Dictionary<int, int>.Enumerator enumerator4 = handCards.GetEnumerator();
-
-                    while (enumerator4.MoveNext())
+                    for (int i = 0; i < handCards.Count; i++)
                     {
-                        KeyValuePair<int, int> pair = enumerator4.Current;
+                        KeyValuePair<int, int> pair = handCards[i];
 
                         bw.Write(pair.Key);
 
@@ -314,11 +339,31 @@ namespace FinalWar
 
                     bw.Write(handCards2.Count);
 
-                    enumerator4 = handCards2.GetEnumerator();
-
-                    while (enumerator4.MoveNext())
+                    for (int i = 0; i < handCards2.Count; i++)
                     {
-                        KeyValuePair<int, int> pair = enumerator4.Current;
+                        KeyValuePair<int, int> pair = handCards2[i];
+
+                        bw.Write(pair.Key);
+
+                        bw.Write(0);
+                    }
+
+                    bw.Write(cards.Count);
+
+                    for (int i = 0; i < cards.Count; i++)
+                    {
+                        KeyValuePair<int, int> pair = cards[i];
+
+                        bw.Write(pair.Key);
+
+                        bw.Write(0);
+                    }
+
+                    bw.Write(cards2.Count);
+
+                    for (int i = 0; i < cards2.Count; i++)
+                    {
+                        KeyValuePair<int, int> pair = cards2[i];
 
                         bw.Write(pair.Key);
 
@@ -339,7 +384,7 @@ namespace FinalWar
 
                         List<KeyValuePair<int, int>> tmpList = new List<KeyValuePair<int, int>>();
 
-                        enumerator4 = summon.GetEnumerator();
+                        Dictionary<int, int>.Enumerator enumerator4 = summon.GetEnumerator();
 
                         while (enumerator4.MoveNext())
                         {
@@ -396,7 +441,7 @@ namespace FinalWar
 
         private void ServerDoAction(bool _isMine, BinaryReader _br)
         {
-            Dictionary<int, int> cards;
+            List<KeyValuePair<int, int>> cards;
 
             if (_isMine)
             {
@@ -433,11 +478,16 @@ namespace FinalWar
 
                 int pos = _br.ReadInt32();
 
-                if (cards.ContainsKey(uid))
+                if (GetPosIsMine(pos) == _isMine)
                 {
-                    if (GetPosIsMine(pos) == _isMine)
+                    for (int m = 0; m < cards.Count; m++)
                     {
-                        summon.Add(uid, pos);
+                        if (uid == cards[m].Key)
+                        {
+                            summon.Add(uid, pos);
+
+                            break;
+                        }
                     }
                 }
             }
@@ -499,9 +549,9 @@ namespace FinalWar
 
                         step.Done();
 
-                        ServerWriteCards(true, mBw);
+                        ServerWriteCardsAndRandom(true, mBw);
 
-                        ServerWriteCards(false, mBw);
+                        ServerWriteCardsAndRandom(false, mBw);
 
                         serverSendDataCallBack(true, mMs);
 
@@ -521,6 +571,16 @@ namespace FinalWar
                     }
                 }
             }
+
+            mCardsChangeDic.Clear();
+
+            oCardsChangeDic.Clear();
+
+            mHandCardsChangeDic.Clear();
+
+            oHandCardsChangeDic.Clear();
+
+            randomList.Clear();
 
             EndBattle();
         }
@@ -586,15 +646,39 @@ namespace FinalWar
             _bw.BaseStream.Position = pos0;
         }
 
-        private void ServerWriteCards(bool _isMine, BinaryWriter _bw)
+        private void ServerWriteCardsAndRandom(bool _isMine, BinaryWriter _bw)
         {
-            List<int> cards = _isMine ? mCardTmpList : oCardTmpList;
+            Dictionary<int, int> cards = _isMine ? mCardsChangeDic : oCardsChangeDic;
 
             _bw.Write(cards.Count);
 
-            for (int i = 0; i < cards.Count; i++)
+            Dictionary<int, int>.Enumerator enumerator = cards.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                _bw.Write(cards[i]);
+                _bw.Write(enumerator.Current.Key);
+
+                _bw.Write(enumerator.Current.Value);
+            }
+
+            cards = _isMine ? mHandCardsChangeDic : oHandCardsChangeDic;
+
+            _bw.Write(cards.Count);
+
+            enumerator = cards.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                _bw.Write(enumerator.Current.Key);
+
+                _bw.Write(enumerator.Current.Value);
+            }
+
+            _bw.Write(randomList.Count);
+
+            for (int i = 0; i < randomList.Count; i++)
+            {
+                _bw.Write(randomList[i]);
             }
         }
 
@@ -623,6 +707,24 @@ namespace FinalWar
 
 #endif
 
+        private int GetRandomValue(int _max)
+        {
+#if !CLIENT
+            int result = random.Next(_max);
+
+            randomList.Add(result);
+
+            return result;
+#else
+
+            int result = randomList[0];
+
+            randomList.RemoveAt(0);
+
+            return result;
+#endif
+        }
+
         private IEnumerator StartBattle()
         {
             BattleData battleData = GetBattleData();
@@ -650,9 +752,6 @@ namespace FinalWar
 
         private void EndBattle()
         {
-            mCardTmpList.Clear();
-            oCardTmpList.Clear();
-
             if (!mWin && !oWin)
             {
                 RecoverOver();
@@ -717,13 +816,27 @@ namespace FinalWar
         {
             bool isMine = GetPosIsMine(_pos);
 
-            int heroID;
+            int heroID = -1;
 
             IHeroSDS sds;
 
             if (isMine)
             {
-                heroID = mHandCards[_uid];
+                int index = -1;
+
+                for (int i = 0; i < mHandCards.Count; i++)
+                {
+                    KeyValuePair<int, int> pair = mHandCards[i];
+
+                    if (pair.Key == _uid)
+                    {
+                        index = i;
+
+                        heroID = pair.Value;
+
+                        break;
+                    }
+                }
 
                 sds = GetHeroData(heroID);
 
@@ -732,13 +845,31 @@ namespace FinalWar
                     return null;
                 }
 
+#if !CLIENT
+                oHandCardsChangeDic.Add(_uid, heroID);
+#endif
+
                 mMoney -= sds.GetCost();
 
-                mHandCards.Remove(_uid);
+                mHandCards.RemoveAt(index);
             }
             else
             {
-                heroID = oHandCards[_uid];
+                int index = -1;
+
+                for (int i = 0; i < oHandCards.Count; i++)
+                {
+                    KeyValuePair<int, int> pair = oHandCards[i];
+
+                    if (pair.Key == _uid)
+                    {
+                        index = i;
+
+                        heroID = pair.Value;
+
+                        break;
+                    }
+                }
 
                 sds = GetHeroData(heroID);
 
@@ -747,9 +878,13 @@ namespace FinalWar
                     return null;
                 }
 
+#if !CLIENT
+                mHandCardsChangeDic.Add(_uid, heroID);
+#endif
+
                 oMoney -= sds.GetCost();
 
-                oHandCards.Remove(_uid);
+                oHandCards.RemoveAt(index);
             }
 
             Hero hero = new Hero(isMine, sds, _pos, GetHeroUid());
@@ -1516,14 +1651,14 @@ namespace FinalWar
 
         private IEnumerator DoAddCards()
         {
-            yield return ServerAddCards(true, ADD_CARD_NUM);
+            yield return AddCards(true, ADD_CARD_NUM);
 
-            yield return ServerAddCards(false, ADD_CARD_NUM);
+            yield return AddCards(false, ADD_CARD_NUM);
         }
 
-        internal IEnumerator ServerAddCards(bool _isMine, int _num)
+        internal IEnumerator AddCards(bool _isMine, int _num)
         {
-            List<int> cards = _isMine ? mCards : oCards;
+            List<KeyValuePair<int, int>> cards = _isMine ? mCards : oCards;
 
             if (cards.Count > 0)
             {
@@ -1532,49 +1667,41 @@ namespace FinalWar
                     _num = cards.Count;
                 }
 
-                Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
+                List<KeyValuePair<int, int>> handCardsDic = _isMine ? mHandCards : oHandCards;
 
                 if (handCardsDic.Count + _num > MAX_HAND_CARD_NUM)
                 {
                     int delNum = handCardsDic.Count + _num - MAX_HAND_CARD_NUM;
 
-                    yield return ServerDelCards(_isMine, delNum);
+                    yield return DelCards(_isMine, delNum);
                 }
 
                 Dictionary<int, int> addDic = new Dictionary<int, int>();
 
                 for (int i = 0; i < _num && cards.Count > 0; i++)
                 {
-#if !CLIENT
-                    int index = random.Next(cards.Count);
+                    int index = GetRandomValue(cards.Count);
 
-                    int id = cards[index];
+                    KeyValuePair<int, int> pair = cards[index];
+
+                    int id = pair.Value;
 
                     cards.RemoveAt(index);
 
+#if !CLIENT
                     if (_isMine)
                     {
-                        mCardTmpList.Add(id);
-                        oCardTmpList.Add(0);
+                        mCardsChangeDic.Add(pair.Key, pair.Value);
                     }
                     else
                     {
-                        mCardTmpList.Add(0);
-                        oCardTmpList.Add(id);
+                        oCardsChangeDic.Add(pair.Key, pair.Value);
                     }
-
-
-#else
-                    List<int> tmpList = _isMine ? mCardTmpList : oCardTmpList;
-
-                    int id = tmpList[0];
-                    tmpList.RemoveAt(0);
-                    
 #endif
 
                     int tmpCardUid = GetCardUid();
 
-                    handCardsDic.Add(tmpCardUid, id);
+                    handCardsDic.Add(new KeyValuePair<int, int>(tmpCardUid, id));
 
                     addDic.Add(tmpCardUid, id);
                 }
@@ -1583,30 +1710,32 @@ namespace FinalWar
             }
         }
 
-        internal IEnumerator ServerDelCards(bool _isMine, int _num)
+        internal IEnumerator DelCards(bool _isMine, int _num)
         {
-            Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
+            List<KeyValuePair<int, int>> handCardsDic = _isMine ? mHandCards : oHandCards;
 
             LinkedList<int> delList = null;
 
             for (int i = 0; i < _num && handCardsDic.Count > 0; i++)
             {
+                int index = GetRandomValue(handCardsDic.Count);
+
+                KeyValuePair<int, int> pair = handCardsDic[index];
+
+                int uid = pair.Key;
+
 #if !CLIENT
-
-                int uid = CollectionTools.ChooseOneKeyFromDic(handCardsDic, random);
-
-                mCardTmpList.Add(uid);
-                oCardTmpList.Add(uid);
-
-#else
-                List<int> tmpList = _isMine ? mCardTmpList : oCardTmpList;
-
-                int uid = tmpList[0];
-                tmpList.RemoveAt(0);
-
+                if (_isMine)
+                {
+                    oHandCardsChangeDic.Add(pair.Key, pair.Value);
+                }
+                else
+                {
+                    mHandCardsChangeDic.Add(pair.Key, pair.Value);
+                }
 #endif
 
-                handCardsDic.Remove(uid);
+                handCardsDic.RemoveAt(index);
 
                 if (delList == null)
                 {
@@ -1736,25 +1865,41 @@ namespace FinalWar
                 ClientAddHero(heroIsMine, GetHeroData(id), pos, nowHp, nowShield);
             }
 
-            mHandCards = new Dictionary<int, int>();
+            mHandCards = new List<KeyValuePair<int, int>>();
 
-            oHandCards = new Dictionary<int, int>();
+            oHandCards = new List<KeyValuePair<int, int>>();
 
-            Dictionary<int, int> handCards;
+            mCards = new List<KeyValuePair<int, int>>();
 
-            Dictionary<int, int> handCards2;
+            oCards = new List<KeyValuePair<int, int>>();
+
+            List<KeyValuePair<int, int>> handCards;
+
+            List<KeyValuePair<int, int>> handCards2;
+
+            List<KeyValuePair<int, int>> cards;
+
+            List<KeyValuePair<int, int>> cards2;
 
             if (clientIsMine)
             {
                 handCards = mHandCards;
 
                 handCards2 = oHandCards;
+
+                cards = mCards;
+
+                cards2 = oCards;
             }
             else
             {
                 handCards = oHandCards;
 
                 handCards2 = mHandCards;
+
+                cards = oCards;
+
+                cards2 = mCards;
             }
 
             num = _br.ReadInt32();
@@ -1765,7 +1910,7 @@ namespace FinalWar
 
                 int id = _br.ReadInt32();
 
-                handCards.Add(uid, id);
+                handCards.Add(new KeyValuePair<int, int>(uid, id));
             }
 
             num = _br.ReadInt32();
@@ -1776,7 +1921,29 @@ namespace FinalWar
 
                 int id = _br.ReadInt32();
 
-                handCards2.Add(uid, id);
+                handCards2.Add(new KeyValuePair<int, int>(uid, id));
+            }
+
+            num = _br.ReadInt32();
+
+            for (int i = 0; i < num; i++)
+            {
+                int uid = _br.ReadInt32();
+
+                int id = _br.ReadInt32();
+
+                cards.Add(new KeyValuePair<int, int>(uid, id));
+            }
+
+            num = _br.ReadInt32();
+
+            for (int i = 0; i < num; i++)
+            {
+                int uid = _br.ReadInt32();
+
+                int id = _br.ReadInt32();
+
+                cards2.Add(new KeyValuePair<int, int>(uid, id));
             }
 
             mMoney = _br.ReadInt32();
@@ -1833,9 +2000,21 @@ namespace FinalWar
                 return false;
             }
 
-            Dictionary<int, int> handCards = clientIsMine ? mHandCards : oHandCards;
+            List<KeyValuePair<int, int>> handCards = clientIsMine ? mHandCards : oHandCards;
 
-            int cardID = handCards[_cardUid];
+            int cardID = -1;
+
+            for (int i = 0; i < handCards.Count; i++)
+            {
+                KeyValuePair<int, int> pair = handCards[i];
+
+                if (pair.Key == _cardUid)
+                {
+                    cardID = pair.Value;
+
+                    break;
+                }
+            }
 
             IHeroSDS heroSDS = GetHeroData(cardID);
 
@@ -1858,17 +2037,27 @@ namespace FinalWar
         {
             int money = clientIsMine ? mMoney : oMoney;
 
-            Dictionary<int, int> cards = clientIsMine ? mHandCards : oHandCards;
+            List<KeyValuePair<int, int>> cards = clientIsMine ? mHandCards : oHandCards;
 
             Dictionary<int, int>.KeyCollection.Enumerator enumerator = summon.Keys.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                int cardID = cards[enumerator.Current];
+                for (int i = 0; i < cards.Count; i++)
+                {
+                    KeyValuePair<int, int> pair = cards[i];
 
-                IHeroSDS heroSDS = GetHeroData(cardID);
+                    if (pair.Key == enumerator.Current)
+                    {
+                        int cardID = pair.Value;
 
-                money -= heroSDS.GetCost();
+                        IHeroSDS heroSDS = GetHeroData(cardID);
+
+                        money -= heroSDS.GetCost();
+
+                        break;
+                    }
+                }
             }
 
             return money;
@@ -2053,7 +2242,7 @@ namespace FinalWar
         {
             ClientReadActionAndSummon(_br);
 
-            ClientReadCards(_br);
+            ClientReadCardsAndRandom(_br);
 
             clientDoActionCallBack(new StepTools<IBattleVO>(StartBattle()));
         }
@@ -2088,15 +2277,61 @@ namespace FinalWar
             }
         }
 
-        private void ClientReadCards(BinaryReader _br)
+        private void ClientReadCardsAndRandom(BinaryReader _br)
         {
-            List<int> tmpList = clientIsMine ? mCardTmpList : oCardTmpList;
-
             int num = _br.ReadInt32();
+
+            List<KeyValuePair<int, int>> cards = clientIsMine ? mCards : oCards;
 
             for (int i = 0; i < num; i++)
             {
-                tmpList.Add(_br.ReadInt32());
+                int uid = _br.ReadInt32();
+
+                int id = _br.ReadInt32();
+
+                for (int m = 0; m < cards.Count; m++)
+                {
+                    KeyValuePair<int, int> pair = cards[m];
+
+                    if (pair.Key == uid)
+                    {
+                        cards[m] = new KeyValuePair<int, int>(uid, id);
+
+                        break;
+                    }
+                }
+            }
+
+            num = _br.ReadInt32();
+
+            cards = clientIsMine ? mHandCards : oHandCards;
+
+            for (int i = 0; i < num; i++)
+            {
+                int uid = _br.ReadInt32();
+
+                int id = _br.ReadInt32();
+
+                for (int m = 0; m < cards.Count; m++)
+                {
+                    KeyValuePair<int, int> pair = cards[m];
+
+                    if (pair.Key == uid)
+                    {
+                        cards[m] = new KeyValuePair<int, int>(uid, id);
+
+                        break;
+                    }
+                }
+            }
+
+            num = _br.ReadInt32();
+
+            for (int i = 0; i < num; i++)
+            {
+                int value = _br.ReadInt32();
+
+                randomList.Add(value);
             }
         }
 
