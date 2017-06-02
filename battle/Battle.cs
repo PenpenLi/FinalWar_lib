@@ -941,7 +941,7 @@ namespace FinalWar
 
             bool targetPosIsMine = GetPosIsMine(_targetPos);
 
-            LinkedList<int> arr = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+            List<int> arr = BattlePublicTools.GetNeighbourPos(mapData, _pos);
 
             if (arr.Contains(_targetPos))
             {
@@ -982,11 +982,9 @@ namespace FinalWar
                         nowThreadLevel = targetHero.sds.GetHeroType().GetThread();
                     }
 
-                    LinkedList<int>.Enumerator enumerator = arr.GetEnumerator();
-
-                    while (enumerator.MoveNext())
+                    for (int i = 0; i < arr.Count; i++)
                     {
-                        int tmpPos = enumerator.Current;
+                        int tmpPos = arr[i];
 
                         if (tmpPos == _targetPos)
                         {
@@ -1032,7 +1030,7 @@ namespace FinalWar
             {
                 if (hero.sds.GetSkill() != 0 && heroMapDic.ContainsKey(_targetPos))
                 {
-                    LinkedList<int> arr2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
+                    List<int> arr2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
 
                     if (arr2.Contains(_targetPos))
                     {
@@ -2087,7 +2085,7 @@ namespace FinalWar
 
             bool targetPosIsMine = GetPosIsMine(_targetPos);
 
-            LinkedList<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+            List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
 
             if (tmpList.Contains(_targetPos))
             {
@@ -2106,11 +2104,9 @@ namespace FinalWar
                         nowThreadLevel = targetHero.sds.GetHeroType().GetThread();
                     }
 
-                    LinkedList<int>.Enumerator enumerator = tmpList.GetEnumerator();
-
-                    while (enumerator.MoveNext())
+                    for (int i = 0; i < tmpList.Count; i++)
                     {
-                        int pos = enumerator.Current;
+                        int pos = tmpList[i];
 
                         if (pos != _targetPos)
                         {
@@ -2138,7 +2134,7 @@ namespace FinalWar
             {
                 if (hero.sds.GetSkill() != 0 && heroMapDic.ContainsKey(_targetPos))
                 {
-                    LinkedList<int> tmpList2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
+                    List<int> tmpList2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
 
                     if (tmpList2.Contains(_targetPos))
                     {
@@ -2350,13 +2346,11 @@ namespace FinalWar
 
             int nowThreadLevel = 0;
 
-            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < posList.Count; i++)
             {
-                int pos = enumerator.Current;
+                int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
@@ -2389,13 +2383,11 @@ namespace FinalWar
 
             int nowThreadLevel = 0;
 
-            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < posList.Count; i++)
             {
-                int pos = enumerator.Current;
+                int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
@@ -2435,13 +2427,11 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < posList.Count; i++)
             {
-                int pos = enumerator.Current;
+                int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
@@ -2453,11 +2443,9 @@ namespace FinalWar
 
             posList = BattlePublicTools.GetNeighbourPos2(mapData, _hero.pos);
 
-            enumerator = posList.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < posList.Count; i++)
             {
-                int pos = enumerator.Current;
+                int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
@@ -2474,13 +2462,11 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < posList.Count; i++)
             {
-                int pos = enumerator.Current;
+                int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
@@ -2492,11 +2478,9 @@ namespace FinalWar
 
             posList = BattlePublicTools.GetNeighbourPos3(mapData, _hero.pos);
 
-            enumerator = posList.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < posList.Count; i++)
             {
-                int pos = enumerator.Current;
+                int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
@@ -2513,13 +2497,11 @@ namespace FinalWar
         {
             int nowThreadLevel = _hero.sds.GetHeroType().GetThread();
 
-            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < posList.Count; i++)
             {
-                int pos = enumerator.Current;
+                int pos = posList[i];
 
                 if (heroMapDic.ContainsKey(pos))
                 {
@@ -2527,15 +2509,13 @@ namespace FinalWar
 
                     if (hero.isMine != _hero.isMine)
                     {
-                        LinkedList<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData, pos);
-
-                        LinkedList<int>.Enumerator enumerator2 = tmpPosList.GetEnumerator();
+                        List<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData, pos);
 
                         bool canAttack = true;
 
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < tmpPosList.Count; m++)
                         {
-                            int tmpPos = enumerator2.Current;
+                            int tmpPos = tmpPosList[m];
 
                             if (tmpPos == _hero.pos)
                             {
@@ -2582,13 +2562,11 @@ namespace FinalWar
 
             bool isMine = GetPosIsMine(_pos);
 
-            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
 
-            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < posList.Count; i++)
             {
-                int pos = enumerator.Current;
+                int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
@@ -2598,15 +2576,13 @@ namespace FinalWar
                     {
                         Hero hero = heroMapDic[pos];
 
-                        LinkedList<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData, pos);
-
-                        LinkedList<int>.Enumerator enumerator2 = tmpPosList.GetEnumerator();
+                        List<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData, pos);
 
                         bool canAttack = true;
 
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < tmpPosList.Count; m++)
                         {
-                            int tmpPos = enumerator2.Current;
+                            int tmpPos = tmpPosList[m];
 
                             if (tmpPos == _pos)
                             {
@@ -2643,13 +2619,11 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < posList.Count; i++)
             {
-                int pos = enumerator.Current;
+                int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
@@ -2669,13 +2643,11 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < posList.Count; i++)
             {
-                int pos = enumerator.Current;
+                int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
@@ -2683,13 +2655,11 @@ namespace FinalWar
                 {
                     Hero hero = heroMapDic[pos];
 
-                    LinkedList<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
+                    List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
 
-                    LinkedList<int>.Enumerator enumerator2 = posList2.GetEnumerator();
-
-                    while (enumerator2.MoveNext())
+                    for (int m = 0; m < posList2.Count; m++)
                     {
-                        int pos2 = enumerator2.Current;
+                        int pos2 = posList2[m];
 
                         b = GetPosIsMine(pos2);
 
@@ -2710,13 +2680,11 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
+            List<int> posList = BattlePublicTools.GetNeighbourPos(mapData, _hero.pos);
 
-            LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < posList.Count; i++)
             {
-                int pos = enumerator.Current;
+                int pos = posList[i];
 
                 bool b = GetPosIsMine(pos);
 
@@ -2731,6 +2699,5 @@ namespace FinalWar
 
             return result;
         }
-
     }
 }

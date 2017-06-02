@@ -3,9 +3,9 @@ using System;
 
 public class BattlePublicTools
 {
-    public static LinkedList<int> GetNeighbourPos(MapData _mapData, int _pos)
+    public static List<int> GetNeighbourPos(MapData _mapData, int _pos)
     {
-        LinkedList<int> result = new LinkedList<int>();
+        List<int> result = new List<int>();
 
         int[] arr = _mapData.neighbourPosMap[_pos];
 
@@ -19,7 +19,7 @@ public class BattlePublicTools
 
                 if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
                 {
-                    result.AddLast(arr[i]);
+                    result.Add(arr[i]);
                 }
             }
         }
@@ -27,9 +27,9 @@ public class BattlePublicTools
         return result;
     }
 
-    public static LinkedList<int> GetNeighbourPos2(MapData _mapData, int _pos)
+    public static List<int> GetNeighbourPos2(MapData _mapData, int _pos)
     {
-        LinkedList<int> result = new LinkedList<int>();
+        List<int> result = new List<int>();
 
         int[] arr = _mapData.neighbourPosMap[_pos];
 
@@ -53,7 +53,7 @@ public class BattlePublicTools
 
                         if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
                         {
-                            result.AddLast(pos);
+                            result.Add(pos);
                         }
                     }
                 }
@@ -63,9 +63,9 @@ public class BattlePublicTools
         return result;
     }
 
-    public static LinkedList<int> GetNeighbourPos3(MapData _mapData, int _pos)
+    public static List<int> GetNeighbourPos3(MapData _mapData, int _pos)
     {
-        LinkedList<int> result = new LinkedList<int>();
+        List<int> result = new List<int>();
 
         int[] arr = _mapData.neighbourPosMap[_pos];
 
@@ -115,7 +115,7 @@ public class BattlePublicTools
 
                             if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
                             {
-                                result.AddLast(pos);
+                                result.Add(pos);
                             }
                         }
                     }
