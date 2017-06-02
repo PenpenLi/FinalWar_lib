@@ -731,22 +731,9 @@ namespace FinalWar
 
             action.Clear();
 
-            Dictionary<int, int> tmpSummon = new Dictionary<int, int>();
-
-            Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                tmpSummon.Add(enumerator.Current.Key, enumerator.Current.Value);
-            }
+            yield return DoSummon(battleData);
 
             summon.Clear();
-
-#if CLIENT
-            clientRefreshDataCallBack();
-#endif
-
-            yield return DoSummon(battleData, tmpSummon);
 
             yield return DoRush(battleData);
 
@@ -798,9 +785,9 @@ namespace FinalWar
 #endif
         }
 
-        private IEnumerator DoSummon(BattleData _battleData, Dictionary<int, int> _summon)
+        private IEnumerator DoSummon(BattleData _battleData)
         {
-            Dictionary<int, int>.Enumerator enumerator = _summon.GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
