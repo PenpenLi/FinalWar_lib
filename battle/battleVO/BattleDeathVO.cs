@@ -5,9 +5,9 @@ namespace FinalWar
 {
     public struct BattleDeathVO : IBattleVO
     {
-        public LinkedList<int> deads;
+        public List<int> deads;
 
-        public BattleDeathVO(LinkedList<int> _deads)
+        public BattleDeathVO(List<int> _deads)
         {
             deads = _deads;
         }
@@ -16,17 +16,15 @@ namespace FinalWar
         {
             _bw.Write(deads.Count);
 
-            LinkedList<int>.Enumerator enumerator = deads.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < deads.Count; i++)
             {
-                _bw.Write(enumerator.Current);
+                _bw.Write(deads[i]);
             }
         }
 
         public void FromBytes(BinaryReader _br)
         {
-            deads = new LinkedList<int>();
+            deads = new List<int>();
 
             int deadsNum = _br.ReadInt32();
 
@@ -34,7 +32,7 @@ namespace FinalWar
             {
                 int deadPos = _br.ReadInt32();
 
-                deads.AddLast(deadPos);
+                deads.Add(deadPos);
             }
         }
     }

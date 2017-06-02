@@ -126,7 +126,7 @@ namespace FinalWar
         {
             //---summon
             int money;
-            Dictionary<int, int> handCards;
+            List<KeyValuePair<int, int>> handCards;
             int oppBasePos;
 
             if (_isMine)
@@ -145,11 +145,9 @@ namespace FinalWar
             List<int> cards = new List<int>();
             List<double> randomList2 = new List<double>();
 
-            Dictionary<int, int>.Enumerator enumerator4 = handCards.GetEnumerator();
-
-            while (enumerator4.MoveNext())
+            for (int i = 0; i < handCards.Count; i++)
             {
-                KeyValuePair<int, int> pair = enumerator4.Current;
+                KeyValuePair<int, int> pair = handCards[i];
 
                 int cardID = pair.Value;
 
@@ -181,13 +179,11 @@ namespace FinalWar
 
                     nowCheckPos.RemoveAt(0);
 
-                    LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, nowPos);
+                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, nowPos);
 
-                    LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
-
-                    while (enumerator.MoveNext())
+                    for (int i = 0; i < posList.Count; i++)
                     {
-                        int pos = enumerator.Current;
+                        int pos = posList[i];
 
                         if (!checkedPos.ContainsKey(pos))
                         {
@@ -214,13 +210,11 @@ namespace FinalWar
                 {
                     int nowPos = resultList[i];
 
-                    LinkedList<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, nowPos);
+                    List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, nowPos);
 
-                    LinkedList<int>.Enumerator enumerator = posList.GetEnumerator();
-
-                    while (enumerator.MoveNext())
+                    for (int m = 0; m < posList.Count; m++)
                     {
-                        int pos = enumerator.Current;
+                        int pos = posList[m];
 
                         if (!_battle.heroMapDic.ContainsKey(pos) && !resultList.Contains(pos) && !resultList2.Contains(pos))
                         {
@@ -244,7 +238,19 @@ namespace FinalWar
 
                     randomList2.RemoveAt(0);
 
-                    int cardID = handCards[cardUid];
+                    int cardID = -1;
+
+                    for (int i = 0; i < handCards.Count; i++)
+                    {
+                        KeyValuePair<int, int> pair = handCards[i];
+                        
+                        if(pair.Key == cardUid)
+                        {
+                            cardID = pair.Value;
+
+                            break;
+                        }
+                    }
 
                     IHeroSDS heroSDS = Battle.GetHeroData(cardID);
 

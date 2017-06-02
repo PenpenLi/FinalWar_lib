@@ -551,7 +551,7 @@ namespace FinalWar
 
                         ServerWriteCardsAndRandom(true, mBw);
 
-                        ServerWriteCardsAndRandom(false, mBw);
+                        ServerWriteCardsAndRandom(false, oBw);
 
                         serverSendDataCallBack(true, mMs);
 
@@ -599,7 +599,7 @@ namespace FinalWar
             {
                 KeyValuePair<int, int> pair = action[i];
 
-                if (GetPosIsMine(pair.Key) == _isMine)
+                if (GetPosIsMine(pair.Key) != _isMine)
                 {
                     num++;
 
@@ -609,8 +609,6 @@ namespace FinalWar
                 }
             }
 
-            _bw.Write(0);
-
             long pos1 = _bw.BaseStream.Position;
 
             _bw.BaseStream.Position = pos0;
@@ -618,6 +616,8 @@ namespace FinalWar
             _bw.Write(num);
 
             _bw.BaseStream.Position = pos1;
+
+            _bw.Write(0);
 
             num = 0;
 
@@ -627,7 +627,7 @@ namespace FinalWar
             {
                 KeyValuePair<int, int> pair = enumerator.Current;
 
-                if (GetPosIsMine(pair.Key) == _isMine)
+                if (GetPosIsMine(pair.Value) != _isMine)
                 {
                     num++;
 
@@ -731,9 +731,22 @@ namespace FinalWar
 
             action.Clear();
 
-            yield return DoSummon(battleData);
+            Dictionary<int, int> tmpSummon = new Dictionary<int, int>();
+
+            Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                tmpSummon.Add(enumerator.Current.Key, enumerator.Current.Value);
+            }
 
             summon.Clear();
+
+#if CLIENT
+            clientRefreshDataCallBack();
+#endif
+
+            yield return DoSummon(battleData, tmpSummon);
 
             yield return DoRush(battleData);
 
@@ -785,9 +798,9 @@ namespace FinalWar
 #endif
         }
 
-        private IEnumerator DoSummon(BattleData _battleData)
+        private IEnumerator DoSummon(BattleData _battleData, Dictionary<int, int> _summon)
         {
-            Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator = _summon.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -1081,7 +1094,7 @@ namespace FinalWar
         {
             while (true)
             {
-                LinkedList<BattleCellData> processList = null;
+                List<BattleCellData> processList = null;
 
                 Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
 
@@ -1093,20 +1106,18 @@ namespace FinalWar
                     {
                         if (processList == null)
                         {
-                            processList = new LinkedList<BattleCellData>();
+                            processList = new List<BattleCellData>();
                         }
 
-                        processList.AddLast(cellData);
+                        processList.Add(cellData);
                     }
                 }
 
                 if (processList != null)
                 {
-                    LinkedList<BattleCellData>.Enumerator enumerator2 = processList.GetEnumerator();
-
-                    while (enumerator2.MoveNext())
+                    for (int i = 0; i < processList.Count; i++)
                     {
-                        yield return ProcessCellDataRush(_battleData, enumerator2.Current);
+                        yield return ProcessCellDataRush(_battleData, processList[i]);
                     }
 
                     yield return RemoveDieHero(_battleData);
@@ -1173,7 +1184,7 @@ namespace FinalWar
 
         private IEnumerator RemoveDieHero(BattleData _battleData)
         {
-            LinkedList<Hero> dieList = null;
+            List<Hero> dieList = null;
 
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
 
@@ -1183,24 +1194,24 @@ namespace FinalWar
                 {
                     if (dieList == null)
                     {
-                        dieList = new LinkedList<Hero>();
+                        dieList = new List<Hero>();
                     }
 
-                    dieList.AddLast(enumerator.Current);
+                    dieList.Add(enumerator.Current);
                 }
             }
 
             if (dieList != null)
             {
-                LinkedList<int> tmpList = new LinkedList<int>();
+                List<int> tmpList = new List<int>();
 
-                LinkedList<Hero>.Enumerator enumerator2 = dieList.GetEnumerator();
-
-                while (enumerator2.MoveNext())
+                for (int i = 0; i < dieList.Count; i++)
                 {
-                    tmpList.AddLast(enumerator2.Current.pos);
+                    Hero hero = dieList[i];
 
-                    ServerRemoveHero(_battleData, enumerator2.Current);
+                    tmpList.Add(hero.pos);
+
+                    ServerRemoveHero(_battleData, hero);
                 }
 
                 yield return new BattleDeathVO(tmpList);
@@ -1346,7 +1357,7 @@ namespace FinalWar
 
         private IEnumerator DoMove(BattleData _battleData)
         {
-            LinkedList<int> tmpList = null;
+            List<int> tmpList = null;
 
             Dictionary<int, BattleCellData>.Enumerator enumerator = _battleData.actionDic.GetEnumerator();
 
@@ -1360,10 +1371,10 @@ namespace FinalWar
                 {
                     if (tmpList == null)
                     {
-                        tmpList = new LinkedList<int>();
+                        tmpList = new List<int>();
                     }
 
-                    tmpList.AddLast(pair.Key);
+                    tmpList.Add(pair.Key);
                 }
             }
 
@@ -1371,11 +1382,9 @@ namespace FinalWar
             {
                 Dictionary<int, int> tmpMoveDic = null;
 
-                LinkedList<int>.Enumerator enumerator3 = tmpList.GetEnumerator();
-
-                while (enumerator3.MoveNext())
+                for (int i = 0; i < tmpList.Count; i++)
                 {
-                    OneCellEmpty(_battleData, enumerator3.Current, ref tmpMoveDic);
+                    OneCellEmpty(_battleData, tmpList[i], ref tmpMoveDic);
                 }
 
                 if (tmpMoveDic != null)
@@ -1385,11 +1394,11 @@ namespace FinalWar
             }
         }
 
-        internal void HeroLevelUp(Hero _hero, int _id, LinkedList<IBattleVO> _voList)
+        internal IEnumerator HeroLevelUp(Hero _hero, int _id)
         {
             _hero.LevelUp(GetHeroData(_id));
 
-            _voList.AddLast(new BattleLevelUpVO(_hero.pos, _id));
+            yield return new BattleLevelUpVO(_hero.pos, _id);
         }
 
         private IEnumerator DoRecover(BattleData _battleData)
@@ -1712,7 +1721,7 @@ namespace FinalWar
         {
             List<KeyValuePair<int, int>> handCardsDic = _isMine ? mHandCards : oHandCards;
 
-            LinkedList<int> delList = null;
+            List<int> delList = null;
 
             for (int i = 0; i < _num && handCardsDic.Count > 0; i++)
             {
@@ -1737,10 +1746,10 @@ namespace FinalWar
 
                 if (delList == null)
                 {
-                    delList = new LinkedList<int>();
+                    delList = new List<int>();
                 }
 
-                delList.AddLast(uid);
+                delList.Add(uid);
             }
 
             if (delList != null)
@@ -2138,8 +2147,6 @@ namespace FinalWar
 
                     if (tmpList2.Contains(_targetPos))
                     {
-                        ISkillSDS skillSDS = GetSkillData(hero.sds.GetSkill());
-
                         if (targetPosIsMine != hero.isMine)
                         {
                             action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
@@ -2300,7 +2307,7 @@ namespace FinalWar
 
             num = _br.ReadInt32();
 
-            cards = clientIsMine ? mHandCards : oHandCards;
+            cards = clientIsMine ? oHandCards : mHandCards;
 
             for (int i = 0; i < num; i++)
             {
