@@ -1,5 +1,6 @@
 ﻿using superEvent;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace FinalWar
 {
@@ -203,13 +204,13 @@ namespace FinalWar
             return attack;
         }
 
-        internal void ServerRecover(LinkedList<IBattleVO> _voList)
+        internal IEnumerator Recover()
         {
             if (recoverShield)
             {
                 nowShield = sds.GetShield();
 
-                _voList.AddLast(new BattleRecoverShieldVO(pos));
+                yield return new BattleRecoverShieldVO(pos);
             }
             else
             {
@@ -219,11 +220,6 @@ namespace FinalWar
             attackFix = abilityFix = 0;
 
             canMove = true;
-        }
-
-        internal void ClientRecover()
-        {
-            nowShield = sds.GetShield();
         }
     }
 }

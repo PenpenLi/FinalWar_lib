@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using superEvent;
 using collectionTools;
+using stepTools;
 
 namespace FinalWar
 {
@@ -65,7 +67,7 @@ namespace FinalWar
 
         private Action<MemoryStream> clientSendDataCallBack;
         private Action clientRefreshDataCallBack;
-        private Action<IEnumerator<IBattleVO>> clientDoActionCallBack;
+        private Action<StepTools<IBattleVO>> clientDoActionCallBack;
         private Action clientBattleOverCallBack;
 #else
 
@@ -470,7 +472,7 @@ namespace FinalWar
             {
                 if (mOver && oOver)
                 {
-                    StartBattle();
+                    ServerStartBattle();
                 }
             }
             else
@@ -478,6 +480,121 @@ namespace FinalWar
                 HeroAi.Start(this, false, 0.2);
 
                 StartBattle();
+            }
+        }
+
+        private void ServerStartBattle()
+        {
+            if (!isVsAi)
+            {
+                using (MemoryStream mMs = new MemoryStream(), oMs = new MemoryStream())
+                {
+                    using (BinaryWriter mBw = new BinaryWriter(mMs), oBw = new BinaryWriter(oMs))
+                    {
+                        ServerWriteActionAndSummon(true, mBw);
+
+                        ServerWriteActionAndSummon(false, oBw);
+
+                        StepTools<IBattleVO> step = new StepTools<IBattleVO>(StartBattle());
+
+                        step.Done();
+
+                        ServerWriteCards(true, mBw);
+
+                        ServerWriteCards(false, mBw);
+
+                        serverSendDataCallBack(true, mMs);
+
+                        serverSendDataCallBack(false, oMs);
+                    }
+                }
+            }
+            else
+            {
+                using (MemoryStream mMs = new MemoryStream())
+                {
+                    using (BinaryWriter mBw = new BinaryWriter(mMs))
+                    {
+                        mBw.Write(PackageTag.S2C_DOACTION);
+
+                        serverSendDataCallBack(true, mMs);
+                    }
+                }
+            }
+
+            EndBattle();
+        }
+
+        private void ServerWriteActionAndSummon(bool _isMine, BinaryWriter _bw)
+        {
+            _bw.Write(PackageTag.S2C_DOACTION);
+
+            long pos0 = _bw.BaseStream.Position;
+
+            _bw.Write(0);
+
+            int num = 0;
+
+            for (int i = 0; i < action.Count; i++)
+            {
+                KeyValuePair<int, int> pair = action[i];
+
+                if (GetPosIsMine(pair.Key) == _isMine)
+                {
+                    num++;
+
+                    _bw.Write(pair.Key);
+
+                    _bw.Write(pair.Value);
+                }
+            }
+
+            _bw.Write(0);
+
+            long pos1 = _bw.BaseStream.Position;
+
+            _bw.BaseStream.Position = pos0;
+
+            _bw.Write(num);
+
+            _bw.BaseStream.Position = pos1;
+
+            num = 0;
+
+            Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                KeyValuePair<int, int> pair = enumerator.Current;
+
+                if (GetPosIsMine(pair.Key) == _isMine)
+                {
+                    num++;
+
+                    _bw.Write(pair.Key);
+
+                    _bw.Write(pair.Value);
+                }
+            }
+
+            pos0 = _bw.BaseStream.Position;
+
+            _bw.BaseStream.Position = pos1;
+
+            _bw.Write(num);
+
+            _bw.BaseStream.Position = pos0;
+        }
+
+        private void ServerWriteCards(bool _isMine, BinaryWriter _bw)
+        {
+            List<int> cards = _isMine ? mCardTmpList : oCardTmpList;
+
+            _bw.Write(cards.Count);
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                _bw.Write(cards[i]);
             }
         }
 
@@ -502,87 +619,39 @@ namespace FinalWar
             BattleOver();
         }
 
-        
+
 
 #endif
 
-        private void StartBattle()
+        private IEnumerator StartBattle()
         {
-            LinkedList<IBattleVO> voList = new LinkedList<IBattleVO>();
-
             BattleData battleData = GetBattleData();
 
             action.Clear();
 
-            DoSummon(battleData, voList);
+            yield return DoSummon(battleData);
 
             summon.Clear();
 
-            DoRush(battleData, voList);
+            yield return DoRush(battleData);
 
-            DoAttack(battleData, voList);
+            yield return DoAttack(battleData);
 
-            DoRush(battleData, voList);
+            yield return DoRush(battleData);
 
-            DoMove(battleData, voList);
+            yield return DoMove(battleData);
 
-            DoRecover(battleData, voList);
+            yield return DoRecover(battleData);
 
-            DoAddMoney(voList);
+            yield return DoAddMoney();
 
-            DoAddCards(voList);
+            yield return DoAddCards();
+        }
 
-#if !CLIENT
-
-
-            if (!isVsAi)
-            {
-                using (MemoryStream mMs = new MemoryStream(), oMs = new MemoryStream())
-                {
-                    using (BinaryWriter mBw = new BinaryWriter(mMs), oBw = new BinaryWriter(oMs))
-                    {
-                        mBw.Write(PackageTag.S2C_DOACTION);
-
-                        oBw.Write(PackageTag.S2C_DOACTION);
-
-                        BattleVOTools.WriteDataToStream(true, voList, mBw);
-
-                        BattleVOTools.WriteDataToStream(false, voList, oBw);
-
-                        mBw.Write(mWin);
-
-                        mBw.Write(oWin);
-
-                        oBw.Write(mWin);
-
-                        oBw.Write(oWin);
-
-                        serverSendDataCallBack(true, mMs);
-
-                        serverSendDataCallBack(false, oMs);
-                    }
-                }
-            }
-            else
-            {
-                using (MemoryStream mMs = new MemoryStream())
-                {
-                    using (BinaryWriter mBw = new BinaryWriter(mMs))
-                    {
-                        mBw.Write(PackageTag.S2C_DOACTION);
-
-                        BattleVOTools.WriteDataToStream(true, voList, mBw);
-
-                        mBw.Write(mWin);
-
-                        mBw.Write(oWin);
-
-                        serverSendDataCallBack(true, mMs);
-                    }
-                }
-            }
-
-#endif
+        private void EndBattle()
+        {
+            mCardTmpList.Clear();
+            oCardTmpList.Clear();
 
             if (!mWin && !oWin)
             {
@@ -617,7 +686,7 @@ namespace FinalWar
 #endif
         }
 
-        private void DoSummon(BattleData _battleData, LinkedList<IBattleVO> _voList)
+        private IEnumerator DoSummon(BattleData _battleData)
         {
             Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
@@ -640,7 +709,7 @@ namespace FinalWar
 
                 ServerAddHero(_battleData, summonHero);
 
-                _voList.AddLast(new BattleSummonVO(tmpCardUid, summonHero.sds.GetID(), pos));
+                yield return new BattleSummonVO(tmpCardUid, summonHero.sds.GetID(), pos);
             }
         }
 
@@ -875,7 +944,7 @@ namespace FinalWar
             }
         }
 
-        private void DoRush(BattleData _battleData, LinkedList<IBattleVO> _voList)
+        private IEnumerator DoRush(BattleData _battleData)
         {
             while (true)
             {
@@ -904,10 +973,10 @@ namespace FinalWar
 
                     while (enumerator2.MoveNext())
                     {
-                        ProcessCellDataRush(_battleData, enumerator2.Current, _voList);
+                        yield return ProcessCellDataRush(_battleData, enumerator2.Current);
                     }
 
-                    RemoveDieHero(_battleData, _voList);
+                    yield return RemoveDieHero(_battleData);
                 }
                 else
                 {
@@ -916,7 +985,7 @@ namespace FinalWar
             }
         }
 
-        private void ProcessCellDataRush(BattleData _battleData, BattleCellData _cellData, LinkedList<IBattleVO> _voList)
+        private IEnumerator ProcessCellDataRush(BattleData _battleData, BattleCellData _cellData)
         {
             Hero stander = _cellData.stander;
 
@@ -966,10 +1035,10 @@ namespace FinalWar
 
             BattleRushVO vo = new BattleRushVO(attackers, helpers, _cellData.pos, -hpDamage);
 
-            _voList.AddLast(vo);
+            yield return vo;
         }
 
-        private void RemoveDieHero(BattleData _battleData, LinkedList<IBattleVO> _voList)
+        private IEnumerator RemoveDieHero(BattleData _battleData)
         {
             LinkedList<Hero> dieList = null;
 
@@ -1001,11 +1070,11 @@ namespace FinalWar
                     ServerRemoveHero(_battleData, enumerator2.Current);
                 }
 
-                _voList.AddLast(new BattleDeathVO(tmpList));
+                yield return new BattleDeathVO(tmpList);
             }
         }
 
-        private void DoAttack(BattleData _battleData, LinkedList<IBattleVO> _voList)
+        private IEnumerator DoAttack(BattleData _battleData)
         {
             Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
 
@@ -1135,14 +1204,14 @@ namespace FinalWar
                         vo = new BattleAttackVO(voAttackers, voHelpers, voSupporters, cellData.pos, new List<int>() { attackerShieldDamage }, new List<int>() { attackerHpDamage }, new List<int>() { defenderShieldDamage }, new List<int>() { defenderHpDamage }, 0, 0);
                     }
 
-                    _voList.AddLast(vo);
+                    yield return vo;
                 }
             }
 
-            RemoveDieHero(_battleData, _voList);
+            yield return RemoveDieHero(_battleData);
         }
 
-        private void DoMove(BattleData _battleData, LinkedList<IBattleVO> _voList)
+        private IEnumerator DoMove(BattleData _battleData)
         {
             LinkedList<int> tmpList = null;
 
@@ -1178,7 +1247,7 @@ namespace FinalWar
 
                 if (tmpMoveDic != null)
                 {
-                    _voList.AddLast(new BattleMoveVO(tmpMoveDic));
+                    yield return new BattleMoveVO(tmpMoveDic);
                 }
             }
         }
@@ -1190,13 +1259,13 @@ namespace FinalWar
             _voList.AddLast(new BattleLevelUpVO(_hero.pos, _id));
         }
 
-        private void DoRecover(BattleData _battleData, LinkedList<IBattleVO> _voList)
+        private IEnumerator DoRecover(BattleData _battleData)
         {
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                enumerator.Current.ServerRecover(_voList);
+                yield return enumerator.Current.Recover();
             }
         }
 
@@ -1356,21 +1425,21 @@ namespace FinalWar
             }
         }
 
-        private void DoAddMoney(LinkedList<IBattleVO> _voList)
+        private IEnumerator DoAddMoney()
         {
-            ServerMoneyChange(true, ADD_MONEY, _voList);
+            yield return ServerMoneyChange(true, ADD_MONEY);
 
             if (!isVsAi)
             {
-                ServerMoneyChange(false, ADD_MONEY, _voList);
+                yield return ServerMoneyChange(false, ADD_MONEY);
             }
             else
             {
-                ServerMoneyChange(false, AI_ADD_MONEY, _voList);
+                yield return ServerMoneyChange(false, AI_ADD_MONEY);
             }
         }
 
-        internal void ServerMoneyChange(bool _isMine, int _num, LinkedList<IBattleVO> _voList)
+        internal IEnumerator ServerMoneyChange(bool _isMine, int _num)
         {
             if (_isMine)
             {
@@ -1399,7 +1468,7 @@ namespace FinalWar
                 }
             }
 
-            _voList.AddLast(new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney));
+            yield return new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney);
         }
 
 
@@ -1445,14 +1514,14 @@ namespace FinalWar
             }
         }
 
-        private void DoAddCards(LinkedList<IBattleVO> _voList)
+        private IEnumerator DoAddCards()
         {
-            ServerAddCards(true, ADD_CARD_NUM, _voList);
+            yield return ServerAddCards(true, ADD_CARD_NUM);
 
-            ServerAddCards(false, ADD_CARD_NUM, _voList);
+            yield return ServerAddCards(false, ADD_CARD_NUM);
         }
 
-        internal void ServerAddCards(bool _isMine, int _num, LinkedList<IBattleVO> _voList)
+        internal IEnumerator ServerAddCards(bool _isMine, int _num)
         {
             List<int> cards = _isMine ? mCards : oCards;
 
@@ -1469,7 +1538,7 @@ namespace FinalWar
                 {
                     int delNum = handCardsDic.Count + _num - MAX_HAND_CARD_NUM;
 
-                    ServerDelCards(_isMine, delNum, _voList);
+                    yield return ServerDelCards(_isMine, delNum);
                 }
 
                 Dictionary<int, int> addDic = new Dictionary<int, int>();
@@ -1510,11 +1579,11 @@ namespace FinalWar
                     addDic.Add(tmpCardUid, id);
                 }
 
-                _voList.AddLast(new BattleAddCardsVO(_isMine, addDic));
+                yield return new BattleAddCardsVO(_isMine, addDic);
             }
         }
 
-        internal void ServerDelCards(bool _isMine, int _num, LinkedList<IBattleVO> _voList)
+        internal IEnumerator ServerDelCards(bool _isMine, int _num)
         {
             Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
 
@@ -1549,7 +1618,7 @@ namespace FinalWar
 
             if (delList != null)
             {
-                _voList.AddLast(new BattleDelCardsVO(_isMine, delList));
+                yield return new BattleDelCardsVO(_isMine, delList);
             }
         }
 
@@ -1578,7 +1647,7 @@ namespace FinalWar
 
 #if CLIENT
 
-        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<IEnumerator<IBattleVO>> _clientDoActionCallBack, Action _clientBattleOverCallBack)
+        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<StepTools<IBattleVO>> _clientDoActionCallBack, Action _clientBattleOverCallBack)
         {
             clientSendDataCallBack = _clientSendDataCallBack;
             clientRefreshDataCallBack = _clientRefreshDataCallBack;
@@ -1982,291 +2051,54 @@ namespace FinalWar
 
         private void ClientDoAction(BinaryReader _br)
         {
-            summon.Clear();
+            ClientReadActionAndSummon(_br);
 
-            action.Clear();
+            ClientReadCards(_br);
 
-            clientDoActionCallBack(ClientDoActionReal(_br));
+            clientDoActionCallBack(new StepTools<IBattleVO>(StartBattle()));
         }
 
-        private IEnumerator<IBattleVO> ClientDoActionReal(BinaryReader _br)
+        public void ClientEndBattle()
         {
-            LinkedList<IBattleVO> voList = BattleVOTools.ReadDataFromStream(_br);
-
-            LinkedList<IBattleVO>.Enumerator enumerator = voList.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                IBattleVO vo = enumerator.Current;
-
-                if (vo is BattleSummonVO)
-                {
-                    ClientDoSummon((BattleSummonVO)vo);
-                }
-                else if (vo is BattleMoveVO)
-                {
-                    ClientDoMove((BattleMoveVO)vo);
-                }
-                else if (vo is BattleRushVO)
-                {
-                    ClientDoRush((BattleRushVO)vo);
-                }
-                else if (vo is BattleShootVO)
-                {
-                    ClientDoShoot((BattleShootVO)vo);
-                }
-                else if (vo is BattleAttackVO)
-                {
-                    ClientDoAttack((BattleAttackVO)vo);
-                }
-                else if (vo is BattleDeathVO)
-                {
-                    ClientDoDie((BattleDeathVO)vo);
-                }
-                else if (vo is BattleChangeVO)
-                {
-                    ClientDoChange((BattleChangeVO)vo);
-                }
-                else if (vo is BattleAddCardsVO)
-                {
-                    ClientDoAddCards((BattleAddCardsVO)vo);
-                }
-                else if (vo is BattleDelCardsVO)
-                {
-                    ClientDoDelCards((BattleDelCardsVO)vo);
-                }
-                else if (vo is BattleMoneyChangeVO)
-                {
-                    ClientDoMoneyChange((BattleMoneyChangeVO)vo);
-                }
-                else if (vo is BattleLevelUpVO)
-                {
-                    ClientDoLevelUp((BattleLevelUpVO)vo);
-                }
-                else if (vo is BattleRecoverShieldVO)
-                {
-                    ClientDoRecoverShield((BattleRecoverShieldVO)vo);
-                }
-
-                yield return vo;
-            }
-
-            ClientDoRecover(_br);
+            EndBattle();
         }
 
-        private void ClientDoSummon(BattleSummonVO _vo)
+        private void ClientReadActionAndSummon(BinaryReader _br)
         {
-            bool isMine = GetPosIsMine(_vo.pos);
+            int num = _br.ReadInt32();
 
-            IHeroSDS sds = GetHeroData(_vo.heroID);
-
-            if (isMine)
+            for (int i = 0; i < num; i++)
             {
-                mHandCards.Remove(_vo.cardUid);
+                int pos = _br.ReadInt32();
 
-                mMoney -= sds.GetCost();
-            }
-            else
-            {
-                oHandCards.Remove(_vo.cardUid);
+                int target = _br.ReadInt32();
 
-                oMoney -= sds.GetCost();
+                action.Add(new KeyValuePair<int, int>(pos, target));
             }
 
-            ClientAddHero(isMine, sds, _vo.pos, sds.GetHp(), sds.GetShield());
+            num = _br.ReadInt32();
+
+            for (int i = 0; i < num; i++)
+            {
+                int uid = _br.ReadInt32();
+
+                int pos = _br.ReadInt32();
+
+                summon.Add(uid, pos);
+            }
         }
 
-        private void ClientDoMove(BattleMoveVO _vo)
+        private void ClientReadCards(BinaryReader _br)
         {
-            Dictionary<int, Hero> tmpDic = new Dictionary<int, Hero>();
+            List<int> tmpList = clientIsMine ? mCardTmpList : oCardTmpList;
 
-            Dictionary<int, int>.Enumerator enumerator = _vo.moves.GetEnumerator();
+            int num = _br.ReadInt32();
 
-            while (enumerator.MoveNext())
+            for (int i = 0; i < num; i++)
             {
-                KeyValuePair<int, int> pair = enumerator.Current;
-
-                tmpDic.Add(pair.Value, heroMapDic[pair.Key]);
-
-                heroMapDic.Remove(pair.Key);
-            }
-
-            Dictionary<int, Hero>.Enumerator enumerator2 = tmpDic.GetEnumerator();
-
-            while (enumerator2.MoveNext())
-            {
-                KeyValuePair<int, Hero> pair = enumerator2.Current;
-
-                int nowPos = pair.Key;
-
-                Hero hero = pair.Value;
-
-                heroMapDic.Add(nowPos, hero);
-
-                hero.PosChange(nowPos);
-
-                bool isMine = GetPosIsMine(nowPos);
-
-                if (isMine != hero.isMine)
-                {
-                    if (mapBelongDic.ContainsKey(nowPos))
-                    {
-                        mapBelongDic.Remove(nowPos);
-                    }
-                    else
-                    {
-                        mapBelongDic.Add(nowPos, true);
-                    }
-                }
+                tmpList.Add(_br.ReadInt32());
             }
         }
-
-        private void ClientDoRush(BattleRushVO _vo)
-        {
-            Hero hero = heroMapDic[_vo.stander];
-
-            hero.BeHpDamage(-_vo.hpDamage);
-        }
-
-        private void ClientDoShoot(BattleShootVO _vo)
-        {
-            Hero hero = heroMapDic[_vo.stander];
-
-            //hero.ShieldChange(_vo.shieldDamage);
-
-            //hero.HpChange(_vo.hpDamage);
-        }
-
-        private void ClientDoAttack(BattleAttackVO _vo)
-        {
-            for (int i = 0; i < _vo.attackers.Count; i++)
-            {
-                Hero hero = heroMapDic[_vo.attackers[i]];
-
-                hero.BeDamage(-_vo.attackersShieldDamage[i] - _vo.attackersHpDamage[i]);
-            }
-
-            for (int i = 0; i < _vo.supporters.Count; i++)
-            {
-                Hero hero = heroMapDic[_vo.supporters[i]];
-
-                hero.BeDamage(-_vo.supportersShieldDamage[i] - _vo.supportersHpDamage[i]);
-            }
-
-            if (heroMapDic.ContainsKey(_vo.defender))
-            {
-                Hero hero = heroMapDic[_vo.defender];
-
-                hero.BeDamage(-_vo.defenderShieldDamage - _vo.defenderHpDamage);
-            }
-        }
-
-        private void ClientDoDie(BattleDeathVO _vo)
-        {
-            LinkedList<int>.Enumerator enumerator = _vo.deads.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                heroMapDic.Remove(enumerator.Current);
-            }
-        }
-
-        private void ClientDoChange(BattleChangeVO _vo)
-        {
-            for (int i = 0; i < _vo.pos.Count; i++)
-            {
-                Hero hero = heroMapDic[_vo.pos[i]];
-
-                //hero.ShieldChange(_vo.shieldChange[i]);
-
-                //hero.HpChange(_vo.hpChange[i]);
-            }
-        }
-
-        private void ClientDoAddCards(BattleAddCardsVO _vo)
-        {
-            Dictionary<int, int> handCards = _vo.isMine ? mHandCards : oHandCards;
-
-            Dictionary<int, int>.Enumerator enumerator = _vo.addCards.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                KeyValuePair<int, int> pair = enumerator.Current;
-
-                handCards.Add(pair.Key, pair.Value);
-            }
-        }
-
-        private void ClientDoDelCards(BattleDelCardsVO _vo)
-        {
-            Dictionary<int, int> handCards = _vo.isMine ? mHandCards : oHandCards;
-
-            LinkedList<int>.Enumerator enumerator = _vo.delCards.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                handCards.Remove(enumerator.Current);
-            }
-        }
-
-        private void ClientDoMoneyChange(BattleMoneyChangeVO _vo)
-        {
-            if (_vo.isMine)
-            {
-                mMoney = _vo.money;
-            }
-            else
-            {
-                oMoney = _vo.money;
-            }
-        }
-
-        private void ClientDoLevelUp(BattleLevelUpVO _vo)
-        {
-            Hero hero = heroMapDic[_vo.pos];
-
-            IHeroSDS sds = GetHeroData(_vo.id);
-
-            hero.LevelUp(sds);
-        }
-
-        private void ClientDoRecoverShield(BattleRecoverShieldVO _vo)
-        {
-            Hero hero = heroMapDic[_vo.pos];
-
-            hero.ClientRecover();
-        }
-
-        private void ClientDoRecover(BinaryReader _br)
-        {
-            Log.Write("ClientDoRecover!");
-
-            mWin = _br.ReadBoolean();
-
-            oWin = _br.ReadBoolean();
-
-            if (clientIsMine)
-            {
-                mOver = false;
-            }
-            else
-            {
-                oOver = false;
-            }
-
-            clientRefreshDataCallBack();
-
-            if (mWin)
-            {
-                mWin = false;
-            }
-
-            if (oWin)
-            {
-                oWin = false;
-            }
-        }
-
 
         public bool GetClientCanAction()
         {
