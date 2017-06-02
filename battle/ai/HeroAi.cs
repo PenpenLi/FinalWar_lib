@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if !CLIENT
+
+using System.Collections.Generic;
 using collectionTools;
 
 namespace FinalWar
@@ -333,3 +335,4 @@ namespace FinalWar
         }
     }
 }
+#endif

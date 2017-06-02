@@ -1,4 +1,5 @@
-﻿using bt;
+﻿#if !CLIENT
+using bt;
 
 namespace FinalWar
 {
@@ -10,3 +11,4 @@ namespace FinalWar
         }
     }
 }
+#endif

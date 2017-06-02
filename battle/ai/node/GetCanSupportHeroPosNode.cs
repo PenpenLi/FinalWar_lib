@@ -1,4 +1,5 @@
-﻿using bt;
+﻿#if !CLIENT
+using bt;
 using System.Collections.Generic;
 
 namespace FinalWar
@@ -18,3 +19,4 @@ namespace FinalWar
         }
     }
 }
+#endif
