@@ -5,7 +5,7 @@ namespace stepTools
 {
     public class StepTools<T>
     {
-        private LinkedList<IEnumerator> list;
+        private List<IEnumerator> list;
 
         public bool isOver { private set; get; }
 
@@ -13,9 +13,9 @@ namespace stepTools
         {
             isOver = false;
 
-            list = new LinkedList<IEnumerator>();
+            list = new List<IEnumerator>();
 
-            list.AddLast(_ie);
+            list.Add(_ie);
         }
 
         public T Step()
@@ -25,13 +25,13 @@ namespace stepTools
                 return default(T);
             }
 
-            IEnumerator ie = list.Last.Value;
+            IEnumerator ie = list[list.Count - 1];
 
             while (ie.MoveNext())
             {
                 if (ie.Current is IEnumerator)
                 {
-                    list.AddLast(ie.Current as IEnumerator);
+                    list.Add(ie.Current as IEnumerator);
 
                     return Step();
                 }
@@ -41,9 +41,9 @@ namespace stepTools
                 }
             }
 
-            list.RemoveLast();
+            list.RemoveAt(list.Count - 1);
 
-            if (list.First == null)
+            if (list.Count == 0)
             {
                 isOver = true;
             }

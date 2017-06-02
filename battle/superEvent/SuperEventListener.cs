@@ -259,21 +259,19 @@ namespace superEvent
 
         internal void DispatchEvent(string _eventName)
         {
-            LinkedList<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack>(_eventName);
+            List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack>(_eventName);
 
             if (arr != null)
             {
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    LinkedList<SuperEventListenerUnit> list = arr[i];
+                    List<SuperEventListenerUnit> list = arr[i];
 
                     if (list != null)
                     {
-                        LinkedList<SuperEventListenerUnit>.Enumerator enumerator2 = list.GetEnumerator();
-
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < list.Count; m++)
                         {
-                            SuperEventListenerUnit unit = enumerator2.Current;
+                            SuperEventListenerUnit unit = list[m];
 
                             SuperFunctionCallBack cb = unit.callBack as SuperFunctionCallBack;
 
@@ -286,21 +284,19 @@ namespace superEvent
 
         internal void DispatchEvent<T1>(string _eventName, T1 t1)
         {
-            LinkedList<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack1<T1>>(_eventName);
+            List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack1<T1>>(_eventName);
 
             if (arr != null)
             {
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    LinkedList<SuperEventListenerUnit> list = arr[i];
+                    List<SuperEventListenerUnit> list = arr[i];
 
                     if (list != null)
                     {
-                        LinkedList<SuperEventListenerUnit>.Enumerator enumerator2 = list.GetEnumerator();
-
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < list.Count; m++)
                         {
-                            SuperEventListenerUnit unit = enumerator2.Current;
+                            SuperEventListenerUnit unit = list[m];
 
                             SuperFunctionCallBack1<T1> cb = unit.callBack as SuperFunctionCallBack1<T1>;
 
@@ -313,21 +309,19 @@ namespace superEvent
 
         internal void DispatchEvent<T1, T2>(string _eventName, T1 t1, T2 t2)
         {
-            LinkedList<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack2<T1, T2>>(_eventName);
+            List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack2<T1, T2>>(_eventName);
 
             if (arr != null)
             {
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    LinkedList<SuperEventListenerUnit> list = arr[i];
+                    List<SuperEventListenerUnit> list = arr[i];
 
                     if (list != null)
                     {
-                        LinkedList<SuperEventListenerUnit>.Enumerator enumerator2 = list.GetEnumerator();
-
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < list.Count; m++)
                         {
-                            SuperEventListenerUnit unit = enumerator2.Current;
+                            SuperEventListenerUnit unit = list[m];
 
                             SuperFunctionCallBack2<T1, T2> cb = unit.callBack as SuperFunctionCallBack2<T1, T2>;
 
@@ -340,21 +334,19 @@ namespace superEvent
 
         internal void DispatchEvent<T1, T2, T3>(string _eventName, T1 t1, T2 t2, T3 t3)
         {
-            LinkedList<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack3<T1, T2, T3>>(_eventName);
+            List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack3<T1, T2, T3>>(_eventName);
 
             if (arr != null)
             {
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    LinkedList<SuperEventListenerUnit> list = arr[i];
+                    List<SuperEventListenerUnit> list = arr[i];
 
                     if (list != null)
                     {
-                        LinkedList<SuperEventListenerUnit>.Enumerator enumerator2 = list.GetEnumerator();
-
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < list.Count; m++)
                         {
-                            SuperEventListenerUnit unit = enumerator2.Current;
+                            SuperEventListenerUnit unit = list[m];
 
                             SuperFunctionCallBack3<T1, T2, T3> cb = unit.callBack as SuperFunctionCallBack3<T1, T2, T3>;
 
@@ -367,21 +359,19 @@ namespace superEvent
 
         internal void DispatchEvent<T1, T2, T3, T4>(string _eventName, T1 t1, T2 t2, T3 t3, T4 t4)
         {
-            LinkedList<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack4<T1, T2, T3, T4>>(_eventName);
+            List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack4<T1, T2, T3, T4>>(_eventName);
 
             if (arr != null)
             {
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    LinkedList<SuperEventListenerUnit> list = arr[i];
+                    List<SuperEventListenerUnit> list = arr[i];
 
                     if (list != null)
                     {
-                        LinkedList<SuperEventListenerUnit>.Enumerator enumerator2 = list.GetEnumerator();
-
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < list.Count; m++)
                         {
-                            SuperEventListenerUnit unit = enumerator2.Current;
+                            SuperEventListenerUnit unit = list[m];
 
                             SuperFunctionCallBack4<T1, T2, T3, T4> cb = unit.callBack as SuperFunctionCallBack4<T1, T2, T3, T4>;
 
@@ -394,21 +384,19 @@ namespace superEvent
 
         internal void DispatchEvent<T>(string _eventName, ref T t) where T : struct
         {
-            LinkedList<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV<T>>(_eventName);
+            List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV<T>>(_eventName);
 
             if (arr != null)
             {
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    LinkedList<SuperEventListenerUnit> list = arr[i];
+                    List<SuperEventListenerUnit> list = arr[i];
 
                     if (list != null)
                     {
-                        LinkedList<SuperEventListenerUnit>.Enumerator enumerator2 = list.GetEnumerator();
-
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < list.Count; m++)
                         {
-                            SuperEventListenerUnit unit = enumerator2.Current;
+                            SuperEventListenerUnit unit = list[m];
 
                             SuperFunctionCallBackV<T> cb = unit.callBack as SuperFunctionCallBackV<T>;
 
@@ -421,21 +409,19 @@ namespace superEvent
 
         internal void DispatchEvent<T, T1>(string _eventName, ref T t, T1 t1) where T : struct
         {
-            LinkedList<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV1<T, T1>>(_eventName);
+            List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV1<T, T1>>(_eventName);
 
             if (arr != null)
             {
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    LinkedList<SuperEventListenerUnit> list = arr[i];
+                    List<SuperEventListenerUnit> list = arr[i];
 
                     if (list != null)
                     {
-                        LinkedList<SuperEventListenerUnit>.Enumerator enumerator2 = list.GetEnumerator();
-
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < list.Count; m++)
                         {
-                            SuperEventListenerUnit unit = enumerator2.Current;
+                            SuperEventListenerUnit unit = list[m];
 
                             SuperFunctionCallBackV1<T, T1> cb = unit.callBack as SuperFunctionCallBackV1<T, T1>;
 
@@ -448,21 +434,19 @@ namespace superEvent
 
         internal void DispatchEvent<T, T1, T2>(string _eventName, ref T t, T1 t1, T2 t2) where T : struct
         {
-            LinkedList<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV2<T, T1, T2>>(_eventName);
+            List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV2<T, T1, T2>>(_eventName);
 
             if (arr != null)
             {
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    LinkedList<SuperEventListenerUnit> list = arr[i];
+                    List<SuperEventListenerUnit> list = arr[i];
 
                     if (list != null)
                     {
-                        LinkedList<SuperEventListenerUnit>.Enumerator enumerator2 = list.GetEnumerator();
-
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < list.Count; m++)
                         {
-                            SuperEventListenerUnit unit = enumerator2.Current;
+                            SuperEventListenerUnit unit = list[m];
 
                             SuperFunctionCallBackV2<T, T1, T2> cb = unit.callBack as SuperFunctionCallBackV2<T, T1, T2>;
 
@@ -475,21 +459,19 @@ namespace superEvent
 
         internal void DispatchEvent<T, T1, T2, T3>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3) where T : struct
         {
-            LinkedList<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV3<T, T1, T2, T3>>(_eventName);
+            List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV3<T, T1, T2, T3>>(_eventName);
 
             if (arr != null)
             {
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    LinkedList<SuperEventListenerUnit> list = arr[i];
+                    List<SuperEventListenerUnit> list = arr[i];
 
                     if (list != null)
                     {
-                        LinkedList<SuperEventListenerUnit>.Enumerator enumerator2 = list.GetEnumerator();
-
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < list.Count; m++)
                         {
-                            SuperEventListenerUnit unit = enumerator2.Current;
+                            SuperEventListenerUnit unit = list[m];
 
                             SuperFunctionCallBackV3<T, T1, T2, T3> cb = unit.callBack as SuperFunctionCallBackV3<T, T1, T2, T3>;
 
@@ -502,21 +484,19 @@ namespace superEvent
 
         internal void DispatchEvent<T, T1, T2, T3, T4>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3, T4 t4) where T : struct
         {
-            LinkedList<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV4<T, T1, T2, T3, T4>>(_eventName);
+            List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV4<T, T1, T2, T3, T4>>(_eventName);
 
             if (arr != null)
             {
                 for (int i = 0; i < MAX_PRIORITY; i++)
                 {
-                    LinkedList<SuperEventListenerUnit> list = arr[i];
+                    List<SuperEventListenerUnit> list = arr[i];
 
                     if (list != null)
                     {
-                        LinkedList<SuperEventListenerUnit>.Enumerator enumerator2 = list.GetEnumerator();
-
-                        while (enumerator2.MoveNext())
+                        for (int m = 0; m < list.Count; m++)
                         {
-                            SuperEventListenerUnit unit = enumerator2.Current;
+                            SuperEventListenerUnit unit = list[m];
 
                             SuperFunctionCallBackV4<T, T1, T2, T3, T4> cb = unit.callBack as SuperFunctionCallBackV4<T, T1, T2, T3, T4>;
 
@@ -527,9 +507,9 @@ namespace superEvent
             }
         }
 
-        private LinkedList<SuperEventListenerUnit>[] DispatchEventReal<T>(string _eventName)
+        private List<SuperEventListenerUnit>[] DispatchEventReal<T>(string _eventName)
         {
-            LinkedList<SuperEventListenerUnit>[] arr = null;
+            List<SuperEventListenerUnit>[] arr = null;
 
             if (dicWithEvent.ContainsKey(_eventName))
             {
@@ -543,18 +523,18 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new LinkedList<SuperEventListenerUnit>[MAX_PRIORITY];
+                            arr = new List<SuperEventListenerUnit>[MAX_PRIORITY];
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
 
                         int priority = pair.Value.priority;
 
-                        LinkedList<SuperEventListenerUnit> list;
+                        List<SuperEventListenerUnit> list;
 
                         if (arr[priority] == null)
                         {
-                            list = new LinkedList<SuperEventListenerUnit>();
+                            list = new List<SuperEventListenerUnit>();
 
                             arr[priority] = list;
                         }
@@ -563,7 +543,7 @@ namespace superEvent
                             list = arr[priority];
                         }
 
-                        list.AddLast(enumerator.Current.Value);
+                        list.Add(enumerator.Current.Value);
                     }
                 }
             }
