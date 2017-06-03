@@ -126,7 +126,7 @@ namespace FinalWar
         {
             //---summon
             int money;
-            List<KeyValuePair<int, int>> handCards;
+            Dictionary<int, int> handCards;
             int oppBasePos;
 
             if (_isMine)
@@ -145,9 +145,11 @@ namespace FinalWar
             List<int> cards = new List<int>();
             List<double> randomList2 = new List<double>();
 
-            for (int i = 0; i < handCards.Count; i++)
+            Dictionary<int, int>.Enumerator enumerator = handCards.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                KeyValuePair<int, int> pair = handCards[i];
+                KeyValuePair<int, int> pair = enumerator.Current;
 
                 int cardID = pair.Value;
 
@@ -238,19 +240,7 @@ namespace FinalWar
 
                     randomList2.RemoveAt(0);
 
-                    int cardID = -1;
-
-                    for (int i = 0; i < handCards.Count; i++)
-                    {
-                        KeyValuePair<int, int> pair = handCards[i];
-                        
-                        if(pair.Key == cardUid)
-                        {
-                            cardID = pair.Value;
-
-                            break;
-                        }
-                    }
+                    int cardID = handCards[cardUid];
 
                     IHeroSDS heroSDS = Battle.GetHeroData(cardID);
 
