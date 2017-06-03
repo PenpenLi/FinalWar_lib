@@ -1,61 +1,58 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
 
-namespace stepTools
+namespace superEnumerator
 {
-    public class StepTools<T>
+    public class SuperEnumerator<T>
     {
         private List<IEnumerator> list;
 
-        public bool isOver { private set; get; }
+        public T Current { private set; get; }
 
-        public StepTools(IEnumerator _ie)
+        public SuperEnumerator(IEnumerator _ie)
         {
-            isOver = false;
-
             list = new List<IEnumerator>();
 
             list.Add(_ie);
         }
 
-        public T Step()
+        public bool MoveNext()
         {
-            if (isOver)
+            if (list.Count == 0)
             {
-                return default(T);
+                return false;
             }
 
             IEnumerator ie = list[list.Count - 1];
 
-            while (ie.MoveNext())
+            if (ie.MoveNext())
             {
                 if (ie.Current is IEnumerator)
                 {
                     list.Add(ie.Current as IEnumerator);
 
-                    return Step();
+                    return MoveNext();
                 }
                 else
                 {
-                    return (T)ie.Current;
+                    Current = (T)ie.Current;
+
+                    return true;
                 }
             }
-
-            list.RemoveAt(list.Count - 1);
-
-            if (list.Count == 0)
+            else
             {
-                isOver = true;
-            }
+                list.RemoveAt(list.Count - 1);
 
-            return Step();
+                return MoveNext();
+            }
         }
 
         public void Done()
         {
-            while (!isOver)
+            while (MoveNext())
             {
-                Step();
+
             }
         }
     }

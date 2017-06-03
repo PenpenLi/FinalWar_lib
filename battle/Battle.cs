@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using superEvent;
 using collectionTools;
-using stepTools;
+using superEnumerator;
 
 namespace FinalWar
 {
@@ -69,7 +69,7 @@ namespace FinalWar
 
         private Action<MemoryStream> clientSendDataCallBack;
         private Action clientRefreshDataCallBack;
-        private Action<StepTools<IBattleVO>> clientDoActionCallBack;
+        private Action<SuperEnumerator<IBattleVO>> clientDoActionCallBack;
         private Action clientBattleOverCallBack;
 #else
 
@@ -547,7 +547,7 @@ namespace FinalWar
 
                         ServerWriteActionAndSummon(false, oBw);
 
-                        StepTools<IBattleVO> step = new StepTools<IBattleVO>(StartBattle());
+                        SuperEnumerator<IBattleVO> step = new SuperEnumerator<IBattleVO>(StartBattle());
 
                         step.Done();
 
@@ -1770,7 +1770,7 @@ namespace FinalWar
 
 #if CLIENT
 
-        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<StepTools<IBattleVO>> _clientDoActionCallBack, Action _clientBattleOverCallBack)
+        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<IBattleVO>> _clientDoActionCallBack, Action _clientBattleOverCallBack)
         {
             clientSendDataCallBack = _clientSendDataCallBack;
             clientRefreshDataCallBack = _clientRefreshDataCallBack;
@@ -2236,7 +2236,7 @@ namespace FinalWar
 
             ClientReadCardsAndRandom(_br);
 
-            clientDoActionCallBack(new StepTools<IBattleVO>(StartBattle()));
+            clientDoActionCallBack(new SuperEnumerator<IBattleVO>(StartBattle()));
         }
 
         public void ClientEndBattle()
