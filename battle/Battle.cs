@@ -257,6 +257,8 @@ namespace FinalWar
 
                     bw.Write(PackageTag.S2C_REFRESH);
 
+                    bw.Write(isVsAi);
+
                     bw.Write(_isMine);
 
                     bw.Write(mScore);
@@ -748,15 +750,13 @@ namespace FinalWar
             yield return DoAddMoney();
 
             yield return DoAddCards();
+
+            RecoverOver();
         }
 
         private void EndBattle()
         {
-            if (!mWin && !oWin)
-            {
-                RecoverOver();
-            }
-            else
+            if (mWin || oWin)
             {
                 BattleOver();
             }
@@ -1198,7 +1198,7 @@ namespace FinalWar
 
                     tmpList.Add(hero.pos);
 
-                    ServerRemoveHero(_battleData, hero);
+                    RemoveHero(_battleData, hero);
                 }
 
                 yield return new BattleDeathVO(tmpList);
@@ -1398,7 +1398,7 @@ namespace FinalWar
             }
         }
 
-        private void ServerRemoveHero(BattleData _battleData, Hero _hero)
+        private void RemoveHero(BattleData _battleData, Hero _hero)
         {
             heroMapDic.Remove(_hero.pos);
 
@@ -1556,19 +1556,19 @@ namespace FinalWar
 
         private IEnumerator DoAddMoney()
         {
-            yield return ServerMoneyChange(true, ADD_MONEY);
+            yield return MoneyChange(true, ADD_MONEY);
 
             if (!isVsAi)
             {
-                yield return ServerMoneyChange(false, ADD_MONEY);
+                yield return MoneyChange(false, ADD_MONEY);
             }
             else
             {
-                yield return ServerMoneyChange(false, AI_ADD_MONEY);
+                yield return MoneyChange(false, AI_ADD_MONEY);
             }
         }
 
-        internal IEnumerator ServerMoneyChange(bool _isMine, int _num)
+        internal IEnumerator MoneyChange(bool _isMine, int _num)
         {
             if (_isMine)
             {
@@ -1813,6 +1813,8 @@ namespace FinalWar
 
         private void ClientRefreshData(BinaryReader _br)
         {
+            isVsAi = _br.ReadBoolean();
+
             clientIsMine = _br.ReadBoolean();
 
             Log.Write("ClientRefreshData  isMine:" + clientIsMine);
