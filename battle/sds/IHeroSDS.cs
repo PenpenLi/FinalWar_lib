@@ -5,6 +5,7 @@
     int GetShield();
     int GetCost();
     int GetAttack();
+    int GetAttackTimes();
     int GetSkill();
     IHeroTypeSDS GetHeroType();
 }

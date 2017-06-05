@@ -156,7 +156,7 @@ namespace FinalWar
 
             int t = 0;
 
-            while(tmpList.Count > 0)
+            while (tmpList.Count > 0)
             {
                 int index = random.Next(tmpList.Count);
 
@@ -1111,21 +1111,26 @@ namespace FinalWar
         {
             Hero stander = _cellData.stander;
 
-            List<int> attackers = new List<int>();
-
-            List<List<int>> helpers = new List<List<int>>();
-
-            int hpDamage = 0;
-
-            while (_cellData.attackers.Count > 0)
+            while (_cellData.attackers.Count > 0 && _cellData.stander.IsAlive())
             {
+                List<int> attackers = new List<int>();
+
+                List<List<int>> helpers = new List<List<int>>();
+
+                int hpDamage = 0;
+
                 Hero attacker = _cellData.attackers[0];
 
-                _cellData.attackOvers.Add(attacker);
+                attacker.attackTimes--;
 
-                _cellData.attackers.RemoveAt(0);
+                if (attacker.attackTimes == 0)
+                {
+                    _cellData.attackOvers.Add(attacker);
 
-                attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
+                    _cellData.attackers.RemoveAt(0);
+
+                    attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
+                }
 
                 attackers.Add(attacker.pos);
 
@@ -1151,13 +1156,13 @@ namespace FinalWar
                         }
                     }
                 }
+
+                stander.BeHpDamage(hpDamage);
+
+                BattleRushVO vo = new BattleRushVO(attackers, helpers, _cellData.pos, -hpDamage);
+
+                yield return vo;
             }
-
-            stander.BeHpDamage(hpDamage);
-
-            BattleRushVO vo = new BattleRushVO(attackers, helpers, _cellData.pos, -hpDamage);
-
-            yield return vo;
         }
 
         private IEnumerator RemoveDieHero(BattleData _battleData)
@@ -1212,11 +1217,7 @@ namespace FinalWar
 
                     List<int> helpers = new List<int>();
 
-                    attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
-
-                    cellData.attackOvers.Add(attacker);
-
-                    cellData.attackers.RemoveAt(0);
+                    attacker.attackTimes--;
 
                     int attackDamage = attacker.GetDamage();
 
@@ -1313,6 +1314,15 @@ namespace FinalWar
 
                             cellData.supporters.RemoveAt(0);
                         }
+                    }
+
+                    if (!attacker.IsAlive() || attacker.attackTimes == 0)
+                    {
+                        attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
+
+                        cellData.attackOvers.Add(attacker);
+
+                        cellData.attackers.RemoveAt(0);
                     }
 
                     BattleAttackVO vo;

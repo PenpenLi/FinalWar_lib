@@ -41,6 +41,8 @@ namespace FinalWar
 
         public bool canMove { get; private set; }
 
+        internal int attackTimes;
+
         internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _uid)
         {
             isMine = _isMine;
@@ -56,6 +58,8 @@ namespace FinalWar
             nowShield = sds.GetShield();
 
             canMove = true;
+
+            attackTimes = sds.GetAttackTimes();
 
             SetAction(HeroAction.NULL);
         }
@@ -73,6 +77,8 @@ namespace FinalWar
             nowShield = _nowShield;
 
             canMove = true;
+
+            attackTimes = sds.GetAttackTimes();
 
             SetAction(HeroAction.NULL);
         }
@@ -220,6 +226,8 @@ namespace FinalWar
             attackFix = abilityFix = 0;
 
             canMove = true;
+
+            attackTimes = sds.GetAttackTimes();
         }
     }
 }
