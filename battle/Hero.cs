@@ -1,6 +1,5 @@
-﻿using superEvent;
-using System.Collections.Generic;
-using System.Collections;
+﻿using System.Collections;
+using superEvent;
 
 namespace FinalWar
 {
@@ -35,16 +34,26 @@ namespace FinalWar
 
         private int attackFix = 0;
 
-        private int abilityFix = 0;
-
         private bool recoverShield = true;
 
         public bool canMove { get; private set; }
 
+        public int canAction { private set; get; }
+
         internal int attackTimes;
 
-        internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _uid)
+        private Battle battle;
+
+        private SuperEventListener eventListener;
+
+        private bool initAura = false;
+
+        internal Hero(Battle _battle, SuperEventListener _eventListener, bool _isMine, IHeroSDS _sds, int _pos, int _uid, bool _initAura)
         {
+            battle = _battle;
+
+            eventListener = _eventListener;
+
             isMine = _isMine;
 
             sds = _sds;
@@ -59,13 +68,26 @@ namespace FinalWar
 
             canMove = true;
 
+            canAction = 0;
+
             attackTimes = sds.GetAttackTimes();
 
             SetAction(HeroAction.NULL);
+
+            if (_initAura)
+            {
+                initAura = true;
+
+                HeroAura.Init(battle, eventListener, this);
+            }
         }
 
-        internal Hero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield)
+        internal Hero(Battle _battle, SuperEventListener _eventListener, bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield, int _canAction)
         {
+            battle = _battle;
+
+            eventListener = _eventListener;
+
             isMine = _isMine;
 
             sds = _sds;
@@ -78,9 +100,15 @@ namespace FinalWar
 
             canMove = true;
 
+            canAction = _canAction;
+
             attackTimes = sds.GetAttackTimes();
 
             SetAction(HeroAction.NULL);
+
+            initAura = true;
+
+            HeroAura.Init(battle, eventListener, this);
         }
 
         internal void SetAction(HeroAction _action, int _actionTarget)
@@ -118,7 +146,7 @@ namespace FinalWar
 
         internal void BeDamage(int _value, out int _shieldDamage, out int _hpDamage)
         {
-            if(_value > nowShield)
+            if (_value > nowShield)
             {
                 _shieldDamage = -nowShield;
 
@@ -150,34 +178,6 @@ namespace FinalWar
             return nowHp > 0;
         }
 
-        //internal void ShieldChange(int _value)
-        //{
-        //    nowShield += _value;
-
-        //    if (nowShield < 0)
-        //    {
-        //        nowShield = 0;
-        //    }
-        //}
-
-        //internal bool HpChange(int _value)
-        //{
-        //    nowHp += _value;
-
-        //    if (nowHp > sds.GetHp())
-        //    {
-        //        nowHp = sds.GetHp();
-        //    }
-        //    else if (nowHp < 1)
-        //    {
-        //        nowHp = 0;
-
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
-
         internal void LevelUp(IHeroSDS _sds)
         {
             sds = _sds;
@@ -186,11 +186,6 @@ namespace FinalWar
         internal void SetAttackFix(int _value)
         {
             attackFix += _value;
-        }
-
-        internal void SetAbilityFix(int _value)
-        {
-            abilityFix += _value;
         }
 
         internal void DisableRecoverShield()
@@ -203,9 +198,23 @@ namespace FinalWar
             canMove = false;
         }
 
+        internal void DisableAction()
+        {
+            canAction = 2;
+        }
+
         internal int GetDamage()
         {
-            int attack = sds.GetAttack() + attackFix;
+            int attackFixAura = 0;
+
+            eventListener.DispatchEvent(HeroAura.FIX_ATTACK, ref attackFixAura, this);
+
+            int attack = sds.GetAttack() + attackFix + attackFixAura;
+
+            if (attack < 0)
+            {
+                attack = 0;
+            }
 
             return attack;
         }
@@ -223,11 +232,28 @@ namespace FinalWar
                 recoverShield = true;
             }
 
-            attackFix = abilityFix = 0;
+            attackFix = 0;
 
             canMove = true;
 
+            if (canAction > 0)
+            {
+                canAction--;
+            }
+
             attackTimes = sds.GetAttackTimes();
+
+            if (!initAura)
+            {
+                initAura = true;
+
+                HeroAura.Init(battle, eventListener, this);
+            }
+        }
+
+        internal void Die()
+        {
+            eventListener.DispatchEvent(HeroAura.DIE, this);
         }
     }
 }
