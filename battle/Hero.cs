@@ -35,8 +35,6 @@ namespace FinalWar
 
         private int attackFix = 0;
 
-        private int abilityFix = 0;
-
         private bool recoverShield = true;
 
         public bool canMove { get; private set; }
@@ -182,11 +180,6 @@ namespace FinalWar
             attackFix += _value;
         }
 
-        internal void SetAbilityFix(int _value)
-        {
-            abilityFix += _value;
-        }
-
         internal void DisableRecoverShield()
         {
             recoverShield = false;
@@ -217,7 +210,7 @@ namespace FinalWar
                 recoverShield = true;
             }
 
-            attackFix = abilityFix = 0;
+            attackFix = 0;
 
             canMove = true;
         }
