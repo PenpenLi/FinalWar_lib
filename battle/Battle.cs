@@ -156,7 +156,7 @@ namespace FinalWar
 
             int t = 0;
 
-            while(tmpList.Count > 0)
+            while (tmpList.Count > 0)
             {
                 int index = random.Next(tmpList.Count);
 
@@ -219,7 +219,7 @@ namespace FinalWar
 
                     IHeroSDS heroSDS = GetHeroData(id);
 
-                    Hero hero = new Hero(isMine, heroSDS, pos, GetHeroUid());
+                    Hero hero = new Hero(this, eventListener, isMine, heroSDS, pos, GetHeroUid(), true);
 
                     heroMapDic.Add(pos, hero);
                 }
@@ -315,6 +315,8 @@ namespace FinalWar
                         bw.Write(hero.nowHp);
 
                         bw.Write(hero.nowShield);
+
+                        bw.Write(hero.canAction);
                     }
 
                     Dictionary<int, int> handCards;
@@ -758,6 +760,8 @@ namespace FinalWar
 
             summon.Clear();
 
+            yield return DoSkill(battleData);
+
             yield return DoRush(battleData);
 
             yield return DoAttack(battleData);
@@ -878,7 +882,7 @@ namespace FinalWar
                 oHandCards.Remove(_uid);
             }
 
-            Hero hero = new Hero(isMine, sds, _pos, GetHeroUid());
+            Hero hero = new Hero(this, eventListener, isMine, sds, _pos, GetHeroUid(), false);
 
             return hero;
         }
@@ -899,7 +903,14 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
+                if (enumerator.Current.canAction == 0)
+                {
+                    enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
+                }
+                else
+                {
+                    enumerator.Current.SetAction(Hero.HeroAction.NULL);
+                }
             }
 
             BattleData battleData = new BattleData();
@@ -925,7 +936,7 @@ namespace FinalWar
 
             Hero hero = heroMapDic[_pos];
 
-            if (!hero.sds.GetHeroType().GetCanDoAction())
+            if (!hero.sds.GetHeroType().GetCanDoAction() || hero.canAction > 0)
             {
                 throw new Exception("action error999");
             }
@@ -1068,6 +1079,34 @@ namespace FinalWar
             }
         }
 
+        private IEnumerator DoSkill(BattleData _battleData)
+        {
+            Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                BattleCellData cellData = enumerator.Current;
+
+                if (cellData.shooters.Count > 0 && cellData.stander != null)
+                {
+                    Hero target = cellData.stander;
+
+                    for (int i = 0; i < cellData.shooters.Count; i++)
+                    {
+                        Hero hero = cellData.shooters[i];
+
+                        hero.SetAction(Hero.HeroAction.NULL);
+
+                        yield return HeroSkill.CastSkill(this, hero, target);
+                    }
+                }
+
+                cellData.shooters.Clear();
+            }
+
+            yield return RemoveDieHero(_battleData);
+        }
+
         private IEnumerator DoRush(BattleData _battleData)
         {
             while (true)
@@ -1111,21 +1150,26 @@ namespace FinalWar
         {
             Hero stander = _cellData.stander;
 
-            List<int> attackers = new List<int>();
-
-            List<List<int>> helpers = new List<List<int>>();
-
-            int hpDamage = 0;
-
-            while (_cellData.attackers.Count > 0)
+            while (_cellData.attackers.Count > 0 && _cellData.stander.IsAlive())
             {
+                List<int> attackers = new List<int>();
+
+                List<List<int>> helpers = new List<List<int>>();
+
+                int hpDamage = 0;
+
                 Hero attacker = _cellData.attackers[0];
 
-                _cellData.attackOvers.Add(attacker);
+                attacker.attackTimes--;
 
-                _cellData.attackers.RemoveAt(0);
+                if (attacker.attackTimes == 0)
+                {
+                    _cellData.attackOvers.Add(attacker);
 
-                attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
+                    _cellData.attackers.RemoveAt(0);
+
+                    attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
+                }
 
                 attackers.Add(attacker.pos);
 
@@ -1151,13 +1195,13 @@ namespace FinalWar
                         }
                     }
                 }
+
+                stander.BeHpDamage(hpDamage);
+
+                BattleRushVO vo = new BattleRushVO(attackers, helpers, _cellData.pos, -hpDamage);
+
+                yield return vo;
             }
-
-            stander.BeHpDamage(hpDamage);
-
-            BattleRushVO vo = new BattleRushVO(attackers, helpers, _cellData.pos, -hpDamage);
-
-            yield return vo;
         }
 
         private IEnumerator RemoveDieHero(BattleData _battleData)
@@ -1212,11 +1256,7 @@ namespace FinalWar
 
                     List<int> helpers = new List<int>();
 
-                    attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
-
-                    cellData.attackOvers.Add(attacker);
-
-                    cellData.attackers.RemoveAt(0);
+                    attacker.attackTimes--;
 
                     int attackDamage = attacker.GetDamage();
 
@@ -1315,6 +1355,15 @@ namespace FinalWar
                         }
                     }
 
+                    if (!attacker.IsAlive() || attacker.attackTimes == 0)
+                    {
+                        attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
+
+                        cellData.attackOvers.Add(attacker);
+
+                        cellData.attackers.RemoveAt(0);
+                    }
+
                     BattleAttackVO vo;
 
                     if (defender.action == Hero.HeroAction.DEFENSE || defender.action == Hero.HeroAction.NULL)
@@ -1391,6 +1440,8 @@ namespace FinalWar
 
         private void RemoveHero(BattleData _battleData, Hero _hero)
         {
+            _hero.Die();
+
             heroMapDic.Remove(_hero.pos);
 
             RemoveHeroAction(_battleData, _hero);
@@ -1847,7 +1898,9 @@ namespace FinalWar
 
                 int nowShield = _br.ReadInt32();
 
-                ClientAddHero(heroIsMine, GetHeroData(id), pos, nowHp, nowShield);
+                int canAction = _br.ReadInt32();
+
+                ClientAddHero(heroIsMine, GetHeroData(id), pos, nowHp, nowShield, canAction);
             }
 
             mHandCards = new Dictionary<int, int>();
@@ -2043,7 +2096,7 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_pos];
 
-            if (!hero.sds.GetHeroType().GetCanDoAction())
+            if (!hero.sds.GetHeroType().GetCanDoAction() || hero.canAction > 0)
             {
                 return false;
             }
@@ -2186,16 +2239,14 @@ namespace FinalWar
             }
         }
 
-
-        private Hero ClientAddHero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield)
+        private Hero ClientAddHero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield, int _canAction)
         {
-            Hero hero = new Hero(_isMine, _sds, _pos, _nowHp, _nowShield);
+            Hero hero = new Hero(this, eventListener, _isMine, _sds, _pos, _nowHp, _nowShield, _canAction);
 
             heroMapDic.Add(_pos, hero);
 
             return hero;
         }
-
 
         private void ClientDoAction(BinaryReader _br)
         {
