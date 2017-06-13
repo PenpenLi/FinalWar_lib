@@ -1,10 +1,16 @@
-﻿public interface IHeroTypeSDS
+﻿public enum AttackType
+{
+    NORMAL,
+    ATTACK_FIRST,
+    ATTACK_ONLY
+}
+
+public interface IHeroTypeSDS
 {
     bool GetCanDoAction();
     int GetThread();
     bool GetCanDoDamageWhenDefense();
     bool GetCanDoDamageWhenSupport();
-    bool GetWillBeDamageByDefense();
-    bool GetWillBeDamageBySupport();
+    AttackType GetAttackType();
     bool GetCanLendDamageWhenSupport();
 }

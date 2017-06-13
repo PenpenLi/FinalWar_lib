@@ -1295,33 +1295,13 @@ namespace FinalWar
 
                     Hero defender;
 
-                    int defenseDamage;
-
                     if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                     {
                         defender = cellData.stander;
-
-                        if (attacker.sds.GetHeroType().GetWillBeDamageByDefense() && defender.sds.GetHeroType().GetCanDoDamageWhenDefense())
-                        {
-                            defenseDamage = defender.GetDamage();
-                        }
-                        else
-                        {
-                            defenseDamage = 0;
-                        }
                     }
                     else
                     {
                         defender = cellData.supporters[0];
-
-                        if (attacker.sds.GetHeroType().GetWillBeDamageBySupport() && defender.sds.GetHeroType().GetCanDoDamageWhenSupport())
-                        {
-                            defenseDamage = defender.GetDamage();
-                        }
-                        else
-                        {
-                            defenseDamage = 0;
-                        }
 
                         voSupporters.Add(defender.pos);
                     }
@@ -1330,13 +1310,13 @@ namespace FinalWar
 
                     int defenderHpDamage;
 
-                    int attackerShieldDamage;
+                    int attackerShieldDamage = 0;
 
-                    int attackerHpDamage;
+                    int attackerHpDamage = 0;
 
                     defender.BeDamage(attackDamage, out defenderShieldDamage, out defenderHpDamage);
 
-                    attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
+                    int defenseDamage = 0;
 
                     if (!defender.IsAlive())
                     {
@@ -1353,6 +1333,49 @@ namespace FinalWar
 
                             cellData.supporters.RemoveAt(0);
                         }
+
+                        if (attacker.sds.GetHeroType().GetAttackType() == AttackType.NORMAL)
+                        {
+                            if (defender.action == Hero.HeroAction.DEFENSE)
+                            {
+                                if (defender.sds.GetHeroType().GetCanDoDamageWhenDefense())
+                                {
+                                    defenseDamage = defender.GetDamage();
+                                }
+                            }
+                            else
+                            {
+                                if (defender.sds.GetHeroType().GetCanDoDamageWhenSupport())
+                                {
+                                    defenseDamage = defender.GetDamage();
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (attacker.sds.GetHeroType().GetAttackType() != AttackType.ATTACK_ONLY)
+                        {
+                            if (defender.action == Hero.HeroAction.DEFENSE)
+                            {
+                                if (defender.sds.GetHeroType().GetCanDoDamageWhenDefense())
+                                {
+                                    defenseDamage = defender.GetDamage();
+                                }
+                            }
+                            else
+                            {
+                                if (defender.sds.GetHeroType().GetCanDoDamageWhenSupport())
+                                {
+                                    defenseDamage = defender.GetDamage();
+                                }
+                            }
+                        }
+                    }
+
+                    if (defenseDamage != 0)
+                    {
+                        attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
                     }
 
                     if (!attacker.IsAlive() || attacker.attackTimes == 0)
