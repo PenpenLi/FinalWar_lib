@@ -58,7 +58,7 @@ namespace FinalWar
         public bool mOver { get; private set; }
         public bool oOver { get; private set; }
 
-        private List<int> randomList = new List<int>();
+        private Queue<int> randomList = new Queue<int>();
 
 
 #if CLIENT
@@ -701,12 +701,13 @@ namespace FinalWar
 
             _bw.Write(randomList.Count);
 
-            for (int i = 0; i < randomList.Count; i++)
+            Queue<int>.Enumerator enumerator2 = randomList.GetEnumerator();
+
+            while (enumerator2.MoveNext())
             {
-                _bw.Write(randomList[i]);
+                _bw.Write(enumerator2.Current);
             }
         }
-
 
         private void ServerQuitBattle()
         {
@@ -737,14 +738,12 @@ namespace FinalWar
 #if !CLIENT
             int result = random.Next(_max);
 
-            randomList.Add(result);
+            randomList.Enqueue(result);
 
             return result;
 #else
 
-            int result = randomList[0];
-
-            randomList.RemoveAt(0);
+            int result = randomList.Dequeue();
 
             return result;
 #endif
@@ -2344,7 +2343,7 @@ namespace FinalWar
             {
                 int value = _br.ReadInt32();
 
-                randomList.Add(value);
+                randomList.Enqueue(value);
             }
         }
 
