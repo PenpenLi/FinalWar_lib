@@ -1,16 +1,12 @@
-﻿public enum AttackType
-{
-    NORMAL,
-    ATTACK_FIRST,
-    ATTACK_ONLY
-}
-
-public interface IHeroTypeSDS
+﻿public interface IHeroTypeSDS
 {
     bool GetCanDoAction();
+
+    int GetAttackSpeed();
+    int GetDefenseSpeed();
+    int GetSupportSpeed();
+
+    int GetAttackTimes();
     int GetThread();
-    bool GetCanDoDamageWhenDefense();
-    bool GetCanDoDamageWhenSupport();
-    AttackType GetAttackType();
-    bool GetCanLendDamageWhenSupport();
+    int GetSupportSpeedBouns();
 }

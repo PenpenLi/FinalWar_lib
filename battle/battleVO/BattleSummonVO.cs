@@ -1,8 +1,6 @@
-﻿using System.IO;
-
-namespace FinalWar
+﻿namespace FinalWar
 {
-    public struct BattleSummonVO : IBattleVO
+    public struct BattleSummonVO
     {
         public int cardUid;
         public int heroID;
@@ -13,24 +11,6 @@ namespace FinalWar
             cardUid = _cardUid;
             heroID = _heroID;
             pos = _pos;
-        }
-
-        public void ToBytes(bool _isMine, BinaryWriter _bw)
-        {
-            _bw.Write(cardUid);
-
-            _bw.Write(heroID);
-
-            _bw.Write(pos);
-        }
-
-        public void FromBytes(BinaryReader _br)
-        {
-            cardUid = _br.ReadInt32();
-
-            heroID = _br.ReadInt32();
-
-            pos = _br.ReadInt32();
         }
     }
 }

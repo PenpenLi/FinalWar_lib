@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 
 namespace FinalWar
 {
-    public struct BattleDelCardsVO : IBattleVO
+    public struct BattleDelCardsVO
     {
         public bool isMine;
         public List<int> delCards;
@@ -12,34 +11,6 @@ namespace FinalWar
         {
             isMine = _isMine;
             delCards = _delCards;
-        }
-
-        public void ToBytes(bool _isMine, BinaryWriter _bw)
-        {
-            _bw.Write(isMine);
-
-            _bw.Write(delCards.Count);
-
-            for (int i = 0; i < delCards.Count; i++)
-            {
-                _bw.Write(delCards[i]);
-            }
-        }
-
-        public void FromBytes(BinaryReader _br)
-        {
-            isMine = _br.ReadBoolean();
-
-            delCards = new List<int>();
-
-            int num = _br.ReadInt32();
-
-            for (int m = 0; m < num; m++)
-            {
-                int uid = _br.ReadInt32();
-
-                delCards.Add(uid);
-            }
         }
     }
 }

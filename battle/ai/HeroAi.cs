@@ -54,23 +54,6 @@ namespace FinalWar
                             result.InsertRange(result.Count, posList);
                         }
 
-                        if (hero.sds.GetHeroType().GetCanLendDamageWhenSupport())
-                        {
-                            posList = _battle.GetCanHelpHeroPos(hero);
-
-                            if (posList.Count > 0)
-                            {
-                                if (result != null)
-                                {
-                                    result.InsertRange(result.Count, posList);
-                                }
-                                else
-                                {
-                                    result = posList;
-                                }
-                            }
-                        }
-
                         posList = _battle.GetCanSupportPos(hero);
 
                         if (posList.Count > 0)

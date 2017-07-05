@@ -173,6 +173,46 @@ namespace FinalWar
             nowHp -= _value;
         }
 
+        internal void RefreshShield()
+        {
+
+        }
+
+        internal int GetAttackSpeed(int _speedBonus)
+        {
+            int speed = sds.GetHeroType().GetAttackSpeed() + _speedBonus;
+
+            return FixSpeed(speed);
+        }
+
+        internal int GetDefenseSpeed(int _speedBonus)
+        {
+            int speed = sds.GetHeroType().GetDefenseSpeed() + _speedBonus;
+
+            return FixSpeed(speed);
+        }
+
+        internal int GetSupportSpeed(int _speedBonus)
+        {
+            int speed = sds.GetHeroType().GetSupportSpeed() + _speedBonus;
+
+            return FixSpeed(speed);
+        }
+
+        private int FixSpeed(int _speed)
+        {
+            if (_speed > Battle.MAX_SPEED)
+            {
+                _speed = Battle.MAX_SPEED;
+            }
+            else if (_speed < Battle.MIN_SPEED)
+            {
+                _speed = Battle.MIN_SPEED;
+            }
+
+            return _speed;
+        }
+
         internal bool IsAlive()
         {
             return nowHp > 0;

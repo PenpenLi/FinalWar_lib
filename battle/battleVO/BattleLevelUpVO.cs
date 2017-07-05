@@ -1,8 +1,6 @@
-﻿using System.IO;
-
-namespace FinalWar
+﻿namespace FinalWar
 {
-    public struct BattleLevelUpVO : IBattleVO
+    public struct BattleLevelUpVO
     {
         public int pos;
         public int id;
@@ -11,18 +9,6 @@ namespace FinalWar
         {
             pos = _pos;
             id = _id;
-        }
-
-        public void ToBytes(bool _isMine, BinaryWriter _bw)
-        {
-            _bw.Write(pos);
-            _bw.Write(id);
-        }
-
-        public void FromBytes(BinaryReader _br)
-        {
-            pos = _br.ReadInt32();
-            id = _br.ReadInt32();
         }
     }
 }

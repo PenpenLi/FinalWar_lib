@@ -1,24 +1,12 @@
-﻿using System.IO;
-
-namespace FinalWar
+﻿namespace FinalWar
 {
-    public struct BattleRecoverShieldVO : IBattleVO
+    public struct BattleRecoverShieldVO
     {
         public int pos;
 
         public BattleRecoverShieldVO(int _pos)
         {
             pos = _pos;
-        }
-
-        public void ToBytes(bool _isMine, BinaryWriter _bw)
-        {
-            _bw.Write(pos);
-        }
-
-        public void FromBytes(BinaryReader _br)
-        {
-            pos = _br.ReadInt32();
         }
     }
 }

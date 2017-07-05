@@ -96,8 +96,6 @@
     <Compile Include="battle\battleVO\BattleRushVO.cs" />
     <Compile Include="battle\battleVO\BattleShootVO.cs" />
     <Compile Include="battle\battleVO\BattleSummonVO.cs" />
-    <Compile Include="battle\battleVO\BattleVOTools.cs" />
-    <Compile Include="battle\battleVO\IBattleVO.cs" />
     <Compile Include="battle\Hero.cs" />
     <Compile Include="battle\ai\HeroAi.cs" />
     <Compile Include="battle\HeroSkill.cs" />

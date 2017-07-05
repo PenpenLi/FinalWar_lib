@@ -30,6 +30,9 @@ namespace FinalWar
         public const int AI_ADD_MONEY = 3;
         public const int MAX_MONEY = 10;
 
+        public const int MAX_SPEED = 2;
+        public const int MIN_SPEED = -2;
+
         public int mapID { get; private set; }
         public MapData mapData { get; private set; }
 
@@ -67,7 +70,7 @@ namespace FinalWar
 
         private Action<MemoryStream> clientSendDataCallBack;
         private Action clientRefreshDataCallBack;
-        private Action<SuperEnumerator<IBattleVO>> clientDoActionCallBack;
+        private Action<SuperEnumerator<ValueType>> clientDoActionCallBack;
         private Action clientBattleOverCallBack;
 #else
         private Dictionary<int, int> mHandCardsChangeDic = new Dictionary<int, int>();
@@ -531,7 +534,7 @@ namespace FinalWar
 
                         ServerWriteActionAndSummon(false, oBw);
 
-                        SuperEnumerator<IBattleVO> step = new SuperEnumerator<IBattleVO>(StartBattle());
+                        SuperEnumerator<ValueType> step = new SuperEnumerator<ValueType>(StartBattle());
 
                         step.Done();
 
@@ -1054,7 +1057,7 @@ namespace FinalWar
         {
             while (true)
             {
-                List<BattleCellData> processList = null;
+                bool hasRush = false;
 
                 Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
 
@@ -1062,22 +1065,22 @@ namespace FinalWar
                 {
                     BattleCellData cellData = enumerator.Current;
 
-                    if (cellData.stander != null && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
+                    if (cellData.stander != null && cellData.stander.IsAlive() && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
                     {
-                        if (processList == null)
-                        {
-                            processList = new List<BattleCellData>();
-                        }
+                        hasRush = true;
 
-                        processList.Add(cellData);
+                        yield return ProcessCellDataRush(_battleData, cellData);
                     }
                 }
 
-                if (processList != null)
+                if (hasRush)
                 {
-                    for (int i = 0; i < processList.Count; i++)
+                    //refresh shield
+                    Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
+
+                    while (enumerator2.MoveNext())
                     {
-                        yield return ProcessCellDataRush(_battleData, processList[i]);
+                        enumerator2.Current.RefreshShield();
                     }
 
                     yield return RemoveDieHero(_battleData);
@@ -1093,14 +1096,8 @@ namespace FinalWar
         {
             Hero stander = _cellData.stander;
 
-            while (_cellData.attackers.Count > 0 && _cellData.stander.IsAlive())
+            while (_cellData.attackers.Count > 0 && stander.IsAlive())
             {
-                List<int> attackers = new List<int>();
-
-                List<List<int>> helpers = new List<List<int>>();
-
-                int hpDamage = 0;
-
                 Hero attacker = _cellData.attackers[0];
 
                 attacker.attackTimes--;
@@ -1114,34 +1111,15 @@ namespace FinalWar
                     attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
                 }
 
-                attackers.Add(attacker.pos);
+                List<int> attackers = new List<int>() { attacker.pos };
 
-                hpDamage += attacker.GetDamage();
+                List<List<int>> helpers = new List<List<int>>() { new List<int>() };
 
-                List<int> tmpList = new List<int>();
+                int damage = attacker.GetDamage();
 
-                helpers.Add(tmpList);
+                stander.BeDamage(damage);
 
-                if (_battleData.actionDic.ContainsKey(attacker.pos))
-                {
-                    BattleCellData tmpCellData = _battleData.actionDic[attacker.pos];
-
-                    for (int m = 0; m < tmpCellData.supporters.Count; m++)
-                    {
-                        Hero tmpHero = tmpCellData.supporters[m];
-
-                        if (tmpHero.sds.GetHeroType().GetCanLendDamageWhenSupport())
-                        {
-                            hpDamage += tmpHero.GetDamage();
-
-                            tmpList.Add(tmpHero.pos);
-                        }
-                    }
-                }
-
-                stander.BeHpDamage(hpDamage);
-
-                BattleRushVO vo = new BattleRushVO(attackers, helpers, _cellData.pos, -hpDamage);
+                BattleRushVO vo = new BattleRushVO(attackers, helpers, _cellData.pos, -damage);
 
                 yield return vo;
             }
@@ -1191,17 +1169,17 @@ namespace FinalWar
             {
                 BattleCellData cellData = enumerator.Current;
 
-                while (cellData.attackers.Count > 0 && ((cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE) || cellData.supporters.Count > 0))
+                while (cellData.attackers.Count > 0 && ((cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE && cellData.stander.IsAlive()) || cellData.supporters.Count > 0))
                 {
                     Hero attacker = cellData.attackers[0];
 
-                    List<int> voAttackers = new List<int>() { attacker.pos };
+                    List<int> attackerHelpers = new List<int>();
 
-                    List<int> helpers = new List<int>();
+                    List<int> defenderHelpers = new List<int>();
 
                     attacker.attackTimes--;
 
-                    int attackDamage = attacker.GetDamage();
+                    int attackerSpeedBonus = 0;
 
                     if (_battleData.actionDic.ContainsKey(attacker.pos))
                     {
@@ -1211,11 +1189,11 @@ namespace FinalWar
                         {
                             Hero tmpHero = tmpCellData.supporters[m];
 
-                            if (tmpHero.sds.GetHeroType().GetCanLendDamageWhenSupport())
+                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBouns() > 0)
                             {
-                                attackDamage += tmpHero.GetDamage();
+                                attackerHelpers.Add(tmpHero.pos);
 
-                                helpers.Add(tmpHero.pos);
+                                attackerSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBouns();
                             }
                         }
 
@@ -1223,18 +1201,14 @@ namespace FinalWar
                         {
                             Hero tmpHero = tmpCellData.supportOvers[m];
 
-                            if (tmpHero.sds.GetHeroType().GetCanLendDamageWhenSupport())
+                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBouns() > 0)
                             {
-                                attackDamage += tmpHero.GetDamage();
+                                attackerHelpers.Add(tmpHero.pos);
 
-                                helpers.Add(tmpHero.pos);
+                                attackerSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBouns();
                             }
                         }
                     }
-
-                    List<List<int>> voHelpers = new List<List<int>>() { helpers };
-
-                    List<int> voSupporters = new List<int>();
 
                     Hero defender;
 
@@ -1245,21 +1219,131 @@ namespace FinalWar
                     else
                     {
                         defender = cellData.supporters[0];
-
-                        voSupporters.Add(defender.pos);
                     }
 
-                    int defenderShieldDamage;
+                    int defenderSpeedBonus = 0;
 
-                    int defenderHpDamage;
+                    if (_battleData.actionDic.ContainsKey(defender.pos))
+                    {
+                        BattleCellData tmpCellData = _battleData.actionDic[defender.pos];
+
+                        for (int m = 0; m < tmpCellData.supporters.Count; m++)
+                        {
+                            Hero tmpHero = tmpCellData.supporters[m];
+
+                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBouns() > 0)
+                            {
+                                defenderHelpers.Add(tmpHero.pos);
+
+                                defenderSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBouns();
+                            }
+                        }
+
+                        for (int m = 0; m < tmpCellData.supportOvers.Count; m++)
+                        {
+                            Hero tmpHero = tmpCellData.supportOvers[m];
+
+                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBouns() > 0)
+                            {
+                                defenderHelpers.Add(tmpHero.pos);
+
+                                defenderSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBouns();
+                            }
+                        }
+                    }
+
+                    int attackerSpeed = attacker.GetAttackSpeed(attackerSpeedBonus);
+
+                    int defenderSpeed;
+
+                    if (defender == cellData.stander)
+                    {
+                        defenderSpeed = defender.GetDefenseSpeed(defenderSpeedBonus);
+                    }
+                    else
+                    {
+                        defenderSpeed = defender.GetSupportSpeed(defenderSpeedBonus);
+                    }
+
+                    int speedDiff = attackerSpeed - defenderSpeed;
+
+                    int attackDamage = 0;
+
+                    int defenseDamage = 0;
+
+                    int defenderShieldDamage = 0;
+
+                    int defenderHpDamage = 0;
 
                     int attackerShieldDamage = 0;
 
                     int attackerHpDamage = 0;
 
-                    defender.BeDamage(attackDamage, out defenderShieldDamage, out defenderHpDamage);
+                    if (speedDiff == 0)
+                    {
+                        attackDamage = attacker.GetDamage();
 
-                    int defenseDamage = 0;
+                        defenseDamage = defender.GetDamage();
+
+                        attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
+
+                        defender.BeDamage(attackDamage, out defenderShieldDamage, out defenderHpDamage);
+
+                        attacker.RefreshShield();
+
+                        defender.RefreshShield();
+
+                    }
+                    else if (speedDiff == 1)
+                    {
+                        attackDamage = attacker.GetDamage();
+
+                        defender.BeDamage(attackDamage, out defenderShieldDamage, out defenderHpDamage);
+
+                        defender.RefreshShield();
+
+                        if (defender.IsAlive())
+                        {
+                            defenseDamage = defender.GetDamage();
+
+                            attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
+
+                            attacker.RefreshShield();
+                        }
+                    }
+                    else if (speedDiff > 1)
+                    {
+                        attackDamage = attacker.GetDamage();
+
+                        defender.BeDamage(attackDamage, out defenderShieldDamage, out defenderHpDamage);
+
+                        defender.RefreshShield();
+                    }
+                    else if (speedDiff == -1)
+                    {
+                        defenseDamage = defender.GetDamage();
+
+                        attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
+
+                        attacker.RefreshShield();
+
+                        if (attacker.IsAlive())
+                        {
+                            attackDamage = attacker.GetDamage();
+
+                            defender.BeDamage(attackDamage, out defenderShieldDamage, out defenderHpDamage);
+
+                            defender.RefreshShield();
+                        }
+                    }
+                    else
+                    {
+                        defenseDamage = defender.GetDamage();
+
+                        attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
+
+                        attacker.RefreshShield();
+                    }
 
                     if (!defender.IsAlive())
                     {
@@ -1276,49 +1360,6 @@ namespace FinalWar
 
                             cellData.supporters.RemoveAt(0);
                         }
-
-                        if (attacker.sds.GetHeroType().GetAttackType() == AttackType.NORMAL)
-                        {
-                            if (defender.action == Hero.HeroAction.DEFENSE)
-                            {
-                                if (defender.sds.GetHeroType().GetCanDoDamageWhenDefense())
-                                {
-                                    defenseDamage = defender.GetDamage();
-                                }
-                            }
-                            else
-                            {
-                                if (defender.sds.GetHeroType().GetCanDoDamageWhenSupport())
-                                {
-                                    defenseDamage = defender.GetDamage();
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (attacker.sds.GetHeroType().GetAttackType() != AttackType.ATTACK_ONLY)
-                        {
-                            if (defender.action == Hero.HeroAction.DEFENSE)
-                            {
-                                if (defender.sds.GetHeroType().GetCanDoDamageWhenDefense())
-                                {
-                                    defenseDamage = defender.GetDamage();
-                                }
-                            }
-                            else
-                            {
-                                if (defender.sds.GetHeroType().GetCanDoDamageWhenSupport())
-                                {
-                                    defenseDamage = defender.GetDamage();
-                                }
-                            }
-                        }
-                    }
-
-                    if (defenseDamage != 0)
-                    {
-                        attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
                     }
 
                     if (!attacker.IsAlive() || attacker.attackTimes == 0)
@@ -1332,14 +1373,18 @@ namespace FinalWar
 
                     BattleAttackVO vo;
 
-                    if (defender.action == Hero.HeroAction.DEFENSE || defender.action == Hero.HeroAction.NULL)
+                    int supportPos;
+
+                    if (defender.pos == cellData.pos)
                     {
-                        vo = new BattleAttackVO(voAttackers, voHelpers, voSupporters, cellData.pos, new List<int>() { attackerShieldDamage }, new List<int>() { attackerHpDamage }, new List<int>(), new List<int>(), defenderShieldDamage, defenderHpDamage);
+                        supportPos = 0;
                     }
                     else
                     {
-                        vo = new BattleAttackVO(voAttackers, voHelpers, voSupporters, cellData.pos, new List<int>() { attackerShieldDamage }, new List<int>() { attackerHpDamage }, new List<int>() { defenderShieldDamage }, new List<int>() { defenderHpDamage }, 0, 0);
+                        supportPos = defender.pos;
                     }
+
+                    vo = new BattleAttackVO(attacker.pos, cellData.pos, supportPos, attackerHelpers, defenderHelpers, attackerShieldDamage, attackerHpDamage, defenderShieldDamage, defenderHpDamage);
 
                     yield return vo;
                 }
@@ -1765,7 +1810,7 @@ namespace FinalWar
 
 #if CLIENT
 
-        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<IBattleVO>> _clientDoActionCallBack, Action _clientBattleOverCallBack)
+        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action _clientBattleOverCallBack)
         {
             clientSendDataCallBack = _clientSendDataCallBack;
             clientRefreshDataCallBack = _clientRefreshDataCallBack;
@@ -2205,7 +2250,7 @@ namespace FinalWar
 
             ClientReadCardsAndRandom(_br);
 
-            clientDoActionCallBack(new SuperEnumerator<IBattleVO>(StartBattle()));
+            clientDoActionCallBack(new SuperEnumerator<ValueType>(StartBattle()));
         }
 
         public void ClientEndBattle()
