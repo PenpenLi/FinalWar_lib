@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using superEvent;
 
 namespace FinalWar
@@ -185,6 +186,44 @@ namespace FinalWar
             shieldDamage = hpDamage = damage = 0;
         }
 
+        internal void ProcessDamage(out int _nowShield, out int _nowHp)
+        {
+            _nowShield = nowShield;
+
+            _nowHp = nowHp;
+
+            _nowShield -= shieldDamage;
+
+            _nowHp -= hpDamage;
+
+            if (_nowShield < 1)
+            {
+                _nowHp -= damage;
+            }
+            else if (damage > _nowShield)
+            {
+                damage -= _nowShield;
+
+                _nowShield = 0;
+
+                _nowHp -= damage;
+            }
+            else
+            {
+                _nowShield -= damage;
+            }
+
+            if (_nowShield < 0)
+            {
+                _nowShield = 0;
+            }
+
+            if (_nowHp < 0)
+            {
+                _nowHp = 0;
+            }
+        }
+
         internal int GetAttackSpeed(int _speedBonus)
         {
             int speed = sds.GetHeroType().GetAttackSpeed() + _speedBonus;
@@ -266,13 +305,29 @@ namespace FinalWar
             return attack;
         }
 
+        internal int GetDamageWithoutShield()
+        {
+            int attackFixAura = 0;
+
+            eventListener.DispatchEvent(HeroAura.FIX_ATTACK, ref attackFixAura, this);
+
+            int attack = sds.GetAttack() + attackFix + attackFixAura;
+
+            if (attack < 0)
+            {
+                attack = 0;
+            }
+
+            return attack;
+        }
+
         internal IEnumerator Recover()
         {
             if (recoverShield)
             {
                 nowShield = sds.GetShield();
 
-                yield return new BattleRecoverShieldVO(pos);
+                yield return new BattleAttChangeVO(pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SHIELD, nowShield) });
             }
             else
             {

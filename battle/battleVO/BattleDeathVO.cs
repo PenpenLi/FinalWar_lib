@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+
 namespace FinalWar
 {
     public struct BattleDeathVO

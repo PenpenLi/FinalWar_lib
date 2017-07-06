@@ -1,13 +1,13 @@
 ﻿namespace FinalWar
 {
-    public struct BattleAttackVO
+    public struct BattleCounterVO
     {
         public int pos;
         public int attacker;
         public int defender;
         public int damage;
 
-        public BattleAttackVO(int _pos, int _attacker, int _defender, int _damage)
+        public BattleCounterVO(int _pos, int _attacker, int _defender, int _damage)
         {
             pos = _pos;
             attacker = _attacker;

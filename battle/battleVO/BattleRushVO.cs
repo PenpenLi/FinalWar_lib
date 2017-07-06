@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace FinalWar
+﻿namespace FinalWar
 {
     public struct BattleRushVO
     {
