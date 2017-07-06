@@ -7,8 +7,6 @@ namespace FinalWar
     {
         public static BattleShootVO CastSkill(Battle _battle, Hero _hero, Hero _target)
         {
-            List<int> shooters = new List<int>() { _hero.pos };
-
             int stander = _target.pos;
 
             ISkillSDS sds = Battle.GetSkillData(_hero.sds.GetSkill());
@@ -22,43 +20,39 @@ namespace FinalWar
             {
                 case SkillEffect.DAMAGE:
 
-                    int shieldDamge;
+                    _target.BeDamage(sds.GetSkillData());
 
-                    int hpDamage;
-
-                    _target.BeDamage(sds.GetSkillData(), out shieldDamge, out hpDamage);
-
-                    return new BattleShootVO(shooters, stander, shieldDamge, hpDamage);
+                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
 
                 case SkillEffect.HP_DAMAGE:
 
                     _target.BeHpDamage(sds.GetSkillData());
 
-                    return new BattleShootVO(shooters, stander, 0, sds.GetSkillData());
+                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
 
                 case SkillEffect.DISABLE_MOVE:
 
                     _target.DisableMove();
 
-                    return new BattleShootVO(shooters, stander, 0, 0);
+                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
 
                 case SkillEffect.DISABLE_RECOVER_SHIELD:
 
                     _target.DisableRecoverShield();
 
-                    return new BattleShootVO(shooters, stander, 0, 0);
+                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
 
                 case SkillEffect.FIX_ATTACK:
 
                     _target.SetAttackFix(sds.GetSkillData());
 
-                    return new BattleShootVO(shooters, stander, 0, 0);
+                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
 
                 case SkillEffect.DISABLE_ACTION:
 
                     _target.DisableAction();
 
-                    return new BattleShootVO(shooters, stander, 0, 0);
+                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
 
                 default:
 

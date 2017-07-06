@@ -48,6 +48,12 @@ namespace FinalWar
 
         private bool initAura = false;
 
+        private int shieldDamage = 0;
+
+        private int hpDamage = 0;
+
+        private int damage = 0;
+
         internal Hero(Battle _battle, SuperEventListener _eventListener, bool _isMine, IHeroSDS _sds, int _pos, int _uid, bool _initAura)
         {
             battle = _battle;
@@ -130,52 +136,53 @@ namespace FinalWar
 
         internal void BeDamage(int _value)
         {
-            if (_value > nowShield)
-            {
-                nowShield = 0;
-
-                _value -= nowShield;
-
-                nowHp -= _value;
-            }
-            else
-            {
-                nowShield -= _value;
-            }
+            damage += _value;
         }
 
-        internal void BeDamage(int _value, out int _shieldDamage, out int _hpDamage)
+        internal void BeShieldDamage(int _value)
         {
-            if (_value > nowShield)
-            {
-                _shieldDamage = -nowShield;
-
-                _value -= nowShield;
-
-                nowShield = 0;
-
-                _hpDamage = -_value;
-
-                nowHp -= _value;
-            }
-            else
-            {
-                _shieldDamage = -_value;
-
-                nowShield -= _value;
-
-                _hpDamage = 0;
-            }
+            shieldDamage += _value;
         }
 
         internal void BeHpDamage(int _value)
         {
-            nowHp -= _value;
+            hpDamage += _value;
         }
 
-        internal void RefreshShield()
+        internal void ProcessDamage()
         {
+            nowShield -= shieldDamage;
 
+            nowHp -= hpDamage;
+
+            if (nowShield < 1)
+            {
+                nowHp -= damage;
+            }
+            else if (damage > nowShield)
+            {
+                damage -= nowShield;
+
+                nowShield = 0;
+
+                nowHp -= damage;
+            }
+            else
+            {
+                nowShield -= damage;
+            }
+
+            if (nowShield < 0)
+            {
+                nowShield = 0;
+            }
+
+            if (nowHp < 0)
+            {
+                nowHp = 0;
+            }
+
+            shieldDamage = hpDamage = damage = 0;
         }
 
         internal int GetAttackSpeed(int _speedBonus)
@@ -249,7 +256,7 @@ namespace FinalWar
 
             eventListener.DispatchEvent(HeroAura.FIX_ATTACK, ref attackFixAura, this);
 
-            int attack = sds.GetAttack() + attackFix + attackFixAura;
+            int attack = sds.GetAttack() + attackFix + attackFixAura + nowShield;
 
             if (attack < 0)
             {

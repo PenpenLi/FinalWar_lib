@@ -1050,6 +1050,13 @@ namespace FinalWar
                 cellData.shooters.Clear();
             }
 
+            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
+
+            while (enumerator2.MoveNext())
+            {
+                enumerator2.Current.ProcessDamage();
+            }
+
             yield return RemoveDieHero(_battleData);
         }
 
@@ -1080,7 +1087,7 @@ namespace FinalWar
 
                     while (enumerator2.MoveNext())
                     {
-                        enumerator2.Current.RefreshShield();
+                        enumerator2.Current.ProcessDamage();
                     }
 
                     yield return RemoveDieHero(_battleData);
@@ -1111,15 +1118,11 @@ namespace FinalWar
                     attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
                 }
 
-                List<int> attackers = new List<int>() { attacker.pos };
-
-                List<List<int>> helpers = new List<List<int>>() { new List<int>() };
-
                 int damage = attacker.GetDamage();
 
                 stander.BeDamage(damage);
 
-                BattleRushVO vo = new BattleRushVO(attackers, helpers, _cellData.pos, -damage);
+                BattleRushVO vo = new BattleRushVO(attacker.pos, _cellData.pos, -damage);
 
                 yield return vo;
             }
@@ -1271,78 +1274,54 @@ namespace FinalWar
 
                     int defenseDamage = 0;
 
-                    int defenderShieldDamage = 0;
-
-                    int defenderHpDamage = 0;
-
-                    int attackerShieldDamage = 0;
-
-                    int attackerHpDamage = 0;
-
                     if (speedDiff == 0)
                     {
                         attackDamage = attacker.GetDamage();
 
                         defenseDamage = defender.GetDamage();
 
-                        attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
+                        attacker.BeDamage(defenseDamage);
 
-                        defender.BeDamage(attackDamage, out defenderShieldDamage, out defenderHpDamage);
+                        defender.BeDamage(attackDamage);
 
-                        attacker.RefreshShield();
+                        attacker.ProcessDamage();
 
-                        defender.RefreshShield();
+                        defender.ProcessDamage();
 
                     }
-                    else if (speedDiff == 1)
+                    else if (speedDiff >= 1)
                     {
                         attackDamage = attacker.GetDamage();
 
-                        defender.BeDamage(attackDamage, out defenderShieldDamage, out defenderHpDamage);
+                        defender.BeDamage(attackDamage);
 
-                        defender.RefreshShield();
+                        defender.ProcessDamage();
 
-                        if (defender.IsAlive())
+                        if (speedDiff == 1 && defender.IsAlive())
                         {
                             defenseDamage = defender.GetDamage();
 
-                            attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
+                            attacker.BeDamage(defenseDamage);
 
-                            attacker.RefreshShield();
-                        }
-                    }
-                    else if (speedDiff > 1)
-                    {
-                        attackDamage = attacker.GetDamage();
-
-                        defender.BeDamage(attackDamage, out defenderShieldDamage, out defenderHpDamage);
-
-                        defender.RefreshShield();
-                    }
-                    else if (speedDiff == -1)
-                    {
-                        defenseDamage = defender.GetDamage();
-
-                        attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
-
-                        attacker.RefreshShield();
-
-                        if (attacker.IsAlive())
-                        {
-                            attackDamage = attacker.GetDamage();
-
-                            defender.BeDamage(attackDamage, out defenderShieldDamage, out defenderHpDamage);
-
-                            defender.RefreshShield();
+                            attacker.ProcessDamage();
                         }
                     }
                     else
                     {
                         defenseDamage = defender.GetDamage();
 
-                        attacker.BeDamage(defenseDamage, out attackerShieldDamage, out attackerHpDamage);
+                        attacker.BeDamage(defenseDamage);
 
-                        attacker.RefreshShield();
+                        attacker.ProcessDamage();
+
+                        if (speedDiff == -1 && attacker.IsAlive())
+                        {
+                            attackDamage = attacker.GetDamage();
+
+                            defender.BeDamage(attackDamage);
+
+                            defender.ProcessDamage();
+                        }
                     }
 
                     if (!defender.IsAlive())
@@ -1384,7 +1363,7 @@ namespace FinalWar
                         supportPos = defender.pos;
                     }
 
-                    vo = new BattleAttackVO(attacker.pos, cellData.pos, supportPos, attackerHelpers, defenderHelpers, attackerShieldDamage, attackerHpDamage, defenderShieldDamage, defenderHpDamage);
+                    vo = new BattleAttackVO(attacker.pos, cellData.pos, supportPos, attackerHelpers, defenderHelpers, attackDamage, defenseDamage);
 
                     yield return vo;
                 }

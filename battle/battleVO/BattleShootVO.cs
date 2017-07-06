@@ -4,17 +4,15 @@ namespace FinalWar
 {
     public struct BattleShootVO
     {
-        public List<int> shooters;
+        public int shooter;
         public int stander;
-        public int shieldDamage;
-        public int hpDamage;
+        public int damage;
 
-        public BattleShootVO(List<int> _shooters, int _stander, int _shieldDamage, int _hpDamage)
+        public BattleShootVO(int _shooter, int _stander, int _damage)
         {
-            shooters = _shooters;
+            shooter = _shooter;
             stander = _stander;
-            shieldDamage = _shieldDamage;
-            hpDamage = _hpDamage;
+            damage = _damage;
         }
     }
 }

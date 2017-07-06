@@ -4,17 +4,15 @@ namespace FinalWar
 {
     public struct BattleRushVO
     {
-        public List<int> attackers;
-        public List<List<int>> helpers;
+        public int attacker;
         public int stander;
-        public int hpDamage;
+        public int damage;
 
-        public BattleRushVO(List<int> _attackers, List<List<int>> _helpers, int _stander, int _hpDamage)
+        public BattleRushVO(int _attacker, int _stander, int _damage)
         {
-            attackers = _attackers;
-            helpers = _helpers;
+            attacker = _attacker;
             stander = _stander;
-            hpDamage = _hpDamage;
+            damage = _damage;
         }
     }
 }
