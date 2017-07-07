@@ -7,6 +7,8 @@ namespace FinalWar
     {
         internal const string FIX_ATTACK = "fixAttack";
 
+        internal const string FIX_SPEED = "fixSpeed";
+
         internal const string DIE = "die";
 
         internal static void Init(Battle _battle, SuperEventListener _eventListener, Hero _hero)

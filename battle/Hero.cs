@@ -29,15 +29,17 @@ namespace FinalWar
 
         internal int actionTarget { get; private set; }
 
-        public int nowHp { get; private set; }
+        private int nowHp;
 
-        public int nowShield { get; private set; }
+        private int nowShield;
 
         private int attackFix = 0;
 
+        private int speedFix = 0;
+
         private bool recoverShield = true;
 
-        public bool canMove { get; private set; }
+        internal bool canMove { get; private set; }
 
         public int canAction { private set; get; }
 
@@ -186,7 +188,7 @@ namespace FinalWar
             shieldDamage = hpDamage = damage = 0;
         }
 
-        internal void ProcessDamage(out int _nowShield, out int _nowHp)
+        public void ProcessDamage(out int _nowShield, out int _nowHp)
         {
             _nowShield = nowShield;
 
@@ -226,23 +228,32 @@ namespace FinalWar
 
         internal int GetAttackSpeed(int _speedBonus)
         {
-            int speed = sds.GetHeroType().GetAttackSpeed() + _speedBonus;
+            int speed = sds.GetHeroType().GetAttackSpeed() + _speedBonus + GetSpeedFix();
 
             return FixSpeed(speed);
         }
 
         internal int GetDefenseSpeed(int _speedBonus)
         {
-            int speed = sds.GetHeroType().GetDefenseSpeed() + _speedBonus;
+            int speed = sds.GetHeroType().GetDefenseSpeed() + _speedBonus + GetSpeedFix();
 
             return FixSpeed(speed);
         }
 
         internal int GetSupportSpeed(int _speedBonus)
         {
-            int speed = sds.GetHeroType().GetSupportSpeed() + _speedBonus;
+            int speed = sds.GetHeroType().GetSupportSpeed() + _speedBonus + GetSpeedFix();
 
             return FixSpeed(speed);
+        }
+
+        public int GetSpeedFix()
+        {
+            int tmpSpeedFix = speedFix;
+
+            eventListener.DispatchEvent(HeroAura.FIX_SPEED, ref tmpSpeedFix, this);
+
+            return tmpSpeedFix;
         }
 
         private int FixSpeed(int _speed)
@@ -289,7 +300,7 @@ namespace FinalWar
             canAction = 2;
         }
 
-        internal int GetDamage()
+        public int GetDamage()
         {
             int attackFixAura = 0;
 
@@ -305,7 +316,7 @@ namespace FinalWar
             return attack;
         }
 
-        internal int GetDamageWithoutShield()
+        public int GetDamageWithoutShield()
         {
             int attackFixAura = 0;
 
@@ -321,13 +332,11 @@ namespace FinalWar
             return attack;
         }
 
-        internal IEnumerator Recover()
+        internal void Recover()
         {
             if (recoverShield)
             {
                 nowShield = sds.GetShield();
-
-                yield return new BattleAttChangeVO(pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SHIELD, nowShield) });
             }
             else
             {
@@ -335,6 +344,8 @@ namespace FinalWar
             }
 
             attackFix = 0;
+
+            speedFix = 0;
 
             canMove = true;
 

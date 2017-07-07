@@ -1057,8 +1057,6 @@ namespace FinalWar
                 Hero hero = enumerator2.Current;
 
                 hero.ProcessDamage();
-
-                yield return new BattleAttChangeVO(hero.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SHIELD, hero.nowShield), new KeyValuePair<Att, int>(Att.HP, hero.nowHp) });
             }
 
             yield return RemoveDieHero(_battleData);
@@ -1082,16 +1080,7 @@ namespace FinalWar
                         {
                             hasRush = true;
 
-                            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
-
-                            while (enumerator2.MoveNext())
-                            {
-                                Hero hero = enumerator2.Current;
-
-                                int attack = hero.GetDamage();
-
-                                yield return new BattleAttChangeVO(hero.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.ATTACK, attack) });
-                            }
+                            yield return new BattlePrepareRushVO();
                         }
 
                         yield return ProcessCellDataRush(_battleData, cellData);
@@ -1106,8 +1095,6 @@ namespace FinalWar
                     {
                         Hero hero = enumerator2.Current;
 
-                        yield return new BattleAttChangeVO(hero.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.ATTACK, hero.GetDamageWithoutShield()) });
-
                         hero.ProcessDamage();
                     }
 
@@ -1115,6 +1102,8 @@ namespace FinalWar
                 }
                 else
                 {
+                    yield return new BattleRushOverVO();
+
                     break;
                 }
             }
@@ -1144,14 +1133,6 @@ namespace FinalWar
                 stander.BeDamage(damage);
 
                 yield return new BattleRushVO(attacker.pos, _cellData.pos, -damage);
-
-                int nowShield;
-
-                int nowHp;
-
-                stander.ProcessDamage(out nowShield, out nowHp);
-
-                yield return new BattleAttChangeVO(_cellData.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SHIELD, nowShield), new KeyValuePair<Att, int>(Att.HP, nowHp) });
             }
         }
 
@@ -1203,11 +1184,20 @@ namespace FinalWar
                 {
                     Hero attacker = cellData.attackers[0];
 
-                    List<int> attackerHelpers = new List<int>();
-
-                    List<int> defenderHelpers = new List<int>();
-
                     attacker.attackTimes--;
+
+                    Hero defender;
+
+                    if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
+                    {
+                        defender = cellData.stander;
+                    }
+                    else
+                    {
+                        defender = cellData.supporters[0];
+                    }
+
+                    yield return new BattlePrepareAttackVO(cellData.pos, attacker.pos, defender.pos);
 
                     List<int> attackerSupporters = null;
 
@@ -1221,11 +1211,9 @@ namespace FinalWar
                         {
                             Hero tmpHero = tmpCellData.supporters[m];
 
-                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBouns() > 0)
+                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBonus() > 0)
                             {
-                                attackerHelpers.Add(tmpHero.pos);
-
-                                attackerSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBouns();
+                                attackerSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBonus();
 
                                 if (attackerSupporters == null)
                                 {
@@ -1240,11 +1228,9 @@ namespace FinalWar
                         {
                             Hero tmpHero = tmpCellData.supportOvers[m];
 
-                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBouns() > 0)
+                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBonus() > 0)
                             {
-                                attackerHelpers.Add(tmpHero.pos);
-
-                                attackerSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBouns();
+                                attackerSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBonus();
 
                                 if (attackerSupporters == null)
                                 {
@@ -1261,17 +1247,6 @@ namespace FinalWar
                         yield return new BattleSupportBonusVO(attacker.pos, attackerSupporters);
                     }
 
-                    Hero defender;
-
-                    if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
-                    {
-                        defender = cellData.stander;
-                    }
-                    else
-                    {
-                        defender = cellData.supporters[0];
-                    }
-
                     List<int> defenderSupporters = null;
 
                     int defenderSpeedBonus = 0;
@@ -1284,11 +1259,9 @@ namespace FinalWar
                         {
                             Hero tmpHero = tmpCellData.supporters[m];
 
-                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBouns() > 0)
+                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBonus() > 0)
                             {
-                                defenderHelpers.Add(tmpHero.pos);
-
-                                defenderSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBouns();
+                                defenderSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBonus();
 
                                 if (defenderSupporters == null)
                                 {
@@ -1303,11 +1276,9 @@ namespace FinalWar
                         {
                             Hero tmpHero = tmpCellData.supportOvers[m];
 
-                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBouns() > 0)
+                            if (tmpHero.sds.GetHeroType().GetSupportSpeedBonus() > 0)
                             {
-                                defenderHelpers.Add(tmpHero.pos);
-
-                                defenderSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBouns();
+                                defenderSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBonus();
 
                                 if (defenderSupporters == null)
                                 {
@@ -1337,9 +1308,7 @@ namespace FinalWar
                         defenderSpeed = defender.GetSupportSpeed(defenderSpeedBonus);
                     }
 
-                    yield return new BattleAttChangeVO(attacker.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SPEED, attackerSpeed) });
-
-                    yield return new BattleAttChangeVO(defender.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SPEED, defenderSpeed) });
+                    yield return new BattleShowSpeedVO(attacker.pos, defender.pos, attackerSpeed, defenderSpeed);
 
                     int speedDiff = attackerSpeed - defenderSpeed;
 
@@ -1351,11 +1320,7 @@ namespace FinalWar
                     {
                         attackDamage = attacker.GetDamage();
 
-                        yield return new BattleAttChangeVO(attacker.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.ATTACK, attackDamage) });
-
                         defenseDamage = defender.GetDamage();
-
-                        yield return new BattleAttChangeVO(defender.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.ATTACK, defenseDamage) });
 
                         defender.BeDamage(attackDamage);
 
@@ -1365,20 +1330,11 @@ namespace FinalWar
 
                         attacker.ProcessDamage();
 
-                        yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage);
-
-                        yield return new BattleAttChangeVO(defender.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SHIELD, defender.nowShield), new KeyValuePair<Att, int>(Att.HP, defender.nowHp) });
-
-                        yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseDamage);
-
-                        yield return new BattleAttChangeVO(attacker.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SHIELD, attacker.nowShield), new KeyValuePair<Att, int>(Att.HP, attacker.nowHp) });
-
+                        yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos, attackDamage, defenseDamage);
                     }
                     else if (speedDiff >= 1)
                     {
                         attackDamage = attacker.GetDamage();
-
-                        yield return new BattleAttChangeVO(attacker.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.ATTACK, attackDamage) });
 
                         defender.BeDamage(attackDamage);
 
@@ -1386,28 +1342,20 @@ namespace FinalWar
 
                         yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage);
 
-                        yield return new BattleAttChangeVO(defender.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SHIELD, defender.nowShield), new KeyValuePair<Att, int>(Att.HP, defender.nowHp) });
-
                         if (speedDiff == 1 && defender.IsAlive())
                         {
                             defenseDamage = defender.GetDamage();
-
-                            yield return new BattleAttChangeVO(defender.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.ATTACK, defenseDamage) });
 
                             attacker.BeDamage(defenseDamage);
 
                             attacker.ProcessDamage();
 
                             yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseDamage);
-
-                            yield return new BattleAttChangeVO(attacker.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SHIELD, attacker.nowShield), new KeyValuePair<Att, int>(Att.HP, attacker.nowHp) });
                         }
                     }
                     else
                     {
                         defenseDamage = defender.GetDamage();
-
-                        yield return new BattleAttChangeVO(defender.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.ATTACK, defenseDamage) });
 
                         attacker.BeDamage(defenseDamage);
 
@@ -1415,21 +1363,15 @@ namespace FinalWar
 
                         yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseDamage);
 
-                        yield return new BattleAttChangeVO(attacker.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SHIELD, attacker.nowShield), new KeyValuePair<Att, int>(Att.HP, attacker.nowHp) });
-
                         if (speedDiff == -1 && attacker.IsAlive())
                         {
                             attackDamage = attacker.GetDamage();
-
-                            yield return new BattleAttChangeVO(attacker.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.ATTACK, attackDamage) });
 
                             defender.BeDamage(attackDamage);
 
                             defender.ProcessDamage();
 
                             yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage);
-
-                            yield return new BattleAttChangeVO(defender.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.SHIELD, defender.nowShield), new KeyValuePair<Att, int>(Att.HP, defender.nowHp) });
                         }
                     }
 
@@ -1469,10 +1411,6 @@ namespace FinalWar
                     {
                         supportPos = defender.pos;
                     }
-
-                    yield return new BattleAttChangeVO(attacker.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.ATTACK, attacker.GetDamageWithoutShield()) });
-
-                    yield return new BattleAttChangeVO(defender.pos, new List<KeyValuePair<Att, int>>() { new KeyValuePair<Att, int>(Att.ATTACK, defender.GetDamageWithoutShield()) });
                 }
             }
 
@@ -1531,8 +1469,10 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                yield return enumerator.Current.Recover();
+                enumerator.Current.Recover();
             }
+
+            yield return new BattleRecoverVO();
         }
 
         private void RemoveHero(BattleData _battleData, Hero _hero)

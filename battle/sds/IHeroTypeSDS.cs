@@ -8,5 +8,5 @@
 
     int GetAttackTimes();
     int GetThread();
-    int GetSupportSpeedBouns();
+    int GetSupportSpeedBonus();
 }
