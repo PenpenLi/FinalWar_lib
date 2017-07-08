@@ -29,9 +29,9 @@ namespace FinalWar
 
         internal int actionTarget { get; private set; }
 
-        private int nowHp;
+        internal int nowHp;
 
-        private int nowShield;
+        internal int nowShield;
 
         private int attackFix = 0;
 

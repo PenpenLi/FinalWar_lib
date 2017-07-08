@@ -1197,8 +1197,6 @@ namespace FinalWar
                         defender = cellData.supporters[0];
                     }
 
-                    yield return new BattlePrepareAttackVO(cellData.pos, attacker.pos, defender.pos);
-
                     List<int> attackerSupporters = null;
 
                     int attackerSpeedBonus = 0;
@@ -1240,11 +1238,6 @@ namespace FinalWar
                                 attackerSupporters.Add(tmpHero.pos);
                             }
                         }
-                    }
-
-                    if (attackerSupporters != null)
-                    {
-                        yield return new BattleSupportBonusVO(attacker.pos, attackerSupporters);
                     }
 
                     List<int> defenderSupporters = null;
@@ -1290,11 +1283,6 @@ namespace FinalWar
                         }
                     }
 
-                    if (defenderSupporters != null)
-                    {
-                        yield return new BattleSupportBonusVO(defender.pos, defenderSupporters);
-                    }
-
                     int attackerSpeed = attacker.GetAttackSpeed(attackerSpeedBonus);
 
                     int defenderSpeed;
@@ -1308,7 +1296,7 @@ namespace FinalWar
                         defenderSpeed = defender.GetSupportSpeed(defenderSpeedBonus);
                     }
 
-                    yield return new BattleShowSpeedVO(attacker.pos, defender.pos, attackerSpeed, defenderSpeed);
+                    yield return new BattlePrepareAttackVO(attacker.pos, attackerSupporters, attackerSpeed, defender.pos, defenderSupporters, defenderSpeed);
 
                     int speedDiff = attackerSpeed - defenderSpeed;
 
