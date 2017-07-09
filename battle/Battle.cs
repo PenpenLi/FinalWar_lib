@@ -1296,7 +1296,7 @@ namespace FinalWar
                         defenderSpeed = defender.GetSupportSpeed(defenderSpeedBonus);
                     }
 
-                    yield return new BattlePrepareAttackVO(attacker.pos, attackerSupporters, attackerSpeed, defender.pos, defenderSupporters, defenderSpeed);
+                    yield return new BattlePrepareAttackVO(cellData.pos, attacker.pos, attackerSupporters, attackerSpeed, defender.pos, defenderSupporters, defenderSpeed);
 
                     int speedDiff = attackerSpeed - defenderSpeed;
 
