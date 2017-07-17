@@ -79,7 +79,7 @@ namespace FinalWar
 
             canAction = 0;
 
-            attackTimes = sds.GetAttackTimes();
+            attackTimes = sds.GetHeroType().GetAttackTimes();
 
             SetAction(HeroAction.NULL);
 
@@ -111,7 +111,7 @@ namespace FinalWar
 
             canAction = _canAction;
 
-            attackTimes = sds.GetAttackTimes();
+            attackTimes = sds.GetHeroType().GetAttackTimes();
 
             SetAction(HeroAction.NULL);
 
@@ -354,7 +354,7 @@ namespace FinalWar
                 canAction--;
             }
 
-            attackTimes = sds.GetAttackTimes();
+            attackTimes = sds.GetHeroType().GetAttackTimes();
 
             if (!initAura)
             {

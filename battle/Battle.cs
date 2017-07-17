@@ -1132,7 +1132,7 @@ namespace FinalWar
 
                 stander.BeDamage(damage);
 
-                yield return new BattleRushVO(attacker.pos, _cellData.pos, -damage);
+                yield return new BattleRushVO(attacker.pos, _cellData.pos, damage);
             }
         }
 
