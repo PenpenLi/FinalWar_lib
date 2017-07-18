@@ -150,11 +150,7 @@ namespace superEvent
 
             Dictionary<Delegate, SuperEventListenerUnit> dic;
 
-            if (dicWithEvent.ContainsKey(_eventName))
-            {
-                dic = dicWithEvent[_eventName];
-            }
-            else
+            if (!dicWithEvent.TryGetValue(_eventName, out dic))
             {
                 dic = new Dictionary<Delegate, SuperEventListenerUnit>();
 
@@ -168,10 +164,10 @@ namespace superEvent
 
         internal void RemoveListener(int _index)
         {
-            if (dicWithID.ContainsKey(_index))
-            {
-                SuperEventListenerUnit unit = dicWithID[_index];
+            SuperEventListenerUnit unit;
 
+            if (dicWithID.TryGetValue(_index, out unit))
+            {
                 dicWithID.Remove(_index);
 
                 Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[unit.eventName];
@@ -237,14 +233,14 @@ namespace superEvent
 
         private void RemoveListenerReal(string _eventName, Delegate _callBack)
         {
-            if (dicWithEvent.ContainsKey(_eventName))
+            Dictionary<Delegate, SuperEventListenerUnit> dic;
+
+            if (dicWithEvent.TryGetValue(_eventName, out dic))
             {
-                Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
+                SuperEventListenerUnit unit;
 
-                if (dic.ContainsKey(_callBack))
+                if (dic.TryGetValue(_callBack, out unit))
                 {
-                    SuperEventListenerUnit unit = dic[_callBack];
-
                     dicWithID.Remove(unit.index);
 
                     dic.Remove(_callBack);
@@ -511,10 +507,10 @@ namespace superEvent
         {
             List<SuperEventListenerUnit>[] arr = null;
 
-            if (dicWithEvent.ContainsKey(_eventName))
-            {
-                Dictionary<Delegate, SuperEventListenerUnit> dic = dicWithEvent[_eventName];
+            Dictionary<Delegate, SuperEventListenerUnit> dic;
 
+            if (dicWithEvent.TryGetValue(_eventName, out dic))
+            {
                 Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
 
                 while (enumerator.MoveNext())

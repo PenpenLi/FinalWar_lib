@@ -491,10 +491,10 @@ namespace FinalWar
 
                 int targetPos = _br.ReadInt32();
 
-                if (mapData.dic.ContainsKey(targetPos))
-                {
-                    MapData.MapUnitType mapUnitType = mapData.dic[targetPos];
+                MapData.MapUnitType mapUnitType;
 
+                if (mapData.dic.TryGetValue(targetPos, out mapUnitType))
+                {
                     if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
                     {
                         if (heroMapDic.ContainsKey(pos) && heroMapDic[pos].isMine == _isMine)
@@ -837,9 +837,11 @@ namespace FinalWar
         {
             heroMapDic.Add(_hero.pos, _hero);
 
-            if (_battleData.actionDic.ContainsKey(_hero.pos))
+            BattleCellData cellData;
+
+            if (_battleData.actionDic.TryGetValue(_hero.pos, out cellData))
             {
-                _battleData.actionDic[_hero.pos].stander = _hero;
+                cellData.stander = _hero;
             }
         }
 
@@ -899,17 +901,15 @@ namespace FinalWar
 
                     BattleCellData cellData;
 
-                    if (_battleData.actionDic.ContainsKey(_targetPos))
-                    {
-                        cellData = _battleData.actionDic[_targetPos];
-                    }
-                    else
+                    if (!_battleData.actionDic.TryGetValue(_targetPos, out cellData))
                     {
                         cellData = new BattleCellData(_targetPos);
 
-                        if (heroMapDic.ContainsKey(_targetPos))
+                        Hero herox;
+
+                        if (heroMapDic.TryGetValue(_targetPos, out herox))
                         {
-                            cellData.stander = heroMapDic[_targetPos];
+                            cellData.stander = herox;
                         }
 
                         _battleData.actionDic.Add(_targetPos, cellData);
@@ -919,15 +919,14 @@ namespace FinalWar
                 }
                 else
                 {
-                    BattleCellData cellData;
 
                     int nowThreadLevel = 0;
 
-                    if (heroMapDic.ContainsKey(_targetPos))
-                    {
-                        Hero targetHero = heroMapDic[_targetPos];
+                    Hero herox;
 
-                        nowThreadLevel = targetHero.sds.GetHeroType().GetThread();
+                    if (heroMapDic.TryGetValue(_targetPos, out herox))
+                    {
+                        nowThreadLevel = herox.sds.GetHeroType().GetThread();
                     }
 
                     for (int i = 0; i < arr.Count; i++)
@@ -939,10 +938,10 @@ namespace FinalWar
                             continue;
                         }
 
-                        if (heroMapDic.ContainsKey(tmpPos))
-                        {
-                            Hero tmpHero = heroMapDic[tmpPos];
+                        Hero tmpHero;
 
+                        if (heroMapDic.TryGetValue(tmpPos, out tmpHero))
+                        {
                             if (tmpHero.isMine != hero.isMine)
                             {
                                 if (tmpHero.sds.GetHeroType().GetThread() > nowThreadLevel)
@@ -955,17 +954,17 @@ namespace FinalWar
 
                     hero.SetAction(Hero.HeroAction.ATTACK, _targetPos);
 
-                    if (_battleData.actionDic.ContainsKey(_targetPos))
-                    {
-                        cellData = _battleData.actionDic[_targetPos];
-                    }
-                    else
+                    BattleCellData cellData;
+
+                    if (!_battleData.actionDic.TryGetValue(_targetPos, out cellData))
                     {
                         cellData = new BattleCellData(_targetPos);
 
-                        if (heroMapDic.ContainsKey(_targetPos))
+                        Hero tmpHero;
+
+                        if (heroMapDic.TryGetValue(_targetPos, out tmpHero))
                         {
-                            cellData.stander = heroMapDic[_targetPos];
+                            cellData.stander = tmpHero;
                         }
 
                         _battleData.actionDic.Add(_targetPos, cellData);
@@ -990,17 +989,15 @@ namespace FinalWar
 
                             BattleCellData cellData;
 
-                            if (_battleData.actionDic.ContainsKey(_targetPos))
-                            {
-                                cellData = _battleData.actionDic[_targetPos];
-                            }
-                            else
+                            if (!_battleData.actionDic.TryGetValue(_targetPos, out cellData))
                             {
                                 cellData = new BattleCellData(_targetPos);
 
-                                if (heroMapDic.ContainsKey(_targetPos))
+                                Hero tmpHero;
+
+                                if (heroMapDic.TryGetValue(_targetPos, out tmpHero))
                                 {
-                                    cellData.stander = heroMapDic[_targetPos];
+                                    cellData.stander = tmpHero;
                                 }
 
                                 _battleData.actionDic.Add(_targetPos, cellData);
@@ -1201,10 +1198,10 @@ namespace FinalWar
 
                     int attackerSpeedBonus = 0;
 
-                    if (_battleData.actionDic.ContainsKey(attacker.pos))
-                    {
-                        BattleCellData tmpCellData = _battleData.actionDic[attacker.pos];
+                    BattleCellData tmpCellData;
 
+                    if (_battleData.actionDic.TryGetValue(attacker.pos, out tmpCellData))
+                    {
                         for (int m = 0; m < tmpCellData.supporters.Count; m++)
                         {
                             Hero tmpHero = tmpCellData.supporters[m];
@@ -1244,10 +1241,8 @@ namespace FinalWar
 
                     int defenderSpeedBonus = 0;
 
-                    if (_battleData.actionDic.ContainsKey(defender.pos))
+                    if (_battleData.actionDic.TryGetValue(defender.pos, out tmpCellData))
                     {
-                        BattleCellData tmpCellData = _battleData.actionDic[defender.pos];
-
                         for (int m = 0; m < tmpCellData.supporters.Count; m++)
                         {
                             Hero tmpHero = tmpCellData.supporters[m];
@@ -1471,9 +1466,11 @@ namespace FinalWar
 
             RemoveHeroAction(_battleData, _hero);
 
-            if (_battleData.actionDic.ContainsKey(_hero.pos))
+            BattleCellData cellData;
+
+            if (_battleData.actionDic.TryGetValue(_hero.pos, out cellData))
             {
-                _battleData.actionDic[_hero.pos].stander = null;
+                cellData.stander = null;
             }
         }
 
@@ -1519,12 +1516,12 @@ namespace FinalWar
 
             while (true)
             {
-                if (!_battleData.actionDic.ContainsKey(nowPos))
+                BattleCellData cellData;
+
+                if (!_battleData.actionDic.TryGetValue(nowPos, out cellData))
                 {
                     return;
                 }
-
-                BattleCellData cellData = _battleData.actionDic[nowPos];
 
                 Hero hero = null;
 
@@ -2125,11 +2122,11 @@ namespace FinalWar
                 {
                     int nowThreadLevel = 0;
 
-                    if (heroMapDic.ContainsKey(_targetPos))
-                    {
-                        Hero targetHero = heroMapDic[_targetPos];
+                    Hero targetHero2;
 
-                        nowThreadLevel = targetHero.sds.GetHeroType().GetThread();
+                    if (heroMapDic.TryGetValue(_targetPos, out targetHero2))
+                    {
+                        nowThreadLevel = targetHero2.sds.GetHeroType().GetThread();
                     }
 
                     for (int i = 0; i < tmpList.Count; i++)
@@ -2138,10 +2135,10 @@ namespace FinalWar
 
                         if (pos != _targetPos)
                         {
-                            if (heroMapDic.ContainsKey(pos))
-                            {
-                                Hero targetHero = heroMapDic[pos];
+                            Hero targetHero;
 
+                            if (heroMapDic.TryGetValue(pos, out targetHero))
+                            {
                                 if (targetHero.isMine != hero.isMine)
                                 {
                                     if (targetHero.sds.GetHeroType().GetThread() > nowThreadLevel)
@@ -2345,28 +2342,30 @@ namespace FinalWar
 
                 bool b = GetPosIsMine(pos);
 
-                if (b != _hero.isMine && heroMapDic.ContainsKey(pos))
+                if (b != _hero.isMine)
                 {
-                    Hero hero = heroMapDic[pos];
+                    Hero hero;
 
-                    if (hero.sds.GetHeroType().GetThread() > nowThreadLevel)
+                    if (heroMapDic.TryGetValue(pos, out hero))
                     {
-                        nowThreadLevel = hero.sds.GetHeroType().GetThread();
+                        if (hero.sds.GetHeroType().GetThread() > nowThreadLevel)
+                        {
+                            nowThreadLevel = hero.sds.GetHeroType().GetThread();
 
-                        result.Clear();
+                            result.Clear();
 
-                        result.Add(pos);
-                    }
-                    else if (hero.sds.GetHeroType().GetThread() == nowThreadLevel)
-                    {
-                        result.Add(pos);
+                            result.Add(pos);
+                        }
+                        else if (hero.sds.GetHeroType().GetThread() == nowThreadLevel)
+                        {
+                            result.Add(pos);
+                        }
                     }
                 }
             }
 
             return result;
         }
-
 
         public List<int> GetCanAttackPos(Hero _hero)
         {
@@ -2384,10 +2383,10 @@ namespace FinalWar
 
                 if (b != _hero.isMine)
                 {
-                    if (heroMapDic.ContainsKey(pos))
-                    {
-                        Hero hero = heroMapDic[pos];
+                    Hero hero;
 
+                    if (heroMapDic.TryGetValue(pos, out hero))
+                    {
                         if (hero.sds.GetHeroType().GetThread() > nowThreadLevel)
                         {
                             nowThreadLevel = hero.sds.GetHeroType().GetThread();
@@ -2494,10 +2493,10 @@ namespace FinalWar
             {
                 int pos = posList[i];
 
-                if (heroMapDic.ContainsKey(pos))
-                {
-                    Hero hero = heroMapDic[pos];
+                Hero hero;
 
+                if (heroMapDic.TryGetValue(pos, out hero))
+                {
                     if (hero.isMine != _hero.isMine)
                     {
                         List<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData, pos);
@@ -2513,10 +2512,10 @@ namespace FinalWar
                                 continue;
                             }
 
-                            if (heroMapDic.ContainsKey(tmpPos))
-                            {
-                                Hero tmpHero = heroMapDic[tmpPos];
+                            Hero tmpHero;
 
+                            if (heroMapDic.TryGetValue(tmpPos, out tmpHero))
+                            {
                                 if (tmpHero.isMine == _hero.isMine)
                                 {
                                     if (tmpHero.sds.GetHeroType().GetThread() > nowThreadLevel)
@@ -2542,11 +2541,11 @@ namespace FinalWar
 
         public bool CheckPosCanBeAttack(int _pos)
         {
-            if (heroMapDic.ContainsKey(_pos))
-            {
-                Hero hero = heroMapDic[_pos];
+            Hero hero2;
 
-                return CheckHeroCanBeAttack(hero);
+            if (heroMapDic.TryGetValue(_pos, out hero2))
+            {
+                return CheckHeroCanBeAttack(hero2);
             }
 
             int nowThreadLevel = 0;
@@ -2563,10 +2562,10 @@ namespace FinalWar
 
                 if (b != isMine)
                 {
-                    if (heroMapDic.ContainsKey(pos))
-                    {
-                        Hero hero = heroMapDic[pos];
+                    Hero hero;
 
+                    if (heroMapDic.TryGetValue(pos, out hero))
+                    {
                         List<int> tmpPosList = BattlePublicTools.GetNeighbourPos(mapData, pos);
 
                         bool canAttack = true;
@@ -2582,15 +2581,18 @@ namespace FinalWar
 
                             b = GetPosIsMine(tmpPos);
 
-                            if (b == isMine && heroMapDic.ContainsKey(tmpPos))
+                            if (b == isMine)
                             {
-                                Hero tmpHero = heroMapDic[tmpPos];
+                                Hero tmpHero;
 
-                                if (tmpHero.sds.GetHeroType().GetThread() > nowThreadLevel)
+                                if (heroMapDic.TryGetValue(tmpPos, out tmpHero))
                                 {
-                                    canAttack = false;
+                                    if (tmpHero.sds.GetHeroType().GetThread() > nowThreadLevel)
+                                    {
+                                        canAttack = false;
 
-                                    break;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -2618,11 +2620,16 @@ namespace FinalWar
 
                 bool b = GetPosIsMine(pos);
 
-                if (b == _hero.isMine && heroMapDic.ContainsKey(pos))
+                if (b == _hero.isMine)
                 {
-                    if (CheckHeroCanBeAttack(heroMapDic[pos]))
+                    Hero hero;
+
+                    if (heroMapDic.TryGetValue(pos, out hero))
                     {
-                        result.Add(pos);
+                        if (CheckHeroCanBeAttack(hero))
+                        {
+                            result.Add(pos);
+                        }
                     }
                 }
             }
@@ -2642,23 +2649,26 @@ namespace FinalWar
 
                 bool b = GetPosIsMine(pos);
 
-                if (b == _hero.isMine && heroMapDic.ContainsKey(pos))
+                if (b == _hero.isMine)
                 {
-                    Hero hero = heroMapDic[pos];
+                    Hero hero;
 
-                    List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
-
-                    for (int m = 0; m < posList2.Count; m++)
+                    if (heroMapDic.TryGetValue(pos, out hero))
                     {
-                        int pos2 = posList2[m];
+                        List<int> posList2 = BattlePublicTools.GetNeighbourPos(mapData, pos);
 
-                        b = GetPosIsMine(pos2);
-
-                        if (b != _hero.isMine && heroMapDic.ContainsKey(pos2))
+                        for (int m = 0; m < posList2.Count; m++)
                         {
-                            result.Add(pos);
+                            int pos2 = posList2[m];
 
-                            break;
+                            b = GetPosIsMine(pos2);
+
+                            if (b != _hero.isMine && heroMapDic.ContainsKey(pos2))
+                            {
+                                result.Add(pos);
+
+                                break;
+                            }
                         }
                     }
                 }
