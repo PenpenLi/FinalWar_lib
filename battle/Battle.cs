@@ -1384,16 +1384,7 @@ namespace FinalWar
                         cellData.attackers.RemoveAt(0);
                     }
 
-                    int supportPos;
-
-                    if (defender.pos == cellData.pos)
-                    {
-                        supportPos = 0;
-                    }
-                    else
-                    {
-                        supportPos = defender.pos;
-                    }
+                    yield return new BattleAttackOverVO(cellData.pos, attacker.pos, defender.pos);
                 }
             }
 
