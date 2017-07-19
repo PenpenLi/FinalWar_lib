@@ -198,21 +198,23 @@ namespace FinalWar
 
             _nowHp -= hpDamage;
 
+            int tmpDamage = damage;
+
             if (_nowShield < 1)
             {
-                _nowHp -= damage;
+                _nowHp -= tmpDamage;
             }
-            else if (damage > _nowShield)
+            else if (tmpDamage > _nowShield)
             {
-                damage -= _nowShield;
+                tmpDamage -= _nowShield;
 
                 _nowShield = 0;
 
-                _nowHp -= damage;
+                _nowHp -= tmpDamage;
             }
             else
             {
-                _nowShield -= damage;
+                _nowShield -= tmpDamage;
             }
 
             if (_nowShield < 0)
