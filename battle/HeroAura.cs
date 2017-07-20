@@ -33,19 +33,39 @@ namespace FinalWar
                         ids[i] = FixAttack(_battle, _eventListener, _hero, sds.GetAuraData());
 
                         break;
+
+                    case AuraEffect.FIX_SPEED:
+
+                        ids[i] = FixSpeed(_battle, _eventListener, _hero, sds.GetAuraData());
+
+                        break;
                 }
             }
 
             SuperEventListener.SuperFunctionCallBack1<Hero> dele = delegate (int _index, Hero _triggerHero)
             {
-                for (int i = 0; i < ids.Length; i++)
+                if (_triggerHero == _hero)
                 {
-                    _eventListener.RemoveListener(ids[i]);
+                    for (int i = 0; i < ids.Length; i++)
+                    {
+                        _eventListener.RemoveListener(ids[i]);
+                    }
                 }
             };
 
             ids[ids.Length - 1] = _eventListener.AddListener(DIE, dele, SuperEventListener.MAX_PRIORITY - 1);
         }
+
+
+
+
+
+
+
+
+
+
+
 
         private static int FixAttack(Battle _battle, SuperEventListener _eventListener, Hero _hero, int _data)
         {
@@ -63,6 +83,24 @@ namespace FinalWar
              };
 
             return _eventListener.AddListener(FIX_ATTACK, dele);
+        }
+
+        private static int FixSpeed(Battle _battle, SuperEventListener _eventListener, Hero _hero, int _data)
+        {
+            SuperEventListener.SuperFunctionCallBackV1<int, Hero> dele = delegate (int _index, ref int _speedFix, Hero _triggerHero)
+            {
+                if (_triggerHero != _hero && _triggerHero.isMine == _hero.isMine)
+                {
+                    List<int> tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
+
+                    if (tmpList.Contains(_triggerHero.pos))
+                    {
+                        _speedFix += _data;
+                    }
+                }
+            };
+
+            return _eventListener.AddListener(FIX_SPEED, dele);
         }
     }
 }

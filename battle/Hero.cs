@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using superEvent;
+﻿using superEvent;
 
 namespace FinalWar
 {
@@ -41,7 +39,7 @@ namespace FinalWar
 
         internal bool canMove { get; private set; }
 
-        public int canAction { private set; get; }
+        public int canAction { get; private set; }
 
         internal int attackTimes;
 

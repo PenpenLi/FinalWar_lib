@@ -559,6 +559,3 @@ namespace superEvent
         }
     }
 }
-
-
-
