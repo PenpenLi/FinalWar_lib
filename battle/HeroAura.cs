@@ -5,11 +5,12 @@ namespace FinalWar
 {
     internal static class HeroAura
     {
-        internal const string FIX_ATTACK = "fixAttack";
+        public const string DIE = "die";
+        public const string FIX_ATTACK = "fixAttack";
+        public const string FIX_SPEED = "fixSpeed";
+        public const string FIX_CAN_PIERCE_SHIELD = "fixCanPierceShield";
+        public const string FIX_CAN_MOVE = "fixCanMove";
 
-        internal const string FIX_SPEED = "fixSpeed";
-
-        internal const string DIE = "die";
 
         internal static void Init(Battle _battle, SuperEventListener _eventListener, Hero _hero)
         {
@@ -28,15 +29,21 @@ namespace FinalWar
 
                 switch (sds.GetAuraEffect())
                 {
-                    case AuraEffect.FIX_ATTACK:
+                    case AuraEffect.FIX_ALLY_ATTACK:
 
-                        ids[i] = FixAttack(_battle, _eventListener, _hero, sds.GetAuraData());
+                        ids[i] = FixAllyAttack(_battle, _eventListener, _hero, sds.GetAuraData());
 
                         break;
 
-                    case AuraEffect.FIX_SPEED:
+                    case AuraEffect.FIX_ALLY_SPEED:
 
-                        ids[i] = FixSpeed(_battle, _eventListener, _hero, sds.GetAuraData());
+                        ids[i] = FixAllySpeed(_battle, _eventListener, _hero, sds.GetAuraData());
+
+                        break;
+
+                    case AuraEffect.FIX_SELF_SPEED:
+
+                        ids[i] = FixSelfSpeed(_battle, _eventListener, _hero, sds.GetAuraData());
 
                         break;
                 }
@@ -67,7 +74,7 @@ namespace FinalWar
 
 
 
-        private static int FixAttack(Battle _battle, SuperEventListener _eventListener, Hero _hero, int _data)
+        private static int FixAllyAttack(Battle _battle, SuperEventListener _eventListener, Hero _hero, int _data)
         {
             SuperEventListener.SuperFunctionCallBackV1<int, Hero> dele = delegate (int _index, ref int _attackFix, Hero _triggerHero)
              {
@@ -85,7 +92,7 @@ namespace FinalWar
             return _eventListener.AddListener(FIX_ATTACK, dele);
         }
 
-        private static int FixSpeed(Battle _battle, SuperEventListener _eventListener, Hero _hero, int _data)
+        private static int FixAllySpeed(Battle _battle, SuperEventListener _eventListener, Hero _hero, int _data)
         {
             SuperEventListener.SuperFunctionCallBackV1<int, Hero> dele = delegate (int _index, ref int _speedFix, Hero _triggerHero)
             {
@@ -97,6 +104,19 @@ namespace FinalWar
                     {
                         _speedFix += _data;
                     }
+                }
+            };
+
+            return _eventListener.AddListener(FIX_SPEED, dele);
+        }
+
+        private static int FixSelfSpeed(Battle _battle, SuperEventListener _eventListener, Hero _hero, int _data)
+        {
+            SuperEventListener.SuperFunctionCallBackV1<int, Hero> dele = delegate (int _index, ref int _speedFix, Hero _triggerHero)
+            {
+                if (_triggerHero == _hero)
+                {
+                    _speedFix += _data;
                 }
             };
 

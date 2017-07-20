@@ -1,7 +1,8 @@
 ﻿public enum AuraEffect
 {
-    FIX_ATTACK,
-    FIX_SPEED,
+    FIX_ALLY_ATTACK,
+    FIX_ALLY_SPEED,
+    FIX_SELF_SPEED,
 }
 
 public interface IAuraSDS

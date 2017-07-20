@@ -1030,17 +1030,15 @@ namespace FinalWar
             {
                 BattleCellData cellData = enumerator.Current;
 
-                if (cellData.shooters.Count > 0 && cellData.stander != null)
+                if (cellData.shooters.Count > 0)
                 {
-                    Hero target = cellData.stander;
-
                     for (int i = 0; i < cellData.shooters.Count; i++)
                     {
                         Hero hero = cellData.shooters[i];
 
                         hero.SetAction(Hero.HeroAction.NULL);
 
-                        yield return HeroSkill.CastSkill(this, hero, target);
+                        yield return HeroSkill.CastSkill(this, hero, cellData.stander);
                     }
                 }
 
@@ -1114,7 +1112,7 @@ namespace FinalWar
             {
                 Hero attacker = _cellData.attackers[0];
 
-                attacker.attackTimes--;
+                attacker.DoAttack();
 
                 if (attacker.attackTimes == 0)
                 {
@@ -1181,7 +1179,7 @@ namespace FinalWar
                 {
                     Hero attacker = cellData.attackers[0];
 
-                    attacker.attackTimes--;
+                    attacker.DoAttack();
 
                     Hero defender;
 
@@ -1393,41 +1391,191 @@ namespace FinalWar
 
         private IEnumerator DoMove(BattleData _battleData)
         {
-            List<int> tmpList = null;
+            Dictionary<Hero, int> moveDic = new Dictionary<Hero, int>();
 
-            Dictionary<int, BattleCellData>.Enumerator enumerator = _battleData.actionDic.GetEnumerator();
+            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                KeyValuePair<int, BattleCellData> pair = enumerator.Current;
+                Hero hero = enumerator.Current;
 
-                BattleCellData cellData = pair.Value;
-
-                if (cellData.stander == null && (cellData.supporters.Count > 0 || cellData.attackers.Count > 0 || cellData.attackOvers.Count > 0))
+                if (!moveDic.ContainsKey(hero))
                 {
-                    if (tmpList == null)
+                    HeroTryMove(_battleData, moveDic, hero, hero);
+                }
+            }
+
+            Dictionary<int, int> dic = null;
+
+            Dictionary<Hero, int>.Enumerator enumerator2 = moveDic.GetEnumerator();
+
+            while (enumerator2.MoveNext())
+            {
+                int pos = enumerator2.Current.Value;
+
+                if (pos != -1)
+                {
+                    Hero hero = enumerator2.Current.Key;
+
+                    if (dic == null)
                     {
-                        tmpList = new List<int>();
+                        dic = new Dictionary<int, int>();
                     }
 
-                    tmpList.Add(pair.Key);
+                    dic.Add(hero.pos, pos);
+
+                    heroMapDic.Remove(hero.pos);
+
+                    hero.PosChange(pos);
+
+                    if (GetPosIsMine(pos) != hero.isMine)
+                    {
+                        CaptureArea(hero, pos);
+                    }
                 }
             }
 
-            if (tmpList != null)
+            enumerator2 = moveDic.GetEnumerator();
+
+            while (enumerator2.MoveNext())
             {
-                Dictionary<int, int> tmpMoveDic = null;
+                int pos = enumerator2.Current.Value;
 
-                for (int i = 0; i < tmpList.Count; i++)
+                if (pos != -1)
                 {
-                    OneCellEmpty(_battleData, tmpList[i], ref tmpMoveDic);
-                }
+                    Hero hero = enumerator2.Current.Key;
 
-                if (tmpMoveDic != null)
-                {
-                    yield return new BattleMoveVO(tmpMoveDic);
+                    heroMapDic.Add(pos, hero);
                 }
             }
+
+            if (dic != null)
+            {
+                yield return new BattleMoveVO(dic);
+            }
+        }
+
+        private void HeroTryMove(BattleData _battleData, Dictionary<Hero, int> _moveDic, Hero _hero, Hero _firstHero)
+        {
+            if (_hero.actionTarget == -1)
+            {
+                _moveDic.Add(_hero, -1);
+            }
+            else
+            {
+                BattleCellData cellData = _battleData.actionDic[_hero.actionTarget];
+
+                if (GetCellMoveInHero(cellData) == _hero)
+                {
+                    if (cellData.stander == null)
+                    {
+                        _moveDic.Add(_hero, _hero.actionTarget);
+                    }
+                    else
+                    {
+                        int tmpPos;
+
+                        if (_moveDic.TryGetValue(cellData.stander, out tmpPos))
+                        {
+                            if (tmpPos == -1)
+                            {
+                                _moveDic.Add(_hero, -1);
+                            }
+                            else
+                            {
+                                _moveDic.Add(_hero, _hero.actionTarget);
+                            }
+                        }
+                        else
+                        {
+                            if (cellData.stander == _firstHero)
+                            {
+                                if (_firstHero.actionTarget == _hero.pos)
+                                {
+                                    if (_firstHero.isMine == _hero.isMine)
+                                    {
+                                        _moveDic.Add(_hero, _hero.actionTarget);
+                                    }
+                                    else
+                                    {
+                                        _moveDic.Add(_hero, -1);
+                                    }
+                                }
+                                else
+                                {
+                                    _moveDic.Add(_hero, _hero.actionTarget);
+                                }
+                            }
+                            else
+                            {
+                                HeroTryMove(_battleData, _moveDic, cellData.stander, _firstHero);
+
+                                if (_moveDic[cellData.stander] != -1)
+                                {
+                                    _moveDic.Add(_hero, _hero.actionTarget);
+                                }
+                                else
+                                {
+                                    _moveDic.Add(_hero, -1);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    _moveDic.Add(_hero, -1);
+                }
+            }
+        }
+
+        private Hero GetCellMoveInHero(BattleCellData _cellData)
+        {
+            Hero hero = null;
+
+            for (int i = 0; i < _cellData.supporters.Count; i++)
+            {
+                Hero tmpHero = _cellData.supporters[i];
+
+                if (tmpHero.GetCanMove())
+                {
+                    hero = tmpHero;
+
+                    break;
+                }
+            }
+
+            if (hero == null)
+            {
+                for (int i = 0; i < _cellData.attackOvers.Count; i++)
+                {
+                    Hero tmpHero = _cellData.attackOvers[i];
+
+                    if (tmpHero.GetCanMove())
+                    {
+                        hero = tmpHero;
+
+                        break;
+                    }
+                }
+
+                if (hero == null)
+                {
+                    for (int i = 0; i < _cellData.attackers.Count; i++)
+                    {
+                        Hero tmpHero = _cellData.attackers[i];
+
+                        if (tmpHero.GetCanMove())
+                        {
+                            hero = tmpHero;
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return hero;
         }
 
         internal IEnumerator HeroLevelUp(Hero _hero, int _id)
@@ -1499,93 +1647,6 @@ namespace FinalWar
             }
 
             _hero.SetAction(Hero.HeroAction.NULL);
-        }
-
-        private void OneCellEmpty(BattleData _battleData, int _pos, ref Dictionary<int, int> _tmpMoveDic)
-        {
-            int nowPos = _pos;
-
-            while (true)
-            {
-                BattleCellData cellData;
-
-                if (!_battleData.actionDic.TryGetValue(nowPos, out cellData))
-                {
-                    return;
-                }
-
-                Hero hero = null;
-
-                for (int i = 0; i < cellData.supporters.Count; i++)
-                {
-                    Hero tmpHero = cellData.supporters[i];
-
-                    if (tmpHero.canMove)
-                    {
-                        hero = tmpHero;
-
-                        break;
-                    }
-                }
-
-                if (hero == null)
-                {
-                    for (int i = 0; i < cellData.attackOvers.Count; i++)
-                    {
-                        Hero tmpHero = cellData.attackOvers[i];
-
-                        if (tmpHero.canMove)
-                        {
-                            hero = tmpHero;
-
-                            CaptureArea(hero, nowPos);
-
-                            break;
-                        }
-                    }
-
-                    if (hero == null)
-                    {
-                        for (int i = 0; i < cellData.attackers.Count; i++)
-                        {
-                            Hero tmpHero = cellData.attackers[i];
-
-                            if (tmpHero.canMove)
-                            {
-                                hero = tmpHero;
-
-                                CaptureArea(hero, nowPos);
-
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (hero != null)
-                {
-                    if (_tmpMoveDic == null)
-                    {
-                        _tmpMoveDic = new Dictionary<int, int>();
-                    }
-
-                    _tmpMoveDic.Add(hero.pos, nowPos);
-
-                    heroMapDic.Remove(hero.pos);
-
-                    heroMapDic.Add(nowPos, hero);
-
-                    int tmpPos = hero.pos;
-
-                    hero.PosChange(nowPos);
-
-                    nowPos = tmpPos;
-                }
-                else
-                {
-                    return;
-                }
-            }
         }
 
         private void CaptureArea(Hero _hero, int _nowPos)

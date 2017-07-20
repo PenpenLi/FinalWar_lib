@@ -27,9 +27,9 @@ namespace FinalWar
 
         internal int actionTarget { get; private set; }
 
-        internal int nowHp;
+        internal int nowHp { get; private set; }
 
-        internal int nowShield;
+        internal int nowShield { get; private set; }
 
         private int attackFix = 0;
 
@@ -37,11 +37,11 @@ namespace FinalWar
 
         private bool recoverShield = true;
 
-        internal bool canMove { get; private set; }
+        private bool canMove = true;
 
         public int canAction { get; private set; }
 
-        internal int attackTimes;
+        internal int attackTimes { get; private set; }
 
         private Battle battle;
 
@@ -54,6 +54,8 @@ namespace FinalWar
         private int hpDamage = 0;
 
         private int damage = 0;
+
+        private bool canPierceShield = false;
 
         internal Hero(Battle _battle, SuperEventListener _eventListener, bool _isMine, IHeroSDS _sds, int _pos, int _uid, bool _initAura)
         {
@@ -72,8 +74,6 @@ namespace FinalWar
             nowHp = sds.GetHp();
 
             nowShield = sds.GetShield();
-
-            canMove = true;
 
             canAction = 0;
 
@@ -105,8 +105,6 @@ namespace FinalWar
 
             nowShield = _nowShield;
 
-            canMove = true;
-
             canAction = _canAction;
 
             attackTimes = sds.GetHeroType().GetAttackTimes();
@@ -128,6 +126,13 @@ namespace FinalWar
         internal void SetAction(HeroAction _action)
         {
             action = _action;
+
+            actionTarget = -1;
+        }
+
+        internal void DoAttack()
+        {
+            attackTimes--;
         }
 
         internal void PosChange(int _pos)
@@ -285,6 +290,11 @@ namespace FinalWar
             attackFix += _value;
         }
 
+        internal void SetSpeedFix(int _value)
+        {
+            speedFix += _value;
+        }
+
         internal void DisableRecoverShield()
         {
             recoverShield = false;
@@ -295,6 +305,43 @@ namespace FinalWar
             canMove = false;
         }
 
+        internal void EnablePierceShield()
+        {
+            canPierceShield = true;
+        }
+
+        internal bool GetCanPierceShield()
+        {
+            if (canPierceShield)
+            {
+                return true;
+            }
+            else
+            {
+                bool tmpCanPierceShield = false;
+
+                eventListener.DispatchEvent(HeroAura.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this);
+
+                return tmpCanPierceShield;
+            }
+        }
+
+        internal bool GetCanMove()
+        {
+            if (!canMove)
+            {
+                return false;
+            }
+            else
+            {
+                bool tmpCanMove = true;
+
+                eventListener.DispatchEvent(HeroAura.FIX_CAN_MOVE, ref tmpCanMove, this);
+
+                return tmpCanMove;
+            }
+        }
+
         internal void DisableAction()
         {
             canAction = 2;
@@ -302,11 +349,7 @@ namespace FinalWar
 
         public int GetDamage()
         {
-            int attackFixAura = 0;
-
-            eventListener.DispatchEvent(HeroAura.FIX_ATTACK, ref attackFixAura, this);
-
-            int attack = sds.GetAttack() + attackFix + attackFixAura + nowShield;
+            int attack = sds.GetAttack() + GetAttackFix() + nowShield;
 
             if (attack < 0)
             {
@@ -318,11 +361,7 @@ namespace FinalWar
 
         public int GetDamageWithoutShield()
         {
-            int attackFixAura = 0;
-
-            eventListener.DispatchEvent(HeroAura.FIX_ATTACK, ref attackFixAura, this);
-
-            int attack = sds.GetAttack() + attackFix + attackFixAura;
+            int attack = sds.GetAttack() + GetAttackFix();
 
             if (attack < 0)
             {
@@ -330,6 +369,15 @@ namespace FinalWar
             }
 
             return attack;
+        }
+
+        private int GetAttackFix()
+        {
+            int attackFixAura = attackFix;
+
+            eventListener.DispatchEvent(HeroAura.FIX_ATTACK, ref attackFixAura, this);
+
+            return attackFixAura;
         }
 
         internal void Recover()
@@ -343,11 +391,11 @@ namespace FinalWar
                 recoverShield = true;
             }
 
-            attackFix = 0;
-
-            speedFix = 0;
+            speedFix = attackFix = 0;
 
             canMove = true;
+
+            canPierceShield = false;
 
             if (canAction > 0)
             {
