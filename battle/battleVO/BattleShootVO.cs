@@ -4,13 +4,15 @@
     {
         public int shooter;
         public int stander;
-        public int damage;
+        public SkillEffect effect;
+        public int data;
 
-        public BattleShootVO(int _shooter, int _stander, int _damage)
+        public BattleShootVO(int _shooter, int _stander, SkillEffect _effect, int _data)
         {
             shooter = _shooter;
             stander = _stander;
-            damage = _damage;
+            effect = _effect;
+            data = _data;
         }
     }
 }

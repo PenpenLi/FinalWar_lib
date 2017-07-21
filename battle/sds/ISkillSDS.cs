@@ -5,7 +5,9 @@
     FIX_ATTACK,
     DISABLE_RECOVER_SHIELD,
     DISABLE_MOVE,
-    DISABLE_ACTION
+    DISABLE_ACTION,
+    SHIELD_DAMAGE,
+    SILENCE,
 }
 
 public interface ISkillSDS

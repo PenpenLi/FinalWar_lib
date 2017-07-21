@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
 
 namespace FinalWar
 {
@@ -22,43 +21,56 @@ namespace FinalWar
 
                     _target.BeDamage(sds.GetSkillData());
 
-                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
+                    break;
 
                 case SkillEffect.HP_DAMAGE:
 
                     _target.BeHpDamage(sds.GetSkillData());
 
-                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
+                    break;
+
+                case SkillEffect.SHIELD_DAMAGE:
+
+                    _target.BeShieldDamage(sds.GetSkillData());
+
+                    break;
 
                 case SkillEffect.DISABLE_MOVE:
 
                     _target.DisableMove();
 
-                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
+                    break;
 
                 case SkillEffect.DISABLE_RECOVER_SHIELD:
 
                     _target.DisableRecoverShield();
 
-                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
+                    break;
 
                 case SkillEffect.FIX_ATTACK:
 
                     _target.SetAttackFix(sds.GetSkillData());
 
-                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
+                    break;
 
                 case SkillEffect.DISABLE_ACTION:
 
                     _target.DisableAction();
 
-                    return new BattleShootVO(_hero.pos, stander, sds.GetSkillData());
+                    break;
+
+                case SkillEffect.SILENCE:
+
+                    _target.Silence();
+
+                    break;
 
                 default:
 
                     throw new Exception("skill effect error:" + sds.GetSkillEffect());
             }
 
+            return new BattleShootVO(_hero.pos, stander, sds.GetSkillEffect(), sds.GetSkillData());
         }
     }
 }

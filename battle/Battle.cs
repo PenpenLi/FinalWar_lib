@@ -1125,7 +1125,7 @@ namespace FinalWar
 
                 int damage = attacker.GetDamage();
 
-                stander.BeDamage(damage);
+                attacker.Attack(stander, damage);
 
                 yield return new BattleRushVO(attacker.pos, _cellData.pos, damage);
             }
@@ -1303,9 +1303,9 @@ namespace FinalWar
 
                         defenseDamage = defender.GetDamage();
 
-                        defender.BeDamage(attackDamage);
+                        attacker.Attack(defender, attackDamage);
 
-                        attacker.BeDamage(defenseDamage);
+                        defender.Attack(attacker, defenseDamage);
 
                         defender.ProcessDamage();
 
@@ -1317,7 +1317,7 @@ namespace FinalWar
                     {
                         attackDamage = attacker.GetDamage();
 
-                        defender.BeDamage(attackDamage);
+                        attacker.Attack(defender, attackDamage);
 
                         defender.ProcessDamage();
 
@@ -1327,7 +1327,7 @@ namespace FinalWar
                         {
                             defenseDamage = defender.GetDamage();
 
-                            attacker.BeDamage(defenseDamage);
+                            defender.Attack(attacker, defenseDamage);
 
                             attacker.ProcessDamage();
 
@@ -1338,7 +1338,7 @@ namespace FinalWar
                     {
                         defenseDamage = defender.GetDamage();
 
-                        attacker.BeDamage(defenseDamage);
+                        defender.Attack(attacker, defenseDamage);
 
                         attacker.ProcessDamage();
 
@@ -1348,7 +1348,7 @@ namespace FinalWar
                         {
                             attackDamage = attacker.GetDamage();
 
-                            defender.BeDamage(attackDamage);
+                            attacker.Attack(defender, attackDamage);
 
                             defender.ProcessDamage();
 

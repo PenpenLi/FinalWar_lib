@@ -412,9 +412,33 @@ namespace FinalWar
             }
         }
 
+        internal void Silence()
+        {
+            UnregisterAura();
+        }
+
         internal void Die()
         {
-            eventListener.DispatchEvent(HeroAura.DIE, this);
+            UnregisterAura();
+        }
+
+        internal void Attack(Hero _hero, int _damage)
+        {
+            if (GetCanPierceShield())
+            {
+                _hero.BeHpDamage(_damage);
+            }
+            else
+            {
+                _hero.BeDamage(_damage);
+            }
+        }
+
+        private void UnregisterAura()
+        {
+            initAura = false;
+
+            eventListener.DispatchEvent(HeroAura.REMOVE_AURA, this);
         }
     }
 }
