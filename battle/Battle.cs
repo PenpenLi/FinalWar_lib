@@ -56,7 +56,6 @@ namespace FinalWar
         public List<KeyValuePair<int, int>> action = new List<KeyValuePair<int, int>>();
 
         private int cardUid;
-        private int heroUid;
 
         public bool mOver { get; private set; }
         public bool oOver { get; private set; }
@@ -148,7 +147,6 @@ namespace FinalWar
             mOver = oOver = false;
 
             cardUid = 1;
-            heroUid = 1;
 
             mCards = new List<int>(_mCards);
 
@@ -195,7 +193,7 @@ namespace FinalWar
 
                     IHeroSDS heroSDS = GetHeroData(id);
 
-                    Hero hero = new Hero(this, eventListener, isMine, heroSDS, pos, GetHeroUid(), true);
+                    Hero hero = new Hero(this, eventListener, isMine, heroSDS, pos, true);
 
                     heroMapDic.Add(pos, hero);
                 }
@@ -259,8 +257,6 @@ namespace FinalWar
 
                     bw.Write(oScore);
 
-                    bw.Write(heroUid);
-
                     bw.Write(cardUid);
 
                     bw.Write(mapID);
@@ -282,17 +278,7 @@ namespace FinalWar
                     {
                         Hero hero = enumerator3.Current;
 
-                        bw.Write(hero.sds.GetID());
-
-                        bw.Write(hero.isMine);
-
-                        bw.Write(hero.pos);
-
-                        bw.Write(hero.nowHp);
-
-                        bw.Write(hero.nowShield);
-
-                        bw.Write(hero.GetCanAction());
+                        hero.WriteToStream(bw);
                     }
 
                     Dictionary<int, int> handCards;
@@ -828,7 +814,7 @@ namespace FinalWar
                 oHandCards.Remove(_uid);
             }
 
-            Hero hero = new Hero(this, eventListener, isMine, sds, _pos, GetHeroUid(), false);
+            Hero hero = new Hero(this, eventListener, isMine, sds, _pos, false);
 
             return hero;
         }
@@ -884,7 +870,7 @@ namespace FinalWar
 
             Hero hero = heroMapDic[_pos];
 
-            if (!hero.sds.GetHeroType().GetCanDoAction() || !hero.GetCanAction())
+            if (!hero.GetCanAction())
             {
                 throw new Exception("action error999");
             }
@@ -1732,15 +1718,6 @@ namespace FinalWar
             return result;
         }
 
-        private int GetHeroUid()
-        {
-            int result = heroUid;
-
-            heroUid++;
-
-            return result;
-        }
-
         public bool GetPosIsMine(int _pos)
         {
             MapData.MapUnitType mapUnitType = mapData.dic[_pos];
@@ -1926,8 +1903,6 @@ namespace FinalWar
 
             oScore = _br.ReadInt32();
 
-            heroUid = _br.ReadInt32();
-
             cardUid = _br.ReadInt32();
 
             mapID = _br.ReadInt32();
@@ -1951,19 +1926,11 @@ namespace FinalWar
 
             for (int i = 0; i < num; i++)
             {
-                int id = _br.ReadInt32();
+                Hero hero = new Hero(this, eventListener);
 
-                bool heroIsMine = _br.ReadBoolean();
+                hero.ReadFromStream(_br);
 
-                int pos = _br.ReadInt32();
-
-                int nowHp = _br.ReadInt32();
-
-                int nowShield = _br.ReadInt32();
-
-                bool canAction = _br.ReadBoolean();
-
-                ClientAddHero(heroIsMine, GetHeroData(id), pos, nowHp, nowShield, canAction);
+                heroMapDic.Add(hero.pos, hero);
             }
 
             mHandCards.Clear();
@@ -2155,7 +2122,7 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_pos];
 
-            if (!hero.sds.GetHeroType().GetCanDoAction() || !hero.GetCanAction())
+            if (!hero.GetCanAction())
             {
                 return false;
             }
@@ -2296,15 +2263,6 @@ namespace FinalWar
                     clientSendDataCallBack(ms);
                 }
             }
-        }
-
-        private Hero ClientAddHero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield, bool _canAction)
-        {
-            Hero hero = new Hero(this, eventListener, _isMine, _sds, _pos, _nowHp, _nowShield, _canAction);
-
-            heroMapDic.Add(_pos, hero);
-
-            return hero;
         }
 
         private void ClientDoAction(BinaryReader _br)

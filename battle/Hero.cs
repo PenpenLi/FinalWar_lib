@@ -1,4 +1,5 @@
 ﻿using superEvent;
+using System.IO;
 
 namespace FinalWar
 {
@@ -17,8 +18,6 @@ namespace FinalWar
 
         public bool isMine { get; private set; }
 
-        internal int uid { get; private set; }
-
         public IHeroSDS sds { get; private set; }
 
         public int pos { get; private set; }
@@ -27,9 +26,9 @@ namespace FinalWar
 
         internal int actionTarget { get; private set; }
 
-        internal int nowHp { get; private set; }
+        private int nowHp;
 
-        internal int nowShield { get; private set; }
+        private int nowShield;
 
         private int attackFix = 0;
 
@@ -57,7 +56,7 @@ namespace FinalWar
 
         private bool canPierceShield = false;
 
-        internal Hero(Battle _battle, SuperEventListener _eventListener, bool _isMine, IHeroSDS _sds, int _pos, int _uid, bool _initAura)
+        internal Hero(Battle _battle, SuperEventListener _eventListener, bool _isMine, IHeroSDS _sds, int _pos, bool _initAura)
         {
             battle = _battle;
 
@@ -69,13 +68,18 @@ namespace FinalWar
 
             PosChange(_pos);
 
-            uid = _uid;
-
             nowHp = sds.GetHp();
 
             nowShield = sds.GetShield();
 
-            canAction = 0;
+            if (sds.GetHeroType().GetCanDoAction())
+            {
+                canAction = 0;
+            }
+            else
+            {
+                canAction = -1;
+            }
 
             attackTimes = sds.GetHeroType().GetAttackTimes();
 
@@ -89,31 +93,11 @@ namespace FinalWar
             }
         }
 
-        internal Hero(Battle _battle, SuperEventListener _eventListener, bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield, bool _canAction)
+        internal Hero(Battle _battle, SuperEventListener _eventListener)
         {
             battle = _battle;
 
             eventListener = _eventListener;
-
-            isMine = _isMine;
-
-            sds = _sds;
-
-            PosChange(_pos);
-
-            nowHp = _nowHp;
-
-            nowShield = _nowShield;
-
-            canAction = _canAction ? 0 : 1;
-
-            attackTimes = sds.GetHeroType().GetAttackTimes();
-
-            SetAction(HeroAction.NULL);
-
-            initAura = true;
-
-            HeroAura.Init(battle, eventListener, this);
         }
 
         internal void SetAction(HeroAction _action, int _actionTarget)
@@ -349,7 +333,10 @@ namespace FinalWar
 
         internal void DisableAction()
         {
-            canAction = 2;
+            if (canAction > -1)
+            {
+                canAction = 2;
+            }
         }
 
         public int GetDamage()
@@ -444,6 +431,44 @@ namespace FinalWar
             initAura = false;
 
             eventListener.DispatchEvent(HeroAura.REMOVE_AURA, this);
+        }
+
+        internal void WriteToStream(BinaryWriter _bw)
+        {
+            _bw.Write(sds.GetID());
+
+            _bw.Write(isMine);
+
+            _bw.Write(pos);
+
+            _bw.Write(nowHp);
+
+            _bw.Write(nowShield);
+
+            _bw.Write(canAction);
+        }
+
+        internal void ReadFromStream(BinaryReader _br)
+        {
+            sds = Battle.GetHeroData(_br.ReadInt32());
+
+            isMine = _br.ReadBoolean();
+
+            PosChange(_br.ReadInt32());
+
+            nowHp = _br.ReadInt32();
+
+            nowShield = _br.ReadInt32();
+
+            canAction = _br.ReadInt32();
+
+            attackTimes = sds.GetHeroType().GetAttackTimes();
+
+            SetAction(HeroAction.NULL);
+
+            initAura = true;
+
+            HeroAura.Init(battle, eventListener, this);
         }
     }
 }
