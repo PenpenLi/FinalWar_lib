@@ -8,6 +8,7 @@
     DISABLE_ACTION,
     SHIELD_DAMAGE,
     SILENCE,
+    FIX_SPEED,
 }
 
 public interface ISkillSDS

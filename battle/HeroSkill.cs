@@ -65,6 +65,12 @@ namespace FinalWar
 
                     break;
 
+                case SkillEffect.FIX_SPEED:
+
+                    _target.SetSpeedFix(sds.GetSkillData());
+
+                    break;
+
                 default:
 
                     throw new Exception("skill effect error:" + sds.GetSkillEffect());
