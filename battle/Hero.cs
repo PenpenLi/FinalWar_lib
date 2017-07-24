@@ -39,7 +39,7 @@ namespace FinalWar
 
         private bool canMove = true;
 
-        public int canAction { get; private set; }
+        private int canAction;
 
         internal int attackTimes { get; private set; }
 
@@ -89,7 +89,7 @@ namespace FinalWar
             }
         }
 
-        internal Hero(Battle _battle, SuperEventListener _eventListener, bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield, int _canAction)
+        internal Hero(Battle _battle, SuperEventListener _eventListener, bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield, bool _canAction)
         {
             battle = _battle;
 
@@ -105,7 +105,7 @@ namespace FinalWar
 
             nowShield = _nowShield;
 
-            canAction = _canAction;
+            canAction = _canAction ? 0 : 1;
 
             attackTimes = sds.GetHeroType().GetAttackTimes();
 
@@ -229,6 +229,11 @@ namespace FinalWar
             {
                 _nowHp = 0;
             }
+        }
+
+        public bool GetCanAction()
+        {
+            return canAction == 0;
         }
 
         internal int GetAttackSpeed(int _speedBonus)

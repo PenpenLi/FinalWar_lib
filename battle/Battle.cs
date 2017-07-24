@@ -292,7 +292,7 @@ namespace FinalWar
 
                         bw.Write(hero.nowShield);
 
-                        bw.Write(hero.canAction);
+                        bw.Write(hero.GetCanAction());
                     }
 
                     Dictionary<int, int> handCards;
@@ -851,7 +851,7 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                if (enumerator.Current.canAction == 0)
+                if (enumerator.Current.GetCanAction())
                 {
                     enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
                 }
@@ -884,7 +884,7 @@ namespace FinalWar
 
             Hero hero = heroMapDic[_pos];
 
-            if (!hero.sds.GetHeroType().GetCanDoAction() || hero.canAction > 0)
+            if (!hero.sds.GetHeroType().GetCanDoAction() || !hero.GetCanAction())
             {
                 throw new Exception("action error999");
             }
@@ -1961,7 +1961,7 @@ namespace FinalWar
 
                 int nowShield = _br.ReadInt32();
 
-                int canAction = _br.ReadInt32();
+                bool canAction = _br.ReadBoolean();
 
                 ClientAddHero(heroIsMine, GetHeroData(id), pos, nowHp, nowShield, canAction);
             }
@@ -2155,7 +2155,7 @@ namespace FinalWar
         {
             Hero hero = heroMapDic[_pos];
 
-            if (!hero.sds.GetHeroType().GetCanDoAction() || hero.canAction > 0)
+            if (!hero.sds.GetHeroType().GetCanDoAction() || !hero.GetCanAction())
             {
                 return false;
             }
@@ -2298,7 +2298,7 @@ namespace FinalWar
             }
         }
 
-        private Hero ClientAddHero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield, int _canAction)
+        private Hero ClientAddHero(bool _isMine, IHeroSDS _sds, int _pos, int _nowHp, int _nowShield, bool _canAction)
         {
             Hero hero = new Hero(this, eventListener, _isMine, _sds, _pos, _nowHp, _nowShield, _canAction);
 
