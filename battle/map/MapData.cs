@@ -26,8 +26,6 @@ public class MapData
 
     public Dictionary<int, int[]> neighbourPosMap = new Dictionary<int, int[]>();
 
-    public Dictionary<int, KeyValuePair<int, int>> moveMap = new Dictionary<int, KeyValuePair<int, int>>();
-
     public MapData()
     {
 
@@ -62,15 +60,6 @@ public class MapData
             MapUnitType mapUnitType = pair2.Value;
 
             _bw.Write((int)mapUnitType);
-
-            if (mapUnitType == MapUnitType.M_AREA || mapUnitType == MapUnitType.O_AREA)
-            {
-                KeyValuePair<int, int> pair = moveMap[pair2.Key];
-
-                _bw.Write(pair.Key);
-
-                _bw.Write(pair.Value);
-            }
         }
     }
 
@@ -93,15 +82,6 @@ public class MapData
             MapUnitType mapUnitType = (MapUnitType)_br.ReadInt32();
 
             dic.Add(pos, mapUnitType);
-
-            if (mapUnitType == MapUnitType.M_AREA || mapUnitType == MapUnitType.O_AREA)
-            {
-                int mTarget = _br.ReadInt32();
-
-                int oTarget = _br.ReadInt32();
-
-                moveMap.Add(pos, new KeyValuePair<int, int>(mTarget, oTarget));
-            }
         }
 
         SetNeighbourPosMap();
