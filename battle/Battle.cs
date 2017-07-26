@@ -672,14 +672,10 @@ namespace FinalWar
             int result = random.Next(_max);
 
             randomList.Enqueue(result);
-
-            return result;
 #else
-
             int result = randomList.Dequeue();
-
-            return result;
 #endif
+            return result;
         }
 
         private IEnumerator StartBattle()
