@@ -83,18 +83,18 @@ namespace FinalWar
                         }
                         else
                         {
-                            int targetPos;
+                            //int targetPos;
 
-                            if (hero.isMine)
-                            {
-                                targetPos = _battle.mapData.moveMap[hero.pos].Key;
-                            }
-                            else
-                            {
-                                targetPos = _battle.mapData.moveMap[hero.pos].Value;
-                            }
+                            //if (hero.isMine)
+                            //{
+                            //    targetPos = _battle.mapData.moveMap[hero.pos].Key;
+                            //}
+                            //else
+                            //{
+                            //    targetPos = _battle.mapData.moveMap[hero.pos].Value;
+                            //}
 
-                            action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
+                            //action.Add(new KeyValuePair<int, int>(hero.pos, targetPos));
                         }
                     }
                 }

@@ -8,16 +8,16 @@ namespace FinalWar
     {
         public override bool Enter(Battle _t, Hero _u, AiData _v)
         {
-            int targetPos;
+            int targetPos = 0;
 
-            if (_u.isMine)
-            {
-                targetPos = _t.mapData.moveMap[_u.pos].Key;
-            }
-            else
-            {
-                targetPos = _t.mapData.moveMap[_u.pos].Value;
-            }
+            //if (_u.isMine)
+            //{
+            //    targetPos = _t.mapData.moveMap[_u.pos].Key;
+            //}
+            //else
+            //{
+            //    targetPos = _t.mapData.moveMap[_u.pos].Value;
+            //}
 
             _t.action.Add(new KeyValuePair<int, int>(_u.pos, targetPos));
 
