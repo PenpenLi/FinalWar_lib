@@ -91,7 +91,6 @@
     <Compile Include="battle\battleVO\BattleCounterVO.cs" />
     <Compile Include="battle\battleVO\BattleDeathVO.cs" />
     <Compile Include="battle\battleVO\BattleDelCardsVO.cs" />
-    <Compile Include="battle\battleVO\BattleLevelUpVO.cs" />
     <Compile Include="battle\battleVO\BattleMoneyChangeVO.cs" />
     <Compile Include="battle\battleVO\BattleMoveVO.cs" />
     <Compile Include="battle\battleVO\BattlePrepareRushVO.cs" />

@@ -272,6 +272,8 @@ namespace FinalWar
         internal void LevelUp(IHeroSDS _sds)
         {
             sds = _sds;
+
+            UnregisterAura();
         }
 
         internal void SetAttackFix(int _value)

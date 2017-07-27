@@ -1560,13 +1560,6 @@ namespace FinalWar
             return hero;
         }
 
-        internal IEnumerator HeroLevelUp(Hero _hero, int _id)
-        {
-            _hero.LevelUp(GetHeroData(_id));
-
-            yield return new BattleLevelUpVO(_hero.pos, _id);
-        }
-
         private IEnumerator DoRecover(BattleData _battleData)
         {
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
@@ -1649,6 +1642,11 @@ namespace FinalWar
             else
             {
                 mapBelongDic.Add(_nowPos, true);
+            }
+
+            if (_hero.sds.GetLevelUp() != 0)
+            {
+                _hero.LevelUp(GetHeroData(_hero.sds.GetLevelUp()));
             }
         }
 
