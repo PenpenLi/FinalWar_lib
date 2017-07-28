@@ -126,26 +126,6 @@ public class BattlePublicTools
         return result;
     }
 
-    public static void AccumulateDicData<T>(Dictionary<T, int> _dic, T _key, int _data)
-    {
-        if (_data != 0)
-        {
-            if (_dic.ContainsKey(_key))
-            {
-                _dic[_key] += _data;
-
-                if (_dic[_key] == 0)
-                {
-                    _dic.Remove(_key);
-                }
-            }
-            else
-            {
-                _dic.Add(_key, _data);
-            }
-        }
-    }
-
     public static int GetDistance(int _width, int _pos, int _targetPos)
     {
         int y0;

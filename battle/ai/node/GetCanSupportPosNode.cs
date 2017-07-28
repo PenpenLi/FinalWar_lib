@@ -8,7 +8,7 @@ namespace FinalWar
     {
         public override bool Enter(Battle _t, Hero _u, AiData _v)
         {
-            List<int> posList = _t.GetCanSupportPos(_u);
+            List<int> posList = HeroAi.GetCanSupportPos(_t, _u);
 
             if (posList.Count > 0)
             {

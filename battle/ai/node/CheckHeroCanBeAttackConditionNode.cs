@@ -7,7 +7,7 @@ namespace FinalWar
     {
         public override bool Enter(Battle _t, Hero _u, AiData _v)
         {
-            return _t.CheckHeroCanBeAttack(_u);
+            return HeroAi.CheckHeroCanBeAttack(_t, _u);
         }
     }
 }
