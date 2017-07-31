@@ -1887,6 +1887,8 @@ namespace FinalWar
 
         private void ClientRefreshData(BinaryReader _br)
         {
+            eventListener.Clear();
+
             isVsAi = _br.ReadBoolean();
 
             clientIsMine = _br.ReadBoolean();
