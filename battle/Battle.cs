@@ -1053,9 +1053,9 @@ namespace FinalWar
                 enumerator.Current.ProcessDamage();
             }
 
-            yield return RemoveDieHero(_battleData);
-
             yield return new BattleRoundStartVO();
+
+            yield return RemoveDieHero(_battleData);
         }
 
         private IEnumerator DoRoundOver(BattleData _battleData)
@@ -1069,9 +1069,9 @@ namespace FinalWar
                 enumerator.Current.ProcessDamage();
             }
 
-            yield return RemoveDieHero(_battleData);
-
             yield return new BattleRoundOverVO();
+
+            yield return RemoveDieHero(_battleData);
         }
 
         private IEnumerator DoRush(BattleData _battleData)
