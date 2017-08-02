@@ -690,6 +690,8 @@ namespace FinalWar
 
             yield return DoSkill(battleData);
 
+            yield return DoRoundStart(battleData);
+
             yield return DoRush(battleData);
 
             yield return DoAttack(battleData);
@@ -699,6 +701,8 @@ namespace FinalWar
             yield return DoMove(battleData);
 
             yield return DoRecover(battleData);
+
+            yield return DoRoundOver(battleData);
 
             yield return DoAddMoney();
 
@@ -1036,6 +1040,38 @@ namespace FinalWar
             }
 
             yield return RemoveDieHero(_battleData);
+        }
+
+        private IEnumerator DoRoundStart(BattleData _battleData)
+        {
+            eventListener.DispatchEvent(HeroAura.ROUND_START);
+
+            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                enumerator.Current.ProcessDamage();
+            }
+
+            yield return RemoveDieHero(_battleData);
+
+            yield return new BattleRoundStartVO();
+        }
+
+        private IEnumerator DoRoundOver(BattleData _battleData)
+        {
+            eventListener.DispatchEvent(HeroAura.ROUND_OVER);
+
+            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                enumerator.Current.ProcessDamage();
+            }
+
+            yield return RemoveDieHero(_battleData);
+
+            yield return new BattleRoundOverVO();
         }
 
         private IEnumerator DoRush(BattleData _battleData)

@@ -5,7 +5,7 @@ namespace superEvent
 {
     internal class SuperEventListener
     {
-        private class SuperEventListenerUnit
+        private struct SuperEventListenerUnit
         {
             internal int index;
             internal string eventName;
@@ -37,6 +37,9 @@ namespace superEvent
 
         private Dictionary<int, SuperEventListenerUnit> dicWithID = new Dictionary<int, SuperEventListenerUnit>();
         private Dictionary<string, Dictionary<Delegate, SuperEventListenerUnit>> dicWithEvent = new Dictionary<string, Dictionary<Delegate, SuperEventListenerUnit>>();
+
+        private Queue<List<SuperEventListenerUnit>[]> pool = new Queue<List<SuperEventListenerUnit>[]>();
+        private Queue<Dictionary<Delegate, SuperEventListenerUnit>> pool2 = new Queue<Dictionary<Delegate, SuperEventListenerUnit>>();
 
         private int nowIndex;
 
@@ -152,7 +155,7 @@ namespace superEvent
 
             if (!dicWithEvent.TryGetValue(_eventName, out dic))
             {
-                dic = new Dictionary<Delegate, SuperEventListenerUnit>();
+                dic = GetDic();
 
                 dicWithEvent.Add(_eventName, dic);
             }
@@ -176,6 +179,8 @@ namespace superEvent
 
                 if (dic.Count == 0)
                 {
+                    ReleaseDic(dic);
+
                     dicWithEvent.Remove(unit.eventName);
                 }
             }
@@ -247,6 +252,8 @@ namespace superEvent
 
                     if (dic.Count == 0)
                     {
+                        ReleaseDic(dic);
+
                         dicWithEvent.Remove(_eventName);
                     }
                 }
@@ -263,7 +270,7 @@ namespace superEvent
                 {
                     List<SuperEventListenerUnit> list = arr[i];
 
-                    if (list != null)
+                    if (list != null && list.Count > 0)
                     {
                         for (int m = 0; m < list.Count; m++)
                         {
@@ -273,8 +280,12 @@ namespace superEvent
 
                             cb(unit.index);
                         }
+
+                        list.Clear();
                     }
                 }
+
+                ReleaseArr(arr);
             }
         }
 
@@ -288,7 +299,7 @@ namespace superEvent
                 {
                     List<SuperEventListenerUnit> list = arr[i];
 
-                    if (list != null)
+                    if (list != null && list.Count > 0)
                     {
                         for (int m = 0; m < list.Count; m++)
                         {
@@ -298,8 +309,12 @@ namespace superEvent
 
                             cb(unit.index, t1);
                         }
+
+                        list.Clear();
                     }
                 }
+
+                ReleaseArr(arr);
             }
         }
 
@@ -313,7 +328,7 @@ namespace superEvent
                 {
                     List<SuperEventListenerUnit> list = arr[i];
 
-                    if (list != null)
+                    if (list != null && list.Count > 0)
                     {
                         for (int m = 0; m < list.Count; m++)
                         {
@@ -323,8 +338,12 @@ namespace superEvent
 
                             cb(unit.index, t1, t2);
                         }
+
+                        list.Clear();
                     }
                 }
+
+                ReleaseArr(arr);
             }
         }
 
@@ -338,7 +357,7 @@ namespace superEvent
                 {
                     List<SuperEventListenerUnit> list = arr[i];
 
-                    if (list != null)
+                    if (list != null && list.Count > 0)
                     {
                         for (int m = 0; m < list.Count; m++)
                         {
@@ -348,8 +367,12 @@ namespace superEvent
 
                             cb(unit.index, t1, t2, t3);
                         }
+
+                        list.Clear();
                     }
                 }
+
+                ReleaseArr(arr);
             }
         }
 
@@ -363,7 +386,7 @@ namespace superEvent
                 {
                     List<SuperEventListenerUnit> list = arr[i];
 
-                    if (list != null)
+                    if (list != null && list.Count > 0)
                     {
                         for (int m = 0; m < list.Count; m++)
                         {
@@ -373,8 +396,12 @@ namespace superEvent
 
                             cb(unit.index, t1, t2, t3, t4);
                         }
+
+                        list.Clear();
                     }
                 }
+
+                ReleaseArr(arr);
             }
         }
 
@@ -388,7 +415,7 @@ namespace superEvent
                 {
                     List<SuperEventListenerUnit> list = arr[i];
 
-                    if (list != null)
+                    if (list != null && list.Count > 0)
                     {
                         for (int m = 0; m < list.Count; m++)
                         {
@@ -398,8 +425,12 @@ namespace superEvent
 
                             cb(unit.index, ref t);
                         }
+
+                        list.Clear();
                     }
                 }
+
+                ReleaseArr(arr);
             }
         }
 
@@ -413,7 +444,7 @@ namespace superEvent
                 {
                     List<SuperEventListenerUnit> list = arr[i];
 
-                    if (list != null)
+                    if (list != null && list.Count > 0)
                     {
                         for (int m = 0; m < list.Count; m++)
                         {
@@ -423,8 +454,12 @@ namespace superEvent
 
                             cb(unit.index, ref t, t1);
                         }
+
+                        list.Clear();
                     }
                 }
+
+                ReleaseArr(arr);
             }
         }
 
@@ -438,7 +473,7 @@ namespace superEvent
                 {
                     List<SuperEventListenerUnit> list = arr[i];
 
-                    if (list != null)
+                    if (list != null && list.Count > 0)
                     {
                         for (int m = 0; m < list.Count; m++)
                         {
@@ -448,8 +483,12 @@ namespace superEvent
 
                             cb(unit.index, ref t, t1, t2);
                         }
+
+                        list.Clear();
                     }
                 }
+
+                ReleaseArr(arr);
             }
         }
 
@@ -463,7 +502,7 @@ namespace superEvent
                 {
                     List<SuperEventListenerUnit> list = arr[i];
 
-                    if (list != null)
+                    if (list != null && list.Count > 0)
                     {
                         for (int m = 0; m < list.Count; m++)
                         {
@@ -473,8 +512,12 @@ namespace superEvent
 
                             cb(unit.index, ref t, t1, t2, t3);
                         }
+
+                        list.Clear();
                     }
                 }
+
+                ReleaseArr(arr);
             }
         }
 
@@ -488,7 +531,7 @@ namespace superEvent
                 {
                     List<SuperEventListenerUnit> list = arr[i];
 
-                    if (list != null)
+                    if (list != null && list.Count > 0)
                     {
                         for (int m = 0; m < list.Count; m++)
                         {
@@ -498,8 +541,12 @@ namespace superEvent
 
                             cb(unit.index, ref t, t1, t2, t3, t4);
                         }
+
+                        list.Clear();
                     }
                 }
+
+                ReleaseArr(arr);
             }
         }
 
@@ -519,7 +566,7 @@ namespace superEvent
                     {
                         if (arr == null)
                         {
-                            arr = new List<SuperEventListenerUnit>[MAX_PRIORITY];
+                            arr = GetArr();
                         }
 
                         KeyValuePair<Delegate, SuperEventListenerUnit> pair = enumerator.Current;
@@ -547,9 +594,57 @@ namespace superEvent
             return arr;
         }
 
+        private List<SuperEventListenerUnit>[] GetArr()
+        {
+            if (pool.Count > 0)
+            {
+                return pool.Dequeue();
+            }
+            else
+            {
+                List<SuperEventListenerUnit>[] arr = new List<SuperEventListenerUnit>[MAX_PRIORITY];
+
+                return arr;
+            }
+        }
+
+        private void ReleaseArr(List<SuperEventListenerUnit>[] _arr)
+        {
+            pool.Enqueue(_arr);
+        }
+
+        private Dictionary<Delegate, SuperEventListenerUnit> GetDic()
+        {
+            if (pool2.Count > 0)
+            {
+                return pool2.Dequeue();
+            }
+            else
+            {
+                Dictionary<Delegate, SuperEventListenerUnit> dic = new Dictionary<Delegate, SuperEventListenerUnit>();
+
+                return dic;
+            }
+        }
+
+        private void ReleaseDic(Dictionary<Delegate, SuperEventListenerUnit> _dic)
+        {
+            pool2.Enqueue(_dic);
+        }
+
         internal void Clear()
         {
             dicWithID.Clear();
+
+            Dictionary<string, Dictionary<Delegate, SuperEventListenerUnit>>.ValueCollection.Enumerator enumerator = dicWithEvent.Values.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                enumerator.Current.Clear();
+
+                ReleaseDic(enumerator.Current);
+            }
+
             dicWithEvent.Clear();
         }
 

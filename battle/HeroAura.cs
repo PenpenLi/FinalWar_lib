@@ -12,6 +12,8 @@ namespace FinalWar
         internal const string FIX_CAN_PIERCE_SHIELD = "fixCanPierceShield";
         internal const string FIX_CAN_MOVE = "fixCanMove";
         internal const string ATTACK = "attack";
+        internal const string ROUND_START = "roundStart";
+        internal const string ROUND_OVER = "roundOver";
 
         internal static void Init(Battle _battle, SuperEventListener _eventListener, Hero _hero)
         {
