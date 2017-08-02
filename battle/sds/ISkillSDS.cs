@@ -15,5 +15,5 @@ public interface ISkillSDS
 {
     bool GetIsStop();
     SkillEffect GetSkillEffect();
-    int GetSkillData();
+    int[] GetSkillData();
 }

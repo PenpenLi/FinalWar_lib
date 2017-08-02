@@ -4,7 +4,7 @@ namespace FinalWar
 {
     internal static class HeroSkill
     {
-        public static BattleShootVO CastSkill(Battle _battle, Hero _hero, Hero _target)
+        internal static BattleShootVO CastSkill(Battle _battle, Hero _hero, Hero _target)
         {
             int stander = _target.pos;
 
@@ -15,23 +15,30 @@ namespace FinalWar
                 _hero.DisableAction();
             }
 
-            switch (sds.GetSkillEffect())
+            CastSkill(_battle, _hero, _target, sds);
+
+            return new BattleShootVO(_hero.pos, stander, sds.GetSkillEffect(), sds.GetSkillData()[0]);
+        }
+
+        internal static void CastSkill(Battle _battle, Hero _hero, Hero _target, ISkillSDS _sds)
+        {
+            switch (_sds.GetSkillEffect())
             {
                 case SkillEffect.DAMAGE:
 
-                    _target.BeDamage(sds.GetSkillData());
+                    _target.BeDamage(_sds.GetSkillData()[0]);
 
                     break;
 
                 case SkillEffect.HP_DAMAGE:
 
-                    _target.BeHpDamage(sds.GetSkillData());
+                    _target.BeHpDamage(_sds.GetSkillData()[0]);
 
                     break;
 
                 case SkillEffect.SHIELD_DAMAGE:
 
-                    _target.BeShieldDamage(sds.GetSkillData());
+                    _target.BeShieldDamage(_sds.GetSkillData()[0]);
 
                     break;
 
@@ -49,7 +56,7 @@ namespace FinalWar
 
                 case SkillEffect.FIX_ATTACK:
 
-                    _target.SetAttackFix(sds.GetSkillData());
+                    _target.SetAttackFix(_sds.GetSkillData()[0]);
 
                     break;
 
@@ -67,16 +74,14 @@ namespace FinalWar
 
                 case SkillEffect.FIX_SPEED:
 
-                    _target.SetSpeedFix(sds.GetSkillData());
+                    _target.SetSpeedFix(_sds.GetSkillData()[0]);
 
                     break;
 
                 default:
 
-                    throw new Exception("skill effect error:" + sds.GetSkillEffect());
+                    throw new Exception("skill effect error:" + _sds.GetSkillEffect());
             }
-
-            return new BattleShootVO(_hero.pos, stander, sds.GetSkillEffect(), sds.GetSkillData());
         }
     }
 }

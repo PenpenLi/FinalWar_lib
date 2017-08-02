@@ -11,8 +11,30 @@
     FIX_ALLY_CAN_PIERCE_SHIELD,
 }
 
+public enum AuraType
+{
+    FIX_INT,
+    FIX_BOOL,
+    CAST_SKILL
+}
+
+public enum AuraTarget
+{
+    SELF,
+    ALLY,
+    ENEMY
+}
+
 public interface IAuraSDS
 {
+    string GetEventName();
+    bool GetIsEventWithUid();
+    AuraType GetAuraType();
+    AuraTarget GetAuraTarget();
+
+
+
+
     AuraEffect GetAuraEffect();
     int GetAuraData();
 }

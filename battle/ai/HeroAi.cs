@@ -70,7 +70,7 @@ namespace FinalWar
 
         public static List<int> GetCanAttackHeroPos(Battle _battle, Hero _hero)
         {
-            List<int> result = new List<int>();
+            List<int> result = null;
 
             int nowThreadLevel = 0;
 
@@ -92,7 +92,14 @@ namespace FinalWar
                         {
                             nowThreadLevel = hero.sds.GetHeroType().GetThread();
 
-                            result.Clear();
+                            if (result == null)
+                            {
+                                result = new List<int>();
+                            }
+                            else
+                            {
+                                result.Clear();
+                            }
 
                             result.Add(pos);
                         }
@@ -109,7 +116,7 @@ namespace FinalWar
 
         public static List<int> GetCanAttackPos(Battle _battle, Hero _hero)
         {
-            List<int> result = new List<int>();
+            List<int> result = null;
 
             int nowThreadLevel = 0;
 
@@ -131,12 +138,24 @@ namespace FinalWar
                         {
                             nowThreadLevel = hero.sds.GetHeroType().GetThread();
 
-                            result.Clear();
+                            if (result == null)
+                            {
+                                result = new List<int>();
+                            }
+                            else
+                            {
+                                result.Clear();
+                            }
 
                             result.Add(pos);
                         }
                         else if (hero.sds.GetHeroType().GetThread() == nowThreadLevel)
                         {
+                            if (result == null)
+                            {
+                                result = new List<int>();
+                            }
+
                             result.Add(pos);
                         }
                     }
@@ -144,6 +163,11 @@ namespace FinalWar
                     {
                         if (nowThreadLevel == 0)
                         {
+                            if (result == null)
+                            {
+                                result = new List<int>();
+                            }
+
                             result.Add(pos);
                         }
                     }
@@ -157,17 +181,20 @@ namespace FinalWar
         {
             List<int> result = new List<int>();
 
-            List<int> posList = BattlePublicTools.GetNeighbourPos2(_battle.mapData, _hero.pos);
-
-            for (int i = 0; i < posList.Count; i++)
+            if (_hero.sds.GetSkill() != 0)
             {
-                int pos = posList[i];
+                List<int> posList = BattlePublicTools.GetNeighbourPos2(_battle.mapData, _hero.pos);
 
-                bool b = _battle.GetPosIsMine(pos);
-
-                if (b != _hero.isMine && _battle.heroMapDic.ContainsKey(pos))
+                for (int i = 0; i < posList.Count; i++)
                 {
-                    result.Add(pos);
+                    int pos = posList[i];
+
+                    bool b = _battle.GetPosIsMine(pos);
+
+                    if (b != _hero.isMine && _battle.heroMapDic.ContainsKey(pos))
+                    {
+                        result.Add(pos);
+                    }
                 }
             }
 
