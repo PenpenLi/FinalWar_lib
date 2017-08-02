@@ -426,6 +426,8 @@ namespace FinalWar
             {
                 _hero.BeDamage(_damage);
             }
+
+            eventListener.DispatchEvent(HeroAura.ATTACK, this, _hero);
         }
 
         private void UnregisterAura()

@@ -15,30 +15,30 @@ namespace FinalWar
                 _hero.DisableAction();
             }
 
-            CastSkill(_battle, _hero, _target, sds);
+            CastSkill(_battle, _target, sds.GetSkillEffect(), sds.GetSkillData(), 0);
 
             return new BattleShootVO(_hero.pos, stander, sds.GetSkillEffect(), sds.GetSkillData()[0]);
         }
 
-        internal static void CastSkill(Battle _battle, Hero _hero, Hero _target, ISkillSDS _sds)
+        internal static void CastSkill(Battle _battle, Hero _target, SkillEffect _skillEffect, int[] _skillData, int _skillDataIndex)
         {
-            switch (_sds.GetSkillEffect())
+            switch (_skillEffect)
             {
                 case SkillEffect.DAMAGE:
 
-                    _target.BeDamage(_sds.GetSkillData()[0]);
+                    _target.BeDamage(_skillData[_skillDataIndex]);
 
                     break;
 
                 case SkillEffect.HP_DAMAGE:
 
-                    _target.BeHpDamage(_sds.GetSkillData()[0]);
+                    _target.BeHpDamage(_skillData[_skillDataIndex]);
 
                     break;
 
                 case SkillEffect.SHIELD_DAMAGE:
 
-                    _target.BeShieldDamage(_sds.GetSkillData()[0]);
+                    _target.BeShieldDamage(_skillData[_skillDataIndex]);
 
                     break;
 
@@ -56,7 +56,7 @@ namespace FinalWar
 
                 case SkillEffect.FIX_ATTACK:
 
-                    _target.SetAttackFix(_sds.GetSkillData()[0]);
+                    _target.SetAttackFix(_skillData[_skillDataIndex]);
 
                     break;
 
@@ -74,13 +74,13 @@ namespace FinalWar
 
                 case SkillEffect.FIX_SPEED:
 
-                    _target.SetSpeedFix(_sds.GetSkillData()[0]);
+                    _target.SetSpeedFix(_skillData[_skillDataIndex]);
 
                     break;
 
                 default:
 
-                    throw new Exception("skill effect error:" + _sds.GetSkillEffect());
+                    throw new Exception("skill effect error:" + _skillEffect);
             }
         }
     }

@@ -901,7 +901,6 @@ namespace FinalWar
                 }
                 else
                 {
-
                     int nowThreadLevel = 0;
 
                     Hero herox;
@@ -2334,6 +2333,6 @@ namespace FinalWar
 
 
 
-        
+
     }
 }
