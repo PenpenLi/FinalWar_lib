@@ -27,11 +27,11 @@ namespace superEvent
         internal delegate void SuperFunctionCallBack3<T1, T2, T3>(int _index, T1 t1, T2 t2, T3 t3);
         internal delegate void SuperFunctionCallBack4<T1, T2, T3, T4>(int _index, T1 t1, T2 t2, T3 t3, T4 t4);
 
-        internal delegate void SuperFunctionCallBackV<T>(int _index, ref T t) where T : struct;
-        internal delegate void SuperFunctionCallBackV1<T, T1>(int _index, ref T t, T1 t1) where T : struct;
-        internal delegate void SuperFunctionCallBackV2<T, T1, T2>(int _index, ref T t, T1 t1, T2 t2) where T : struct;
-        internal delegate void SuperFunctionCallBackV3<T, T1, T2, T3>(int _index, ref T t, T1 t1, T2 t2, T3 t3) where T : struct;
-        internal delegate void SuperFunctionCallBackV4<T, T1, T2, T3, T4>(int _index, ref T t, T1 t1, T2 t2, T3 t3, T4 t4) where T : struct;
+        internal delegate void SuperFunctionCallBackV<T>(int _index, ref T t);
+        internal delegate void SuperFunctionCallBackV1<T, T1>(int _index, ref T t, T1 t1);
+        internal delegate void SuperFunctionCallBackV2<T, T1, T2>(int _index, ref T t, T1 t1, T2 t2);
+        internal delegate void SuperFunctionCallBackV3<T, T1, T2, T3>(int _index, ref T t, T1 t1, T2 t2, T3 t3);
+        internal delegate void SuperFunctionCallBackV4<T, T1, T2, T3, T4>(int _index, ref T t, T1 t1, T2 t2, T3 t3, T4 t4);
 
         internal const int MAX_PRIORITY = 16;
 
@@ -93,52 +93,52 @@ namespace superEvent
             return AddListenerReal(_eventName, _callBack, _priority);
         }
 
-        internal int AddListener<T>(string _eventName, SuperFunctionCallBackV<T> _callBack) where T : struct
+        internal int AddListener<T>(string _eventName, SuperFunctionCallBackV<T> _callBack)
         {
             return AddListenerReal(_eventName, _callBack, 0);
         }
 
-        internal int AddListener<T>(string _eventName, SuperFunctionCallBackV<T> _callBack, int _priority) where T : struct
+        internal int AddListener<T>(string _eventName, SuperFunctionCallBackV<T> _callBack, int _priority)
         {
             return AddListenerReal(_eventName, _callBack, _priority);
         }
 
-        internal int AddListener<T, T1>(string _eventName, SuperFunctionCallBackV1<T, T1> _callBack) where T : struct
+        internal int AddListener<T, T1>(string _eventName, SuperFunctionCallBackV1<T, T1> _callBack)
         {
             return AddListenerReal(_eventName, _callBack, 0);
         }
 
-        internal int AddListener<T, T1>(string _eventName, SuperFunctionCallBackV1<T, T1> _callBack, int _priority) where T : struct
+        internal int AddListener<T, T1>(string _eventName, SuperFunctionCallBackV1<T, T1> _callBack, int _priority)
         {
             return AddListenerReal(_eventName, _callBack, _priority);
         }
 
-        internal int AddListener<T, T1, T2>(string _eventName, SuperFunctionCallBackV2<T, T1, T2> _callBack) where T : struct
+        internal int AddListener<T, T1, T2>(string _eventName, SuperFunctionCallBackV2<T, T1, T2> _callBack)
         {
             return AddListenerReal(_eventName, _callBack, 0);
         }
 
-        internal int AddListener<T, T1, T2>(string _eventName, SuperFunctionCallBackV2<T, T1, T2> _callBack, int _priority) where T : struct
+        internal int AddListener<T, T1, T2>(string _eventName, SuperFunctionCallBackV2<T, T1, T2> _callBack, int _priority)
         {
             return AddListenerReal(_eventName, _callBack, _priority);
         }
 
-        internal int AddListener<T, T1, T2, T3>(string _eventName, SuperFunctionCallBackV3<T, T1, T2, T3> _callBack) where T : struct
+        internal int AddListener<T, T1, T2, T3>(string _eventName, SuperFunctionCallBackV3<T, T1, T2, T3> _callBack)
         {
             return AddListenerReal(_eventName, _callBack, 0);
         }
 
-        internal int AddListener<T, T1, T2, T3>(string _eventName, SuperFunctionCallBackV3<T, T1, T2, T3> _callBack, int _priority) where T : struct
+        internal int AddListener<T, T1, T2, T3>(string _eventName, SuperFunctionCallBackV3<T, T1, T2, T3> _callBack, int _priority)
         {
             return AddListenerReal(_eventName, _callBack, _priority);
         }
 
-        internal int AddListener<T, T1, T2, T3, T4>(string _eventName, SuperFunctionCallBackV4<T, T1, T2, T3, T4> _callBack) where T : struct
+        internal int AddListener<T, T1, T2, T3, T4>(string _eventName, SuperFunctionCallBackV4<T, T1, T2, T3, T4> _callBack)
         {
             return AddListenerReal(_eventName, _callBack, 0);
         }
 
-        internal int AddListener<T, T1, T2, T3, T4>(string _eventName, SuperFunctionCallBackV4<T, T1, T2, T3, T4> _callBack, int _priority) where T : struct
+        internal int AddListener<T, T1, T2, T3, T4>(string _eventName, SuperFunctionCallBackV4<T, T1, T2, T3, T4> _callBack, int _priority)
         {
             return AddListenerReal(_eventName, _callBack, _priority);
         }
@@ -211,27 +211,27 @@ namespace superEvent
             RemoveListenerReal(_eventName, _callBack);
         }
 
-        internal void RemoveListener<T>(string _eventName, SuperFunctionCallBackV<T> _callBack) where T : struct
+        internal void RemoveListener<T>(string _eventName, SuperFunctionCallBackV<T> _callBack)
         {
             RemoveListenerReal(_eventName, _callBack);
         }
 
-        internal void RemoveListener<T, T1>(string _eventName, SuperFunctionCallBackV1<T, T1> _callBack) where T : struct
+        internal void RemoveListener<T, T1>(string _eventName, SuperFunctionCallBackV1<T, T1> _callBack)
         {
             RemoveListenerReal(_eventName, _callBack);
         }
 
-        internal void RemoveListener<T, T1, T2>(string _eventName, SuperFunctionCallBackV2<T, T1, T2> _callBack) where T : struct
+        internal void RemoveListener<T, T1, T2>(string _eventName, SuperFunctionCallBackV2<T, T1, T2> _callBack)
         {
             RemoveListenerReal(_eventName, _callBack);
         }
 
-        internal void RemoveListener<T, T1, T2, T3>(string _eventName, SuperFunctionCallBackV3<T, T1, T2, T3> _callBack) where T : struct
+        internal void RemoveListener<T, T1, T2, T3>(string _eventName, SuperFunctionCallBackV3<T, T1, T2, T3> _callBack)
         {
             RemoveListenerReal(_eventName, _callBack);
         }
 
-        internal void RemoveListener<T, T1, T2, T3, T4>(string _eventName, SuperFunctionCallBackV4<T, T1, T2, T3, T4> _callBack) where T : struct
+        internal void RemoveListener<T, T1, T2, T3, T4>(string _eventName, SuperFunctionCallBackV4<T, T1, T2, T3, T4> _callBack)
         {
             RemoveListenerReal(_eventName, _callBack);
         }
@@ -405,7 +405,7 @@ namespace superEvent
             }
         }
 
-        internal void DispatchEvent<T>(string _eventName, ref T t) where T : struct
+        internal void DispatchEvent<T>(string _eventName, ref T t)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV<T>>(_eventName);
 
@@ -434,7 +434,7 @@ namespace superEvent
             }
         }
 
-        internal void DispatchEvent<T, T1>(string _eventName, ref T t, T1 t1) where T : struct
+        internal void DispatchEvent<T, T1>(string _eventName, ref T t, T1 t1)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV1<T, T1>>(_eventName);
 
@@ -463,7 +463,7 @@ namespace superEvent
             }
         }
 
-        internal void DispatchEvent<T, T1, T2>(string _eventName, ref T t, T1 t1, T2 t2) where T : struct
+        internal void DispatchEvent<T, T1, T2>(string _eventName, ref T t, T1 t1, T2 t2)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV2<T, T1, T2>>(_eventName);
 
@@ -492,7 +492,7 @@ namespace superEvent
             }
         }
 
-        internal void DispatchEvent<T, T1, T2, T3>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3) where T : struct
+        internal void DispatchEvent<T, T1, T2, T3>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV3<T, T1, T2, T3>>(_eventName);
 
@@ -521,7 +521,7 @@ namespace superEvent
             }
         }
 
-        internal void DispatchEvent<T, T1, T2, T3, T4>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3, T4 t4) where T : struct
+        internal void DispatchEvent<T, T1, T2, T3, T4>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3, T4 t4)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV4<T, T1, T2, T3, T4>>(_eventName);
 

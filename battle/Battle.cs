@@ -1679,10 +1679,7 @@ namespace FinalWar
                 mapBelongDic.Add(_nowPos, true);
             }
 
-            if (_hero.sds.GetLevelUp() != 0)
-            {
-                _hero.LevelUp(GetHeroData(_hero.sds.GetLevelUp()));
-            }
+            _hero.LevelUp();
         }
 
         private IEnumerator DoAddMoney()

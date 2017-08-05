@@ -269,11 +269,18 @@ namespace FinalWar
             return nowHp > 0;
         }
 
-        internal void LevelUp(IHeroSDS _sds)
+        internal void LevelUp()
         {
-            sds = _sds;
+            if (sds.GetLevelUp() != 0)
+            {
+                sds = Battle.GetHeroData(sds.GetLevelUp());
 
-            UnregisterAura();
+                UnregisterAura();
+            }
+            else
+            {
+                nowHp = sds.GetHp();
+            }
         }
 
         internal void SetAttackFix(int _value)
