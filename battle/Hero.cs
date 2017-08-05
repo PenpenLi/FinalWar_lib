@@ -48,9 +48,9 @@ namespace FinalWar
 
         private bool initAura = false;
 
-        private int shieldDamage = 0;
+        private int shieldChange = 0;
 
-        private int hpDamage = 0;
+        private int hpChange = 0;
 
         private int damage = 0;
 
@@ -129,21 +129,21 @@ namespace FinalWar
             damage += _value;
         }
 
-        internal void BeShieldDamage(int _value)
+        internal void ShieldChange(int _value)
         {
-            shieldDamage += _value;
+            shieldChange += _value;
         }
 
-        internal void BeHpDamage(int _value)
+        internal void HpChange(int _value)
         {
-            hpDamage += _value;
+            hpChange += _value;
         }
 
         internal void ProcessDamage()
         {
-            nowShield -= shieldDamage;
+            nowShield += shieldChange;
 
-            nowHp -= hpDamage;
+            nowHp += hpChange;
 
             if (nowShield < 1)
             {
@@ -171,8 +171,12 @@ namespace FinalWar
             {
                 nowHp = 0;
             }
+            else if (nowHp > sds.GetHp())
+            {
+                nowHp = sds.GetHp();
+            }
 
-            shieldDamage = hpDamage = damage = 0;
+            shieldChange = hpChange = damage = 0;
         }
 
         public void ProcessDamage(out int _nowShield, out int _nowHp)
@@ -181,9 +185,9 @@ namespace FinalWar
 
             _nowHp = nowHp;
 
-            _nowShield -= shieldDamage;
+            _nowShield += shieldChange;
 
-            _nowHp -= hpDamage;
+            _nowHp += hpChange;
 
             int tmpDamage = damage;
 
@@ -212,6 +216,10 @@ namespace FinalWar
             if (_nowHp < 0)
             {
                 _nowHp = 0;
+            }
+            else if (_nowHp > sds.GetHp())
+            {
+                nowHp = sds.GetHp();
             }
         }
 
@@ -427,7 +435,7 @@ namespace FinalWar
         {
             if (GetCanPierceShield())
             {
-                _hero.BeHpDamage(_damage);
+                _hero.HpChange(-_damage);
             }
             else
             {

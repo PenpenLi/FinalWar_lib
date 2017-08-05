@@ -30,15 +30,15 @@ namespace FinalWar
 
                     break;
 
-                case SkillEffect.HP_DAMAGE:
+                case SkillEffect.HP_CHANGE:
 
-                    _target.BeHpDamage(_skillData[_skillDataIndex]);
+                    _target.HpChange(_skillData[_skillDataIndex]);
 
                     break;
 
-                case SkillEffect.SHIELD_DAMAGE:
+                case SkillEffect.SHIELD_CHANGE:
 
-                    _target.BeShieldDamage(_skillData[_skillDataIndex]);
+                    _target.ShieldChange(_skillData[_skillDataIndex]);
 
                     break;
 
