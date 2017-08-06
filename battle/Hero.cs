@@ -1,5 +1,6 @@
 ﻿using superEvent;
 using System.IO;
+using System.Collections.Generic;
 
 namespace FinalWar
 {
@@ -431,18 +432,26 @@ namespace FinalWar
             UnregisterAura();
         }
 
-        internal void Attack(Hero _hero, int _damage)
+        internal List<BattleHeroEffectVO> Attack(Hero _hero, int _damage)
         {
+            List<BattleHeroEffectVO> effectList = new List<BattleHeroEffectVO>();
+
             if (GetCanPierceShield())
             {
                 _hero.HpChange(-_damage);
+
+                BattleHeroEffectVO vo = new BattleHeroEffectVO(_hero.pos, Effect.HP_CHANGE, -_damage);
             }
             else
             {
                 _hero.BeDamage(_damage);
+
+                BattleHeroEffectVO vo = new BattleHeroEffectVO(_hero.pos, Effect.DAMAGE, _damage);
             }
 
-            eventListener.DispatchEvent(HeroAura.ATTACK, this, _hero);
+            eventListener.DispatchEvent(HeroAura.ATTACK, ref effectList, this, _hero);
+
+            return effectList;
         }
 
         private void UnregisterAura()

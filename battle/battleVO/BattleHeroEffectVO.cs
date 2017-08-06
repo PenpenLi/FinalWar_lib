@@ -3,10 +3,10 @@
     public struct BattleHeroEffectVO
     {
         public int pos;
-        public SkillEffect effect;
+        public Effect effect;
         public int data;
 
-        public BattleHeroEffectVO(int _pos, SkillEffect _effect, int _data)
+        public BattleHeroEffectVO(int _pos, Effect _effect, int _data)
         {
             pos = _pos;
             effect = _effect;

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 
 namespace FinalWar
 {
@@ -15,73 +15,16 @@ namespace FinalWar
                 _hero.DisableAction();
             }
 
-            CastSkill(_battle, _target, sds.GetSkillEffect(), sds.GetSkillData(), 0);
+            List<BattleHeroEffectVO> effectList = new List<BattleHeroEffectVO>();
 
-            return new BattleShootVO(_hero.pos, stander, sds.GetSkillEffect(), sds.GetSkillData()[0]);
-        }
-
-        internal static void CastSkill(Battle _battle, Hero _target, SkillEffect _skillEffect, int[] _skillData, int _skillDataIndex)
-        {
-            switch (_skillEffect)
+            for (int i = 0; i < sds.GetEffects().Length; i++)
             {
-                case SkillEffect.DAMAGE:
+                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_target, sds.GetEffects()[i]);
 
-                    _target.BeDamage(_skillData[_skillDataIndex]);
-
-                    break;
-
-                case SkillEffect.HP_CHANGE:
-
-                    _target.HpChange(_skillData[_skillDataIndex]);
-
-                    break;
-
-                case SkillEffect.SHIELD_CHANGE:
-
-                    _target.ShieldChange(_skillData[_skillDataIndex]);
-
-                    break;
-
-                case SkillEffect.DISABLE_MOVE:
-
-                    _target.DisableMove();
-
-                    break;
-
-                case SkillEffect.DISABLE_RECOVER_SHIELD:
-
-                    _target.DisableRecoverShield();
-
-                    break;
-
-                case SkillEffect.FIX_ATTACK:
-
-                    _target.SetAttackFix(_skillData[_skillDataIndex]);
-
-                    break;
-
-                case SkillEffect.DISABLE_ACTION:
-
-                    _target.DisableAction();
-
-                    break;
-
-                case SkillEffect.SILENCE:
-
-                    _target.Silence();
-
-                    break;
-
-                case SkillEffect.FIX_SPEED:
-
-                    _target.SetSpeedFix(_skillData[_skillDataIndex]);
-
-                    break;
-
-                default:
-
-                    throw new Exception("skill effect error:" + _skillEffect);
+                effectList.Add(vo);
             }
+
+            return new BattleShootVO(_hero.pos, stander, effectList);
         }
     }
 }

@@ -79,11 +79,16 @@ namespace FinalWar
 
                     if (_sds.GetAuraTarget() == AuraTarget.TRIGGER)
                     {
-                        SuperEventListener.SuperFunctionCallBack2<Hero, Hero> dele2 = delegate (int _index, Hero _triggerHero, Hero _targetHero)
+                        SuperEventListener.SuperFunctionCallBackV2<List<BattleHeroEffectVO>, Hero, Hero> dele2 = delegate (int _index, ref List<BattleHeroEffectVO> _list, Hero _triggerHero, Hero _targetHero)
                         {
                             if (_triggerHero == _hero)
                             {
-                                AuraCastSkill(_index, _battle, _targetHero, _sds);
+                                if (_list == null)
+                                {
+                                    _list = new List<BattleHeroEffectVO>();
+                                }
+
+                                AuraCastSkill(_index, _battle, _targetHero, _sds, _list);
                             }
                         };
 
@@ -91,9 +96,14 @@ namespace FinalWar
                     }
                     else
                     {
-                        SuperEventListener.SuperFunctionCallBack dele3 = delegate (int _index)
+                        SuperEventListener.SuperFunctionCallBackV<List<BattleHeroEffectVO>> dele3 = delegate (int _index, ref List<BattleHeroEffectVO> _list)
                         {
-                            AuraCastSkill(_index, _battle, _hero, _sds);
+                            if (_list == null)
+                            {
+                                _list = new List<BattleHeroEffectVO>();
+                            }
+
+                            AuraCastSkill(_index, _battle, _hero, _sds, _list);
                         };
 
                         result = _eventListener.AddListener(_sds.GetEventName(), dele3);
@@ -185,14 +195,19 @@ namespace FinalWar
             }
         }
 
-        private static void AuraCastSkill(int _index, Battle _battle, Hero _hero, IAuraSDS _sds)
+        private static void AuraCastSkill(int _index, Battle _battle, Hero _hero, IAuraSDS _sds, List<BattleHeroEffectVO> _list)
         {
             switch (_sds.GetAuraTarget())
             {
                 case AuraTarget.SELF:
                 case AuraTarget.TRIGGER:
 
-                    HeroSkill.CastSkill(_battle, _hero, (SkillEffect)_sds.GetAuraData()[0], _sds.GetAuraData(), 1);
+                    for (int i = 0; i < _sds.GetAuraData().Length; i++)
+                    {
+                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_hero, _sds.GetAuraData()[i]);
+
+                        _list.Add(vo);
+                    }
 
                     break;
 
@@ -210,7 +225,12 @@ namespace FinalWar
                         {
                             if (targetHero.isMine == _hero.isMine)
                             {
-                                HeroSkill.CastSkill(_battle, targetHero, (SkillEffect)_sds.GetAuraData()[0], _sds.GetAuraData(), 1);
+                                for (int m = 0; m < _sds.GetAuraData().Length; m++)
+                                {
+                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_hero, _sds.GetAuraData()[m]);
+
+                                    _list.Add(vo);
+                                }
                             }
                         }
                     }
@@ -231,7 +251,12 @@ namespace FinalWar
                         {
                             if (targetHero.isMine != _hero.isMine)
                             {
-                                HeroSkill.CastSkill(_battle, targetHero, (SkillEffect)_sds.GetAuraData()[0], _sds.GetAuraData(), 1);
+                                for (int m = 0; m < _sds.GetAuraData().Length; m++)
+                                {
+                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_hero, _sds.GetAuraData()[m]);
+
+                                    _list.Add(vo);
+                                }
                             }
                         }
                     }

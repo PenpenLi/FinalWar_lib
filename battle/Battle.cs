@@ -19,6 +19,7 @@ namespace FinalWar
         internal static Func<int, IHeroSDS> GetHeroData;
         internal static Func<int, ISkillSDS> GetSkillData;
         internal static Func<int, IAuraSDS> GetAuraData;
+        internal static Func<int, IEffectSDS> GetEffectData;
 
         public const int DECK_CARD_NUM = 20;
         public const int DEFAULT_HAND_CARD_NUM = 5;
@@ -86,7 +87,7 @@ namespace FinalWar
 
         private bool isVsAi;
 
-        public static void Init<T, U, V>(Dictionary<int, MapData> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic) where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS
+        public static void Init<T, U, V, W>(Dictionary<int, MapData> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
         {
             GetMapData = delegate (int _id)
             {
@@ -106,6 +107,11 @@ namespace FinalWar
             GetAuraData = delegate (int _id)
             {
                 return _auraDataDic[_id];
+            };
+
+            GetEffectData = delegate (int _id)
+            {
+                return _effectDataDic[_id];
             };
         }
 
@@ -1142,9 +1148,9 @@ namespace FinalWar
 
                 int damage = attacker.GetDamage();
 
-                attacker.Attack(stander, damage);
+                List<BattleHeroEffectVO> effectList = attacker.Attack(stander, damage);
 
-                yield return new BattleRushVO(attacker.pos, _cellData.pos, damage);
+                yield return new BattleRushVO(attacker.pos, _cellData.pos, effectList);
             }
         }
 
@@ -1320,56 +1326,56 @@ namespace FinalWar
 
                         defenseDamage = defender.GetDamage();
 
-                        attacker.Attack(defender, attackDamage);
+                        List<BattleHeroEffectVO> defenderEffectList = attacker.Attack(defender, attackDamage);
 
-                        defender.Attack(attacker, defenseDamage);
+                        List<BattleHeroEffectVO> attackerEffectList = defender.Attack(attacker, defenseDamage);
 
                         defender.ProcessDamage();
 
                         attacker.ProcessDamage();
 
-                        yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos, attackDamage, defenseDamage);
+                        yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos, attackDamage, defenseDamage, attackerEffectList, defenderEffectList);
                     }
                     else if (speedDiff >= 1)
                     {
                         attackDamage = attacker.GetDamage();
 
-                        attacker.Attack(defender, attackDamage);
+                        List<BattleHeroEffectVO> effectList = attacker.Attack(defender, attackDamage);
 
                         defender.ProcessDamage();
 
-                        yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage);
+                        yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage, effectList);
 
                         if (speedDiff == 1 && defender.IsAlive())
                         {
                             defenseDamage = defender.GetDamage();
 
-                            defender.Attack(attacker, defenseDamage);
+                            effectList = defender.Attack(attacker, defenseDamage);
 
                             attacker.ProcessDamage();
 
-                            yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseDamage);
+                            yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseDamage, effectList);
                         }
                     }
                     else
                     {
                         defenseDamage = defender.GetDamage();
 
-                        defender.Attack(attacker, defenseDamage);
+                        List<BattleHeroEffectVO> effectList = defender.Attack(attacker, defenseDamage);
 
                         attacker.ProcessDamage();
 
-                        yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseDamage);
+                        yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseDamage, effectList);
 
                         if (speedDiff == -1 && attacker.IsAlive())
                         {
                             attackDamage = attacker.GetDamage();
 
-                            attacker.Attack(defender, attackDamage);
+                            effectList = attacker.Attack(defender, attackDamage);
 
                             defender.ProcessDamage();
 
-                            yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage);
+                            yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage, effectList);
                         }
                     }
 
