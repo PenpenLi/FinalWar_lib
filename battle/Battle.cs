@@ -692,11 +692,15 @@ namespace FinalWar
         {
             BattleData battleData = GetBattleData();
 
+            action.Clear();
+
             yield return DoSkill(battleData);
 
             yield return DoRoundStart(battleData);
 
             yield return DoSummon(battleData);
+
+            summon.Clear();
 
             yield return DoRush(battleData);
 
@@ -1735,10 +1739,6 @@ namespace FinalWar
         private void RoundOver()
         {
             mOver = oOver = false;
-
-            summon.Clear();
-
-            action.Clear();
         }
 
         private int GetCardUid()
