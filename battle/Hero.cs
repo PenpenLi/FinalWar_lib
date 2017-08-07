@@ -440,13 +440,13 @@ namespace FinalWar
             {
                 _hero.HpChange(-_damage);
 
-                BattleHeroEffectVO vo = new BattleHeroEffectVO(_hero.pos, Effect.HP_CHANGE, -_damage);
+                BattleHeroEffectVO vo = new BattleHeroEffectVO(Effect.HP_CHANGE, -_damage);
             }
             else
             {
                 _hero.BeDamage(_damage);
 
-                BattleHeroEffectVO vo = new BattleHeroEffectVO(_hero.pos, Effect.DAMAGE, _damage);
+                BattleHeroEffectVO vo = new BattleHeroEffectVO(Effect.DAMAGE, _damage);
             }
 
             eventListener.DispatchEvent(HeroAura.ATTACK, ref effectList, this, _hero);
