@@ -13,7 +13,6 @@ namespace FinalWar
         internal const string FIX_CAN_MOVE = "fixCanMove";
         internal const string ATTACK = "attack";
         internal const string ROUND_START = "roundStart";
-        internal const string ROUND_OVER = "roundOver";
 
         internal static void Init(Battle _battle, SuperEventListener _eventListener, Hero _hero)
         {
@@ -88,7 +87,7 @@ namespace FinalWar
                                     _list = new List<BattleHeroEffectVO>();
                                 }
 
-                                AuraCastSkill(_index, _battle, _targetHero, _sds, _list);
+                                AuraCastSkillTrigger(_targetHero, _sds, _list);
                             }
                         };
 
@@ -96,14 +95,19 @@ namespace FinalWar
                     }
                     else
                     {
-                        SuperEventListener.SuperFunctionCallBackV<List<BattleHeroEffectVO>> dele3 = delegate (int _index, ref List<BattleHeroEffectVO> _list)
+                        SuperEventListener.SuperFunctionCallBackV<List<Func<BattleTriggerAuraVO>>> dele3 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list)
                         {
                             if (_list == null)
                             {
-                                _list = new List<BattleHeroEffectVO>();
+                                _list = new List<Func<BattleTriggerAuraVO>>();
                             }
 
-                            AuraCastSkill(_index, _battle, _hero, _sds, _list);
+                            Func<BattleTriggerAuraVO> func = delegate ()
+                            {
+                                return AuraCastSkill(_battle, _hero, _sds);
+                            };
+
+                            _list.Add(func);
                         };
 
                         result = _eventListener.AddListener(_sds.GetEventName(), dele3);
@@ -195,19 +199,36 @@ namespace FinalWar
             }
         }
 
-        private static void AuraCastSkill(int _index, Battle _battle, Hero _hero, IAuraSDS _sds, List<BattleHeroEffectVO> _list)
+        private static void AuraCastSkillTrigger(Hero _hero, IAuraSDS _sds, List<BattleHeroEffectVO> _list)
         {
+            for (int i = 0; i < _sds.GetAuraData().Length; i++)
+            {
+                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_hero, _sds.GetAuraData()[i]);
+
+                _list.Add(vo);
+            }
+        }
+
+        private static BattleTriggerAuraVO AuraCastSkill(Battle _battle, Hero _hero, IAuraSDS _sds)
+        {
+            Dictionary<int, List<BattleHeroEffectVO>> dic = null;
+
             switch (_sds.GetAuraTarget())
             {
                 case AuraTarget.SELF:
-                case AuraTarget.TRIGGER:
 
-                    for (int i = 0; i < _sds.GetAuraData().Length; i++)
+                    List<BattleHeroEffectVO> list = new List<BattleHeroEffectVO>();
+
+                    for (int m = 0; m < _sds.GetAuraData().Length; m++)
                     {
-                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_hero, _sds.GetAuraData()[i]);
+                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_hero, _sds.GetAuraData()[m]);
 
-                        _list.Add(vo);
+                        list.Add(vo);
                     }
+
+                    dic = new Dictionary<int, List<BattleHeroEffectVO>>();
+
+                    dic.Add(_hero.pos, list);
 
                     break;
 
@@ -225,12 +246,21 @@ namespace FinalWar
                         {
                             if (targetHero.isMine == _hero.isMine)
                             {
+                                list = new List<BattleHeroEffectVO>();
+
                                 for (int m = 0; m < _sds.GetAuraData().Length; m++)
                                 {
-                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_hero, _sds.GetAuraData()[m]);
+                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(targetHero, _sds.GetAuraData()[m]);
 
-                                    _list.Add(vo);
+                                    list.Add(vo);
                                 }
+
+                                if (dic == null)
+                                {
+                                    dic = new Dictionary<int, List<BattleHeroEffectVO>>();
+                                }
+
+                                dic.Add(targetHero.pos, list);
                             }
                         }
                     }
@@ -251,12 +281,21 @@ namespace FinalWar
                         {
                             if (targetHero.isMine != _hero.isMine)
                             {
+                                list = new List<BattleHeroEffectVO>();
+
                                 for (int m = 0; m < _sds.GetAuraData().Length; m++)
                                 {
-                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_hero, _sds.GetAuraData()[m]);
+                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(targetHero, _sds.GetAuraData()[m]);
 
-                                    _list.Add(vo);
+                                    list.Add(vo);
                                 }
+
+                                if (dic == null)
+                                {
+                                    dic = new Dictionary<int, List<BattleHeroEffectVO>>();
+                                }
+
+                                dic.Add(targetHero.pos, list);
                             }
                         }
                     }
@@ -267,6 +306,8 @@ namespace FinalWar
 
                     throw new Exception("AuraCastSkill error! Unknown AuraTarget:" + _sds.GetAuraTarget());
             }
+
+            return new BattleTriggerAuraVO(_hero.pos, dic);
         }
     }
 }

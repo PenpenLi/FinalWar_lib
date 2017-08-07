@@ -100,6 +100,7 @@
     <Compile Include="battle\battleVO\BattleShootVO.cs" />
     <Compile Include="battle\battleVO\BattleSummonVO.cs" />
     <Compile Include="battle\battleVO\BattlePrepareAttackVO.cs" />
+    <Compile Include="battle\battleVO\BattleTriggerAuraVO.cs" />
     <Compile Include="battle\Hero.cs" />
     <Compile Include="battle\ai\HeroAi.cs" />
     <Compile Include="battle\HeroEffect.cs" />

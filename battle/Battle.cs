@@ -366,9 +366,11 @@ namespace FinalWar
 
                     if (isOver)
                     {
-                        int num = 0;
+                        long tmpPos = bw.BaseStream.Position;
 
-                        List<KeyValuePair<int, int>> tmpList = new List<KeyValuePair<int, int>>();
+                        bw.Write(0);
+
+                        int num = 0;
 
                         Dictionary<int, int>.Enumerator enumerator4 = summon.GetEnumerator();
 
@@ -380,43 +382,45 @@ namespace FinalWar
                             {
                                 num++;
 
-                                tmpList.Add(enumerator4.Current);
+                                bw.Write(enumerator4.Current.Key);
+
+                                bw.Write(enumerator4.Current.Value);
                             }
                         }
 
+                        long tmpPos2 = bw.BaseStream.Position;
+
+                        bw.BaseStream.Position = tmpPos;
+
                         bw.Write(num);
 
-                        for (int i = 0; i < num; i++)
-                        {
-                            bw.Write(tmpList[i].Key);
+                        bw.BaseStream.Position = tmpPos2;
 
-                            bw.Write(tmpList[i].Value);
-                        }
+                        bw.Write(0);
 
                         num = 0;
 
-                        tmpList.Clear();
-
                         for (int i = 0; i < action.Count; i++)
                         {
-                            int pos = action[i].Key;
+                            KeyValuePair<int, int> pair = action[i];
 
-                            if (GetPosIsMine(pos) == _isMine)
+                            if (GetPosIsMine(pair.Key) == _isMine)
                             {
                                 num++;
 
-                                tmpList.Add(action[i]);
+                                bw.Write(pair.Key);
+
+                                bw.Write(pair.Value);
                             }
                         }
 
+                        tmpPos = bw.BaseStream.Position;
+
+                        bw.BaseStream.Position = tmpPos2;
+
                         bw.Write(num);
 
-                        for (int i = 0; i < num; i++)
-                        {
-                            bw.Write(tmpList[i].Key);
-
-                            bw.Write(tmpList[i].Value);
-                        }
+                        bw.BaseStream.Position = tmpPos;
                     }
 
                     serverSendDataCallBack(_isMine, ms);
@@ -688,15 +692,11 @@ namespace FinalWar
         {
             BattleData battleData = GetBattleData();
 
-            action.Clear();
-
-            yield return DoSummon(battleData);
-
-            summon.Clear();
-
             yield return DoSkill(battleData);
 
             yield return DoRoundStart(battleData);
+
+            yield return DoSummon(battleData);
 
             yield return DoRush(battleData);
 
@@ -708,13 +708,11 @@ namespace FinalWar
 
             yield return DoRecover(battleData);
 
-            yield return DoRoundOver(battleData);
-
             yield return DoAddMoney();
 
             yield return DoAddCards();
 
-            RecoverOver();
+            RoundOver();
         }
 
         private void EndBattle()
@@ -1050,7 +1048,17 @@ namespace FinalWar
 
         private IEnumerator DoRoundStart(BattleData _battleData)
         {
-            eventListener.DispatchEvent(HeroAura.ROUND_START);
+            List<Func<BattleTriggerAuraVO>> list = null;
+
+            eventListener.DispatchEvent(HeroAura.ROUND_START, ref list);
+
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    yield return list[i]();
+                }
+            }
 
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
 
@@ -1064,26 +1072,12 @@ namespace FinalWar
             yield return RemoveDieHero(_battleData);
         }
 
-        private IEnumerator DoRoundOver(BattleData _battleData)
-        {
-            eventListener.DispatchEvent(HeroAura.ROUND_OVER);
-
-            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                enumerator.Current.ProcessDamage();
-            }
-
-            yield return new BattleRoundOverVO();
-
-            yield return RemoveDieHero(_battleData);
-        }
-
         private IEnumerator DoRush(BattleData _battleData)
         {
             while (true)
             {
+                Dictionary<int, int> dic = null;
+
                 bool hasRush = false;
 
                 Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
@@ -1098,10 +1092,22 @@ namespace FinalWar
                         {
                             hasRush = true;
 
+                            if (dic == null)
+                            {
+                                dic = new Dictionary<int, int>();
+                            }
+
+                            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
+
+                            while (enumerator2.MoveNext())
+                            {
+                                dic.Add(enumerator2.Current.pos, enumerator2.Current.GetDamage());
+                            }
+
                             yield return new BattlePrepareRushVO();
                         }
 
-                        yield return ProcessCellDataRush(_battleData, cellData);
+                        yield return ProcessCellDataRush(_battleData, cellData, dic);
                     }
                 }
 
@@ -1127,7 +1133,7 @@ namespace FinalWar
             }
         }
 
-        private IEnumerator ProcessCellDataRush(BattleData _battleData, BattleCellData _cellData)
+        private IEnumerator ProcessCellDataRush(BattleData _battleData, BattleCellData _cellData, Dictionary<int, int> _dic)
         {
             Hero stander = _cellData.stander;
 
@@ -1146,7 +1152,7 @@ namespace FinalWar
                     attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
                 }
 
-                int damage = attacker.GetDamage();
+                int damage = _dic[attacker.pos];
 
                 List<BattleHeroEffectVO> effectList = attacker.Attack(stander, damage);
 
@@ -1736,9 +1742,13 @@ namespace FinalWar
 
 
 
-        private void RecoverOver()
+        private void RoundOver()
         {
             mOver = oOver = false;
+
+            summon.Clear();
+
+            action.Clear();
         }
 
         private int GetCardUid()
