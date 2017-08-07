@@ -4,7 +4,7 @@ namespace FinalWar
 {
     internal static class HeroSkill
     {
-        internal static BattleShootVO CastSkill(Battle _battle, Hero _hero, Hero _target)
+        internal static List<BattleHeroEffectVO> CastSkill(Battle _battle, Hero _hero, Hero _target)
         {
             int stander = _target.pos;
 
@@ -24,7 +24,7 @@ namespace FinalWar
                 effectList.Add(vo);
             }
 
-            return new BattleShootVO(_hero.pos, stander, effectList);
+            return effectList;
         }
     }
 }

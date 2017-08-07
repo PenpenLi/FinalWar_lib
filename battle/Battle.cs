@@ -1027,20 +1027,15 @@ namespace FinalWar
 
                         hero.SetAction(Hero.HeroAction.NULL);
 
-                        yield return HeroSkill.CastSkill(this, hero, cellData.stander);
+                        List<BattleHeroEffectVO> effectList = HeroSkill.CastSkill(this, hero, cellData.stander);
+
+                        yield return new BattleShootVO(hero.pos, cellData.pos, effectList);
                     }
+
+                    cellData.stander.ProcessDamage();
+
+                    cellData.shooters.Clear();
                 }
-
-                cellData.shooters.Clear();
-            }
-
-            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
-
-            while (enumerator2.MoveNext())
-            {
-                Hero hero = enumerator2.Current;
-
-                hero.ProcessDamage();
             }
 
             yield return RemoveDieHero(_battleData);
@@ -1086,7 +1081,7 @@ namespace FinalWar
                 {
                     BattleCellData cellData = enumerator.Current;
 
-                    if (cellData.stander != null && cellData.stander.IsAlive() && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
+                    if (cellData.stander != null && cellData.attackers.Count > 0 && cellData.stander.action != Hero.HeroAction.DEFENSE && cellData.supporters.Count == 0)
                     {
                         if (!hasRush)
                         {
@@ -1159,7 +1154,7 @@ namespace FinalWar
 
         private IEnumerator RemoveDieHero(BattleData _battleData)
         {
-            List<Hero> dieList = null;
+            List<int> dieList = null;
 
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
 
@@ -1169,27 +1164,23 @@ namespace FinalWar
                 {
                     if (dieList == null)
                     {
-                        dieList = new List<Hero>();
+                        dieList = new List<int>();
                     }
 
-                    dieList.Add(enumerator.Current);
+                    dieList.Add(enumerator.Current.pos);
                 }
             }
 
             if (dieList != null)
             {
-                List<int> tmpList = new List<int>();
-
                 for (int i = 0; i < dieList.Count; i++)
                 {
-                    Hero hero = dieList[i];
-
-                    tmpList.Add(hero.pos);
+                    Hero hero = heroMapDic[dieList[i]];
 
                     RemoveHero(_battleData, hero);
                 }
 
-                yield return new BattleDeathVO(tmpList);
+                yield return new BattleDeathVO(dieList);
             }
         }
 
