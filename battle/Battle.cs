@@ -1032,6 +1032,7 @@ namespace FinalWar
                         yield return new BattleShootVO(hero.pos, cellData.pos, effectList);
                     }
 
+                    //对同一个目标的所有法术施放完毕后再进行结算  因为施放法术没有先后顺序  所以最后一起结算
                     cellData.stander.ProcessDamage();
 
                     cellData.shooters.Clear();
@@ -1146,6 +1147,7 @@ namespace FinalWar
 
                 List<BattleHeroEffectVO> effectList = attacker.Attack(stander, damage);
 
+                //因为攻击有先后顺序  所以每打完一次就结算一次
                 stander.ProcessDamage();
 
                 yield return new BattleRushVO(attacker.pos, _cellData.pos, effectList);
