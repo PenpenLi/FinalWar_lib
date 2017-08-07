@@ -1074,10 +1074,10 @@ namespace FinalWar
 
         private IEnumerator DoRush(BattleData _battleData)
         {
+            Dictionary<int, int> dic = null;
+
             while (true)
             {
-                Dictionary<int, int> dic = null;
-
                 bool hasRush = false;
 
                 Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
@@ -1096,6 +1096,10 @@ namespace FinalWar
                             {
                                 dic = new Dictionary<int, int>();
                             }
+                            else
+                            {
+                                dic.Clear();
+                            }
 
                             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
 
@@ -1113,15 +1117,6 @@ namespace FinalWar
 
                 if (hasRush)
                 {
-                    Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
-
-                    while (enumerator2.MoveNext())
-                    {
-                        Hero hero = enumerator2.Current;
-
-                        hero.ProcessDamage();
-                    }
-
                     yield return RemoveDieHero(_battleData);
                 }
                 else
@@ -1155,6 +1150,8 @@ namespace FinalWar
                 int damage = _dic[attacker.pos];
 
                 List<BattleHeroEffectVO> effectList = attacker.Attack(stander, damage);
+
+                stander.ProcessDamage();
 
                 yield return new BattleRushVO(attacker.pos, _cellData.pos, effectList);
             }
