@@ -69,7 +69,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="battle\ai\AiData.cs" />
-    <Compile Include="battle\ai\node\AddDefenseConditionNode.cs" />
     <Compile Include="battle\ai\node\CheckHeroTypeConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanAttackPosConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanShootHeroPosConditionNode.cs" />
@@ -77,10 +76,11 @@
     <Compile Include="battle\ai\node\CheckHeroCanBeAttackConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanAttackHeroPosConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanSupportPosConditionNode.cs" />
-    <Compile Include="battle\ai\node\FinalActionNode.cs" />
+    <Compile Include="battle\ai\node\ChoosePosActionNode.cs" />
     <Compile Include="battle\Battle.cs" />
     <Compile Include="battle\BattleCellData.cs" />
     <Compile Include="battle\BattleData.cs" />
+    <Compile Include="battle\battlePublicTools\BattleAStar.cs" />
     <Compile Include="battle\battleVO\BattleAddCardsVO.cs" />
     <Compile Include="battle\battleVO\BattleAttackAndCounterVO.cs" />
     <Compile Include="battle\battleVO\BattleAttackOverVO.cs" />

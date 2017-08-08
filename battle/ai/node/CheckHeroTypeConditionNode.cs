@@ -6,23 +6,25 @@ namespace FinalWar
 {
     internal class CheckHeroTypeConditionNode : ConditionNode<Battle, Hero, AiData>
     {
-        public int heroType;
+        internal const string key = "CheckHeroTypeConditionNode";
+
+        private int value;
 
         public override bool Enter(Battle _t, Hero _u, AiData _v)
         {
-            return _u.sds.GetHeroType().GetID() == heroType;
+            return _u.sds.GetHeroType().GetID() == value;
         }
 
         internal CheckHeroTypeConditionNode(XmlNode _node)
         {
-            XmlAttribute heroTypeAtt = _node.Attributes["heroType"];
+            XmlAttribute valueTypeAtt = _node.Attributes["value"];
 
-            if (heroTypeAtt == null)
+            if (valueTypeAtt == null)
             {
-                throw new Exception("CheckHeroTypeConditionNode has not heroType attribute:" + _node.ToString());
+                throw new Exception("CheckHeroTypeConditionNode has not value attribute:" + _node.ToString());
             }
 
-            heroType = int.Parse(heroTypeAtt.InnerText);
+            value = int.Parse(valueTypeAtt.InnerText);
         }
     }
 }

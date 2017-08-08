@@ -1,22 +1,37 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace FinalWar
 {
     internal class AiData
     {
-        internal Dictionary<int, int> dic = new Dictionary<int, int>();
+        private Dictionary<string, List<int>> dic = new Dictionary<string, List<int>>();
 
-        internal void Add(int _pos, int _weight)
+        private Func<int, int> getRandomValueCallBack;
+
+        internal AiData(Func<int, int> _getRandomValueCallBack)
         {
-            int value;
+            getRandomValueCallBack = _getRandomValueCallBack;
+        }
 
-            if (dic.TryGetValue(_pos, out value))
+        internal void Add(string _key, List<int> _list)
+        {
+            dic.Add(_key, _list);
+        }
+
+        internal int Get(string _key)
+        {
+            List<int> list;
+
+            if (dic.TryGetValue(_key, out list))
             {
-                dic[_pos] = value + _weight;
+                int v = getRandomValueCallBack(list.Count);
+
+                return list[v];
             }
             else
             {
-                dic.Add(_pos, _weight);
+                throw new Exception("Can not find key:" + _key);
             }
         }
     }

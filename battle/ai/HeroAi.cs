@@ -61,7 +61,10 @@ namespace FinalWar
             }
         }
 
-
+        private static BtRoot<Battle, Hero, AiData> Create()
+        {
+            return BtTools.Create("aaa", GetConditionNode, GetActionNode, null);
+        }
 
         private static ActionNode<Battle, Hero, AiData> GetActionNode(XmlNode _node)
         {
@@ -76,9 +79,15 @@ namespace FinalWar
 
             switch (typeAtt.InnerText)
             {
-                case "FinalAction":
+                case ChooseTargetActionNode.key:
 
-                    actionNode = new FinalActionNode(_node);
+                    actionNode = new ChooseTargetActionNode(_node);
+
+                    break;
+
+                case DefenseActionNode.key:
+
+                    actionNode = new DefenseActionNode();
 
                     break;
 
@@ -101,53 +110,49 @@ namespace FinalWar
 
             ConditionNode<Battle, Hero, AiData> conditionNode;
 
-            switch (typeAtt.InnerText)
+            string key = typeAtt.InnerText;
+
+            switch (key)
             {
-                case "AddDefense":
+                case CheckHeroCanBeAttackConditionNode.key:
 
-                    conditionNode = new AddDefenseConditionNode(_node);
-
-                    break;
-
-                case "CheckHeroCanBeAttack":
-
-                    conditionNode = new CheckHeroCanBeAttackConditionNode(_node);
+                    conditionNode = new CheckHeroCanBeAttackConditionNode();
 
                     break;
 
-                case "CheckHeroType":
+                case CheckHeroTypeConditionNode.key:
 
                     conditionNode = new CheckHeroTypeConditionNode(_node);
 
                     break;
 
-                case "GetCanAttackHeroPos":
+                case GetCanAttackHeroPosConditionNode.key:
 
-                    conditionNode = new GetCanAttackHeroPosConditionNode(_node);
-
-                    break;
-
-                case "GetCanAttackPos":
-
-                    conditionNode = new GetCanAttackPosConditionNode(_node);
+                    conditionNode = new GetCanAttackHeroPosConditionNode();
 
                     break;
 
-                case "GetCanShootHeroPos":
+                case GetCanAttackPosConditionNode.key:
 
-                    conditionNode = new GetCanShootHeroPosConditionConditionNode(_node);
-
-                    break;
-
-                case "GetCanSupportHeroPos":
-
-                    conditionNode = new GetCanSupportHeroPosConditionNode(_node);
+                    conditionNode = new GetCanAttackPosConditionNode();
 
                     break;
 
-                case "GetCanSupportPos":
+                case GetCanShootHeroPosConditionConditionNode.key:
 
-                    conditionNode = new GetCanSupportPosConditionNode(_node);
+                    conditionNode = new GetCanShootHeroPosConditionConditionNode();
+
+                    break;
+
+                case GetCanSupportHeroPosConditionNode.key:
+
+                    conditionNode = new GetCanSupportHeroPosConditionNode();
+
+                    break;
+
+                case GetCanSupportPosConditionNode.key:
+
+                    conditionNode = new GetCanSupportPosConditionNode();
 
                     break;
 

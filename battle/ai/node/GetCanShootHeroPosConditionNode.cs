@@ -1,13 +1,11 @@
-﻿using bt;
-using System.Collections.Generic;
-using System.Xml;
-using System;
+﻿using System.Collections.Generic;
+using bt;
 
 namespace FinalWar
 {
     internal class GetCanShootHeroPosConditionConditionNode : ConditionNode<Battle, Hero, AiData>
     {
-        public int weight;
+        internal const string key = "GetCanShootHeroPosConditionConditionNode";
 
         public override bool Enter(Battle _t, Hero _u, AiData _v)
         {
@@ -15,27 +13,14 @@ namespace FinalWar
 
             if (posList != null)
             {
-                Dictionary<int, int> dic = new Dictionary<int, int>();
+                _v.Add(key, posList);
 
-                for (int i = 0; i < posList.Count; i++)
-                {
-                    _v.Add(posList[i], weight);
-                }
+                return true;
             }
-
-            return true;
-        }
-
-        internal GetCanShootHeroPosConditionConditionNode(XmlNode _node)
-        {
-            XmlAttribute weightAtt = _node.Attributes["weight"];
-
-            if (weightAtt == null)
+            else
             {
-                throw new Exception("GetCanShootHeroPosConditionConditionNode has not weight attribute:" + _node.ToString());
+                return false;
             }
-
-            weight = int.Parse(weightAtt.InnerText);
         }
     }
 }
