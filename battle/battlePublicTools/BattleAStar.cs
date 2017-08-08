@@ -16,7 +16,7 @@ namespace FinalWar
 
         private static Dictionary<int, AstarUnit> close = new Dictionary<int, AstarUnit>();
 
-        public static List<int> Find(MapData _mapData, int _startPos, int _endPos, int _maxNum)
+        internal static List<int> Find(MapData _mapData, int _startPos, int _endPos, int _maxNum)
         {
             open.Clear();
 
