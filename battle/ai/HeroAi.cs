@@ -1,6 +1,7 @@
-﻿#if !CLIENT
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using bt;
+using System.Xml;
+using System;
 
 namespace FinalWar
 {
@@ -62,9 +63,101 @@ namespace FinalWar
 
 
 
+        private static ActionNode<Battle, Hero, AiData> GetActionNode(XmlNode _node)
+        {
+            XmlAttribute typeAtt = _node.Attributes["type"];
 
+            if (typeAtt == null)
+            {
+                throw new Exception("ActionNode has not type attribute:" + _node.ToString());
+            }
 
+            ActionNode<Battle, Hero, AiData> actionNode;
 
+            switch (typeAtt.InnerText)
+            {
+                case "FinalAction":
+
+                    actionNode = new FinalActionNode(_node);
+
+                    break;
+
+                default:
+
+                    throw new Exception("Unknown ActionNode:" + _node.ToString());
+            }
+
+            return actionNode;
+        }
+
+        private static ConditionNode<Battle, Hero, AiData> GetConditionNode(XmlNode _node)
+        {
+            XmlAttribute typeAtt = _node.Attributes["type"];
+
+            if (typeAtt == null)
+            {
+                throw new Exception("ConditionNode has not type attribute:" + _node.ToString());
+            }
+
+            ConditionNode<Battle, Hero, AiData> conditionNode;
+
+            switch (typeAtt.InnerText)
+            {
+                case "AddDefense":
+
+                    conditionNode = new AddDefenseConditionNode(_node);
+
+                    break;
+
+                case "CheckHeroCanBeAttack":
+
+                    conditionNode = new CheckHeroCanBeAttackConditionNode(_node);
+
+                    break;
+
+                case "CheckHeroType":
+
+                    conditionNode = new CheckHeroTypeConditionNode(_node);
+
+                    break;
+
+                case "GetCanAttackHeroPos":
+
+                    conditionNode = new GetCanAttackHeroPosConditionNode(_node);
+
+                    break;
+
+                case "GetCanAttackPos":
+
+                    conditionNode = new GetCanAttackPosConditionNode(_node);
+
+                    break;
+
+                case "GetCanShootHeroPos":
+
+                    conditionNode = new GetCanShootHeroPosConditionConditionNode(_node);
+
+                    break;
+
+                case "GetCanSupportHeroPos":
+
+                    conditionNode = new GetCanSupportHeroPosConditionNode(_node);
+
+                    break;
+
+                case "GetCanSupportPos":
+
+                    conditionNode = new GetCanSupportPosConditionNode(_node);
+
+                    break;
+
+                default:
+
+                    throw new Exception("Unknown ConditionNode:" + _node.ToString());
+            }
+
+            return conditionNode;
+        }
 
 
 
@@ -326,4 +419,3 @@ namespace FinalWar
         }
     }
 }
-#endif

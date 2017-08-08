@@ -1,5 +1,6 @@
 ﻿public interface IHeroTypeSDS
 {
+    int GetID();
     bool GetCanDoAction();
 
     int GetAttackSpeed();

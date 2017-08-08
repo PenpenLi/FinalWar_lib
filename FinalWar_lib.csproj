@@ -69,15 +69,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="battle\ai\AiData.cs" />
-    <Compile Include="battle\ai\node\CheckHasTargetPosConditionNode.cs" />
-    <Compile Include="battle\ai\node\GetCanAttackPosNode.cs" />
-    <Compile Include="battle\ai\node\GetCanShootHeroPosNode.cs" />
-    <Compile Include="battle\ai\node\GetCanSupportHeroPosNode.cs" />
-    <Compile Include="battle\ai\node\GetCanThrowHeroPosNode.cs" />
+    <Compile Include="battle\ai\node\AddDefenseConditionNode.cs" />
+    <Compile Include="battle\ai\node\CheckHeroTypeConditionNode.cs" />
+    <Compile Include="battle\ai\node\GetCanAttackPosConditionNode.cs" />
+    <Compile Include="battle\ai\node\GetCanShootHeroPosConditionNode.cs" />
+    <Compile Include="battle\ai\node\GetCanSupportHeroPosConditionNode.cs" />
     <Compile Include="battle\ai\node\CheckHeroCanBeAttackConditionNode.cs" />
-    <Compile Include="battle\ai\node\GetCanAttackHeroPosNode.cs" />
-    <Compile Include="battle\ai\node\GetCanSupportPosNode.cs" />
-    <Compile Include="battle\ai\node\MergePosListNode.cs" />
+    <Compile Include="battle\ai\node\GetCanAttackHeroPosConditionNode.cs" />
+    <Compile Include="battle\ai\node\GetCanSupportPosConditionNode.cs" />
+    <Compile Include="battle\ai\node\FinalActionNode.cs" />
     <Compile Include="battle\Battle.cs" />
     <Compile Include="battle\BattleCellData.cs" />
     <Compile Include="battle\BattleData.cs" />
