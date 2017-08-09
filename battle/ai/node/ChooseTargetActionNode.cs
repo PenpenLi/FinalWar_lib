@@ -1,6 +1,7 @@
 ﻿using bt;
 using System.Xml;
 using System;
+using System.Collections.Generic;
 
 namespace FinalWar
 {
@@ -12,7 +13,9 @@ namespace FinalWar
 
         public override bool Enter(Battle _t, Hero _u, AiData _v)
         {
+            int target = _v.Get(value);
 
+            _t.action.Add(new KeyValuePair<int, int>(_u.pos, target));
 
             return true;
         }

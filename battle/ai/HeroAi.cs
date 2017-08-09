@@ -7,9 +7,32 @@ namespace FinalWar
 {
     public static class HeroAi
     {
+        private static Random random = new Random();
+
+        private static BtRoot<Battle, Hero, AiData> actionBtRoot;
+
+        private static BtRoot<Battle, Hero, AiData> summonBtRoot;
+
+        private static AiData aiData;
+
+        public static void Init(string _actionStr, string _summonStr)
+        {
+            actionBtRoot = BtTools.Create(_actionStr, GetConditionNode, GetActionNode, GetRandomValue);
+
+            summonBtRoot = BtTools.Create(_summonStr, GetConditionNode, GetActionNode, GetRandomValue);
+
+            aiData = new AiData(GetRandomValue);
+        }
+
+        private static int GetRandomValue(int _max)
+        {
+            return random.Next(_max);
+        }
+
         public static void Start(Battle _battle, bool _isMine)
         {
             ClearAction(_battle, _isMine);
+
 
         }
 
@@ -61,11 +84,6 @@ namespace FinalWar
             }
         }
 
-        private static BtRoot<Battle, Hero, AiData> Create()
-        {
-            return BtTools.Create("aaa", GetConditionNode, GetActionNode, null);
-        }
-
         private static ActionNode<Battle, Hero, AiData> GetActionNode(XmlNode _node)
         {
             XmlAttribute typeAtt = _node.Attributes["type"];
@@ -85,9 +103,9 @@ namespace FinalWar
 
                     break;
 
-                case DefenseActionNode.key:
+                case MoveForwardActionNode.key:
 
-                    actionNode = new DefenseActionNode();
+                    actionNode = new MoveForwardActionNode();
 
                     break;
 

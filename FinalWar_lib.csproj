@@ -70,7 +70,6 @@
   <ItemGroup>
     <Compile Include="battle\ai\AiData.cs" />
     <Compile Include="battle\ai\node\CheckHeroTypeConditionNode.cs" />
-    <Compile Include="battle\ai\node\DefenseActionNode.cs" />
     <Compile Include="battle\ai\node\GetCanAttackPosConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanShootHeroPosConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanSupportHeroPosConditionNode.cs" />
