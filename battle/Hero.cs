@@ -366,7 +366,7 @@ namespace FinalWar
 
             if (willeFear)
             {
-                int myNum = 1;
+                int myNum = 0;
 
                 int oppNum = 0;
 
@@ -391,7 +391,7 @@ namespace FinalWar
 
                 int numDiff = oppNum - myNum;
 
-                if (numDiff > 0)
+                if (numDiff > 1)
                 {
                     int randomValue = battle.GetRandomValue(numDiff);
 

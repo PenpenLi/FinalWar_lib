@@ -241,14 +241,7 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                if (enumerator.Current.GetCanAction())
-                {
-                    enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
-                }
-                else
-                {
-                    enumerator.Current.SetAction(Hero.HeroAction.NULL);
-                }
+                enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
             }
 
             BattleData battleData = new BattleData();
