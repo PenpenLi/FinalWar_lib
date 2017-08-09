@@ -81,6 +81,7 @@
     <Compile Include="battle\ai\node\MoveForwardActionNode.cs" />
     <Compile Include="battle\Battle.cs" />
     <Compile Include="battle\BattleCellData.cs" />
+    <Compile Include="battle\BattleConst.cs" />
     <Compile Include="battle\BattleData.cs" />
     <Compile Include="battle\battlePublicTools\BattleAStar.cs" />
     <Compile Include="battle\battleVO\BattleAddCardsVO.cs" />
@@ -103,6 +104,8 @@
     <Compile Include="battle\battleVO\BattleSummonVO.cs" />
     <Compile Include="battle\battleVO\BattlePrepareAttackVO.cs" />
     <Compile Include="battle\battleVO\BattleTriggerAuraVO.cs" />
+    <Compile Include="battle\Battle_client.cs" />
+    <Compile Include="battle\Battle_server.cs" />
     <Compile Include="battle\Hero.cs" />
     <Compile Include="battle\ai\HeroAi.cs" />
     <Compile Include="battle\HeroEffect.cs" />

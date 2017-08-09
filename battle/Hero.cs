@@ -237,20 +237,20 @@ namespace FinalWar
         {
             int tmpSpeedFix = 0;
 
-            battle.eventListener.DispatchEvent(HeroAura.FIX_SPEED, ref tmpSpeedFix, this);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_SPEED, ref tmpSpeedFix, this);
 
             return tmpSpeedFix;
         }
 
         private int FixSpeed(int _speed)
         {
-            if (_speed > Battle.MAX_SPEED)
+            if (_speed > BattleConst.MAX_SPEED)
             {
-                _speed = Battle.MAX_SPEED;
+                _speed = BattleConst.MAX_SPEED;
             }
-            else if (_speed < Battle.MIN_SPEED)
+            else if (_speed < BattleConst.MIN_SPEED)
             {
-                _speed = Battle.MIN_SPEED;
+                _speed = BattleConst.MIN_SPEED;
             }
 
             return _speed;
@@ -272,7 +272,7 @@ namespace FinalWar
         {
             bool tmpCanPierceShield = false;
 
-            battle.eventListener.DispatchEvent(HeroAura.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this);
 
             return tmpCanPierceShield;
         }
@@ -281,7 +281,7 @@ namespace FinalWar
         {
             bool tmpCanMove = true;
 
-            battle.eventListener.DispatchEvent(HeroAura.FIX_CAN_MOVE, ref tmpCanMove, this);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_MOVE, ref tmpCanMove, this);
 
             return tmpCanMove;
         }
@@ -322,7 +322,7 @@ namespace FinalWar
         {
             int attackFixAura = 0;
 
-            battle.eventListener.DispatchEvent(HeroAura.FIX_ATTACK, ref attackFixAura, this);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK, ref attackFixAura, this);
 
             return attackFixAura;
         }
@@ -331,7 +331,7 @@ namespace FinalWar
         {
             bool recoverShield = true;
 
-            battle.eventListener.DispatchEvent(HeroAura.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this);
 
             if (recoverShield)
             {
@@ -362,7 +362,7 @@ namespace FinalWar
         {
             bool willeFear = true;
 
-            battle.eventListener.DispatchEvent(HeroAura.FIX_FEAR, ref willeFear, this);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_FEAR, ref willeFear, this);
 
             if (willeFear)
             {
@@ -410,7 +410,7 @@ namespace FinalWar
 
         internal void Die()
         {
-            battle.eventListener.DispatchEvent(HeroAura.DIE, this);
+            battle.eventListener.DispatchEvent(BattleConst.DIE, this);
         }
 
         internal List<BattleHeroEffectVO> Attack(Hero _hero, int _damage)
@@ -434,7 +434,7 @@ namespace FinalWar
                 effectList.Add(vo);
             }
 
-            battle.eventListener.DispatchEvent(HeroAura.ATTACK, ref effectList, this, _hero);
+            battle.eventListener.DispatchEvent(BattleConst.ATTACK, ref effectList, this, _hero);
 
             return effectList;
         }
@@ -443,7 +443,7 @@ namespace FinalWar
         {
             initAura = false;
 
-            battle.eventListener.DispatchEvent(HeroAura.BE_SILENCE, this);
+            battle.eventListener.DispatchEvent(BattleConst.BE_SILENCE, this);
         }
 
         internal void WriteToStream(BinaryWriter _bw)

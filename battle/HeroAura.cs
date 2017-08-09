@@ -6,19 +6,6 @@ namespace FinalWar
 {
     internal static partial class HeroAura
     {
-        internal const string BE_SILENCE = "beSilence";
-        internal const string FIX_ATTACK = "fixAttack";
-        internal const string FIX_SPEED = "fixSpeed";
-        internal const string FIX_CAN_PIERCE_SHIELD = "fixCanPierceShield";
-        internal const string FIX_CAN_MOVE = "fixCanMove";
-        internal const string FIX_CAN_RECOVER_SHIELD = "fixCanRecoverShield";
-        internal const string ATTACK = "attack";
-        internal const string ROUND_START = "roundStart";
-        internal const string FIX_FEAR = "fixFear";
-        internal const string ROUND_OVER = "roundOver";
-        internal const string DIE = "die";
-        internal const string CAPTURE_MAP_AREA = "captureMapArea";
-
         internal static void Init(Battle _battle, Hero _hero)
         {
             if (_hero.sds.GetAuras().Length == 0)
@@ -48,9 +35,9 @@ namespace FinalWar
                 }
             };
 
-            ids[ids.Length - 2] = _battle.eventListener.AddListener(BE_SILENCE, dele, SuperEventListener.MAX_PRIORITY - 1);
+            ids[ids.Length - 2] = _battle.eventListener.AddListener(BattleConst.BE_SILENCE, dele, SuperEventListener.MAX_PRIORITY - 1);
 
-            ids[ids.Length - 1] = _battle.eventListener.AddListener(DIE, dele, SuperEventListener.MAX_PRIORITY - 1);
+            ids[ids.Length - 1] = _battle.eventListener.AddListener(BattleConst.DIE, dele, SuperEventListener.MAX_PRIORITY - 1);
         }
 
         private static int RegisterAura(Battle _battle, Hero _hero, IAuraSDS _sds)
