@@ -8,6 +8,5 @@
     int GetSkill();
     int[] GetAuras();
     IHeroTypeSDS GetHeroType();
-    int GetLevelUp();
 }
 
