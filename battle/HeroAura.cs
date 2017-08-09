@@ -6,22 +6,27 @@ namespace FinalWar
 {
     internal static partial class HeroAura
     {
-        internal const string REMOVE_AURA = "removeAura";
+        internal const string BE_SILENCE = "beSilence";
         internal const string FIX_ATTACK = "fixAttack";
         internal const string FIX_SPEED = "fixSpeed";
         internal const string FIX_CAN_PIERCE_SHIELD = "fixCanPierceShield";
         internal const string FIX_CAN_MOVE = "fixCanMove";
+        internal const string FIX_CAN_RECOVER_SHIELD = "fixCanRecoverShield";
         internal const string ATTACK = "attack";
         internal const string ROUND_START = "roundStart";
+        internal const string FIX_FEAR = "fixFear";
+        internal const string ROUND_OVER = "roundOver";
+        internal const string DIE = "die";
+        internal const string CAPTURE_MAP_AREA = "captureMapArea";
 
-        internal static void Init(Battle _battle, SuperEventListener _eventListener, Hero _hero)
+        internal static void Init(Battle _battle, Hero _hero)
         {
             if (_hero.sds.GetAuras().Length == 0)
             {
                 return;
             }
 
-            int[] ids = new int[_hero.sds.GetAuras().Length + 1];
+            int[] ids = new int[_hero.sds.GetAuras().Length + 2];
 
             for (int i = 0; i < _hero.sds.GetAuras().Length; i++)
             {
@@ -29,7 +34,7 @@ namespace FinalWar
 
                 IAuraSDS sds = Battle.GetAuraData(id);
 
-                ids[i] = RegisterAura(_battle, _eventListener, _hero, sds);
+                ids[i] = RegisterAura(_battle, _hero, sds);
             }
 
             SuperEventListener.SuperFunctionCallBack1<Hero> dele = delegate (int _index, Hero _triggerHero)
@@ -38,15 +43,17 @@ namespace FinalWar
                 {
                     for (int i = 0; i < ids.Length; i++)
                     {
-                        _eventListener.RemoveListener(ids[i]);
+                        _battle.eventListener.RemoveListener(ids[i]);
                     }
                 }
             };
 
-            ids[ids.Length - 1] = _eventListener.AddListener(REMOVE_AURA, dele, SuperEventListener.MAX_PRIORITY - 1);
+            ids[ids.Length - 2] = _battle.eventListener.AddListener(BE_SILENCE, dele, SuperEventListener.MAX_PRIORITY - 1);
+
+            ids[ids.Length - 1] = _battle.eventListener.AddListener(DIE, dele, SuperEventListener.MAX_PRIORITY - 1);
         }
 
-        private static int RegisterAura(Battle _battle, SuperEventListener _eventListener, Hero _hero, IAuraSDS _sds)
+        private static int RegisterAura(Battle _battle, Hero _hero, IAuraSDS _sds)
         {
             int result;
 
@@ -59,7 +66,7 @@ namespace FinalWar
                         AuraFixBool(_index, _battle, _hero, _triggerHero, _sds, ref _result);
                     };
 
-                    result = _eventListener.AddListener(_sds.GetEventName(), dele0);
+                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele0);
 
                     break;
 
@@ -70,7 +77,7 @@ namespace FinalWar
                         AuraFixInt(_index, _battle, _hero, _triggerHero, _sds, ref _result);
                     };
 
-                    result = _eventListener.AddListener(_sds.GetEventName(), dele1);
+                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele1);
 
                     break;
 
@@ -87,11 +94,11 @@ namespace FinalWar
                                     _list = new List<BattleHeroEffectVO>();
                                 }
 
-                                AuraCastSkillTrigger(_targetHero, _sds, _list);
+                                AuraCastSkillTrigger(_battle, _targetHero, _sds, _list);
                             }
                         };
 
-                        result = _eventListener.AddListener(_sds.GetEventName(), dele2);
+                        result = _battle.eventListener.AddListener(_sds.GetEventName(), dele2);
                     }
                     else
                     {
@@ -110,7 +117,7 @@ namespace FinalWar
                             _list.Add(func);
                         };
 
-                        result = _eventListener.AddListener(_sds.GetEventName(), dele3);
+                        result = _battle.eventListener.AddListener(_sds.GetEventName(), dele3);
                     }
 
                     break;
@@ -199,11 +206,11 @@ namespace FinalWar
             }
         }
 
-        private static void AuraCastSkillTrigger(Hero _hero, IAuraSDS _sds, List<BattleHeroEffectVO> _list)
+        private static void AuraCastSkillTrigger(Battle _battle, Hero _hero, IAuraSDS _sds, List<BattleHeroEffectVO> _list)
         {
             for (int i = 0; i < _sds.GetAuraData().Length; i++)
             {
-                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_hero, _sds.GetAuraData()[i]);
+                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _hero, _sds.GetAuraData()[i]);
 
                 _list.Add(vo);
             }
@@ -221,7 +228,7 @@ namespace FinalWar
 
                     for (int m = 0; m < _sds.GetAuraData().Length; m++)
                     {
-                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_hero, _sds.GetAuraData()[m]);
+                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _hero, _sds.GetAuraData()[m]);
 
                         list.Add(vo);
                     }
@@ -250,7 +257,7 @@ namespace FinalWar
 
                                 for (int m = 0; m < _sds.GetAuraData().Length; m++)
                                 {
-                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(targetHero, _sds.GetAuraData()[m]);
+                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _sds.GetAuraData()[m]);
 
                                     list.Add(vo);
                                 }
@@ -285,7 +292,7 @@ namespace FinalWar
 
                                 for (int m = 0; m < _sds.GetAuraData().Length; m++)
                                 {
-                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(targetHero, _sds.GetAuraData()[m]);
+                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _sds.GetAuraData()[m]);
 
                                     list.Add(vo);
                                 }

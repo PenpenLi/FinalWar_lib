@@ -260,7 +260,7 @@ namespace superEvent
             }
         }
 
-        internal void DispatchEvent(string _eventName)
+        internal bool DispatchEvent(string _eventName)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack>(_eventName);
 
@@ -286,10 +286,16 @@ namespace superEvent
                 }
 
                 ReleaseArr(arr);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
-        internal void DispatchEvent<T1>(string _eventName, T1 t1)
+        internal bool DispatchEvent<T1>(string _eventName, T1 t1)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack1<T1>>(_eventName);
 
@@ -315,10 +321,16 @@ namespace superEvent
                 }
 
                 ReleaseArr(arr);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
-        internal void DispatchEvent<T1, T2>(string _eventName, T1 t1, T2 t2)
+        internal bool DispatchEvent<T1, T2>(string _eventName, T1 t1, T2 t2)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack2<T1, T2>>(_eventName);
 
@@ -344,10 +356,16 @@ namespace superEvent
                 }
 
                 ReleaseArr(arr);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
-        internal void DispatchEvent<T1, T2, T3>(string _eventName, T1 t1, T2 t2, T3 t3)
+        internal bool DispatchEvent<T1, T2, T3>(string _eventName, T1 t1, T2 t2, T3 t3)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack3<T1, T2, T3>>(_eventName);
 
@@ -373,10 +391,16 @@ namespace superEvent
                 }
 
                 ReleaseArr(arr);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
-        internal void DispatchEvent<T1, T2, T3, T4>(string _eventName, T1 t1, T2 t2, T3 t3, T4 t4)
+        internal bool DispatchEvent<T1, T2, T3, T4>(string _eventName, T1 t1, T2 t2, T3 t3, T4 t4)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBack4<T1, T2, T3, T4>>(_eventName);
 
@@ -402,10 +426,16 @@ namespace superEvent
                 }
 
                 ReleaseArr(arr);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
-        internal void DispatchEvent<T>(string _eventName, ref T t)
+        internal bool DispatchEvent<T>(string _eventName, ref T t)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV<T>>(_eventName);
 
@@ -431,10 +461,16 @@ namespace superEvent
                 }
 
                 ReleaseArr(arr);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
-        internal void DispatchEvent<T, T1>(string _eventName, ref T t, T1 t1)
+        internal bool DispatchEvent<T, T1>(string _eventName, ref T t, T1 t1)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV1<T, T1>>(_eventName);
 
@@ -460,10 +496,16 @@ namespace superEvent
                 }
 
                 ReleaseArr(arr);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
-        internal void DispatchEvent<T, T1, T2>(string _eventName, ref T t, T1 t1, T2 t2)
+        internal bool DispatchEvent<T, T1, T2>(string _eventName, ref T t, T1 t1, T2 t2)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV2<T, T1, T2>>(_eventName);
 
@@ -489,10 +531,16 @@ namespace superEvent
                 }
 
                 ReleaseArr(arr);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
-        internal void DispatchEvent<T, T1, T2, T3>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3)
+        internal bool DispatchEvent<T, T1, T2, T3>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV3<T, T1, T2, T3>>(_eventName);
 
@@ -518,10 +566,16 @@ namespace superEvent
                 }
 
                 ReleaseArr(arr);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
-        internal void DispatchEvent<T, T1, T2, T3, T4>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3, T4 t4)
+        internal bool DispatchEvent<T, T1, T2, T3, T4>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3, T4 t4)
         {
             List<SuperEventListenerUnit>[] arr = DispatchEventReal<SuperFunctionCallBackV4<T, T1, T2, T3, T4>>(_eventName);
 
@@ -547,6 +601,12 @@ namespace superEvent
                 }
 
                 ReleaseArr(arr);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 

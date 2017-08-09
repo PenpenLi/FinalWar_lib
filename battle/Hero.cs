@@ -1,5 +1,4 @@
-﻿using superEvent;
-using System.IO;
+﻿using System.IO;
 using System.Collections.Generic;
 
 namespace FinalWar
@@ -31,21 +30,11 @@ namespace FinalWar
 
         private int nowShield;
 
-        private int attackFix = 0;
-
-        private int speedFix = 0;
-
-        private bool recoverShield = true;
-
-        private bool canMove = true;
-
         private int canAction;
 
         internal int attackTimes { get; private set; }
 
         private Battle battle;
-
-        private SuperEventListener eventListener;
 
         private bool initAura = false;
 
@@ -55,13 +44,9 @@ namespace FinalWar
 
         private int damage = 0;
 
-        private bool canPierceShield = false;
-
-        internal Hero(Battle _battle, SuperEventListener _eventListener, bool _isMine, IHeroSDS _sds, int _pos, bool _initAura)
+        internal Hero(Battle _battle, bool _isMine, IHeroSDS _sds, int _pos, bool _initAura)
         {
             battle = _battle;
-
-            eventListener = _eventListener;
 
             isMine = _isMine;
 
@@ -90,15 +75,13 @@ namespace FinalWar
             {
                 initAura = true;
 
-                HeroAura.Init(battle, eventListener, this);
+                HeroAura.Init(battle, this);
             }
         }
 
-        internal Hero(Battle _battle, SuperEventListener _eventListener)
+        internal Hero(Battle _battle)
         {
             battle = _battle;
-
-            eventListener = _eventListener;
         }
 
         internal void SetAction(HeroAction _action, int _actionTarget)
@@ -250,11 +233,11 @@ namespace FinalWar
             return FixSpeed(speed);
         }
 
-        public int GetSpeedFix()
+        private int GetSpeedFix()
         {
-            int tmpSpeedFix = speedFix;
+            int tmpSpeedFix = 0;
 
-            eventListener.DispatchEvent(HeroAura.FIX_SPEED, ref tmpSpeedFix, this);
+            battle.eventListener.DispatchEvent(HeroAura.FIX_SPEED, ref tmpSpeedFix, this);
 
             return tmpSpeedFix;
         }
@@ -278,75 +261,29 @@ namespace FinalWar
             return nowHp > 0;
         }
 
-        internal void LevelUp()
+        internal void LevelUp(int _id)
         {
-            if (sds.GetLevelUp() != 0)
-            {
-                sds = Battle.GetHeroData(sds.GetLevelUp());
+            sds = Battle.GetHeroData(_id);
 
-                UnregisterAura();
-            }
-            else
-            {
-                nowHp = sds.GetHp();
-            }
-        }
-
-        internal void SetAttackFix(int _value)
-        {
-            attackFix += _value;
-        }
-
-        internal void SetSpeedFix(int _value)
-        {
-            speedFix += _value;
-        }
-
-        internal void DisableRecoverShield()
-        {
-            recoverShield = false;
-        }
-
-        internal void DisableMove()
-        {
-            canMove = false;
-        }
-
-        internal void EnablePierceShield()
-        {
-            canPierceShield = true;
+            UnregisterAura();
         }
 
         internal bool GetCanPierceShield()
         {
-            if (canPierceShield)
-            {
-                return true;
-            }
-            else
-            {
-                bool tmpCanPierceShield = false;
+            bool tmpCanPierceShield = false;
 
-                eventListener.DispatchEvent(HeroAura.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this);
+            battle.eventListener.DispatchEvent(HeroAura.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this);
 
-                return tmpCanPierceShield;
-            }
+            return tmpCanPierceShield;
         }
 
         internal bool GetCanMove()
         {
-            if (!canMove)
-            {
-                return false;
-            }
-            else
-            {
-                bool tmpCanMove = true;
+            bool tmpCanMove = true;
 
-                eventListener.DispatchEvent(HeroAura.FIX_CAN_MOVE, ref tmpCanMove, this);
+            battle.eventListener.DispatchEvent(HeroAura.FIX_CAN_MOVE, ref tmpCanMove, this);
 
-                return tmpCanMove;
-            }
+            return tmpCanMove;
         }
 
         internal void DisableAction()
@@ -383,29 +320,23 @@ namespace FinalWar
 
         private int GetAttackFix()
         {
-            int attackFixAura = attackFix;
+            int attackFixAura = 0;
 
-            eventListener.DispatchEvent(HeroAura.FIX_ATTACK, ref attackFixAura, this);
+            battle.eventListener.DispatchEvent(HeroAura.FIX_ATTACK, ref attackFixAura, this);
 
             return attackFixAura;
         }
 
         internal void Recover()
         {
+            bool recoverShield = true;
+
+            battle.eventListener.DispatchEvent(HeroAura.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this);
+
             if (recoverShield)
             {
                 nowShield = sds.GetShield();
             }
-            else
-            {
-                recoverShield = true;
-            }
-
-            speedFix = attackFix = 0;
-
-            canMove = true;
-
-            canPierceShield = false;
 
             if (canAction > 0)
             {
@@ -418,7 +349,57 @@ namespace FinalWar
             {
                 initAura = true;
 
-                HeroAura.Init(battle, eventListener, this);
+                HeroAura.Init(battle, this);
+            }
+
+            if (GetCanAction())
+            {
+                CheckFear();
+            }
+        }
+
+        private void CheckFear()
+        {
+            bool willeFear = true;
+
+            battle.eventListener.DispatchEvent(HeroAura.FIX_FEAR, ref willeFear, this);
+
+            if (willeFear)
+            {
+                int myNum = 1;
+
+                int oppNum = 0;
+
+                List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    Hero hero;
+
+                    if (battle.heroMapDic.TryGetValue(list[i], out hero))
+                    {
+                        if (hero.isMine == isMine)
+                        {
+                            myNum++;
+                        }
+                        else
+                        {
+                            oppNum++;
+                        }
+                    }
+                }
+
+                int numDiff = oppNum - myNum;
+
+                if (numDiff > 0)
+                {
+                    int randomValue = battle.GetRandomValue(numDiff);
+
+                    if (randomValue > 0)
+                    {
+                        canAction = 1;
+                    }
+                }
             }
         }
 
@@ -429,7 +410,7 @@ namespace FinalWar
 
         internal void Die()
         {
-            UnregisterAura();
+            battle.eventListener.DispatchEvent(HeroAura.DIE, this);
         }
 
         internal List<BattleHeroEffectVO> Attack(Hero _hero, int _damage)
@@ -453,7 +434,7 @@ namespace FinalWar
                 effectList.Add(vo);
             }
 
-            eventListener.DispatchEvent(HeroAura.ATTACK, ref effectList, this, _hero);
+            battle.eventListener.DispatchEvent(HeroAura.ATTACK, ref effectList, this, _hero);
 
             return effectList;
         }
@@ -462,7 +443,7 @@ namespace FinalWar
         {
             initAura = false;
 
-            eventListener.DispatchEvent(HeroAura.REMOVE_AURA, this);
+            battle.eventListener.DispatchEvent(HeroAura.BE_SILENCE, this);
         }
 
         internal void WriteToStream(BinaryWriter _bw)
@@ -500,7 +481,7 @@ namespace FinalWar
 
             initAura = true;
 
-            HeroAura.Init(battle, eventListener, this);
+            HeroAura.Init(battle, this);
         }
     }
 }

@@ -9,6 +9,7 @@
     SHIELD_CHANGE,
     SILENCE,
     FIX_SPEED,
+    LEVEL_UP,
 }
 
 public interface IEffectSDS

@@ -199,7 +199,7 @@ namespace FinalWar
 
                     IHeroSDS heroSDS = GetHeroData(id);
 
-                    Hero hero = new Hero(this, eventListener, isMine, heroSDS, pos, true);
+                    Hero hero = new Hero(this, isMine, heroSDS, pos, true);
 
                     heroMapDic.Add(pos, hero);
                 }
@@ -676,7 +676,7 @@ namespace FinalWar
 
 #endif
 
-        private int GetRandomValue(int _max)
+        internal int GetRandomValue(int _max)
         {
 #if !CLIENT
             int result = random.Next(_max);
@@ -822,7 +822,7 @@ namespace FinalWar
                 oHandCards.Remove(_uid);
             }
 
-            Hero hero = new Hero(this, eventListener, isMine, sds, _pos, false);
+            Hero hero = new Hero(this, isMine, sds, _pos, false);
 
             return hero;
         }
@@ -1610,6 +1610,8 @@ namespace FinalWar
                 enumerator.Current.Recover();
             }
 
+            eventListener.DispatchEvent(HeroAura.ROUND_OVER);
+
             yield return new BattleRecoverVO();
         }
 
@@ -1685,7 +1687,12 @@ namespace FinalWar
                 mapBelongDic.Add(_nowPos, true);
             }
 
-            _hero.LevelUp();
+            bool b = eventListener.DispatchEvent(HeroAura.CAPTURE_MAP_AREA, _hero);
+
+            if (b)
+            {
+                _hero.ProcessDamage();
+            }
         }
 
         private IEnumerator DoAddMoney()
@@ -1960,7 +1967,7 @@ namespace FinalWar
 
             for (int i = 0; i < num; i++)
             {
-                Hero hero = new Hero(this, eventListener);
+                Hero hero = new Hero(this);
 
                 hero.ReadFromStream(_br);
 

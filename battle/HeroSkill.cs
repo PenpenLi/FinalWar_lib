@@ -19,7 +19,7 @@ namespace FinalWar
 
             for (int i = 0; i < sds.GetEffects().Length; i++)
             {
-                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_target, sds.GetEffects()[i]);
+                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _target, sds.GetEffects()[i]);
 
                 effectList.Add(vo);
             }

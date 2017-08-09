@@ -70,13 +70,15 @@
   <ItemGroup>
     <Compile Include="battle\ai\AiData.cs" />
     <Compile Include="battle\ai\node\CheckHeroTypeConditionNode.cs" />
+    <Compile Include="battle\ai\node\DefenseActionNode.cs" />
     <Compile Include="battle\ai\node\GetCanAttackPosConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanShootHeroPosConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanSupportHeroPosConditionNode.cs" />
     <Compile Include="battle\ai\node\CheckHeroCanBeAttackConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanAttackHeroPosConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanSupportPosConditionNode.cs" />
-    <Compile Include="battle\ai\node\ChoosePosActionNode.cs" />
+    <Compile Include="battle\ai\node\ChooseTargetActionNode.cs" />
+    <Compile Include="battle\ai\node\MoveForwardActionNode.cs" />
     <Compile Include="battle\Battle.cs" />
     <Compile Include="battle\BattleCellData.cs" />
     <Compile Include="battle\BattleData.cs" />
