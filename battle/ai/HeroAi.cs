@@ -18,17 +18,15 @@ namespace FinalWar
 
         private static AiSummonData aiSummonData;
 
-        //private static AiSummonData 
-
         public static void Init(string _actionStr, string _summonStr)
         {
             actionBtRoot = BtTools.Create(_actionStr, GetActionConditionNode, GetActionActionNode, GetRandomValue);
 
             summonBtRoot = BtTools.Create(_summonStr, GetSummonConditionNode, GetSummonActionNode, GetRandomValue);
 
-            aiActionData = new AiActionData(GetRandomValue);
+            aiActionData = new AiActionData();
 
-            aiSummonData = new AiSummonData(GetRandomValue);
+            aiSummonData = new AiSummonData();
         }
 
         private static int GetRandomValue(int _max)
@@ -112,7 +110,7 @@ namespace FinalWar
 
                 case ChooseTargetActionNode.key:
 
-                    actionNode = new ChooseTargetActionNode(_node);
+                    actionNode = new ChooseTargetActionNode(_node, GetRandomValue);
 
                     break;
 
@@ -218,7 +216,7 @@ namespace FinalWar
             {
                 case ChooseSummonPosActionNode.key:
 
-                    actionNode = new ChooseSummonPosActionNode();
+                    actionNode = new ChooseSummonPosActionNode(GetRandomValue);
 
                     break;
 
@@ -248,6 +246,12 @@ namespace FinalWar
                 case GetSummonPosListConditionNode.key:
 
                     conditionNode = new GetSummonPosListConditionNode();
+
+                    break;
+
+                case GetSummonHeroIdConditionNode.key:
+
+                    conditionNode = new GetSummonHeroIdConditionNode(GetRandomValue);
 
                     break;
 

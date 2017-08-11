@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace FinalWar
 {
@@ -7,11 +6,6 @@ namespace FinalWar
     {
         internal List<List<int>> summonPosList;
 
-        private Func<int, int> getRandomValueCallBack;
-
-        internal AiSummonData(Func<int, int> _getRandomValueCallBack)
-        {
-            getRandomValueCallBack = _getRandomValueCallBack;
-        }
+        internal int summonHeroId;
     }
 }

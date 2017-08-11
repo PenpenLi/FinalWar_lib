@@ -82,6 +82,7 @@
     <Compile Include="battle\ai\node\action\GetCanSupportPosConditionNode.cs" />
     <Compile Include="battle\ai\node\action\MoveForwardActionNode.cs" />
     <Compile Include="battle\ai\node\summon\ChooseSummonPosActionNode.cs" />
+    <Compile Include="battle\ai\node\summon\GetSummonHeroIdConditionNode.cs" />
     <Compile Include="battle\ai\node\summon\GetSummonPosListConditionNode.cs" />
     <Compile Include="battle\Battle.cs" />
     <Compile Include="battle\BattleCellData.cs" />
