@@ -69,8 +69,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="battle\ai\AiActionData.cs" />
+    <Compile Include="battle\ai\AiSummonData.cs" />
     <Compile Include="battle\ai\node\CheckHeroCanActionConditionNode.cs" />
     <Compile Include="battle\ai\node\CheckHeroTypeConditionNode.cs" />
+    <Compile Include="battle\ai\node\ChooseSummonPosActionNode.cs" />
     <Compile Include="battle\ai\node\DefenseActionNode.cs" />
     <Compile Include="battle\ai\node\GetCanAttackPosConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanShootHeroPosConditionNode.cs" />
@@ -79,6 +81,7 @@
     <Compile Include="battle\ai\node\GetCanAttackHeroPosConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanSupportPosConditionNode.cs" />
     <Compile Include="battle\ai\node\ChooseTargetActionNode.cs" />
+    <Compile Include="battle\ai\node\GetSummonPosListConditionNode.cs" />
     <Compile Include="battle\ai\node\MoveForwardActionNode.cs" />
     <Compile Include="battle\Battle.cs" />
     <Compile Include="battle\BattleCellData.cs" />

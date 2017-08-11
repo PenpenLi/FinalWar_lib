@@ -12,17 +12,23 @@ namespace FinalWar
 
         private static BtRoot<Battle, Hero, AiActionData> actionBtRoot;
 
-        private static BtRoot<Battle, Hero, AiActionData> summonBtRoot;
+        private static BtRoot<Battle, bool, AiSummonData> summonBtRoot;
 
-        private static AiActionData aiData;
+        private static AiActionData aiActionData;
+
+        private static AiSummonData aiSummonData;
+
+        //private static AiSummonData 
 
         public static void Init(string _actionStr, string _summonStr)
         {
-            actionBtRoot = BtTools.Create(_actionStr, GetConditionNode, GetActionNode, GetRandomValue);
+            actionBtRoot = BtTools.Create(_actionStr, GetActionConditionNode, GetActionActionNode, GetRandomValue);
 
-            summonBtRoot = BtTools.Create(_summonStr, GetConditionNode, GetActionNode, GetRandomValue);
+            summonBtRoot = BtTools.Create(_summonStr, GetSummonConditionNode, GetSummonActionNode, GetRandomValue);
 
-            aiData = new AiActionData(GetRandomValue);
+            aiActionData = new AiActionData(GetRandomValue);
+
+            aiSummonData = new AiSummonData(GetRandomValue);
         }
 
         private static int GetRandomValue(int _max)
@@ -85,7 +91,7 @@ namespace FinalWar
             }
         }
 
-        private static ActionNode<Battle, Hero, AiActionData> GetActionNode(XmlNode _node)
+        private static ActionNode<Battle, Hero, AiActionData> GetActionActionNode(XmlNode _node)
         {
             XmlAttribute typeAtt = _node.Attributes["type"];
 
@@ -124,7 +130,7 @@ namespace FinalWar
             return actionNode;
         }
 
-        private static ConditionNode<Battle, Hero, AiActionData> GetConditionNode(XmlNode _node)
+        private static ConditionNode<Battle, Hero, AiActionData> GetActionConditionNode(XmlNode _node)
         {
             XmlAttribute typeAtt = _node.Attributes["type"];
 
@@ -194,6 +200,65 @@ namespace FinalWar
 
             return conditionNode;
         }
+
+
+
+        private static ActionNode<Battle, bool, AiSummonData> GetSummonActionNode(XmlNode _node)
+        {
+            XmlAttribute typeAtt = _node.Attributes["type"];
+
+            if (typeAtt == null)
+            {
+                throw new Exception("ActionNode has not type attribute:" + _node.ToString());
+            }
+
+            ActionNode<Battle, bool, AiSummonData> actionNode;
+
+            switch (typeAtt.InnerText)
+            {
+                case ChooseSummonPosActionNode.key:
+
+                    actionNode = new ChooseSummonPosActionNode();
+
+                    break;
+
+                default:
+
+                    throw new Exception("Unknown ActionNode:" + _node.ToString());
+            }
+
+            return actionNode;
+        }
+
+        private static ConditionNode<Battle, bool, AiSummonData> GetSummonConditionNode(XmlNode _node)
+        {
+            XmlAttribute typeAtt = _node.Attributes["type"];
+
+            if (typeAtt == null)
+            {
+                throw new Exception("ConditionNode has not type attribute:" + _node.ToString());
+            }
+
+            ConditionNode<Battle, bool, AiSummonData> conditionNode;
+
+            string key = typeAtt.InnerText;
+
+            switch (key)
+            {
+                case GetSummonPosListConditionNode.key:
+
+                    conditionNode = new GetSummonPosListConditionNode();
+
+                    break;
+
+                default:
+
+                    throw new Exception("Unknown ConditionNode:" + _node.ToString());
+            }
+
+            return conditionNode;
+        }
+
 
 
 
