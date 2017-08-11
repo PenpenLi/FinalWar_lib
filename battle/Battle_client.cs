@@ -490,7 +490,7 @@ namespace FinalWar
 
             for (int i = 0; i < num; i++)
             {
-                int value = _br.ReadInt32();
+                double value = _br.ReadDouble();
 
                 randomList.Enqueue(value);
             }

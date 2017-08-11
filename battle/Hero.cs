@@ -391,11 +391,11 @@ namespace FinalWar
 
                 int numDiff = oppNum - myNum;
 
-                if (numDiff > 1)
+                if (numDiff > 0)
                 {
-                    int randomValue = battle.GetRandomValue(numDiff);
+                    int randomValue = battle.GetRandomValue(6);
 
-                    if (randomValue > 0)
+                    if (randomValue < numDiff)
                     {
                         canAction = 1;
                     }

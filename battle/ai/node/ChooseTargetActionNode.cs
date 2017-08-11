@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace FinalWar
 {
-    internal class ChooseTargetActionNode : ActionNode<Battle, Hero, AiData>
+    internal class ChooseTargetActionNode : ActionNode<Battle, Hero, AiActionData>
     {
         internal const string key = "ChooseTargetActionNode";
 
         private string value;
 
-        public override bool Enter(Battle _t, Hero _u, AiData _v)
+        public override bool Enter(Battle _t, Hero _u, AiActionData _v)
         {
             int target = _v.Get(value);
 

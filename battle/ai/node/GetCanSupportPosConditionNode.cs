@@ -3,11 +3,11 @@ using bt;
 
 namespace FinalWar
 {
-    internal class GetCanSupportPosConditionNode : ConditionNode<Battle, Hero, AiData>
+    internal class GetCanSupportPosConditionNode : ConditionNode<Battle, Hero, AiActionData>
     {
         internal const string key = "GetCanSupportPosConditionNode";
 
-        public override bool Enter(Battle _t, Hero _u, AiData _v)
+        public override bool Enter(Battle _t, Hero _u, AiActionData _v)
         {
             List<int> posList = HeroAi.GetCanSupportPos(_t, _u);
 

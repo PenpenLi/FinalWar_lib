@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace FinalWar
 {
-    internal class MoveForwardActionNode : ActionNode<Battle, Hero, AiData>
+    internal class MoveForwardActionNode : ActionNode<Battle, Hero, AiActionData>
     {
         internal const string key = "MoveForwardActionNode";
 
-        public override bool Enter(Battle _t, Hero _u, AiData _v)
+        public override bool Enter(Battle _t, Hero _u, AiActionData _v)
         {
             int target = _u.isMine ? _t.mapData.oBase : _t.mapData.mBase;
 

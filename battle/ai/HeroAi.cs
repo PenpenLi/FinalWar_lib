@@ -2,6 +2,7 @@
 using bt;
 using System.Xml;
 using System;
+using System.Linq;
 
 namespace FinalWar
 {
@@ -9,11 +10,11 @@ namespace FinalWar
     {
         private static Random random = new Random();
 
-        private static BtRoot<Battle, Hero, AiData> actionBtRoot;
+        private static BtRoot<Battle, Hero, AiActionData> actionBtRoot;
 
-        private static BtRoot<Battle, Hero, AiData> summonBtRoot;
+        private static BtRoot<Battle, Hero, AiActionData> summonBtRoot;
 
-        private static AiData aiData;
+        private static AiActionData aiData;
 
         public static void Init(string _actionStr, string _summonStr)
         {
@@ -21,7 +22,7 @@ namespace FinalWar
 
             summonBtRoot = BtTools.Create(_summonStr, GetConditionNode, GetActionNode, GetRandomValue);
 
-            aiData = new AiData(GetRandomValue);
+            aiData = new AiActionData(GetRandomValue);
         }
 
         private static int GetRandomValue(int _max)
@@ -84,7 +85,7 @@ namespace FinalWar
             }
         }
 
-        private static ActionNode<Battle, Hero, AiData> GetActionNode(XmlNode _node)
+        private static ActionNode<Battle, Hero, AiActionData> GetActionNode(XmlNode _node)
         {
             XmlAttribute typeAtt = _node.Attributes["type"];
 
@@ -93,10 +94,16 @@ namespace FinalWar
                 throw new Exception("ActionNode has not type attribute:" + _node.ToString());
             }
 
-            ActionNode<Battle, Hero, AiData> actionNode;
+            ActionNode<Battle, Hero, AiActionData> actionNode;
 
             switch (typeAtt.InnerText)
             {
+                case DefenseActionNode.key:
+
+                    actionNode = new DefenseActionNode();
+
+                    break;
+
                 case ChooseTargetActionNode.key:
 
                     actionNode = new ChooseTargetActionNode(_node);
@@ -117,7 +124,7 @@ namespace FinalWar
             return actionNode;
         }
 
-        private static ConditionNode<Battle, Hero, AiData> GetConditionNode(XmlNode _node)
+        private static ConditionNode<Battle, Hero, AiActionData> GetConditionNode(XmlNode _node)
         {
             XmlAttribute typeAtt = _node.Attributes["type"];
 
@@ -126,12 +133,18 @@ namespace FinalWar
                 throw new Exception("ConditionNode has not type attribute:" + _node.ToString());
             }
 
-            ConditionNode<Battle, Hero, AiData> conditionNode;
+            ConditionNode<Battle, Hero, AiActionData> conditionNode;
 
             string key = typeAtt.InnerText;
 
             switch (key)
             {
+                case CheckHeroCanActionConditionNode.key:
+
+                    conditionNode = new CheckHeroCanActionConditionNode();
+
+                    break;
+
                 case CheckHeroCanBeAttackConditionNode.key:
 
                     conditionNode = new CheckHeroCanBeAttackConditionNode();
@@ -435,6 +448,99 @@ namespace FinalWar
                     {
                         result.Add(pos);
                     }
+                }
+            }
+
+            return result;
+        }
+
+        public static List<List<int>> GetSummonPosList(Battle _battle, bool _isMine)
+        {
+            int startPos = _isMine ? _battle.mapData.oBase : _battle.mapData.mBase;
+
+            Dictionary<int, int> close = new Dictionary<int, int>();
+
+            Dictionary<int, int> open = new Dictionary<int, int>();
+
+            open.Add(startPos, -1);
+
+            while (open.Count > 0)
+            {
+                KeyValuePair<int, int> pair = open.ElementAt(0);
+
+                int pos = pair.Key;
+
+                int range = pair.Value;
+
+                open.Remove(pos);
+
+                close.Add(pos, range);
+
+                List<int> list = BattlePublicTools.GetNeighbourPos(_battle.mapData, pos);
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    int nowRange;
+
+                    int tmpPos = list[i];
+
+                    if (_battle.GetPosIsMine(tmpPos) == _isMine)
+                    {
+                        nowRange = range + 1;
+                    }
+                    else
+                    {
+                        nowRange = -1;
+                    }
+
+                    int oldRange;
+
+                    if (open.TryGetValue(tmpPos, out oldRange))
+                    {
+                        if (oldRange > nowRange)
+                        {
+                            open[tmpPos] = nowRange;
+                        }
+
+                        continue;
+                    }
+
+                    if (close.TryGetValue(tmpPos, out oldRange))
+                    {
+                        if (oldRange > nowRange)
+                        {
+                            close[tmpPos] = nowRange;
+                        }
+
+                        continue;
+                    }
+
+                    open.Add(tmpPos, nowRange);
+                }
+            }
+
+            List<List<int>> result = new List<List<int>>();
+
+            Dictionary<int, int>.Enumerator enumerator = close.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                KeyValuePair<int, int> pair = enumerator.Current;
+
+                if (pair.Value > -1)
+                {
+                    List<int> tmpList;
+
+                    for (int i = result.Count; i < pair.Value + 1; i++)
+                    {
+                        tmpList = new List<int>();
+
+                        result.Add(tmpList);
+                    }
+
+                    tmpList = result[pair.Value];
+
+                    tmpList.Add(pair.Key);
                 }
             }
 

@@ -68,8 +68,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="battle\ai\AiData.cs" />
+    <Compile Include="battle\ai\AiActionData.cs" />
+    <Compile Include="battle\ai\node\CheckHeroCanActionConditionNode.cs" />
     <Compile Include="battle\ai\node\CheckHeroTypeConditionNode.cs" />
+    <Compile Include="battle\ai\node\DefenseActionNode.cs" />
     <Compile Include="battle\ai\node\GetCanAttackPosConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanShootHeroPosConditionNode.cs" />
     <Compile Include="battle\ai\node\GetCanSupportHeroPosConditionNode.cs" />

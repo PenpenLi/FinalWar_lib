@@ -41,7 +41,7 @@ namespace FinalWar
         public bool mOver { get; private set; }
         public bool oOver { get; private set; }
 
-        private Queue<int> randomList = new Queue<int>();
+        private Queue<double> randomList = new Queue<double>();
 
         internal SuperEventListener eventListener = new SuperEventListener();
 
@@ -80,14 +80,15 @@ namespace FinalWar
 
         internal int GetRandomValue(int _max)
         {
+            double randomValue;
 #if !CLIENT
-            int result = random.Next(_max);
+            randomValue = random.NextDouble();
 
-            randomList.Enqueue(result);
+            randomList.Enqueue(randomValue);
 #else
-            int result = randomList.Dequeue();
+            randomValue = randomList.Dequeue();
 #endif
-            return result;
+            return (int)(randomValue * _max);
         }
 
         private IEnumerator StartBattle()

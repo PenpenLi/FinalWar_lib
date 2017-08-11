@@ -543,7 +543,7 @@ namespace FinalWar
 
             _bw.Write(randomList.Count);
 
-            Queue<int>.Enumerator enumerator2 = randomList.GetEnumerator();
+            Queue<double>.Enumerator enumerator2 = randomList.GetEnumerator();
 
             while (enumerator2.MoveNext())
             {

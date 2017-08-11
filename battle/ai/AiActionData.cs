@@ -3,13 +3,13 @@ using System;
 
 namespace FinalWar
 {
-    internal class AiData
+    internal class AiActionData
     {
         private Dictionary<string, List<int>> dic = new Dictionary<string, List<int>>();
 
         private Func<int, int> getRandomValueCallBack;
 
-        internal AiData(Func<int, int> _getRandomValueCallBack)
+        internal AiActionData(Func<int, int> _getRandomValueCallBack)
         {
             getRandomValueCallBack = _getRandomValueCallBack;
         }
