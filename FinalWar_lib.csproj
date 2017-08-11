@@ -70,19 +70,19 @@
   <ItemGroup>
     <Compile Include="battle\ai\AiActionData.cs" />
     <Compile Include="battle\ai\AiSummonData.cs" />
-    <Compile Include="battle\ai\node\CheckHeroCanActionConditionNode.cs" />
-    <Compile Include="battle\ai\node\CheckHeroTypeConditionNode.cs" />
-    <Compile Include="battle\ai\node\ChooseSummonPosActionNode.cs" />
-    <Compile Include="battle\ai\node\DefenseActionNode.cs" />
-    <Compile Include="battle\ai\node\GetCanAttackPosConditionNode.cs" />
-    <Compile Include="battle\ai\node\GetCanShootHeroPosConditionNode.cs" />
-    <Compile Include="battle\ai\node\GetCanSupportHeroPosConditionNode.cs" />
-    <Compile Include="battle\ai\node\CheckHeroCanBeAttackConditionNode.cs" />
-    <Compile Include="battle\ai\node\GetCanAttackHeroPosConditionNode.cs" />
-    <Compile Include="battle\ai\node\GetCanSupportPosConditionNode.cs" />
-    <Compile Include="battle\ai\node\ChooseTargetActionNode.cs" />
-    <Compile Include="battle\ai\node\GetSummonPosListConditionNode.cs" />
-    <Compile Include="battle\ai\node\MoveForwardActionNode.cs" />
+    <Compile Include="battle\ai\node\action\CheckHeroCanActionConditionNode.cs" />
+    <Compile Include="battle\ai\node\action\CheckHeroCanBeAttackConditionNode.cs" />
+    <Compile Include="battle\ai\node\action\CheckHeroTypeConditionNode.cs" />
+    <Compile Include="battle\ai\node\action\ChooseTargetActionNode.cs" />
+    <Compile Include="battle\ai\node\action\DefenseActionNode.cs" />
+    <Compile Include="battle\ai\node\action\GetCanAttackHeroPosConditionNode.cs" />
+    <Compile Include="battle\ai\node\action\GetCanAttackPosConditionNode.cs" />
+    <Compile Include="battle\ai\node\action\GetCanShootHeroPosConditionNode.cs" />
+    <Compile Include="battle\ai\node\action\GetCanSupportHeroPosConditionNode.cs" />
+    <Compile Include="battle\ai\node\action\GetCanSupportPosConditionNode.cs" />
+    <Compile Include="battle\ai\node\action\MoveForwardActionNode.cs" />
+    <Compile Include="battle\ai\node\summon\ChooseSummonPosActionNode.cs" />
+    <Compile Include="battle\ai\node\summon\GetSummonPosListConditionNode.cs" />
     <Compile Include="battle\Battle.cs" />
     <Compile Include="battle\BattleCellData.cs" />
     <Compile Include="battle\BattleConst.cs" />
@@ -128,6 +128,7 @@
     <Compile Include="battle\battlePublicTools\BattlePublicTools.cs" />
     <Compile Include="battle\sds\IHeroSDS.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
