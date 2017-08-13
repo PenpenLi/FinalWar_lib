@@ -10,8 +10,8 @@ namespace FinalWar
     {
         private static readonly Random random = new Random();
 
-        private Dictionary<int, int> mHandCardsChangeDic = new Dictionary<int, int>();
-        private Dictionary<int, int> oHandCardsChangeDic = new Dictionary<int, int>();
+        private bool mOver;
+        private bool oOver;
 
         private Action<bool, MemoryStream> serverSendDataCallBack;
         private Action serverBattleOverCallBack;
@@ -27,89 +27,13 @@ namespace FinalWar
         {
             Log.Write("Battle Start!");
 
-            isVsAi = _isVsAi;
-
-            mapID = _mapID;
-
-            mapData = GetMapData(mapID);
-
-            mScore = mapData.mScore;
-            oScore = mapData.oScore;
-
-            mMoney = BattleConst.DEFAULT_MONEY;
-
-            if (!isVsAi)
-            {
-                oMoney = BattleConst.DEFAULT_MONEY;
-            }
-            else
-            {
-                oMoney = BattleConst.AI_DEFAULT_MONEY;
-            }
-
-            mWin = oWin = false;
-
             mOver = oOver = false;
 
-            cardUid = 1;
-
-            mCards = new List<int>(_mCards);
-
-            oCards = new List<int>(_oCards);
-
-            for (int i = 0; i < BattleConst.DEFAULT_HAND_CARD_NUM; i++)
-            {
-                if (mCards.Count > 0)
-                {
-                    int index = random.Next(mCards.Count);
-
-                    int cardID = mCards[index];
-
-                    mHandCards.Add(GetCardUid(), cardID);
-
-                    mCards.RemoveAt(index);
-                }
-
-                if (oCards.Count > 0)
-                {
-                    int index = random.Next(oCards.Count);
-
-                    int cardID = oCards[index];
-
-                    oHandCards.Add(GetCardUid(), cardID);
-
-                    oCards.RemoveAt(index);
-                }
-            }
-
-            if (_heros != null)
-            {
-                Dictionary<int, int>.Enumerator enumerator = _heros.GetEnumerator();
-
-                while (enumerator.MoveNext())
-                {
-                    KeyValuePair<int, int> pair = enumerator.Current;
-
-                    int pos = pair.Key;
-
-                    int id = pair.Value;
-
-                    bool isMine = GetPosIsMine(pos);
-
-                    IHeroSDS heroSDS = GetHeroData(id);
-
-                    Hero hero = new Hero(this, isMine, heroSDS, pos, true);
-
-                    heroMapDic.Add(pos, hero);
-                }
-            }
+            InitBattle(_mapID, _heros, _mCards, _oCards);
 
             ServerRefreshData(true);
 
-            if (!isVsAi)
-            {
-                ServerRefreshData(false);
-            }
+            ServerRefreshData(false);
         }
 
         public void ServerGetPackage(byte[] _bytes, bool _isMine)
@@ -153,8 +77,6 @@ namespace FinalWar
                     Log.Write("ServerRefreshData  isMine:" + _isMine);
 
                     bw.Write(PackageTag.S2C_REFRESH);
-
-                    bw.Write(isVsAi);
 
                     bw.Write(_isMine);
 
@@ -402,57 +324,33 @@ namespace FinalWar
                 }
             }
 
-            if (!isVsAi)
+            if (mOver && oOver)
             {
-                if (mOver && oOver)
-                {
-                    ServerStartBattle();
-                }
-            }
-            else
-            {
-                HeroAi.Start(this, false);
-
-                StartBattle();
+                ServerStartBattle();
             }
         }
 
         private void ServerStartBattle()
         {
-            if (!isVsAi)
+            using (MemoryStream mMs = new MemoryStream(), oMs = new MemoryStream())
             {
-                using (MemoryStream mMs = new MemoryStream(), oMs = new MemoryStream())
+                using (BinaryWriter mBw = new BinaryWriter(mMs), oBw = new BinaryWriter(oMs))
                 {
-                    using (BinaryWriter mBw = new BinaryWriter(mMs), oBw = new BinaryWriter(oMs))
-                    {
-                        ServerWriteActionAndSummon(true, mBw);
+                    ServerWriteActionAndSummon(true, mBw);
 
-                        ServerWriteActionAndSummon(false, oBw);
+                    ServerWriteActionAndSummon(false, oBw);
 
-                        SuperEnumerator<ValueType> step = new SuperEnumerator<ValueType>(StartBattle());
+                    SuperEnumerator<ValueType> step = new SuperEnumerator<ValueType>(StartBattle());
 
-                        step.Done();
+                    step.Done();
 
-                        ServerWriteCardsAndRandom(true, mBw);
+                    ServerWriteCardsAndRandom(true, mBw);
 
-                        ServerWriteCardsAndRandom(false, oBw);
+                    ServerWriteCardsAndRandom(false, oBw);
 
-                        serverSendDataCallBack(true, mMs);
+                    serverSendDataCallBack(true, mMs);
 
-                        serverSendDataCallBack(false, oMs);
-                    }
-                }
-            }
-            else
-            {
-                using (MemoryStream mMs = new MemoryStream())
-                {
-                    using (BinaryWriter mBw = new BinaryWriter(mMs))
-                    {
-                        mBw.Write(PackageTag.S2C_DOACTION);
-
-                        serverSendDataCallBack(true, mMs);
-                    }
+                    serverSendDataCallBack(false, oMs);
                 }
             }
 
@@ -561,10 +459,7 @@ namespace FinalWar
 
                     serverSendDataCallBack(true, ms);
 
-                    if (!isVsAi)
-                    {
-                        serverSendDataCallBack(false, ms);
-                    }
+                    serverSendDataCallBack(false, ms);
                 }
             }
 

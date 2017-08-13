@@ -72,6 +72,7 @@
     <Compile Include="battle\ai\AiSummonData.cs" />
     <Compile Include="battle\ai\node\action\CheckHeroCanActionConditionNode.cs" />
     <Compile Include="battle\ai\node\action\CheckHeroCanBeAttackConditionNode.cs" />
+    <Compile Include="battle\ai\node\action\CheckHeroCanShootConditionNode.cs" />
     <Compile Include="battle\ai\node\action\CheckHeroTypeConditionNode.cs" />
     <Compile Include="battle\ai\node\action\ChooseTargetActionNode.cs" />
     <Compile Include="battle\ai\node\action\DefenseActionNode.cs" />
@@ -99,7 +100,6 @@
     <Compile Include="battle\battleVO\BattleAttackVO.cs" />
     <Compile Include="battle\battleVO\BattleCounterVO.cs" />
     <Compile Include="battle\battleVO\BattleDeathVO.cs" />
-    <Compile Include="battle\battleVO\BattleDelCardsVO.cs" />
     <Compile Include="battle\battleVO\BattleHeroEffectVO.cs" />
     <Compile Include="battle\battleVO\BattleMoneyChangeVO.cs" />
     <Compile Include="battle\battleVO\BattleMoveVO.cs" />

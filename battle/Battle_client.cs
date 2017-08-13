@@ -60,8 +60,6 @@ namespace FinalWar
         {
             eventListener.Clear();
 
-            isVsAi = _br.ReadBoolean();
-
             clientIsMine = _br.ReadBoolean();
 
             Log.Write("ClientRefreshData  isMine:" + clientIsMine);

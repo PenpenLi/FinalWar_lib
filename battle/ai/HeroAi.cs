@@ -38,7 +38,54 @@ namespace FinalWar
         {
             ClearAction(_battle, _isMine);
 
+            ActionHero(_battle, _isMine);
 
+            SummonHero(_battle, _isMine);
+        }
+
+        private static void ActionHero(Battle _battle, bool _isMine)
+        {
+            List<Hero> heroList = null;
+
+            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = _battle.heroMapDic.Values.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                Hero hero = enumerator.Current;
+
+                if (hero.isMine == _isMine)
+                {
+                    if (heroList == null)
+                    {
+                        heroList = new List<Hero>();
+                    }
+
+                    heroList.Add(hero);
+                }
+            }
+
+            if (heroList != null)
+            {
+                while (heroList.Count > 0)
+                {
+                    int index = GetRandomValue(heroList.Count);
+
+                    Hero hero = heroList[index];
+
+                    heroList.RemoveAt(index);
+
+                    actionBtRoot.Enter(_battle, hero, aiActionData);
+
+                    aiActionData.dic.Clear();
+                }
+            }
+        }
+
+        private static void SummonHero(Battle _battle, bool _isMine)
+        {
+            summonBtRoot.Enter(_battle, _isMine, aiSummonData);
+
+            aiSummonData.summonPosList.Clear();
         }
 
         private static void ClearAction(Battle _battle, bool _isMine)
@@ -188,6 +235,12 @@ namespace FinalWar
                 case GetCanSupportPosConditionNode.key:
 
                     conditionNode = new GetCanSupportPosConditionNode();
+
+                    break;
+
+                case CheckHeroCanShootConditionNode.key:
+
+                    conditionNode = new CheckHeroCanShootConditionNode();
 
                     break;
 

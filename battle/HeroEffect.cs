@@ -71,6 +71,12 @@ namespace FinalWar
 
                     break;
 
+                case Effect.ADD_MONEY:
+
+                    _hero.MoneyChange(sds.GetData()[0]);
+
+                    break;
+
                 default:
 
                     throw new Exception("skill effect error:" + sds.GetEffect().ToString());

@@ -33,7 +33,7 @@ namespace FinalWar
 
             if (_v.summonPosList.Count >= value)
             {
-                List<int> tmpList = _v.summonPosList[value];
+                List<int> tmpList = _v.summonPosList[value - 1];
 
                 if (tmpList.Count > 0)
                 {

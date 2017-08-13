@@ -483,5 +483,12 @@ namespace FinalWar
 
             HeroAura.Init(battle, this);
         }
+
+
+
+        internal void MoneyChange(int _num)
+        {
+            battle.MoneyChangeReal(isMine, _num);
+        }
     }
 }

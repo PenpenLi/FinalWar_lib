@@ -10,6 +10,7 @@
     SILENCE,
     FIX_SPEED,
     LEVEL_UP,
+    ADD_MONEY,
 }
 
 public interface IEffectSDS

@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using superEvent;
-using System.Linq;
 
 namespace FinalWar
 {
@@ -14,17 +13,21 @@ namespace FinalWar
         internal static Func<int, IAuraSDS> GetAuraData;
         internal static Func<int, IEffectSDS> GetEffectData;
 
+        private static double[] randomPool;
+
         public int mapID { get; private set; }
         public MapData mapData { get; private set; }
 
         private Dictionary<int, bool> mapBelongDic = new Dictionary<int, bool>();
-        public Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
+        private Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
 
-        private List<int> mCards = new List<int>();
-        private List<int> oCards = new List<int>();
+        private Queue<int> mCards = new Queue<int>();
+        private Queue<int> oCards = new Queue<int>();
 
-        public Dictionary<int, int> mHandCards = new Dictionary<int, int>();
-        public Dictionary<int, int> oHandCards = new Dictionary<int, int>();
+        public Dictionary<int, bool> mHandCards = new Dictionary<int, bool>();
+        public Dictionary<int, bool> oHandCards = new Dictionary<int, bool>();
+
+        public int[] cardsArr = new int[BattleConst.DECK_CARD_NUM * 2];
 
         public int mScore { get; private set; }
         public int oScore { get; private set; }
@@ -32,23 +35,20 @@ namespace FinalWar
         public int mMoney { get; private set; }
         public int oMoney { get; private set; }
 
-        public Dictionary<int, int> summon = new Dictionary<int, int>();
+        private Dictionary<int, int>[] summon = new Dictionary<int, int>[BattleConst.MAX_ROUND_NUM];
 
-        public List<KeyValuePair<int, int>> action = new List<KeyValuePair<int, int>>();
+        private List<KeyValuePair<int, int>>[] action = new List<KeyValuePair<int, int>>[BattleConst.MAX_ROUND_NUM];
 
-        private int cardUid;
+        private List<int> randomIndexList = new List<int>();
 
-        public bool mOver { get; private set; }
-        public bool oOver { get; private set; }
-
-        private Queue<double> randomList = new Queue<double>();
+        private int randomIndex;
 
         internal SuperEventListener eventListener = new SuperEventListener();
 
         public bool mWin { get; private set; }
         public bool oWin { get; private set; }
 
-        private bool isVsAi;
+        public int roundNum { get; private set; }
 
         public static void Init<T, U, V, W>(Dictionary<int, MapData> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
         {
@@ -78,32 +78,104 @@ namespace FinalWar
             };
         }
 
+        internal Battle()
+        {
+            for (int i = 0; i < BattleConst.MAX_ROUND_NUM; i++)
+            {
+                summon[i] = new Dictionary<int, int>();
+
+                action[i] = new List<KeyValuePair<int, int>>();
+            }
+        }
+
         internal int GetRandomValue(int _max)
         {
-            double randomValue;
-#if !CLIENT
-            randomValue = random.NextDouble();
+            double randomValue = randomPool[randomIndex];
 
-            randomList.Enqueue(randomValue);
-#else
-            randomValue = randomList.Dequeue();
-#endif
+            randomIndex++;
+
+            if (randomIndex == randomPool.Length)
+            {
+                randomIndex = 0;
+            }
+
             return (int)(randomValue * _max);
+        }
+
+        internal void InitBattle(int _mapID, Dictionary<int, int> _heros, List<int> _mCards, List<int> _oCards)
+        {
+            mapID = _mapID;
+
+            mapData = GetMapData(mapID);
+
+            mScore = mapData.mScore;
+            oScore = mapData.oScore;
+
+            mMoney = oMoney = BattleConst.DEFAULT_MONEY;
+
+            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _mCards.Count; i++)
+            {
+                cardsArr[i] = _mCards[i];
+
+                mCards.Enqueue(i);
+            }
+
+            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _oCards.Count; i++)
+            {
+                int index = BattleConst.DECK_CARD_NUM + i;
+
+                cardsArr[index] = _oCards[i];
+
+                oCards.Enqueue(index);
+            }
+
+            for (int i = 0; i < BattleConst.DEFAULT_HAND_CARD_NUM; i++)
+            {
+                if (mCards.Count > 0)
+                {
+                    mHandCards.Add(mCards.Dequeue(), false);
+                }
+
+                if (oCards.Count > 0)
+                {
+                    oHandCards.Add(oCards.Dequeue(), false);
+                }
+            }
+
+            if (_heros != null)
+            {
+                Dictionary<int, int>.Enumerator enumerator = _heros.GetEnumerator();
+
+                while (enumerator.MoveNext())
+                {
+                    KeyValuePair<int, int> pair = enumerator.Current;
+
+                    int pos = pair.Key;
+
+                    int id = pair.Value;
+
+                    bool isMine = GetPosIsMine(pos);
+
+                    IHeroSDS heroSDS = GetHeroData(id);
+
+                    Hero hero = new Hero(this, isMine, heroSDS, pos, true);
+
+                    heroMapDic.Add(pos, hero);
+                }
+            }
         }
 
         private IEnumerator StartBattle()
         {
-            BattleData battleData = GetBattleData();
+            randomIndex = randomIndexList[roundNum];
 
-            action.Clear();
+            BattleData battleData = GetBattleData();
 
             yield return DoSkill(battleData);
 
             yield return DoRoundStart(battleData);
 
             yield return DoSummon(battleData);
-
-            summon.Clear();
 
             yield return DoRush(battleData);
 
@@ -119,7 +191,7 @@ namespace FinalWar
 
             yield return DoAddCards();
 
-            RoundOver();
+            roundNum++;
         }
 
         private void EndBattle()
@@ -134,10 +206,6 @@ namespace FinalWar
         {
             eventListener.Clear();
 
-            summon.Clear();
-
-            action.Clear();
-
             mapBelongDic.Clear();
 
             heroMapDic.Clear();
@@ -146,14 +214,27 @@ namespace FinalWar
 
             oHandCards.Clear();
 
-#if !CLIENT
-            serverBattleOverCallBack();
-#endif
+            mCards.Clear();
+
+            oCards.Clear();
+
+            for (int i = 0; i < BattleConst.MAX_ROUND_NUM; i++)
+            {
+                summon[i].Clear();
+
+                action[i].Clear();
+            }
+
+            randomIndexList.Clear();
+
+            mWin = oWin = false;
+
+            roundNum = 0;
         }
 
         private IEnumerator DoSummon(BattleData _battleData)
         {
-            Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator = GetSummon().GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -165,14 +246,12 @@ namespace FinalWar
 
                 if (heroMapDic.ContainsKey(pos))
                 {
-                    Log.Write("Summon error0");
-
-                    continue;
+                    throw new Exception("Summon error0");
                 }
 
                 Hero summonHero = SummonOneUnit(tmpCardUid, pos, _battleData);
 
-                ServerAddHero(_battleData, summonHero);
+                AddHero(_battleData, summonHero);
 
                 yield return new BattleSummonVO(summonHero.isMine, tmpCardUid, summonHero.sds.GetID(), pos);
             }
@@ -186,37 +265,48 @@ namespace FinalWar
 
             if (isMine)
             {
-                int heroID = mHandCards[_uid];
-
-                sds = GetHeroData(heroID);
-
-                if (mMoney < sds.GetCost())
+                if (mHandCards.ContainsKey(_uid))
                 {
-                    return null;
-                }
-#if !CLIENT
-                oHandCardsChangeDic.Add(_uid, heroID);
-#endif
-                mMoney -= sds.GetCost();
+                    int heroID = cardsArr[_uid];
 
-                mHandCards.Remove(_uid);
+                    sds = GetHeroData(heroID);
+
+                    if (mMoney < sds.GetCost())
+                    {
+                        throw new Exception("SummonOneUnit error0!");
+                    }
+
+                    mMoney -= sds.GetCost();
+
+                    mHandCards.Remove(_uid);
+                }
+                else
+                {
+                    throw new Exception("SummonOneUnit error1!");
+                }
+
             }
             else
             {
-                int heroID = oHandCards[_uid];
-
-                sds = GetHeroData(heroID);
-
-                if (oMoney < sds.GetCost())
+                if (oHandCards.ContainsKey(_uid))
                 {
-                    return null;
-                }
-#if !CLIENT
-                mHandCardsChangeDic.Add(_uid, heroID);
-#endif
-                oMoney -= sds.GetCost();
+                    int heroID = cardsArr[_uid];
 
-                oHandCards.Remove(_uid);
+                    sds = GetHeroData(heroID);
+
+                    if (oMoney < sds.GetCost())
+                    {
+                        throw new Exception("SummonOneUnit error2!");
+                    }
+
+                    oMoney -= sds.GetCost();
+
+                    oHandCards.Remove(_uid);
+                }
+                else
+                {
+                    throw new Exception("SummonOneUnit error3!");
+                }
             }
 
             Hero hero = new Hero(this, isMine, sds, _pos, false);
@@ -224,7 +314,7 @@ namespace FinalWar
             return hero;
         }
 
-        private void ServerAddHero(BattleData _battleData, Hero _hero)
+        private void AddHero(BattleData _battleData, Hero _hero)
         {
             heroMapDic.Add(_hero.pos, _hero);
 
@@ -247,11 +337,15 @@ namespace FinalWar
 
             BattleData battleData = new BattleData();
 
-            for (int i = 0; i < action.Count; i++)
-            {
-                int pos = action[i].Key;
+            List<KeyValuePair<int, int>> tmpList = GetAction();
 
-                int targetPos = action[i].Value;
+            for (int i = 0; i < tmpList.Count; i++)
+            {
+                KeyValuePair<int, int> pair = tmpList[i];
+
+                int pos = pair.Key;
+
+                int targetPos = pair.Value;
 
                 GetOneUnitAction(pos, targetPos, battleData);
             }
@@ -1089,17 +1183,17 @@ namespace FinalWar
         {
             yield return MoneyChange(true, BattleConst.ADD_MONEY);
 
-            if (!isVsAi)
-            {
-                yield return MoneyChange(false, BattleConst.ADD_MONEY);
-            }
-            else
-            {
-                yield return MoneyChange(false, BattleConst.AI_ADD_MONEY);
-            }
+            yield return MoneyChange(false, BattleConst.ADD_MONEY);
         }
 
         internal IEnumerator MoneyChange(bool _isMine, int _num)
+        {
+            MoneyChangeReal(_isMine, _num);
+
+            yield return new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney);
+        }
+
+        internal void MoneyChangeReal(bool _isMine, int _num)
         {
             if (_isMine)
             {
@@ -1127,22 +1221,6 @@ namespace FinalWar
                     oMoney = 0;
                 }
             }
-
-            yield return new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney);
-        }
-
-        private void RoundOver()
-        {
-            mOver = oOver = false;
-        }
-
-        private int GetCardUid()
-        {
-            int result = cardUid;
-
-            cardUid++;
-
-            return result;
         }
 
         public bool GetPosIsMine(int _pos)
@@ -1170,9 +1248,9 @@ namespace FinalWar
             yield return AddCards(false, BattleConst.ADD_CARD_NUM);
         }
 
-        internal IEnumerator AddCards(bool _isMine, int _num)
+        private IEnumerator AddCards(bool _isMine, int _num)
         {
-            List<int> cards = _isMine ? mCards : oCards;
+            Queue<int> cards = _isMine ? mCards : oCards;
 
             if (cards.Count > 0)
             {
@@ -1181,73 +1259,39 @@ namespace FinalWar
                     _num = cards.Count;
                 }
 
-                Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
+                Dictionary<int, bool> handCardsList = _isMine ? mHandCards : oHandCards;
 
-                if (handCardsDic.Count + _num > BattleConst.MAX_HAND_CARD_NUM)
-                {
-                    int delNum = handCardsDic.Count + _num - BattleConst.MAX_HAND_CARD_NUM;
-
-                    yield return DelCards(_isMine, delNum);
-                }
-
-                Dictionary<int, int> addDic = new Dictionary<int, int>();
+                List<int> addList = new List<int>();
 
                 for (int i = 0; i < _num && cards.Count > 0; i++)
                 {
-                    int index = GetRandomValue(cards.Count);
+                    int uid = cards.Dequeue();
 
-                    int cardID = cards[index];
+                    addList.Add(uid);
 
-                    cards.RemoveAt(index);
-
-                    int tmpCardUid = GetCardUid();
-
-                    handCardsDic.Add(tmpCardUid, cardID);
-
-                    addDic.Add(tmpCardUid, cardID);
+                    if (handCardsList.Count < BattleConst.MAX_HAND_CARD_NUM)
+                    {
+                        handCardsList.Add(uid, false);
+                    }
                 }
 
-                yield return new BattleAddCardsVO(_isMine, addDic);
+                yield return new BattleAddCardsVO(_isMine, addList);
             }
         }
 
-        internal IEnumerator DelCards(bool _isMine, int _num)
+        internal Dictionary<int, int> GetSummon()
         {
-            Dictionary<int, int> handCardsDic = _isMine ? mHandCards : oHandCards;
+            return summon[roundNum];
+        }
 
-            List<int> delList = null;
+        internal List<KeyValuePair<int, int>> GetAction()
+        {
+            return action[roundNum];
+        }
 
-            for (int i = 0; i < _num && handCardsDic.Count > 0; i++)
-            {
-                int index = GetRandomValue(handCardsDic.Count);
-
-                KeyValuePair<int, int> pair = handCardsDic.ElementAt(index);
-
-                int uid = pair.Key;
-#if !CLIENT
-                if (_isMine)
-                {
-                    oHandCardsChangeDic.Add(pair.Key, pair.Value);
-                }
-                else
-                {
-                    mHandCardsChangeDic.Add(pair.Key, pair.Value);
-                }
-#endif
-                handCardsDic.Remove(uid);
-
-                if (delList == null)
-                {
-                    delList = new List<int>();
-                }
-
-                delList.Add(uid);
-            }
-
-            if (delList != null)
-            {
-                yield return new BattleDelCardsVO(_isMine, delList);
-            }
+        internal void AddRandomIndex(int _index)
+        {
+            randomIndexList.Add(_index);
         }
     }
 }
