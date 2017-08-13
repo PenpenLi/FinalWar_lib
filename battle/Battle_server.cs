@@ -6,12 +6,30 @@ using superEnumerator;
 
 namespace FinalWar
 {
-    public partial class Battle
+    public class Battle_server
     {
+        private enum CardState
+        {
+            N,
+            M,
+            O,
+            A
+        }
+
         private static readonly Random random = new Random();
+
+        private Battle battle = new Battle();
 
         private bool mOver;
         private bool oOver;
+
+        private int roundNum;
+
+
+
+        private CardState[] cardStateArr = new CardState[BattleConst.DECK_CARD_NUM * 2];
+
+        private int[] cardIDArr = new int[BattleConst.DECK_CARD_NUM * 2];
 
         private Action<bool, MemoryStream> serverSendDataCallBack;
         private Action serverBattleOverCallBack;
@@ -29,7 +47,7 @@ namespace FinalWar
 
             mOver = oOver = false;
 
-            InitBattle(_mapID, _heros, _mCards, _oCards);
+            battle.InitBattle(_mapID, _heros, _mCards, _oCards);
 
             ServerRefreshData(true);
 
@@ -80,180 +98,102 @@ namespace FinalWar
 
                     bw.Write(_isMine);
 
-                    bw.Write(mScore);
+                    bw.Write(battle.mapID);
 
-                    bw.Write(oScore);
+                    bw.Write(roundNum);
 
-                    bw.Write(cardUid);
-
-                    bw.Write(mapID);
-
-                    bw.Write(mapBelongDic.Count);
-
-                    Dictionary<int, bool>.KeyCollection.Enumerator enumerator2 = mapBelongDic.Keys.GetEnumerator();
-
-                    while (enumerator2.MoveNext())
+                    for (int i = 0; i < roundNum; i++)
                     {
-                        bw.Write(enumerator2.Current);
+                        WriteRoundDataToStream(bw, i);
                     }
 
-                    bw.Write(heroMapDic.Count);
+                    bool isOver;
 
-                    Dictionary<int, Hero>.ValueCollection.Enumerator enumerator3 = heroMapDic.Values.GetEnumerator();
-
-                    while (enumerator3.MoveNext())
-                    {
-                        Hero hero = enumerator3.Current;
-
-                        hero.WriteToStream(bw);
-                    }
-
-                    Dictionary<int, int> handCards;
-
-                    Dictionary<int, int> handCards2;
-
-                    List<int> cards;
-
-                    List<int> cards2;
+                    CardState tmpCardState;
 
                     if (_isMine)
                     {
-                        handCards = mHandCards;
+                        isOver = mOver;
 
-                        handCards2 = oHandCards;
-
-                        cards = mCards;
-
-                        cards2 = oCards;
+                        tmpCardState = CardState.M;
                     }
                     else
                     {
-                        handCards = oHandCards;
+                        isOver = oOver;
 
-                        handCards2 = mHandCards;
-
-                        cards = oCards;
-
-                        cards2 = mCards;
+                        tmpCardState = CardState.O;
                     }
-
-                    bw.Write(handCards.Count);
-
-                    Dictionary<int, int>.Enumerator enumerator = handCards.GetEnumerator();
-
-                    while (enumerator.MoveNext())
-                    {
-                        KeyValuePair<int, int> pair = enumerator.Current;
-
-                        bw.Write(pair.Key);
-
-                        bw.Write(pair.Value);
-                    }
-
-                    bw.Write(handCards2.Count);
-
-                    enumerator = handCards2.GetEnumerator();
-
-                    while (enumerator.MoveNext())
-                    {
-                        KeyValuePair<int, int> pair = enumerator.Current;
-
-                        bw.Write(pair.Key);
-
-                        bw.Write(0);
-                    }
-
-                    bw.Write(cards.Count);
-
-                    for (int i = 0; i < cards.Count; i++)
-                    {
-                        bw.Write(cards[i]);
-                    }
-
-                    bw.Write(cards2.Count);
-
-                    for (int i = 0; i < cards2.Count; i++)
-                    {
-                        bw.Write(0);
-                    }
-
-                    bw.Write(mMoney);
-
-                    bw.Write(oMoney);
-
-                    bool isOver = _isMine ? mOver : oOver;
 
                     bw.Write(isOver);
 
                     if (isOver)
                     {
-                        long tmpPos = bw.BaseStream.Position;
-
-                        bw.Write(0);
-
-                        int num = 0;
-
-                        Dictionary<int, int>.Enumerator enumerator4 = summon.GetEnumerator();
-
-                        while (enumerator4.MoveNext())
-                        {
-                            int pos = enumerator4.Current.Value;
-
-                            if (GetPosIsMine(pos) == _isMine)
-                            {
-                                num++;
-
-                                bw.Write(enumerator4.Current.Key);
-
-                                bw.Write(enumerator4.Current.Value);
-                            }
-                        }
-
-                        long tmpPos2 = bw.BaseStream.Position;
-
-                        bw.BaseStream.Position = tmpPos;
-
-                        bw.Write(num);
-
-                        bw.BaseStream.Position = tmpPos2;
-
-                        bw.Write(0);
-
-                        num = 0;
-
-                        for (int i = 0; i < action.Count; i++)
-                        {
-                            KeyValuePair<int, int> pair = action[i];
-
-                            if (GetPosIsMine(pair.Key) == _isMine)
-                            {
-                                num++;
-
-                                bw.Write(pair.Key);
-
-                                bw.Write(pair.Value);
-                            }
-                        }
-
-                        tmpPos = bw.BaseStream.Position;
-
-                        bw.BaseStream.Position = tmpPos2;
-
-                        bw.Write(num);
-
-                        bw.BaseStream.Position = tmpPos;
+                        WriteRoundDataToStream(bw, roundNum);
                     }
 
-                    serverSendDataCallBack(_isMine, ms);
+                    long pos = bw.BaseStream.Position;
+
+                    bw.Write(0);
+
+                    int num = 0;
+
+                    for (int i = 0; i < BattleConst.DECK_CARD_NUM * 2; i++)
+                    {
+                        CardState cardState = cardStateArr[i];
+
+                        if (cardState == CardState.A || cardState == tmpCardState)
+                        {
+                            bw.Write(i);
+
+                            bw.Write(cardIDArr[i]);
+
+                            num++;
+                        }
+                    }
+
+                    bw.BaseStream.Position = pos;
+
+                    bw.Write(num);
                 }
             }
+        }
+
+        private void WriteRoundDataToStream(BinaryWriter _bw, int _roundNum)
+        {
+            Dictionary<int, int> summonDic = battle.GetSummon(_roundNum);
+
+            _bw.Write(summonDic.Count);
+
+            Dictionary<int, int>.Enumerator enumerator = summonDic.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                KeyValuePair<int, int> pair = enumerator.Current;
+
+                _bw.Write(pair.Key);
+
+                _bw.Write(pair.Value);
+            }
+
+            List<KeyValuePair<int, int>> actionList = battle.GetAction(_roundNum);
+
+            _bw.Write(actionList.Count);
+
+            for (int m = 0; m < actionList.Count; m++)
+            {
+                KeyValuePair<int, int> pair = actionList[m];
+
+                _bw.Write(pair.Key);
+
+                _bw.Write(pair.Value);
+            }
+
+            _bw.Write(battle.GetRandomIndex(_roundNum));
         }
 
 
         private void ServerDoAction(bool _isMine, BinaryReader _br)
         {
-            Dictionary<int, int> cards;
-
             if (_isMine)
             {
                 if (mOver)
@@ -264,8 +204,6 @@ namespace FinalWar
                 {
                     mOver = true;
                 }
-
-                cards = mHandCards;
             }
             else
             {
@@ -277,8 +215,6 @@ namespace FinalWar
                 {
                     oOver = true;
                 }
-
-                cards = oHandCards;
             }
 
             int num = _br.ReadInt32();
@@ -289,16 +225,10 @@ namespace FinalWar
 
                 int pos = _br.ReadInt32();
 
-                if (GetPosIsMine(pos) == _isMine)
-                {
-                    if (cards.ContainsKey(uid))
-                    {
-                        summon.Add(uid, pos);
-                    }
-                }
-            }
+                Dictionary<int, int> tmpSummonDic = battle.GetSummon(roundNum);
 
-            Dictionary<int, bool> tmpDic = new Dictionary<int, bool>();
+                tmpSummonDic.Add(uid, pos);
+            }
 
             num = _br.ReadInt32();
 
@@ -308,20 +238,9 @@ namespace FinalWar
 
                 int targetPos = _br.ReadInt32();
 
-                MapData.MapUnitType mapUnitType;
+                List<KeyValuePair<int, int>> tmpActionList = battle.GetAction(roundNum);
 
-                if (mapData.dic.TryGetValue(targetPos, out mapUnitType))
-                {
-                    if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
-                    {
-                        if (heroMapDic.ContainsKey(pos) && heroMapDic[pos].isMine == _isMine)
-                        {
-                            action.Add(new KeyValuePair<int, int>(pos, targetPos));
-
-                            tmpDic.Add(pos, false);
-                        }
-                    }
-                }
+                tmpActionList.Add(new KeyValuePair<int, int>(pos, targetPos));
             }
 
             if (mOver && oOver)
@@ -332,121 +251,34 @@ namespace FinalWar
 
         private void ServerStartBattle()
         {
+            Dictionary<int, int> tmpDic = battle.GetSummon(roundNum);
+
+            Dictionary<int, int>.KeyCollection.Enumerator enumerator = tmpDic.Keys.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                int uid = enumerator.Current;
+
+                cardStateArr[uid] = CardState.A;
+            }
+
+
+
             using (MemoryStream mMs = new MemoryStream(), oMs = new MemoryStream())
             {
                 using (BinaryWriter mBw = new BinaryWriter(mMs), oBw = new BinaryWriter(oMs))
                 {
-                    ServerWriteActionAndSummon(true, mBw);
+                    WriteRoundDataToStream(mBw, roundNum);
 
-                    ServerWriteActionAndSummon(false, oBw);
-
-                    SuperEnumerator<ValueType> step = new SuperEnumerator<ValueType>(StartBattle());
-
-                    step.Done();
-
-                    ServerWriteCardsAndRandom(true, mBw);
-
-                    ServerWriteCardsAndRandom(false, oBw);
+                    WriteRoundDataToStream(oBw, roundNum);
 
                     serverSendDataCallBack(true, mMs);
 
                     serverSendDataCallBack(false, oMs);
                 }
             }
+            
 
-            mHandCardsChangeDic.Clear();
-
-            oHandCardsChangeDic.Clear();
-
-            randomList.Clear();
-
-            EndBattle();
-        }
-
-        private void ServerWriteActionAndSummon(bool _isMine, BinaryWriter _bw)
-        {
-            _bw.Write(PackageTag.S2C_DOACTION);
-
-            long pos0 = _bw.BaseStream.Position;
-
-            _bw.Write(0);
-
-            int num = 0;
-
-            for (int i = 0; i < action.Count; i++)
-            {
-                KeyValuePair<int, int> pair = action[i];
-
-                if (GetPosIsMine(pair.Key) != _isMine)
-                {
-                    num++;
-
-                    _bw.Write(pair.Key);
-
-                    _bw.Write(pair.Value);
-                }
-            }
-
-            long pos1 = _bw.BaseStream.Position;
-
-            _bw.BaseStream.Position = pos0;
-
-            _bw.Write(num);
-
-            _bw.BaseStream.Position = pos1;
-
-            _bw.Write(0);
-
-            num = 0;
-
-            Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                KeyValuePair<int, int> pair = enumerator.Current;
-
-                if (GetPosIsMine(pair.Value) != _isMine)
-                {
-                    num++;
-
-                    _bw.Write(pair.Key);
-
-                    _bw.Write(pair.Value);
-                }
-            }
-
-            pos0 = _bw.BaseStream.Position;
-
-            _bw.BaseStream.Position = pos1;
-
-            _bw.Write(num);
-
-            _bw.BaseStream.Position = pos0;
-        }
-
-        private void ServerWriteCardsAndRandom(bool _isMine, BinaryWriter _bw)
-        {
-            Dictionary<int, int> cards = _isMine ? mHandCardsChangeDic : oHandCardsChangeDic;
-
-            _bw.Write(cards.Count);
-
-            Dictionary<int, int>.Enumerator enumerator = cards.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                _bw.Write(enumerator.Current.Key);
-
-                _bw.Write(enumerator.Current.Value);
-            }
-
-            _bw.Write(randomList.Count);
-
-            Queue<double>.Enumerator enumerator2 = randomList.GetEnumerator();
-
-            while (enumerator2.MoveNext())
-            {
-                _bw.Write(enumerator2.Current);
-            }
         }
 
         private void ServerQuitBattle()

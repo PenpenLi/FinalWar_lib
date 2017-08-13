@@ -19,7 +19,7 @@ namespace FinalWar
         public MapData mapData { get; private set; }
 
         private Dictionary<int, bool> mapBelongDic = new Dictionary<int, bool>();
-        private Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
+        internal Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
 
         private Queue<int> mCards = new Queue<int>();
         private Queue<int> oCards = new Queue<int>();
@@ -27,7 +27,7 @@ namespace FinalWar
         public Dictionary<int, bool> mHandCards = new Dictionary<int, bool>();
         public Dictionary<int, bool> oHandCards = new Dictionary<int, bool>();
 
-        public int[] cardsArr = new int[BattleConst.DECK_CARD_NUM * 2];
+        private int[] cardsArr = new int[BattleConst.DECK_CARD_NUM * 2];
 
         public int mScore { get; private set; }
         public int oScore { get; private set; }
@@ -39,7 +39,7 @@ namespace FinalWar
 
         private List<KeyValuePair<int, int>>[] action = new List<KeyValuePair<int, int>>[BattleConst.MAX_ROUND_NUM];
 
-        private List<int> randomIndexList = new List<int>();
+        private int[] randomIndexList = new int[BattleConst.MAX_ROUND_NUM];
 
         private int randomIndex;
 
@@ -50,8 +50,10 @@ namespace FinalWar
 
         public int roundNum { get; private set; }
 
-        public static void Init<T, U, V, W>(Dictionary<int, MapData> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
+        public static void Init<T, U, V, W>(double[] _randomPool, Dictionary<int, MapData> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
         {
+            randomPool = _randomPool;
+
             GetMapData = delegate (int _id)
             {
                 return _mapDataDic[_id];
@@ -167,7 +169,7 @@ namespace FinalWar
 
         private IEnumerator StartBattle()
         {
-            randomIndex = randomIndexList[roundNum];
+            randomIndex = GetRandomIndex(roundNum);
 
             BattleData battleData = GetBattleData();
 
@@ -225,8 +227,6 @@ namespace FinalWar
                 action[i].Clear();
             }
 
-            randomIndexList.Clear();
-
             mWin = oWin = false;
 
             roundNum = 0;
@@ -234,7 +234,7 @@ namespace FinalWar
 
         private IEnumerator DoSummon(BattleData _battleData)
         {
-            Dictionary<int, int>.Enumerator enumerator = GetSummon().GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator = GetSummon(roundNum).GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -337,7 +337,7 @@ namespace FinalWar
 
             BattleData battleData = new BattleData();
 
-            List<KeyValuePair<int, int>> tmpList = GetAction();
+            List<KeyValuePair<int, int>> tmpList = GetAction(roundNum);
 
             for (int i = 0; i < tmpList.Count; i++)
             {
@@ -1279,19 +1279,29 @@ namespace FinalWar
             }
         }
 
-        internal Dictionary<int, int> GetSummon()
+        internal Dictionary<int, int> GetSummon(int _roundNum)
         {
-            return summon[roundNum];
+            return summon[_roundNum];
         }
 
-        internal List<KeyValuePair<int, int>> GetAction()
+        internal List<KeyValuePair<int, int>> GetAction(int _roundNum)
         {
-            return action[roundNum];
+            return action[_roundNum];
         }
 
-        internal void AddRandomIndex(int _index)
+        internal void SetRandomIndex(int _roundNum, int _index)
         {
-            randomIndexList.Add(_index);
+            randomIndexList[_roundNum] = _index;
+        }
+
+        internal int GetRandomIndex(int _roundNum)
+        {
+            return randomIndexList[_roundNum];
+        }
+
+        internal void SetCard(int _uid, int _id)
+        {
+            cardsArr[_uid] = _id;
         }
     }
 }
