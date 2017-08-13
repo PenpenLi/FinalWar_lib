@@ -6,6 +6,10 @@ namespace FinalWar
     {
         internal List<List<int>> summonPosList;
 
-        internal int summonHeroId;
+        internal KeyValuePair<int, int> pair;
+
+        internal int summonPos;
+
+        internal int money;
     }
 }

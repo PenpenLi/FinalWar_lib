@@ -116,7 +116,7 @@ namespace FinalWar
 
                 case MoveForwardActionNode.key:
 
-                    actionNode = new MoveForwardActionNode();
+                    actionNode = new MoveForwardActionNode(_node);
 
                     break;
 
@@ -214,9 +214,9 @@ namespace FinalWar
 
             switch (typeAtt.InnerText)
             {
-                case ChooseSummonPosActionNode.key:
+                case SummonActionNode.key:
 
-                    actionNode = new ChooseSummonPosActionNode(GetRandomValue);
+                    actionNode = new SummonActionNode();
 
                     break;
 
@@ -243,15 +243,39 @@ namespace FinalWar
 
             switch (key)
             {
-                case GetSummonPosListConditionNode.key:
+                case GetSummonPosToEnemyAreaListConditionNode.key:
 
-                    conditionNode = new GetSummonPosListConditionNode();
+                    conditionNode = new GetSummonPosToEnemyAreaListConditionNode(_node);
 
                     break;
 
                 case GetSummonHeroIdConditionNode.key:
 
                     conditionNode = new GetSummonHeroIdConditionNode(GetRandomValue);
+
+                    break;
+
+                case ChooseSummonPosConditionNode.key:
+
+                    conditionNode = new ChooseSummonPosConditionNode(_node, GetRandomValue);
+
+                    break;
+
+                case CheckSummonHeroTypeConditionNode.key:
+
+                    conditionNode = new CheckSummonHeroTypeConditionNode(_node);
+
+                    break;
+
+                case GetMoneyConditionNode.key:
+
+                    conditionNode = new GetMoneyConditionNode();
+
+                    break;
+
+                case GetSummonPosToEnemyHeroListConditionNode.key:
+
+                    conditionNode = new GetSummonPosToEnemyHeroListConditionNode(_node);
 
                     break;
 
@@ -523,7 +547,7 @@ namespace FinalWar
             return result;
         }
 
-        public static List<List<int>> GetSummonPosList(Battle _battle, bool _isMine)
+        public static List<List<int>> GetSummonPosToEmemyAreaList(Battle _battle, bool _isMine, int _max)
         {
             int startPos = _isMine ? _battle.mapData.oBase : _battle.mapData.mBase;
 
@@ -596,20 +620,127 @@ namespace FinalWar
             {
                 KeyValuePair<int, int> pair = enumerator.Current;
 
-                if (pair.Value > -1)
+                int pos = pair.Key;
+
+                int range = pair.Value;
+
+                if (range > -1 && range < _max && _battle.heroMapDic.ContainsKey(pos))
                 {
                     List<int> tmpList;
 
-                    for (int i = result.Count; i < pair.Value + 1; i++)
+                    for (int i = result.Count; i < range + 1; i++)
                     {
                         tmpList = new List<int>();
 
                         result.Add(tmpList);
                     }
 
-                    tmpList = result[pair.Value];
+                    tmpList = result[range];
 
-                    tmpList.Add(pair.Key);
+                    tmpList.Add(pos);
+                }
+            }
+
+            return result;
+        }
+
+        public static List<List<int>> GetSummonPosToEmemyHeroList(Battle _battle, bool _isMine, int _max)
+        {
+            Dictionary<int, int> close = new Dictionary<int, int>();
+
+            Dictionary<int, int> open = new Dictionary<int, int>();
+
+            Dictionary<int, Hero>.Enumerator enumerator = _battle.heroMapDic.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                if (enumerator.Current.Value.isMine != _isMine)
+                {
+                    open.Add(enumerator.Current.Key, -1);
+                }
+            }
+
+            while (open.Count > 0)
+            {
+                KeyValuePair<int, int> pair = open.ElementAt(0);
+
+                int pos = pair.Key;
+
+                int range = pair.Value;
+
+                open.Remove(pos);
+
+                close.Add(pos, range);
+
+                List<int> list = BattlePublicTools.GetNeighbourPos(_battle.mapData, pos);
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    int nowRange;
+
+                    int tmpPos = list[i];
+
+                    if (_battle.GetPosIsMine(tmpPos) == _isMine)
+                    {
+                        nowRange = range + 1;
+                    }
+                    else
+                    {
+                        nowRange = -1;
+                    }
+
+                    int oldRange;
+
+                    if (open.TryGetValue(tmpPos, out oldRange))
+                    {
+                        if (oldRange > nowRange)
+                        {
+                            open[tmpPos] = nowRange;
+                        }
+
+                        continue;
+                    }
+
+                    if (close.TryGetValue(tmpPos, out oldRange))
+                    {
+                        if (oldRange > nowRange)
+                        {
+                            close[tmpPos] = nowRange;
+                        }
+
+                        continue;
+                    }
+
+                    open.Add(tmpPos, nowRange);
+                }
+            }
+
+            List<List<int>> result = new List<List<int>>();
+
+            Dictionary<int, int>.Enumerator enumerator2 = close.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                KeyValuePair<int, int> pair = enumerator2.Current;
+
+                int pos = pair.Key;
+
+                int range = pair.Value;
+
+                if (range > -1 && range < _max && _battle.heroMapDic.ContainsKey(pos))
+                {
+                    List<int> tmpList;
+
+                    for (int i = result.Count; i < range + 1; i++)
+                    {
+                        tmpList = new List<int>();
+
+                        result.Add(tmpList);
+                    }
+
+                    tmpList = result[range];
+
+                    tmpList.Add(pos);
                 }
             }
 

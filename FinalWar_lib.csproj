@@ -81,9 +81,13 @@
     <Compile Include="battle\ai\node\action\GetCanSupportHeroPosConditionNode.cs" />
     <Compile Include="battle\ai\node\action\GetCanSupportPosConditionNode.cs" />
     <Compile Include="battle\ai\node\action\MoveForwardActionNode.cs" />
-    <Compile Include="battle\ai\node\summon\ChooseSummonPosActionNode.cs" />
+    <Compile Include="battle\ai\node\summon\CheckSummonHeroTypeConditionNode.cs" />
+    <Compile Include="battle\ai\node\summon\ChooseSummonPosConditionNode.cs" />
+    <Compile Include="battle\ai\node\summon\GetMoneyConditionNode.cs" />
     <Compile Include="battle\ai\node\summon\GetSummonHeroIdConditionNode.cs" />
-    <Compile Include="battle\ai\node\summon\GetSummonPosListConditionNode.cs" />
+    <Compile Include="battle\ai\node\summon\GetSummonPosToEnemyAreaListConditionNode.cs" />
+    <Compile Include="battle\ai\node\summon\GetSummonPosToEnemyHeroListConditionNode.cs" />
+    <Compile Include="battle\ai\node\summon\SummonActionNode.cs" />
     <Compile Include="battle\Battle.cs" />
     <Compile Include="battle\BattleCellData.cs" />
     <Compile Include="battle\BattleConst.cs" />

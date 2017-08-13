@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using bt;
 
 namespace FinalWar
@@ -19,9 +18,24 @@ namespace FinalWar
 
         public override bool Enter(Battle _t, bool _u, AiSummonData _v)
         {
+            Dictionary<int, int> dic = _u ? _t.mHandCards : _t.oHandCards;
 
+            int index = getRandomValueCallBack(dic.Count);
 
-            return true;
+            KeyValuePair<int, int> pair = dic.ElementAt(index);
+
+            IHeroSDS sds = Battle.GetHeroData(pair.Value);
+
+            if (sds.GetCost() > _v.money)
+            {
+                return false;
+            }
+            else
+            {
+                _v.pair = pair;
+
+                return true;
+            }
         }
     }
 }
