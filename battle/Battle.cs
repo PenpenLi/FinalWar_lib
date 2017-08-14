@@ -117,14 +117,14 @@ namespace FinalWar
 
             mMoney = oMoney = BattleConst.DEFAULT_MONEY;
 
-            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _mCards.Length; i++)
+            for (int i = 0; i < _mCards.Length; i++)
             {
                 cardsArr[i] = _mCards[i];
 
                 mCards.Enqueue(i);
             }
 
-            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _oCards.Length; i++)
+            for (int i = 0; i < _oCards.Length; i++)
             {
                 int index = BattleConst.DECK_CARD_NUM + i;
 
