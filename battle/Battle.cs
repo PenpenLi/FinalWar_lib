@@ -279,7 +279,6 @@ namespace FinalWar
                 {
                     throw new Exception("SummonOneUnit error1!");
                 }
-
             }
             else
             {
