@@ -92,7 +92,9 @@ namespace FinalWar
         {
             List<int> delList = null;
 
-            Dictionary<int, int>.Enumerator enumerator = _battle.summon.GetEnumerator();
+            Dictionary<int, int> tmpDic = _battle.GetSummon();
+
+            Dictionary<int, int>.Enumerator enumerator = tmpDic.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -117,13 +119,19 @@ namespace FinalWar
             {
                 for (int i = 0; i < delList.Count; i++)
                 {
-                    _battle.summon.Remove(delList[i]);
+                    tmpDic.Remove(delList[i]);
                 }
+
+                delList.Clear();
             }
 
-            for (int i = _battle.action.Count - 1; i > -1; i--)
+            tmpDic = _battle.GetAction();
+
+            enumerator = tmpDic.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                KeyValuePair<int, int> pair = _battle.action[i];
+                KeyValuePair<int, int> pair = enumerator.Current;
 
                 int pos = pair.Key;
 
@@ -131,7 +139,20 @@ namespace FinalWar
 
                 if (b == _isMine)
                 {
-                    _battle.action.RemoveAt(i);
+                    if (delList == null)
+                    {
+                        delList = new List<int>();
+                    }
+
+                    delList.Add(pair.Key);
+                }
+            }
+
+            if (delList != null)
+            {
+                for (int i = 0; i < delList.Count; i++)
+                {
+                    tmpDic.Remove(delList[i]);
                 }
             }
         }

@@ -21,7 +21,7 @@ namespace FinalWar
 
             int target = list[index];
 
-            _t.action.Add(new KeyValuePair<int, int>(_u.pos, target));
+            _t.GetAction().Add(_u.pos, target);
 
             return true;
         }

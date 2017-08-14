@@ -43,7 +43,7 @@ namespace FinalWar
                     {
                         int pos = tmpList[i];
 
-                        if (!_t.summon.ContainsKey(pos))
+                        if (!_t.GetSummon().ContainsKey(pos))
                         {
                             finalList.Add(pos);
                         }

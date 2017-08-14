@@ -6,9 +6,13 @@ using superEnumerator;
 
 namespace FinalWar
 {
-    public partial class Battle
+    public class Battle_client
     {
+        private Battle battle = new Battle();
+
         public bool clientIsMine { get; private set; }
+
+        private bool clientIsOver;
 
         private Action<MemoryStream> clientSendDataCallBack;
         private Action clientRefreshDataCallBack;
@@ -58,81 +62,36 @@ namespace FinalWar
 
         private void ClientRefreshData(BinaryReader _br)
         {
-            eventListener.Clear();
+            battle.BattleOver();
 
             clientIsMine = _br.ReadBoolean();
 
             Log.Write("ClientRefreshData  isMine:" + clientIsMine);
 
-            mScore = _br.ReadInt32();
-
-            oScore = _br.ReadInt32();
-
-            cardUid = _br.ReadInt32();
-
-            mapID = _br.ReadInt32();
-
-            mapData = GetMapData(mapID);
-
-            mapBelongDic = new Dictionary<int, bool>();
+            int mapID = _br.ReadInt32();
 
             int num = _br.ReadInt32();
 
-            for (int i = 0; i < num; i++)
-            {
-                int pos = _br.ReadInt32();
-
-                mapBelongDic.Add(pos, true);
-            }
-
-            heroMapDic.Clear();
+            int[] mCards = new int[num];
 
             num = _br.ReadInt32();
 
-            for (int i = 0; i < num; i++)
+            int[] oCards = new int[num];
+
+            battle.InitBattle(mapID, mCards, oCards);
+
+            int roundNum = _br.ReadInt32();
+
+            for (int i = 0; i < roundNum; i++)
             {
-                Hero hero = new Hero(this);
-
-                hero.ReadFromStream(_br);
-
-                heroMapDic.Add(hero.pos, hero);
+                ReadRoundDataFromStream(_br, i);
             }
 
-            mHandCards.Clear();
+            clientIsOver = _br.ReadBoolean();
 
-            oHandCards.Clear();
-
-            mCards.Clear();
-
-            oCards.Clear();
-
-            Dictionary<int, int> handCards;
-
-            Dictionary<int, int> handCards2;
-
-            List<int> cards;
-
-            List<int> cards2;
-
-            if (clientIsMine)
+            if (clientIsOver)
             {
-                handCards = mHandCards;
-
-                handCards2 = oHandCards;
-
-                cards = mCards;
-
-                cards2 = oCards;
-            }
-            else
-            {
-                handCards = oHandCards;
-
-                handCards2 = mHandCards;
-
-                cards = oCards;
-
-                cards2 = mCards;
+                ReadRoundDataFromStream(_br, roundNum);
             }
 
             num = _br.ReadInt32();
@@ -143,126 +102,91 @@ namespace FinalWar
 
                 int id = _br.ReadInt32();
 
-                handCards.Add(uid, id);
+                battle.SetCard(uid, id);
             }
 
-            num = _br.ReadInt32();
-
-            for (int i = 0; i < num; i++)
+            for (int i = 0; i < roundNum; i++)
             {
-                int uid = _br.ReadInt32();
+                SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(battle.StartBattle());
 
-                int id = _br.ReadInt32();
-
-                handCards2.Add(uid, id);
-            }
-
-            num = _br.ReadInt32();
-
-            for (int i = 0; i < num; i++)
-            {
-                int id = _br.ReadInt32();
-
-                cards.Add(id);
-            }
-
-            num = _br.ReadInt32();
-
-            for (int i = 0; i < num; i++)
-            {
-                int id = _br.ReadInt32();
-
-                cards2.Add(id);
-            }
-
-            mMoney = _br.ReadInt32();
-
-            oMoney = _br.ReadInt32();
-
-            bool isOver;
-
-            if (clientIsMine)
-            {
-                isOver = mOver = _br.ReadBoolean();
-            }
-            else
-            {
-                isOver = oOver = _br.ReadBoolean();
-            }
-
-            summon.Clear();
-
-            action.Clear();
-
-            if (isOver)
-            {
-                num = _br.ReadInt32();
-
-                for (int i = 0; i < num; i++)
-                {
-                    int uid = _br.ReadInt32();
-
-                    int pos = _br.ReadInt32();
-
-                    summon.Add(uid, pos);
-                }
-
-                num = _br.ReadInt32();
-
-                for (int i = 0; i < num; i++)
-                {
-                    int pos = _br.ReadInt32();
-
-                    int targetPos = _br.ReadInt32();
-
-                    action.Add(new KeyValuePair<int, int>(pos, targetPos));
-                }
+                superEnumerator.Done();
             }
 
             clientRefreshDataCallBack();
         }
 
+        private void ReadRoundDataFromStream(BinaryReader _br, int _roundNum)
+        {
+            Dictionary<int, int> tmpDic = battle.GetSummon(_roundNum);
+
+            int num = _br.ReadInt32();
+
+            for (int i = 0; i < num; i++)
+            {
+                int uid = _br.ReadInt32();
+
+                int pos = _br.ReadInt32();
+
+                tmpDic[uid] = pos;
+            }
+
+            tmpDic = battle.GetAction(_roundNum);
+
+            num = _br.ReadInt32();
+
+            for (int i = 0; i < num; i++)
+            {
+                int pos = _br.ReadInt32();
+
+                int targetPos = _br.ReadInt32();
+
+                tmpDic[pos] = targetPos;
+            }
+
+            int randomIndex = _br.ReadInt32();
+
+            battle.SetRandomIndex(_roundNum, randomIndex);
+        }
+
         public bool ClientRequestSummon(int _cardUid, int _pos)
         {
-            if (summon.ContainsValue(_pos) || heroMapDic.ContainsKey(_pos) || GetPosIsMine(_pos) != clientIsMine)
+            Dictionary<int, int> tmpDic = battle.GetSummon();
+
+            if (tmpDic.ContainsValue(_pos) || battle.heroMapDic.ContainsKey(_pos) || battle.GetPosIsMine(_pos) != clientIsMine)
             {
                 return false;
             }
 
-            Dictionary<int, int> handCards = clientIsMine ? mHandCards : oHandCards;
+            int cardID = battle.GetCard(_cardUid);
 
-            int cardID = handCards[_cardUid];
-
-            IHeroSDS heroSDS = GetHeroData(cardID);
+            IHeroSDS heroSDS = Battle.GetHeroData(cardID);
 
             if (ClientGetMoney() < heroSDS.GetCost())
             {
                 return false;
             }
 
-            summon.Add(_cardUid, _pos);
+            tmpDic.Add(_cardUid, _pos);
 
             return true;
         }
 
         public void ClientRequestUnsummon(int _cardUid)
         {
-            summon.Remove(_cardUid);
+            battle.GetSummon().Remove(_cardUid);
         }
 
         public int ClientGetMoney()
         {
-            int money = clientIsMine ? mMoney : oMoney;
+            int money = clientIsMine ? battle.mMoney : battle.oMoney;
 
-            Dictionary<int, int> cards = clientIsMine ? mHandCards : oHandCards;
-
-            Dictionary<int, int>.KeyCollection.Enumerator enumerator = summon.Keys.GetEnumerator();
+            Dictionary<int, int>.KeyCollection.Enumerator enumerator = battle.GetSummon().Keys.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                int cardID = cards[enumerator.Current];
+                int cardID = battle.GetCard(enumerator.Current);
 
-                IHeroSDS heroSDS = GetHeroData(cardID);
+                IHeroSDS heroSDS = Battle.GetHeroData(cardID);
 
                 money -= heroSDS.GetCost();
             }
@@ -285,22 +209,22 @@ namespace FinalWar
 
         public bool ClientRequestAction(int _pos, int _targetPos)
         {
-            Hero hero = heroMapDic[_pos];
+            Hero hero = battle.heroMapDic[_pos];
 
             if (!hero.GetCanAction())
             {
                 return false;
             }
 
-            bool targetPosIsMine = GetPosIsMine(_targetPos);
+            bool targetPosIsMine = battle.GetPosIsMine(_targetPos);
 
-            List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+            List<int> tmpList = BattlePublicTools.GetNeighbourPos(battle.mapData, _pos);
 
             if (tmpList.Contains(_targetPos))
             {
                 if (targetPosIsMine == hero.isMine)
                 {
-                    action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+                    battle.GetAction().Add(_pos, _targetPos);
                 }
                 else
                 {
@@ -308,7 +232,7 @@ namespace FinalWar
 
                     Hero targetHero2;
 
-                    if (heroMapDic.TryGetValue(_targetPos, out targetHero2))
+                    if (battle.heroMapDic.TryGetValue(_targetPos, out targetHero2))
                     {
                         nowThreadLevel = targetHero2.sds.GetHeroType().GetThread();
                     }
@@ -321,7 +245,7 @@ namespace FinalWar
                         {
                             Hero targetHero;
 
-                            if (heroMapDic.TryGetValue(pos, out targetHero))
+                            if (battle.heroMapDic.TryGetValue(pos, out targetHero))
                             {
                                 if (targetHero.isMine != hero.isMine)
                                 {
@@ -334,22 +258,22 @@ namespace FinalWar
                         }
                     }
 
-                    action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+                    battle.GetAction().Add(_pos, _targetPos);
                 }
 
                 return true;
             }
             else
             {
-                if (hero.sds.GetSkill() != 0 && heroMapDic.ContainsKey(_targetPos))
+                if (hero.sds.GetSkill() != 0 && battle.heroMapDic.ContainsKey(_targetPos))
                 {
-                    List<int> tmpList2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
+                    List<int> tmpList2 = BattlePublicTools.GetNeighbourPos3(battle.mapData, _pos);
 
                     if (tmpList2.Contains(_targetPos))
                     {
                         if (targetPosIsMine != hero.isMine)
                         {
-                            action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
+                            battle.GetAction().Add(_pos, _targetPos);
 
                             return true;
                         }
@@ -362,15 +286,7 @@ namespace FinalWar
 
         public void ClientRequestUnaction(int _pos)
         {
-            for (int i = 0; i < action.Count; i++)
-            {
-                if (action[i].Key == _pos)
-                {
-                    action.RemoveAt(i);
-
-                    break;
-                }
-            }
+            battle.GetAction().Remove(_pos);
         }
 
         public void ClientRequestDoAction()
@@ -381,9 +297,11 @@ namespace FinalWar
                 {
                     bw.Write(PackageTag.C2S_DOACTION);
 
-                    bw.Write(summon.Count);
+                    Dictionary<int, int> tmpDic = battle.GetSummon();
 
-                    Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
+                    bw.Write(tmpDic.Count);
+
+                    Dictionary<int, int>.Enumerator enumerator = tmpDic.GetEnumerator();
 
                     while (enumerator.MoveNext())
                     {
@@ -394,23 +312,22 @@ namespace FinalWar
                         bw.Write(pair.Value);
                     }
 
-                    bw.Write(action.Count);
+                    tmpDic = battle.GetAction();
 
-                    for (int i = 0; i < action.Count; i++)
+                    bw.Write(tmpDic.Count);
+
+                    enumerator = tmpDic.GetEnumerator();
+
+                    while (enumerator.MoveNext())
                     {
-                        bw.Write(action[i].Key);
+                        KeyValuePair<int, int> pair = enumerator.Current;
 
-                        bw.Write(action[i].Value);
+                        bw.Write(pair.Key);
+
+                        bw.Write(pair.Value);
                     }
 
-                    if (clientIsMine)
-                    {
-                        mOver = true;
-                    }
-                    else
-                    {
-                        oOver = true;
-                    }
+                    clientIsOver = true;
 
                     clientSendDataCallBack(ms);
                 }
@@ -432,71 +349,46 @@ namespace FinalWar
 
         private void ClientDoAction(BinaryReader _br)
         {
-            ClientReadActionAndSummon(_br);
+            ReadRoundDataFromStream(_br, battle.roundNum);
 
-            ClientReadCardsAndRandom(_br);
+            Dictionary<int, int> tmpDic = battle.GetSummon();
 
-            clientDoActionCallBack(new SuperEnumerator<ValueType>(StartBattle()));
+            Dictionary<int, int>.KeyCollection.Enumerator enumerator = tmpDic.Keys.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                int uid = enumerator.Current;
+
+                int id = _br.ReadInt32();
+
+                battle.SetCard(uid, id);
+            }
+
+            for (int i = 0; i < BattleConst.ADD_CARD_NUM; i++)
+            {
+                int index = BattleConst.DEFAULT_HAND_CARD_NUM + battle.roundNum * BattleConst.ADD_CARD_NUM + i;
+
+                if (!clientIsMine)
+                {
+                    index += BattleConst.DECK_CARD_NUM;
+                }
+
+                int id = _br.ReadInt32();
+
+                battle.SetCard(index, id);
+            }
+
+            clientDoActionCallBack(new SuperEnumerator<ValueType>(battle.StartBattle()));
         }
 
         public void ClientEndBattle()
         {
-            EndBattle();
-        }
-
-        private void ClientReadActionAndSummon(BinaryReader _br)
-        {
-            int num = _br.ReadInt32();
-
-            for (int i = 0; i < num; i++)
-            {
-                int pos = _br.ReadInt32();
-
-                int target = _br.ReadInt32();
-
-                action.Add(new KeyValuePair<int, int>(pos, target));
-            }
-
-            num = _br.ReadInt32();
-
-            for (int i = 0; i < num; i++)
-            {
-                int uid = _br.ReadInt32();
-
-                int pos = _br.ReadInt32();
-
-                summon.Add(uid, pos);
-            }
-        }
-
-        private void ClientReadCardsAndRandom(BinaryReader _br)
-        {
-            int num = _br.ReadInt32();
-
-            Dictionary<int, int> cards = clientIsMine ? oHandCards : mHandCards;
-
-            for (int i = 0; i < num; i++)
-            {
-                int uid = _br.ReadInt32();
-
-                int id = _br.ReadInt32();
-
-                cards[uid] = id;
-            }
-
-            num = _br.ReadInt32();
-
-            for (int i = 0; i < num; i++)
-            {
-                double value = _br.ReadDouble();
-
-                randomList.Enqueue(value);
-            }
+            //EndBattle();
         }
 
         public bool GetClientCanAction()
         {
-            return !(clientIsMine ? mOver : oOver);
+            return !clientIsOver;
         }
     }
 }

@@ -29,7 +29,7 @@ namespace FinalWar
 
             List<int> list = BattleAStar.Find(_t.mapData, _u.pos, target, value);
 
-            _t.action.Add(new KeyValuePair<int, int>(_u.pos, list[0]));
+            _t.GetAction().Add(_u.pos, list[0]);
 
             return true;
         }

@@ -8,7 +8,7 @@ namespace FinalWar
 
         public override bool Enter(Battle _t, bool _u, AiSummonData _v)
         {
-            _t.summon.Add(_v.pair.Key, _v.summonPos);
+            _t.GetSummon().Add(_v.pair.Key, _v.summonPos);
 
             IHeroSDS sds = Battle.GetHeroData(_v.pair.Value);
 

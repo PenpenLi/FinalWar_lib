@@ -18,13 +18,15 @@ namespace FinalWar
 
         public override bool Enter(Battle _t, bool _u, AiSummonData _v)
         {
-            Dictionary<int, int> dic = _u ? _t.mHandCards : _t.oHandCards;
+            Dictionary<int, bool> dic = _u ? _t.mHandCards : _t.oHandCards;
 
             int index = getRandomValueCallBack(dic.Count);
 
-            KeyValuePair<int, int> pair = dic.ElementAt(index);
+            KeyValuePair<int, bool> pair = dic.ElementAt(index);
 
-            IHeroSDS sds = Battle.GetHeroData(pair.Value);
+            int id = _t.GetCard(pair.Key);
+
+            IHeroSDS sds = Battle.GetHeroData(id);
 
             if (sds.GetCost() > _v.money)
             {
@@ -32,7 +34,7 @@ namespace FinalWar
             }
             else
             {
-                _v.pair = pair;
+                _v.pair = new KeyValuePair<int, int>(pair.Key, id);
 
                 return true;
             }

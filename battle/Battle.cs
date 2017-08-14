@@ -7,13 +7,13 @@ namespace FinalWar
 {
     public partial class Battle
     {
-        internal static Func<int, MapData> GetMapData;
+        internal static Func<int, IMapSDS> GetMapData;
         internal static Func<int, IHeroSDS> GetHeroData;
         internal static Func<int, ISkillSDS> GetSkillData;
         internal static Func<int, IAuraSDS> GetAuraData;
         internal static Func<int, IEffectSDS> GetEffectData;
 
-        private static double[] randomPool;
+        public static double[] randomPool;
 
         public int mapID { get; private set; }
         public MapData mapData { get; private set; }
@@ -37,7 +37,7 @@ namespace FinalWar
 
         private Dictionary<int, int>[] summon = new Dictionary<int, int>[BattleConst.MAX_ROUND_NUM];
 
-        private List<KeyValuePair<int, int>>[] action = new List<KeyValuePair<int, int>>[BattleConst.MAX_ROUND_NUM];
+        private Dictionary<int, int>[] action = new Dictionary<int, int>[BattleConst.MAX_ROUND_NUM];
 
         private int[] randomIndexList = new int[BattleConst.MAX_ROUND_NUM];
 
@@ -50,7 +50,7 @@ namespace FinalWar
 
         public int roundNum { get; private set; }
 
-        public static void Init<T, U, V, W>(double[] _randomPool, Dictionary<int, MapData> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
+        public static void Init<S, T, U, V, W>(double[] _randomPool, Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
         {
             randomPool = _randomPool;
 
@@ -86,7 +86,7 @@ namespace FinalWar
             {
                 summon[i] = new Dictionary<int, int>();
 
-                action[i] = new List<KeyValuePair<int, int>>();
+                action[i] = new Dictionary<int, int>();
             }
         }
 
@@ -104,25 +104,27 @@ namespace FinalWar
             return (int)(randomValue * _max);
         }
 
-        internal void InitBattle(int _mapID, Dictionary<int, int> _heros, List<int> _mCards, List<int> _oCards)
+        internal void InitBattle(int _mapID, int[] _mCards, int[] _oCards)
         {
             mapID = _mapID;
 
-            mapData = GetMapData(mapID);
+            IMapSDS mapSDS = GetMapData(mapID);
+
+            mapData = mapSDS.GetMapData();
 
             mScore = mapData.mScore;
             oScore = mapData.oScore;
 
             mMoney = oMoney = BattleConst.DEFAULT_MONEY;
 
-            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _mCards.Count; i++)
+            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _mCards.Length; i++)
             {
                 cardsArr[i] = _mCards[i];
 
                 mCards.Enqueue(i);
             }
 
-            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _oCards.Count; i++)
+            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _oCards.Length; i++)
             {
                 int index = BattleConst.DECK_CARD_NUM + i;
 
@@ -144,32 +146,25 @@ namespace FinalWar
                 }
             }
 
-            if (_heros != null)
+            for (int i = 0; i < mapSDS.GetHeroID().Length; i++)
             {
-                Dictionary<int, int>.Enumerator enumerator = _heros.GetEnumerator();
+                int pos = mapSDS.GetHeroPos()[i];
 
-                while (enumerator.MoveNext())
-                {
-                    KeyValuePair<int, int> pair = enumerator.Current;
+                int id = mapSDS.GetHeroID()[i];
 
-                    int pos = pair.Key;
+                bool isMine = GetPosIsMine(pos);
 
-                    int id = pair.Value;
+                IHeroSDS heroSDS = GetHeroData(id);
 
-                    bool isMine = GetPosIsMine(pos);
+                Hero hero = new Hero(this, isMine, heroSDS, pos, true);
 
-                    IHeroSDS heroSDS = GetHeroData(id);
-
-                    Hero hero = new Hero(this, isMine, heroSDS, pos, true);
-
-                    heroMapDic.Add(pos, hero);
-                }
+                heroMapDic.Add(pos, hero);
             }
         }
 
-        private IEnumerator StartBattle()
+        internal IEnumerator StartBattle()
         {
-            randomIndex = GetRandomIndex(roundNum);
+            randomIndex = GetRandomIndex();
 
             BattleData battleData = GetBattleData();
 
@@ -204,7 +199,7 @@ namespace FinalWar
             }
         }
 
-        private void BattleOver()
+        internal void BattleOver()
         {
             eventListener.Clear();
 
@@ -234,7 +229,7 @@ namespace FinalWar
 
         private IEnumerator DoSummon(BattleData _battleData)
         {
-            Dictionary<int, int>.Enumerator enumerator = GetSummon(roundNum).GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator = GetSummon().GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -337,11 +332,11 @@ namespace FinalWar
 
             BattleData battleData = new BattleData();
 
-            List<KeyValuePair<int, int>> tmpList = GetAction(roundNum);
+            Dictionary<int, int>.Enumerator enumerator2 = GetAction().GetEnumerator();
 
-            for (int i = 0; i < tmpList.Count; i++)
+            while (enumerator2.MoveNext())
             {
-                KeyValuePair<int, int> pair = tmpList[i];
+                KeyValuePair<int, int> pair = enumerator2.Current;
 
                 int pos = pair.Key;
 
@@ -1279,14 +1274,29 @@ namespace FinalWar
             }
         }
 
+        internal Dictionary<int, int> GetSummon()
+        {
+            return summon[roundNum];
+        }
+
         internal Dictionary<int, int> GetSummon(int _roundNum)
         {
             return summon[_roundNum];
         }
 
-        internal List<KeyValuePair<int, int>> GetAction(int _roundNum)
+        internal Dictionary<int, int> GetAction()
+        {
+            return action[roundNum];
+        }
+
+        internal Dictionary<int, int> GetAction(int _roundNum)
         {
             return action[_roundNum];
+        }
+
+        internal void SetRandomIndex(int _index)
+        {
+            randomIndexList[roundNum] = _index;
         }
 
         internal void SetRandomIndex(int _roundNum, int _index)
@@ -1294,14 +1304,19 @@ namespace FinalWar
             randomIndexList[_roundNum] = _index;
         }
 
-        internal int GetRandomIndex(int _roundNum)
+        internal int GetRandomIndex()
         {
-            return randomIndexList[_roundNum];
+            return randomIndexList[roundNum];
         }
 
         internal void SetCard(int _uid, int _id)
         {
             cardsArr[_uid] = _id;
+        }
+
+        internal int GetCard(int _uid)
+        {
+            return cardsArr[_uid];
         }
     }
 }

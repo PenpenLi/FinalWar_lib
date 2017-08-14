@@ -125,6 +125,7 @@
     <Compile Include="battle\sds\IAuraSDS.cs" />
     <Compile Include="battle\sds\IEffectSDS.cs" />
     <Compile Include="battle\sds\IHeroTypeSDS.cs" />
+    <Compile Include="battle\sds\IMapSDS.cs" />
     <Compile Include="battle\sds\ISkillSDS.cs" />
     <Compile Include="battle\superEnumerator\SuperEnumerator.cs" />
     <Compile Include="battle\superEvent\SuperEventListener.cs" />
