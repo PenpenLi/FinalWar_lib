@@ -57,6 +57,12 @@ namespace FinalWar
                     clientBattleOverCallBack();
 
                     break;
+
+                case PackageTag.S2C_WAIT:
+
+                    clientIsOver = true;
+
+                    break;
             }
         }
 
@@ -326,8 +332,6 @@ namespace FinalWar
 
                         bw.Write(pair.Value);
                     }
-
-                    clientIsOver = true;
 
                     clientSendDataCallBack(ms);
                 }
