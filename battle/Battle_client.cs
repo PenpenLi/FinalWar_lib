@@ -86,20 +86,6 @@ namespace FinalWar
 
             battle.InitBattle(mapID, mCards, oCards);
 
-            int roundNum = _br.ReadInt32();
-
-            for (int i = 0; i < roundNum; i++)
-            {
-                ReadRoundDataFromStream(_br, i);
-            }
-
-            clientIsOver = _br.ReadBoolean();
-
-            if (clientIsOver)
-            {
-                ReadRoundDataFromStream(_br, roundNum);
-            }
-
             num = _br.ReadInt32();
 
             for (int i = 0; i < num; i++)
@@ -111,19 +97,30 @@ namespace FinalWar
                 battle.SetCard(uid, id);
             }
 
+            int roundNum = _br.ReadInt32();
+
             for (int i = 0; i < roundNum; i++)
             {
+                ReadRoundDataFromStream(_br);
+
                 SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(battle.StartBattle());
 
                 superEnumerator.Done();
             }
 
+            clientIsOver = _br.ReadBoolean();
+
+            if (clientIsOver)
+            {
+                ReadRoundDataFromStream(_br);
+            }
+
             clientRefreshDataCallBack();
         }
 
-        private void ReadRoundDataFromStream(BinaryReader _br, int _roundNum)
+        private void ReadRoundDataFromStream(BinaryReader _br)
         {
-            Dictionary<int, int> tmpDic = battle.GetSummon(_roundNum);
+            Dictionary<int, int> tmpDic = battle.GetSummon();
 
             int num = _br.ReadInt32();
 
@@ -136,7 +133,7 @@ namespace FinalWar
                 tmpDic[uid] = pos;
             }
 
-            tmpDic = battle.GetAction(_roundNum);
+            tmpDic = battle.GetAction();
 
             num = _br.ReadInt32();
 
@@ -151,7 +148,7 @@ namespace FinalWar
 
             int randomIndex = _br.ReadInt32();
 
-            battle.SetRandomIndex(_roundNum, randomIndex);
+            battle.SetRandomIndex(randomIndex);
         }
 
         public bool ClientRequestSummon(int _cardUid, int _pos)
@@ -353,7 +350,7 @@ namespace FinalWar
 
         private void ClientDoAction(BinaryReader _br)
         {
-            ReadRoundDataFromStream(_br, battle.roundNum);
+            ReadRoundDataFromStream(_br);
 
             Dictionary<int, int> tmpDic = battle.GetSummon();
 

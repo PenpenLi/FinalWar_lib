@@ -1273,14 +1273,17 @@ namespace FinalWar
             }
         }
 
+
+
+
+
+
+
+
+
         internal Dictionary<int, int> GetSummon()
         {
             return summon[roundNum];
-        }
-
-        internal Dictionary<int, int> GetSummon(int _roundNum)
-        {
-            return summon[_roundNum];
         }
 
         internal Dictionary<int, int> GetAction()
@@ -1288,22 +1291,12 @@ namespace FinalWar
             return action[roundNum];
         }
 
-        internal Dictionary<int, int> GetAction(int _roundNum)
-        {
-            return action[_roundNum];
-        }
-
         internal void SetRandomIndex(int _index)
         {
             randomIndexList[roundNum] = _index;
         }
 
-        internal void SetRandomIndex(int _roundNum, int _index)
-        {
-            randomIndexList[_roundNum] = _index;
-        }
-
-        internal int GetRandomIndex()
+        private int GetRandomIndex()
         {
             return randomIndexList[roundNum];
         }

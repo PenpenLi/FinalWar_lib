@@ -190,23 +190,6 @@ namespace FinalWar
                 {
                     Log.Write("ServerRefreshData  isMine:" + _isMine);
 
-                    bw.Write(PackageTag.S2C_REFRESH);
-
-                    bw.Write(_isMine);
-
-                    bw.Write(mapID);
-
-                    bw.Write(mCards.Length);
-
-                    bw.Write(oCards.Length);
-
-                    bw.Write(roundNum);
-
-                    for (int i = 0; i < roundNum; i++)
-                    {
-                        WriteRoundDataToStream(bw, i);
-                    }
-
                     bool isOver;
 
                     CardState tmpCardState;
@@ -224,12 +207,15 @@ namespace FinalWar
                         tmpCardState = CardState.O;
                     }
 
-                    bw.Write(isOver);
+                    bw.Write(PackageTag.S2C_REFRESH);
 
-                    if (isOver)
-                    {
-                        WriteRoundDataToStream(bw, roundNum);
-                    }
+                    bw.Write(_isMine);
+
+                    bw.Write(mapID);
+
+                    bw.Write(mCards.Length);
+
+                    bw.Write(oCards.Length);
 
                     long pos = bw.BaseStream.Position;
 
@@ -266,9 +252,27 @@ namespace FinalWar
                         }
                     }
 
+                    long pos2 = bw.BaseStream.Position;
+
                     bw.BaseStream.Position = pos;
 
                     bw.Write(num);
+
+                    bw.BaseStream.Position = pos2;
+
+                    bw.Write(roundNum);
+
+                    for (int i = 0; i < roundNum; i++)
+                    {
+                        WriteRoundDataToStream(bw, i);
+                    }
+
+                    bw.Write(isOver);
+
+                    if (isOver)
+                    {
+                        WriteRoundDataToStream(bw, roundNum);
+                    }
                 }
             }
         }
