@@ -7,6 +7,5 @@
     internal const byte S2C_REFRESH = 1;
     internal const byte S2C_DOACTION = 2;
     internal const byte S2C_QUIT = 3;
-    internal const byte S2C_WAIT = 4;
 }
 

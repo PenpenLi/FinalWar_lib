@@ -11,7 +11,8 @@ namespace FinalWar
         {
             M_WIN,
             O_WIN,
-            DRAW
+            DRAW,
+            QUIT
         }
 
         internal static Func<int, IMapSDS> GetMapData;
@@ -19,8 +20,6 @@ namespace FinalWar
         internal static Func<int, ISkillSDS> GetSkillData;
         internal static Func<int, IAuraSDS> GetAuraData;
         internal static Func<int, IEffectSDS> GetEffectData;
-
-        internal static double[] randomPool;
 
         public int mapID { get; private set; }
         public MapData mapData { get; private set; }
@@ -54,10 +53,8 @@ namespace FinalWar
 
         private Action<BattleResult> battleEndCallBack;
 
-        public static void Init<S, T, U, V, W>(double[] _randomPool, Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
+        public static void Init<S, T, U, V, W>(Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
         {
-            randomPool = _randomPool;
-
             GetMapData = delegate (int _id)
             {
                 return _mapDataDic[_id];
@@ -86,11 +83,11 @@ namespace FinalWar
 
         internal int GetRandomValue(int _max)
         {
-            double randomValue = randomPool[randomIndex];
+            double randomValue = BattleRandomPool.Get(randomIndex);
 
             randomIndex++;
 
-            if (randomIndex == randomPool.Length)
+            if (randomIndex == BattleRandomPool.num)
             {
                 randomIndex = 0;
             }
@@ -214,19 +211,28 @@ namespace FinalWar
             {
                 BattleOver();
 
-                battleEndCallBack(BattleResult.DRAW);
+                if (battleEndCallBack != null)
+                {
+                    battleEndCallBack(BattleResult.DRAW);
+                }
             }
             else if (oWin)
             {
                 BattleOver();
 
-                battleEndCallBack(BattleResult.O_WIN);
+                if (battleEndCallBack != null)
+                {
+                    battleEndCallBack(BattleResult.O_WIN);
+                }
             }
             else if (mWin)
             {
                 BattleOver();
 
-                battleEndCallBack(BattleResult.M_WIN);
+                if (battleEndCallBack != null)
+                {
+                    battleEndCallBack(BattleResult.M_WIN);
+                }
             }
             else
             {
@@ -236,7 +242,10 @@ namespace FinalWar
                 {
                     BattleOver();
 
-                    battleEndCallBack(BattleResult.DRAW);
+                    if (battleEndCallBack != null)
+                    {
+                        battleEndCallBack(BattleResult.DRAW);
+                    }
                 }
             }
         }
@@ -1374,7 +1383,7 @@ namespace FinalWar
 
                             if (sds.GetCost() <= nowMoney)
                             {
-                                summon.Add(_uid, _pos);
+                                AddSummon(_uid, _pos);
 
                                 return true;
                             }
@@ -1384,6 +1393,11 @@ namespace FinalWar
             }
 
             return false;
+        }
+
+        internal void AddSummon(int _uid, int _pos)
+        {
+            summon.Add(_uid, _pos);
         }
 
         public int GetNowMoney(bool _isMine)
@@ -1410,6 +1424,11 @@ namespace FinalWar
         internal void DelSummon(int _uid)
         {
             summon.Remove(_uid);
+        }
+
+        internal void ClearSummon()
+        {
+            summon.Clear();
         }
 
         public Dictionary<int, int>.Enumerator GetActionEnumerator()
@@ -1454,7 +1473,7 @@ namespace FinalWar
             {
                 if (targetPosIsMine == hero.isMine)
                 {
-                    action.Add(_pos, _targetPos);
+                    AddAction(_pos, _targetPos);
                 }
                 else
                 {
@@ -1488,7 +1507,7 @@ namespace FinalWar
                         }
                     }
 
-                    action.Add(_pos, _targetPos);
+                    AddAction(_pos, _targetPos);
                 }
 
                 return true;
@@ -1503,7 +1522,7 @@ namespace FinalWar
                     {
                         if (targetPosIsMine != hero.isMine)
                         {
-                            action.Add(_pos, _targetPos);
+                            AddAction(_pos, _targetPos);
 
                             return true;
                         }
@@ -1514,9 +1533,19 @@ namespace FinalWar
             }
         }
 
+        internal void AddAction(int _pos, int _targetPos)
+        {
+            action.Add(_pos, _targetPos);
+        }
+
         internal void DelAction(int _pos)
         {
             action.Remove(_pos);
+        }
+
+        internal void ClearAction()
+        {
+            action.Clear();
         }
 
         internal void SetRandomIndex(int _index)

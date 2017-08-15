@@ -15,14 +15,16 @@ namespace FinalWar
         private Action<MemoryStream> clientSendDataCallBack;
         private Action clientRefreshDataCallBack;
         private Action<SuperEnumerator<ValueType>> clientDoActionCallBack;
-        private Action clientBattleOverCallBack;
+        private Action<BattleResult> clientBattleOverCallBack;
 
-        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action _clientBattleOverCallBack)
+        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action<BattleResult> _clientBattleOverCallBack)
         {
             clientSendDataCallBack = _clientSendDataCallBack;
             clientRefreshDataCallBack = _clientRefreshDataCallBack;
             clientDoActionCallBack = _clientDoActionCallBack;
             clientBattleOverCallBack = _clientBattleOverCallBack;
+
+            InitBattleEndCallBack(clientBattleOverCallBack);
         }
 
         public void ClientGetPackage(byte[] _bytes)
@@ -52,13 +54,9 @@ namespace FinalWar
 
                 case PackageTag.S2C_QUIT:
 
-                    clientBattleOverCallBack();
+                    BattleOver();
 
-                    break;
-
-                case PackageTag.S2C_WAIT:
-
-                    clientIsOver = true;
+                    clientBattleOverCallBack(BattleResult.QUIT);
 
                     break;
             }
@@ -126,7 +124,7 @@ namespace FinalWar
 
                 int pos = _br.ReadInt32();
 
-                AddSummon(clientIsMine, uid, pos);
+                AddSummon(uid, pos);
             }
 
             num = _br.ReadInt32();
@@ -137,7 +135,7 @@ namespace FinalWar
 
                 int targetPos = _br.ReadInt32();
 
-                AddAction(clientIsMine, pos, targetPos);
+                AddAction(pos, targetPos);
             }
 
             int randomIndex = _br.ReadInt32();
@@ -185,6 +183,8 @@ namespace FinalWar
 
         public void ClientRequestDoAction()
         {
+            clientIsOver = true;
+
             using (MemoryStream ms = new MemoryStream())
             {
                 using (BinaryWriter bw = new BinaryWriter(ms))
@@ -237,6 +237,10 @@ namespace FinalWar
 
         private void ClientDoAction(BinaryReader _br)
         {
+            ClearSummon();
+
+            ClearAction();
+
             ReadRoundDataFromStream(_br);
 
             int num = _br.ReadInt32();

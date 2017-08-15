@@ -1,8 +1,11 @@
-﻿#if SERVER
+﻿#if !CLIENT
 using System;
 using System.Collections.Generic;
 using System.IO;
+
+#if BATTLE
 using superEnumerator;
+#endif
 
 namespace FinalWar
 {
@@ -23,8 +26,9 @@ namespace FinalWar
             return random.Next(_max);
         }
 
+#if BATTLE
         private Battle battle = new Battle();
-
+#endif
         private bool mOver;
         private bool oOver;
 
@@ -48,7 +52,7 @@ namespace FinalWar
 
         private Action<bool, MemoryStream> serverSendDataCallBack;
 
-        private Action serverBattleOverCallBack;
+        private Action<Battle.BattleResult> serverBattleOverCallBack;
 
         public Battle_server()
         {
@@ -60,11 +64,15 @@ namespace FinalWar
             }
         }
 
-        public void ServerSetCallBack(Action<bool, MemoryStream> _serverSendDataCallBack, Action _serverBattleOverCallBack)
+        public void ServerSetCallBack(Action<bool, MemoryStream> _serverSendDataCallBack, Action<Battle.BattleResult> _serverBattleOverCallBack)
         {
             serverSendDataCallBack = _serverSendDataCallBack;
 
             serverBattleOverCallBack = _serverBattleOverCallBack;
+
+#if BATTLE
+            battle.InitBattleEndCallBack(serverBattleOverCallBack);
+#endif
         }
 
         public void ServerStart(int _mapID, List<int> _mCards, List<int> _oCards)
@@ -75,10 +83,9 @@ namespace FinalWar
 
             InitCards(_mCards, _oCards, out mCards, out oCards);
 
-            if (battle != null)
-            {
-                battle.InitBattle(_mapID, mCards, oCards);
-            }
+#if BATTLE
+            battle.InitBattle(_mapID, mCards, oCards);
+#endif
 
             ServerRefreshData(true);
 
@@ -87,24 +94,24 @@ namespace FinalWar
 
         private void InitCards(List<int> _mCards, List<int> _oCards, out int[] _mCardsResult, out int[] _oCardsResult)
         {
-            List<int> mCards = new List<int>(_mCards);
+            List<int> mTmpCards = new List<int>(_mCards);
 
-            if (mCards.Count > BattleConst.DECK_CARD_NUM)
+            if (mTmpCards.Count > BattleConst.DECK_CARD_NUM)
             {
                 _mCardsResult = new int[BattleConst.DECK_CARD_NUM];
             }
             else
             {
-                _mCardsResult = new int[mCards.Count];
+                _mCardsResult = new int[mTmpCards.Count];
             }
 
             for (int i = 0; i < _mCardsResult.Length; i++)
             {
-                int index = GetRandomValue(mCards.Count);
+                int index = GetRandomValue(mTmpCards.Count);
 
-                int id = mCards[index];
+                int id = mTmpCards[index];
 
-                mCards.RemoveAt(index);
+                mTmpCards.RemoveAt(index);
 
                 _mCardsResult[i] = id;
 
@@ -118,24 +125,24 @@ namespace FinalWar
                 }
             }
 
-            List<int> oCards = new List<int>(_oCards);
+            List<int> oTmpCards = new List<int>(_oCards);
 
-            if (oCards.Count > BattleConst.DECK_CARD_NUM)
+            if (oTmpCards.Count > BattleConst.DECK_CARD_NUM)
             {
                 _oCardsResult = new int[BattleConst.DECK_CARD_NUM];
             }
             else
             {
-                _oCardsResult = new int[oCards.Count];
+                _oCardsResult = new int[oTmpCards.Count];
             }
 
             for (int i = 0; i < _oCardsResult.Length; i++)
             {
-                int index = GetRandomValue(oCards.Count);
+                int index = GetRandomValue(oTmpCards.Count);
 
-                int id = oCards[index];
+                int id = oTmpCards[index];
 
-                oCards.RemoveAt(index);
+                oTmpCards.RemoveAt(index);
 
                 _oCardsResult[i] = id;
 
@@ -273,6 +280,8 @@ namespace FinalWar
                     {
                         WriteRoundDataToStream(bw, roundNum);
                     }
+
+                    serverSendDataCallBack(_isMine, ms);
                 }
             }
         }
@@ -368,23 +377,11 @@ namespace FinalWar
             {
                 ServerStartBattle();
             }
-            else
-            {
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    using (BinaryWriter bw = new BinaryWriter(ms))
-                    {
-                        bw.Write(PackageTag.S2C_WAIT);
-
-                        serverSendDataCallBack(_isMine, ms);
-                    }
-                }
-            }
         }
 
         private void ServerStartBattle()
         {
-            int randomIndex = GetRandomValue(Battle.randomPool.Length);
+            int randomIndex = GetRandomValue(BattleRandomPool.num);
 
             randomIndexList[roundNum] = randomIndex;
 
@@ -479,28 +476,27 @@ namespace FinalWar
                 }
             }
 
-            if (battle != null)
+#if BATTLE
+            Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
+
+            while (enumerator2.MoveNext())
             {
-                Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
-
-                while (enumerator2.MoveNext())
-                {
-                    battle.AddSummon(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
-                }
-
-                enumerator2 = action[roundNum].GetEnumerator();
-
-                while (enumerator2.MoveNext())
-                {
-                    battle.AddAction(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
-                }
-
-                battle.SetRandomIndex(randomIndex);
-
-                SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(battle.StartBattle());
-
-                superEnumerator.Done();
+                battle.AddSummon(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
             }
+
+            enumerator2 = action[roundNum].GetEnumerator();
+
+            while (enumerator2.MoveNext())
+            {
+                battle.AddAction(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
+            }
+
+            battle.SetRandomIndex(randomIndex);
+
+            SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(battle.StartBattle());
+
+            superEnumerator.Done();
+#endif
 
             roundNum++;
 
@@ -521,11 +517,9 @@ namespace FinalWar
                 }
             }
 
-            if (battle != null)
-            {
-                battle.BattleOver();
-            }
-
+#if BATTLE
+            battle.BattleOver();
+#endif
             BattleOver();
         }
 
@@ -540,7 +534,14 @@ namespace FinalWar
                 cardStateArr[i] = CardState.N;
             }
 
-            serverBattleOverCallBack();
+            for (int i = 0; i < BattleConst.MAX_ROUND_NUM; i++)
+            {
+                action[i].Clear();
+
+                summon[i].Clear();
+            }
+
+            serverBattleOverCallBack(Battle.BattleResult.QUIT);
         }
     }
 }
