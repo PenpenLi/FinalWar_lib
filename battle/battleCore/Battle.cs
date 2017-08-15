@@ -7,6 +7,13 @@ namespace FinalWar
 {
     public partial class Battle
     {
+        public enum BattleResult
+        {
+            M_WIN,
+            O_WIN,
+            DRAW
+        }
+
         internal static Func<int, IMapSDS> GetMapData;
         internal static Func<int, IHeroSDS> GetHeroData;
         internal static Func<int, ISkillSDS> GetSkillData;
@@ -41,10 +48,11 @@ namespace FinalWar
 
         private int randomIndex;
 
+        private int roundNum;
+
         internal SuperEventListener eventListener = new SuperEventListener();
 
-        public bool mWin { get; private set; }
-        public bool oWin { get; private set; }
+        private Action<BattleResult> battleEndCallBack;
 
         public static void Init<S, T, U, V, W>(double[] _randomPool, Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
         {
@@ -88,6 +96,11 @@ namespace FinalWar
             }
 
             return (int)(randomValue * _max);
+        }
+
+        public void InitBattleEndCallBack(Action<BattleResult> _battleEndCallBack)
+        {
+            battleEndCallBack = _battleEndCallBack;
         }
 
         internal void InitBattle(int _mapID, int[] _mCards, int[] _oCards)
@@ -154,11 +167,15 @@ namespace FinalWar
         {
             BattleData battleData = GetBattleData();
 
+            action.Clear();
+
             yield return DoSkill(battleData);
 
             yield return DoRoundStart(battleData);
 
             yield return DoSummon(battleData);
+
+            summon.Clear();
 
             yield return DoRush(battleData);
 
@@ -173,13 +190,54 @@ namespace FinalWar
             yield return DoAddMoney();
 
             yield return DoAddCards();
+
+            RoundOver();
         }
 
-        private void EndBattle()
+        private void RoundOver()
         {
-            if (mWin || oWin)
+            bool mWin = false;
+
+            bool oWin = false;
+
+            if (mapBelongDic.ContainsKey(mapData.mBase))
+            {
+                oWin = true;
+            }
+
+            if (mapBelongDic.ContainsKey(mapData.oBase))
+            {
+                mWin = true;
+            }
+
+            if (oWin && mWin)
             {
                 BattleOver();
+
+                battleEndCallBack(BattleResult.DRAW);
+            }
+            else if (oWin)
+            {
+                BattleOver();
+
+                battleEndCallBack(BattleResult.O_WIN);
+            }
+            else if (mWin)
+            {
+                BattleOver();
+
+                battleEndCallBack(BattleResult.M_WIN);
+            }
+            else
+            {
+                roundNum++;
+
+                if (roundNum == BattleConst.MAX_ROUND_NUM)
+                {
+                    BattleOver();
+
+                    battleEndCallBack(BattleResult.DRAW);
+                }
             }
         }
 
@@ -198,12 +256,12 @@ namespace FinalWar
             mCards.Clear();
 
             oCards.Clear();
-            
+
             summon.Clear();
 
             action.Clear();
 
-            mWin = oWin = false;
+            roundNum = 0;
         }
 
         private IEnumerator DoSummon(BattleData _battleData)
@@ -1130,15 +1188,6 @@ namespace FinalWar
 
         private void CaptureArea(Hero _hero, int _nowPos)
         {
-            if (mapData.mBase == _nowPos)
-            {
-                oWin = true;
-            }
-            else if (mapData.oBase == _nowPos)
-            {
-                mWin = true;
-            }
-
             if (mapBelongDic.ContainsKey(_nowPos))
             {
                 mapBelongDic.Remove(_nowPos);
@@ -1474,7 +1523,7 @@ namespace FinalWar
         {
             randomIndex = _index;
         }
-        
+
         internal void SetCard(int _uid, int _id)
         {
             cardsArr[_uid] = _id;

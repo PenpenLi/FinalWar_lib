@@ -95,9 +95,9 @@ namespace FinalWar
                 SetCard(uid, id);
             }
 
-            int roundNum = _br.ReadInt32();
+            num = _br.ReadInt32();
 
-            for (int i = 0; i < roundNum; i++)
+            for (int i = 0; i < num; i++)
             {
                 ReadRoundDataFromStream(_br);
 
@@ -251,11 +251,6 @@ namespace FinalWar
             }
 
             clientDoActionCallBack(new SuperEnumerator<ValueType>(StartBattle()));
-        }
-
-        public void ClientEndBattle()
-        {
-            EndBattle();
 
             clientIsOver = false;
         }
