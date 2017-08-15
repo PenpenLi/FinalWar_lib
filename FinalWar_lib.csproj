@@ -56,6 +56,17 @@
     <DefineConstants>CLIENT</DefineConstants>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Server|AnyCPU'">
+    <OutputPath>bin\Server\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Server|x64'">
+    <OutputPath>bin\x64\Server\</OutputPath>
+    <DefineConstants>SERVER;CLIENT</DefineConstants>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="bt">
       <HintPath>..\..\bt\bin\x64\Debug\bt.dll</HintPath>

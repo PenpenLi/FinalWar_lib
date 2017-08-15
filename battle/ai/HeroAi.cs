@@ -8,8 +8,6 @@ namespace FinalWar
 {
     public static class HeroAi
     {
-        private static Random random = new Random();
-
         private static BtRoot<Battle, Hero, AiActionData> actionBtRoot;
 
         private static BtRoot<Battle, bool, AiSummonData> summonBtRoot;
@@ -20,30 +18,25 @@ namespace FinalWar
 
         public static void Init(string _actionStr, string _summonStr)
         {
-            actionBtRoot = BtTools.Create(_actionStr, GetActionConditionNode, GetActionActionNode, GetRandomValue);
+            actionBtRoot = BtTools.Create(_actionStr, GetActionConditionNode, GetActionActionNode);
 
-            summonBtRoot = BtTools.Create(_summonStr, GetSummonConditionNode, GetSummonActionNode, GetRandomValue);
+            summonBtRoot = BtTools.Create(_summonStr, GetSummonConditionNode, GetSummonActionNode);
 
             aiActionData = new AiActionData();
 
             aiSummonData = new AiSummonData();
         }
 
-        private static int GetRandomValue(int _max)
-        {
-            return random.Next(_max);
-        }
-
-        public static void Start(Battle _battle, bool _isMine)
+        public static void Start(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack)
         {
             ClearAction(_battle, _isMine);
 
-            ActionHero(_battle, _isMine);
+            ActionHero(_battle, _isMine, _getRandomValueCallBack);
 
-            SummonHero(_battle, _isMine);
+            SummonHero(_battle, _isMine, _getRandomValueCallBack);
         }
 
-        private static void ActionHero(Battle _battle, bool _isMine)
+        private static void ActionHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack)
         {
             List<Hero> heroList = null;
 
@@ -68,22 +61,22 @@ namespace FinalWar
             {
                 while (heroList.Count > 0)
                 {
-                    int index = GetRandomValue(heroList.Count);
+                    int index = _getRandomValueCallBack(heroList.Count);
 
                     Hero hero = heroList[index];
 
                     heroList.RemoveAt(index);
 
-                    actionBtRoot.Enter(_battle, hero, aiActionData);
+                    actionBtRoot.Enter(_getRandomValueCallBack, _battle, hero, aiActionData);
 
                     aiActionData.dic.Clear();
                 }
             }
         }
 
-        private static void SummonHero(Battle _battle, bool _isMine)
+        private static void SummonHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack)
         {
-            summonBtRoot.Enter(_battle, _isMine, aiSummonData);
+            summonBtRoot.Enter(_getRandomValueCallBack, _battle, _isMine, aiSummonData);
 
             aiSummonData.summonPosList.Clear();
         }
@@ -92,9 +85,7 @@ namespace FinalWar
         {
             List<int> delList = null;
 
-            Dictionary<int, int> tmpDic = _battle.GetSummon();
-
-            Dictionary<int, int>.Enumerator enumerator = tmpDic.GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator = _battle.GetSummonEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -119,15 +110,13 @@ namespace FinalWar
             {
                 for (int i = 0; i < delList.Count; i++)
                 {
-                    tmpDic.Remove(delList[i]);
+                    _battle.DelSummon(delList[i]);
                 }
 
                 delList.Clear();
             }
 
-            tmpDic = _battle.GetAction();
-
-            enumerator = tmpDic.GetEnumerator();
+            enumerator = _battle.GetActionEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -152,7 +141,7 @@ namespace FinalWar
             {
                 for (int i = 0; i < delList.Count; i++)
                 {
-                    tmpDic.Remove(delList[i]);
+                    _battle.DelAction(delList[i]);
                 }
             }
         }
@@ -178,7 +167,7 @@ namespace FinalWar
 
                 case ChooseTargetActionNode.key:
 
-                    actionNode = new ChooseTargetActionNode(_node, GetRandomValue);
+                    actionNode = new ChooseTargetActionNode(_node);
 
                     break;
 
@@ -325,13 +314,13 @@ namespace FinalWar
 
                 case GetSummonHeroIdConditionNode.key:
 
-                    conditionNode = new GetSummonHeroIdConditionNode(GetRandomValue);
+                    conditionNode = new GetSummonHeroIdConditionNode();
 
                     break;
 
                 case ChooseSummonPosConditionNode.key:
 
-                    conditionNode = new ChooseSummonPosConditionNode(_node, GetRandomValue);
+                    conditionNode = new ChooseSummonPosConditionNode(_node);
 
                     break;
 

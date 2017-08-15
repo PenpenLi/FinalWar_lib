@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using bt;
+using System;
 
 namespace FinalWar
 {
@@ -7,7 +8,7 @@ namespace FinalWar
     {
         internal const string key = "GetCanShootHeroPosConditionConditionNode";
 
-        public override bool Enter(Battle _t, Hero _u, AiActionData _v)
+        public override bool Enter(Func<int, int> _getRandomValueCallBack, Battle _t, Hero _u, AiActionData _v)
         {
             List<int> posList = HeroAi.GetCanShootHeroPos(_t, _u);
 

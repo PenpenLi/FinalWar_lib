@@ -9,24 +9,22 @@ namespace FinalWar
     {
         internal const string key = "ChooseTargetActionNode";
 
-        private Func<int, int> getRandomValueCallBack;
-
         private string value;
 
-        public override bool Enter(Battle _t, Hero _u, AiActionData _v)
+        public override bool Enter(Func<int, int> _getRandomValueCallBack, Battle _t, Hero _u, AiActionData _v)
         {
             List<int> list = _v.dic[value];
 
-            int index = getRandomValueCallBack(list.Count);
+            int index = _getRandomValueCallBack(list.Count);
 
             int target = list[index];
 
-            _t.GetAction().Add(_u.pos, target);
+            _t.AddAction(_u.isMine, _u.pos, target);
 
             return true;
         }
 
-        internal ChooseTargetActionNode(XmlNode _node, Func<int, int> _getRandomValueCallBack)
+        internal ChooseTargetActionNode(XmlNode _node)
         {
             XmlAttribute valueAtt = _node.Attributes["value"];
 
@@ -36,8 +34,6 @@ namespace FinalWar
             }
 
             value = valueAtt.InnerText;
-
-            getRandomValueCallBack = _getRandomValueCallBack;
         }
     }
 }

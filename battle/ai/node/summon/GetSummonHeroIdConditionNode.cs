@@ -9,22 +9,15 @@ namespace FinalWar
     {
         internal const string key = "GetSummonHeroIdConditionNode";
 
-        private Func<int, int> getRandomValueCallBack;
-
-        internal GetSummonHeroIdConditionNode(Func<int, int> _getRandomValueCallBack)
+        public override bool Enter(Func<int, int> _getRandomValueCallBack, Battle _t, bool _u, AiSummonData _v)
         {
-            getRandomValueCallBack = _getRandomValueCallBack;
-        }
+            List<int> handCards = _u ? _t.mHandCards : _t.oHandCards;
 
-        public override bool Enter(Battle _t, bool _u, AiSummonData _v)
-        {
-            Dictionary<int, bool> dic = _u ? _t.mHandCards : _t.oHandCards;
+            int index = _getRandomValueCallBack(handCards.Count);
 
-            int index = getRandomValueCallBack(dic.Count);
+            int uid = handCards[index];
 
-            KeyValuePair<int, bool> pair = dic.ElementAt(index);
-
-            int id = _t.GetCard(pair.Key);
+            int id = _t.GetCard(uid);
 
             IHeroSDS sds = Battle.GetHeroData(id);
 
@@ -34,7 +27,7 @@ namespace FinalWar
             }
             else
             {
-                _v.pair = new KeyValuePair<int, int>(pair.Key, id);
+                _v.pair = new KeyValuePair<int, int>(uid, id);
 
                 return true;
             }

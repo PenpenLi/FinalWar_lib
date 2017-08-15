@@ -13,7 +13,7 @@ namespace FinalWar
         internal static Func<int, IAuraSDS> GetAuraData;
         internal static Func<int, IEffectSDS> GetEffectData;
 
-        public static double[] randomPool;
+        internal static double[] randomPool;
 
         public int mapID { get; private set; }
         public MapData mapData { get; private set; }
@@ -24,8 +24,8 @@ namespace FinalWar
         private Queue<int> mCards = new Queue<int>();
         private Queue<int> oCards = new Queue<int>();
 
-        public Dictionary<int, bool> mHandCards = new Dictionary<int, bool>();
-        public Dictionary<int, bool> oHandCards = new Dictionary<int, bool>();
+        public List<int> mHandCards = new List<int>();
+        public List<int> oHandCards = new List<int>();
 
         private int[] cardsArr = new int[BattleConst.DECK_CARD_NUM * 2];
 
@@ -117,18 +117,18 @@ namespace FinalWar
 
             mMoney = oMoney = BattleConst.DEFAULT_MONEY;
 
-            for (int i = 0; i < _mCards.Length; i++)
+            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _mCards.Length; i++)
             {
-                cardsArr[i] = _mCards[i];
+                SetCard(i, _mCards[i]);
 
                 mCards.Enqueue(i);
             }
 
-            for (int i = 0; i < _oCards.Length; i++)
+            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _oCards.Length; i++)
             {
                 int index = BattleConst.DECK_CARD_NUM + i;
 
-                cardsArr[index] = _oCards[i];
+                SetCard(index, _oCards[i]);
 
                 oCards.Enqueue(index);
             }
@@ -137,12 +137,12 @@ namespace FinalWar
             {
                 if (mCards.Count > 0)
                 {
-                    mHandCards.Add(mCards.Dequeue(), false);
+                    mHandCards.Add(mCards.Dequeue());
                 }
 
                 if (oCards.Count > 0)
                 {
-                    oHandCards.Add(oCards.Dequeue(), false);
+                    oHandCards.Add(oCards.Dequeue());
                 }
             }
 
@@ -160,6 +160,8 @@ namespace FinalWar
 
                 heroMapDic.Add(pos, hero);
             }
+
+            eventListener.DispatchEvent(BattleConst.BATTLE_START);
         }
 
         internal IEnumerator StartBattle()
@@ -260,9 +262,11 @@ namespace FinalWar
 
             if (isMine)
             {
-                if (mHandCards.ContainsKey(_uid))
+                int index = mHandCards.IndexOf(_uid);
+
+                if (index != -1)
                 {
-                    int heroID = cardsArr[_uid];
+                    int heroID = GetCard(_uid);
 
                     sds = GetHeroData(heroID);
 
@@ -273,7 +277,7 @@ namespace FinalWar
 
                     mMoney -= sds.GetCost();
 
-                    mHandCards.Remove(_uid);
+                    mHandCards.RemoveAt(index);
                 }
                 else
                 {
@@ -282,9 +286,11 @@ namespace FinalWar
             }
             else
             {
-                if (oHandCards.ContainsKey(_uid))
+                int index = oHandCards.IndexOf(_uid);
+
+                if (index != -1)
                 {
-                    int heroID = cardsArr[_uid];
+                    int heroID = GetCard(_uid);
 
                     sds = GetHeroData(heroID);
 
@@ -295,7 +301,7 @@ namespace FinalWar
 
                     oMoney -= sds.GetCost();
 
-                    oHandCards.Remove(_uid);
+                    oHandCards.RemoveAt(index);
                 }
                 else
                 {
@@ -1253,7 +1259,7 @@ namespace FinalWar
                     _num = cards.Count;
                 }
 
-                Dictionary<int, bool> handCardsList = _isMine ? mHandCards : oHandCards;
+                List<int> handCardsList = _isMine ? mHandCards : oHandCards;
 
                 List<int> addList = new List<int>();
 
@@ -1265,7 +1271,7 @@ namespace FinalWar
 
                     if (handCardsList.Count < BattleConst.MAX_HAND_CARD_NUM)
                     {
-                        handCardsList.Add(uid, false);
+                        handCardsList.Add(uid);
                     }
                 }
 
@@ -1281,14 +1287,223 @@ namespace FinalWar
 
 
 
-        internal Dictionary<int, int> GetSummon()
+
+
+
+
+
+
+
+
+
+
+
+
+        private Dictionary<int, int> GetSummon()
         {
             return summon[roundNum];
         }
 
-        internal Dictionary<int, int> GetAction()
+        internal Dictionary<int, int>.Enumerator GetSummonEnumerator()
+        {
+            return GetSummon().GetEnumerator();
+        }
+
+        internal int GetSummonNum()
+        {
+            return GetSummon().Count;
+        }
+
+        internal bool GetSummonContainsKey(int _uid)
+        {
+            return GetSummon().ContainsKey(_uid);
+        }
+
+        internal bool AddSummon(bool _isMine, int _uid, int _pos)
+        {
+            List<int> handCards;
+
+            int money;
+
+            if (_isMine)
+            {
+                handCards = mHandCards;
+
+                money = mMoney;
+            }
+            else
+            {
+                handCards = oHandCards;
+
+                money = oMoney;
+            }
+
+            if (handCards.Contains(_uid))
+            {
+                if (GetPosIsMine(_pos) == _isMine)
+                {
+                    if (!heroMapDic.ContainsKey(_pos))
+                    {
+                        Dictionary<int, int> tmpDic = GetSummon();
+
+                        if (!tmpDic.ContainsKey(_uid) && !tmpDic.ContainsValue(_pos))
+                        {
+                            int nowMoney = GetNowMoney(_isMine);
+
+                            IHeroSDS sds = GetHeroData(GetCard(_uid));
+
+                            if (sds.GetCost() <= nowMoney)
+                            {
+                                tmpDic.Add(_uid, _pos);
+
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        internal int GetNowMoney(bool _isMine)
+        {
+            int money = _isMine ? mMoney : oMoney;
+
+            Dictionary<int, int>.KeyCollection.Enumerator enumerator = GetSummon().Keys.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                int uid = enumerator.Current;
+
+                if ((_isMine && uid < BattleConst.DECK_CARD_NUM) || (!_isMine && uid >= BattleConst.DECK_CARD_NUM))
+                {
+                    IHeroSDS sds = GetHeroData(GetCard(uid));
+
+                    money -= sds.GetCost();
+                }
+            }
+
+            return money;
+        }
+
+        internal void DelSummon(int _uid)
+        {
+            GetSummon().Remove(_uid);
+        }
+
+        private Dictionary<int, int> GetAction()
         {
             return action[roundNum];
+        }
+
+        internal Dictionary<int, int>.Enumerator GetActionEnumerator()
+        {
+            return GetAction().GetEnumerator();
+        }
+
+        internal int GetActionNum()
+        {
+            return GetAction().Count;
+        }
+
+        internal bool AddAction(bool _isMine, int _pos, int _targetPos)
+        {
+            Hero hero;
+
+            if (!heroMapDic.TryGetValue(_pos, out hero))
+            {
+                return false;
+            }
+
+            if (hero.isMine != _isMine)
+            {
+                return false;
+            }
+
+            if (!hero.GetCanAction())
+            {
+                return false;
+            }
+
+            Dictionary<int, int> tmpDic = GetAction();
+
+            if (tmpDic.ContainsKey(_pos))
+            {
+                return false;
+            }
+
+            bool targetPosIsMine = GetPosIsMine(_targetPos);
+
+            List<int> tmpList = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+
+            if (tmpList.Contains(_targetPos))
+            {
+                if (targetPosIsMine == hero.isMine)
+                {
+                    tmpDic.Add(_pos, _targetPos);
+                }
+                else
+                {
+                    int nowThreadLevel = 0;
+
+                    Hero targetHero2;
+
+                    if (heroMapDic.TryGetValue(_targetPos, out targetHero2))
+                    {
+                        nowThreadLevel = targetHero2.sds.GetHeroType().GetThread();
+                    }
+
+                    for (int i = 0; i < tmpList.Count; i++)
+                    {
+                        int pos = tmpList[i];
+
+                        if (pos != _targetPos)
+                        {
+                            Hero targetHero;
+
+                            if (heroMapDic.TryGetValue(pos, out targetHero))
+                            {
+                                if (targetHero.isMine != hero.isMine)
+                                {
+                                    if (targetHero.sds.GetHeroType().GetThread() > nowThreadLevel)
+                                    {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    tmpDic.Add(_pos, _targetPos);
+                }
+
+                return true;
+            }
+            else
+            {
+                if (hero.sds.GetSkill() != 0 && heroMapDic.ContainsKey(_targetPos))
+                {
+                    List<int> tmpList2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
+
+                    if (tmpList2.Contains(_targetPos))
+                    {
+                        if (targetPosIsMine != hero.isMine)
+                        {
+                            tmpDic.Add(_pos, _targetPos);
+
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        internal void DelAction(int _pos)
+        {
+            GetAction().Remove(_pos);
         }
 
         internal void SetRandomIndex(int _index)

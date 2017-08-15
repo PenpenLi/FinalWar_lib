@@ -1,4 +1,4 @@
-﻿#if !CLIENT
+﻿#if SERVER
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,9 +33,9 @@ namespace FinalWar
         //-----------------
         private int mapID;
 
-        private Dictionary<int, int>[] summon = new Dictionary<int, int>[BattleConst.MAX_ROUND_NUM];
+        private Dictionary<int, KeyValuePair<int, bool>>[] summon = new Dictionary<int, KeyValuePair<int, bool>>[BattleConst.MAX_ROUND_NUM];
 
-        private Dictionary<int, int>[] action = new Dictionary<int, int>[BattleConst.MAX_ROUND_NUM];
+        private Dictionary<int, KeyValuePair<int, bool>>[] action = new Dictionary<int, KeyValuePair<int, bool>>[BattleConst.MAX_ROUND_NUM];
 
         private int[] randomIndexList = new int[BattleConst.MAX_ROUND_NUM];
 
@@ -54,9 +54,9 @@ namespace FinalWar
         {
             for (int i = 0; i < BattleConst.MAX_ROUND_NUM; i++)
             {
-                summon[i] = new Dictionary<int, int>();
+                summon[i] = new Dictionary<int, KeyValuePair<int, bool>>();
 
-                action[i] = new Dictionary<int, int>();
+                action[i] = new Dictionary<int, KeyValuePair<int, bool>>();
             }
         }
 
@@ -279,19 +279,19 @@ namespace FinalWar
 
         private void WriteRoundDataToStream(BinaryWriter _bw, int _roundNum)
         {
-            Dictionary<int, int> tmpDic = summon[_roundNum];
+            Dictionary<int, KeyValuePair<int, bool>> tmpDic = summon[_roundNum];
 
             _bw.Write(tmpDic.Count);
 
-            Dictionary<int, int>.Enumerator enumerator = tmpDic.GetEnumerator();
+            Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator = tmpDic.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                KeyValuePair<int, int> pair = enumerator.Current;
+                KeyValuePair<int, KeyValuePair<int, bool>> pair = enumerator.Current;
 
                 _bw.Write(pair.Key);
 
-                _bw.Write(pair.Value);
+                _bw.Write(pair.Value.Key);
             }
 
             tmpDic = action[_roundNum];
@@ -302,11 +302,11 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                KeyValuePair<int, int> pair = enumerator.Current;
+                KeyValuePair<int, KeyValuePair<int, bool>> pair = enumerator.Current;
 
                 _bw.Write(pair.Key);
 
-                _bw.Write(pair.Value);
+                _bw.Write(pair.Value.Key);
             }
 
             _bw.Write(randomIndexList[_roundNum]);
@@ -338,7 +338,7 @@ namespace FinalWar
                 }
             }
 
-            Dictionary<int, int> tmpDic = summon[roundNum];
+            Dictionary<int, KeyValuePair<int, bool>> tmpDic = summon[roundNum];
 
             int num = _br.ReadInt32();
 
@@ -348,7 +348,7 @@ namespace FinalWar
 
                 int pos = _br.ReadInt32();
 
-                tmpDic.Add(uid, pos);
+                tmpDic.Add(uid, new KeyValuePair<int, bool>(pos, _isMine));
             }
 
             tmpDic = action[roundNum];
@@ -361,7 +361,7 @@ namespace FinalWar
 
                 int targetPos = _br.ReadInt32();
 
-                tmpDic.Add(pos, targetPos);
+                tmpDic.Add(pos, new KeyValuePair<int, bool>(targetPos, _isMine));
             }
 
             if (mOver && oOver)
@@ -400,27 +400,31 @@ namespace FinalWar
 
                     WriteRoundDataToStream(oBw, roundNum);
 
-                    Dictionary<int, int> tmpDic = summon[roundNum];
+                    Dictionary<int, KeyValuePair<int, bool>> tmpDic = summon[roundNum];
 
-                    Dictionary<int, int>.Enumerator enumerator = tmpDic.GetEnumerator();
+                    Dictionary<int, KeyValuePair<int, bool>>.KeyCollection.Enumerator enumerator = tmpDic.Keys.GetEnumerator();
 
                     while (enumerator.MoveNext())
                     {
-                        KeyValuePair<int, int> pair = enumerator.Current;
+                        int uid = enumerator.Current;
 
-                        cardStateArr[pair.Key] = CardState.A;
+                        cardStateArr[uid] = CardState.A;
 
-                        if (pair.Key < BattleConst.DECK_CARD_NUM)
+                        mBw.Write(uid);
+
+                        oBw.Write(uid);
+
+                        if (uid < BattleConst.DECK_CARD_NUM)
                         {
-                            mBw.Write(mCards[pair.Key]);
+                            mBw.Write(mCards[uid]);
 
-                            oBw.Write(mCards[pair.Key]);
+                            oBw.Write(mCards[uid]);
                         }
                         else
                         {
-                            mBw.Write(oCards[pair.Key - BattleConst.DECK_CARD_NUM]);
+                            mBw.Write(oCards[uid - BattleConst.DECK_CARD_NUM]);
 
-                            oBw.Write(oCards[pair.Key - BattleConst.DECK_CARD_NUM]);
+                            oBw.Write(oCards[uid - BattleConst.DECK_CARD_NUM]);
                         }
                     }
 
@@ -445,22 +449,18 @@ namespace FinalWar
 
             if (battle != null)
             {
-                Dictionary<int, int>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
-
-                Dictionary<int, int> tmpDic = battle.GetSummon();
+                Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
 
                 while (enumerator2.MoveNext())
                 {
-                    tmpDic.Add(enumerator2.Current.Key, enumerator2.Current.Value);
+                    battle.AddSummon(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
                 }
 
                 enumerator2 = action[roundNum].GetEnumerator();
 
-                tmpDic = battle.GetAction();
-
                 while (enumerator2.MoveNext())
                 {
-                    tmpDic.Add(enumerator2.Current.Key, enumerator2.Current.Value);
+                    battle.AddAction(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
                 }
 
                 battle.SetRandomIndex(randomIndex);

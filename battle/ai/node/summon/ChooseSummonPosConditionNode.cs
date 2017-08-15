@@ -9,11 +9,9 @@ namespace FinalWar
     {
         internal const string key = "ChooseSummonPosConditionNode";
 
-        private Func<int, int> getRandomValueCallBack;
-
         private int value;
 
-        internal ChooseSummonPosConditionNode(XmlNode _node, Func<int, int> _getRandomValueCallBack)
+        internal ChooseSummonPosConditionNode(XmlNode _node)
         {
             XmlAttribute valueTypeAtt = _node.Attributes["value"];
 
@@ -23,11 +21,9 @@ namespace FinalWar
             }
 
             value = int.Parse(valueTypeAtt.InnerText);
-
-            getRandomValueCallBack = _getRandomValueCallBack;
         }
 
-        public override bool Enter(Battle _t, bool _u, AiSummonData _v)
+        public override bool Enter(Func<int, int> _getRandomValueCallBack, Battle _t, bool _u, AiSummonData _v)
         {
             IHeroSDS sds = Battle.GetHeroData(_v.pair.Value);
 
@@ -43,7 +39,7 @@ namespace FinalWar
                     {
                         int pos = tmpList[i];
 
-                        if (!_t.GetSummon().ContainsKey(pos))
+                        if (!_t.GetSummonContainsKey(pos))
                         {
                             finalList.Add(pos);
                         }
@@ -51,7 +47,7 @@ namespace FinalWar
 
                     if (finalList.Count > 0)
                     {
-                        int index = getRandomValueCallBack(finalList.Count);
+                        int index = _getRandomValueCallBack(finalList.Count);
 
                         _v.summonPos = finalList[index];
 

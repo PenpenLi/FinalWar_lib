@@ -23,13 +23,13 @@ namespace FinalWar
             value = int.Parse(valueTypeAtt.InnerText);
         }
 
-        public override bool Enter(Battle _t, Hero _u, AiActionData _v)
+        public override bool Enter(Func<int, int> _getRandomValueCallBack, Battle _t, Hero _u, AiActionData _v)
         {
             int target = _u.isMine ? _t.mapData.oBase : _t.mapData.mBase;
 
             List<int> list = BattleAStar.Find(_t.mapData, _u.pos, target, value);
 
-            _t.GetAction().Add(_u.pos, list[0]);
+            _t.AddAction(_u.isMine, _u.pos, list[0]);
 
             return true;
         }
