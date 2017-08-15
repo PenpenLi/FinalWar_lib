@@ -63,7 +63,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Server|x64'">
     <OutputPath>bin\x64\Server\</OutputPath>
-    <DefineConstants>SERVER;CLIENT</DefineConstants>
+    <DefineConstants>SERVER</DefineConstants>
     <PlatformTarget>x64</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -100,10 +100,10 @@
     <Compile Include="battle\ai\node\summon\GetSummonPosToEnemyAreaListConditionNode.cs" />
     <Compile Include="battle\ai\node\summon\GetSummonPosToEnemyHeroListConditionNode.cs" />
     <Compile Include="battle\ai\node\summon\SummonActionNode.cs" />
-    <Compile Include="battle\Battle.cs" />
-    <Compile Include="battle\BattleCellData.cs" />
-    <Compile Include="battle\BattleConst.cs" />
-    <Compile Include="battle\BattleData.cs" />
+    <Compile Include="battle\battleCore\Battle.cs" />
+    <Compile Include="battle\battleCore\BattleCellData.cs" />
+    <Compile Include="battle\battleCore\BattleConst.cs" />
+    <Compile Include="battle\battleCore\BattleData.cs" />
     <Compile Include="battle\battlePublicTools\BattleAStar.cs" />
     <Compile Include="battle\battleVO\BattleAddCardsVO.cs" />
     <Compile Include="battle\battleVO\BattleAttackAndCounterVO.cs" />
@@ -124,12 +124,12 @@
     <Compile Include="battle\battleVO\BattleSummonVO.cs" />
     <Compile Include="battle\battleVO\BattlePrepareAttackVO.cs" />
     <Compile Include="battle\battleVO\BattleTriggerAuraVO.cs" />
-    <Compile Include="battle\Battle_client.cs" />
-    <Compile Include="battle\Battle_server.cs" />
-    <Compile Include="battle\Hero.cs" />
+    <Compile Include="battle\battle_client\Battle_client.cs" />
+    <Compile Include="battle\battle_server\Battle_server.cs" />
+    <Compile Include="battle\battleCore\Hero.cs" />
     <Compile Include="battle\ai\HeroAi.cs" />
-    <Compile Include="battle\HeroEffect.cs" />
-    <Compile Include="battle\HeroSkill.cs" />
+    <Compile Include="battle\battleCore\HeroEffect.cs" />
+    <Compile Include="battle\battleCore\HeroSkill.cs" />
     <Compile Include="battle\log\Log.cs" />
     <Compile Include="battle\map\MapData.cs" />
     <Compile Include="battle\packageTag\PackageTag.cs" />
@@ -140,7 +140,7 @@
     <Compile Include="battle\sds\ISkillSDS.cs" />
     <Compile Include="battle\superEnumerator\SuperEnumerator.cs" />
     <Compile Include="battle\superEvent\SuperEventListener.cs" />
-    <Compile Include="battle\HeroAura.cs" />
+    <Compile Include="battle\battleCore\HeroAura.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="battle\battlePublicTools\BattlePublicTools.cs" />
     <Compile Include="battle\sds\IHeroSDS.cs" />

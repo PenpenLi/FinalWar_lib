@@ -6,10 +6,8 @@ using superEnumerator;
 
 namespace FinalWar
 {
-    public class Battle_client
+    public partial class Battle
     {
-        private Battle battle = new Battle();
-
         public bool clientIsMine { get; private set; }
 
         private bool clientIsOver;
@@ -68,7 +66,7 @@ namespace FinalWar
 
         private void ClientRefreshData(BinaryReader _br)
         {
-            battle.BattleOver();
+            BattleOver();
 
             clientIsMine = _br.ReadBoolean();
 
@@ -84,7 +82,7 @@ namespace FinalWar
 
             int[] oCards = new int[num];
 
-            battle.InitBattle(mapID, mCards, oCards);
+            InitBattle(mapID, mCards, oCards);
 
             num = _br.ReadInt32();
 
@@ -94,7 +92,7 @@ namespace FinalWar
 
                 int id = _br.ReadInt32();
 
-                battle.SetCard(uid, id);
+                SetCard(uid, id);
             }
 
             int roundNum = _br.ReadInt32();
@@ -103,7 +101,7 @@ namespace FinalWar
             {
                 ReadRoundDataFromStream(_br);
 
-                SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(battle.StartBattle());
+                SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(StartBattle());
 
                 superEnumerator.Done();
             }
@@ -128,7 +126,7 @@ namespace FinalWar
 
                 int pos = _br.ReadInt32();
 
-                battle.AddSummon(clientIsMine, uid, pos);
+                AddSummon(clientIsMine, uid, pos);
             }
 
             num = _br.ReadInt32();
@@ -139,27 +137,27 @@ namespace FinalWar
 
                 int targetPos = _br.ReadInt32();
 
-                battle.AddAction(clientIsMine, pos, targetPos);
+                AddAction(clientIsMine, pos, targetPos);
             }
 
             int randomIndex = _br.ReadInt32();
 
-            battle.SetRandomIndex(randomIndex);
+            SetRandomIndex(randomIndex);
         }
 
         public bool ClientRequestSummon(int _cardUid, int _pos)
         {
-            return battle.AddSummon(clientIsMine, _cardUid, _pos);
+            return AddSummon(clientIsMine, _cardUid, _pos);
         }
 
         public void ClientRequestUnsummon(int _cardUid)
         {
-            battle.DelSummon(_cardUid);
+            DelSummon(_cardUid);
         }
 
         public int ClientGetMoney()
         {
-            return battle.GetNowMoney(clientIsMine);
+            return GetNowMoney(clientIsMine);
         }
 
         public void ClientRequestQuitBattle()
@@ -177,12 +175,12 @@ namespace FinalWar
 
         public bool ClientRequestAction(int _pos, int _targetPos)
         {
-            return battle.AddAction(clientIsMine, _pos, _targetPos);
+            return AddAction(clientIsMine, _pos, _targetPos);
         }
 
         public void ClientRequestUnaction(int _pos)
         {
-            battle.DelAction(_pos);
+            DelAction(_pos);
         }
 
         public void ClientRequestDoAction()
@@ -193,9 +191,9 @@ namespace FinalWar
                 {
                     bw.Write(PackageTag.C2S_DOACTION);
 
-                    bw.Write(battle.GetSummonNum());
+                    bw.Write(GetSummonNum());
 
-                    Dictionary<int, int>.Enumerator enumerator = battle.GetSummonEnumerator();
+                    Dictionary<int, int>.Enumerator enumerator = GetSummonEnumerator();
 
                     while (enumerator.MoveNext())
                     {
@@ -206,9 +204,9 @@ namespace FinalWar
                         bw.Write(pair.Value);
                     }
 
-                    bw.Write(battle.GetActionNum());
+                    bw.Write(GetActionNum());
 
-                    enumerator = battle.GetActionEnumerator();
+                    enumerator = GetActionEnumerator();
 
                     while (enumerator.MoveNext())
                     {
@@ -241,7 +239,7 @@ namespace FinalWar
         {
             ReadRoundDataFromStream(_br);
 
-            int num = battle.GetSummonNum();
+            int num = _br.ReadInt32();
 
             for (int i = 0; i < num; i++)
             {
@@ -249,29 +247,17 @@ namespace FinalWar
 
                 int id = _br.ReadInt32();
 
-                battle.SetCard(uid, id);
+                SetCard(uid, id);
             }
 
-            for (int i = 0; i < BattleConst.ADD_CARD_NUM; i++)
-            {
-                int index = BattleConst.DEFAULT_HAND_CARD_NUM + battle.roundNum * BattleConst.ADD_CARD_NUM + i;
-
-                if (!clientIsMine)
-                {
-                    index += BattleConst.DECK_CARD_NUM;
-                }
-
-                int id = _br.ReadInt32();
-
-                battle.SetCard(index, id);
-            }
-
-            clientDoActionCallBack(new SuperEnumerator<ValueType>(battle.StartBattle()));
+            clientDoActionCallBack(new SuperEnumerator<ValueType>(StartBattle()));
         }
 
         public void ClientEndBattle()
         {
-            //EndBattle();
+            EndBattle();
+
+            clientIsOver = false;
         }
 
         public bool GetClientCanAction()

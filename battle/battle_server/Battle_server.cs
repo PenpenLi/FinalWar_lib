@@ -217,7 +217,7 @@ namespace FinalWar
 
                     bw.Write(oCards.Length);
 
-                    long pos = bw.BaseStream.Position;
+                    long pos = ms.Position;
 
                     bw.Write(0);
 
@@ -252,13 +252,13 @@ namespace FinalWar
                         }
                     }
 
-                    long pos2 = bw.BaseStream.Position;
+                    long pos2 = ms.Position;
 
-                    bw.BaseStream.Position = pos;
+                    ms.Position = pos;
 
                     bw.Write(num);
 
-                    bw.BaseStream.Position = pos2;
+                    ms.Position = pos2;
 
                     bw.Write(roundNum);
 
@@ -400,6 +400,16 @@ namespace FinalWar
 
                     WriteRoundDataToStream(oBw, roundNum);
 
+                    long pos = mMs.Position;
+
+                    mBw.Write(0);
+
+                    oBw.Write(0);
+
+                    int mNum = 0;
+
+                    int oNum = 0;
+
                     Dictionary<int, KeyValuePair<int, bool>> tmpDic = summon[roundNum];
 
                     Dictionary<int, KeyValuePair<int, bool>>.KeyCollection.Enumerator enumerator = tmpDic.Keys.GetEnumerator();
@@ -426,20 +436,42 @@ namespace FinalWar
 
                             oBw.Write(oCards[uid - BattleConst.DECK_CARD_NUM]);
                         }
+
+                        mNum++;
+
+                        oNum++;
                     }
 
                     for (int i = 0; i < BattleConst.ADD_CARD_NUM; i++)
                     {
                         int index = BattleConst.DEFAULT_HAND_CARD_NUM + roundNum * BattleConst.ADD_CARD_NUM + i;
 
-                        cardStateArr[index] = CardState.M;
+                        if (index < mCards.Length)
+                        {
+                            cardStateArr[index] = CardState.M;
 
-                        mBw.Write(mCards[index]);
+                            mBw.Write(mCards[index]);
 
-                        cardStateArr[BattleConst.DECK_CARD_NUM + index] = CardState.O;
+                            mNum++;
+                        }
 
-                        oBw.Write(oCards[index]);
+                        if (index < oCards.Length)
+                        {
+                            cardStateArr[BattleConst.DECK_CARD_NUM + index] = CardState.O;
+
+                            oBw.Write(oCards[index]);
+
+                            oNum++;
+                        }
                     }
+
+                    mMs.Position = pos;
+
+                    mBw.Write(mNum);
+
+                    oMs.Position = pos;
+
+                    oBw.Write(oNum);
 
                     serverSendDataCallBack(true, mMs);
 

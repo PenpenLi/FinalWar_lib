@@ -19,7 +19,7 @@ namespace FinalWar
         public MapData mapData { get; private set; }
 
         private Dictionary<int, bool> mapBelongDic = new Dictionary<int, bool>();
-        internal Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
+        public Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
 
         private Queue<int> mCards = new Queue<int>();
         private Queue<int> oCards = new Queue<int>();
@@ -35,11 +35,9 @@ namespace FinalWar
         public int mMoney { get; private set; }
         public int oMoney { get; private set; }
 
-        private Dictionary<int, int>[] summon = new Dictionary<int, int>[BattleConst.MAX_ROUND_NUM];
+        private Dictionary<int, int> summon = new Dictionary<int, int>();
 
-        private Dictionary<int, int>[] action = new Dictionary<int, int>[BattleConst.MAX_ROUND_NUM];
-
-        private int[] randomIndexList = new int[BattleConst.MAX_ROUND_NUM];
+        private Dictionary<int, int> action = new Dictionary<int, int>();
 
         private int randomIndex;
 
@@ -47,8 +45,6 @@ namespace FinalWar
 
         public bool mWin { get; private set; }
         public bool oWin { get; private set; }
-
-        public int roundNum { get; private set; }
 
         public static void Init<S, T, U, V, W>(double[] _randomPool, Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
         {
@@ -78,16 +74,6 @@ namespace FinalWar
             {
                 return _effectDataDic[_id];
             };
-        }
-
-        internal Battle()
-        {
-            for (int i = 0; i < BattleConst.MAX_ROUND_NUM; i++)
-            {
-                summon[i] = new Dictionary<int, int>();
-
-                action[i] = new Dictionary<int, int>();
-            }
         }
 
         internal int GetRandomValue(int _max)
@@ -166,8 +152,6 @@ namespace FinalWar
 
         internal IEnumerator StartBattle()
         {
-            randomIndex = GetRandomIndex();
-
             BattleData battleData = GetBattleData();
 
             yield return DoSkill(battleData);
@@ -189,8 +173,6 @@ namespace FinalWar
             yield return DoAddMoney();
 
             yield return DoAddCards();
-
-            roundNum++;
         }
 
         private void EndBattle()
@@ -216,22 +198,17 @@ namespace FinalWar
             mCards.Clear();
 
             oCards.Clear();
+            
+            summon.Clear();
 
-            for (int i = 0; i < BattleConst.MAX_ROUND_NUM; i++)
-            {
-                summon[i].Clear();
-
-                action[i].Clear();
-            }
+            action.Clear();
 
             mWin = oWin = false;
-
-            roundNum = 0;
         }
 
         private IEnumerator DoSummon(BattleData _battleData)
         {
-            Dictionary<int, int>.Enumerator enumerator = GetSummon().GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -337,7 +314,7 @@ namespace FinalWar
 
             BattleData battleData = new BattleData();
 
-            Dictionary<int, int>.Enumerator enumerator2 = GetAction().GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator2 = action.GetEnumerator();
 
             while (enumerator2.MoveNext())
             {
@@ -1299,24 +1276,20 @@ namespace FinalWar
 
 
 
-        private Dictionary<int, int> GetSummon()
+
+        public Dictionary<int, int>.Enumerator GetSummonEnumerator()
         {
-            return summon[roundNum];
+            return summon.GetEnumerator();
         }
 
-        internal Dictionary<int, int>.Enumerator GetSummonEnumerator()
+        public int GetSummonNum()
         {
-            return GetSummon().GetEnumerator();
+            return summon.Count;
         }
 
-        internal int GetSummonNum()
+        public bool GetSummonContainsKey(int _uid)
         {
-            return GetSummon().Count;
-        }
-
-        internal bool GetSummonContainsKey(int _uid)
-        {
-            return GetSummon().ContainsKey(_uid);
+            return summon.ContainsKey(_uid);
         }
 
         internal bool AddSummon(bool _isMine, int _uid, int _pos)
@@ -1344,9 +1317,7 @@ namespace FinalWar
                 {
                     if (!heroMapDic.ContainsKey(_pos))
                     {
-                        Dictionary<int, int> tmpDic = GetSummon();
-
-                        if (!tmpDic.ContainsKey(_uid) && !tmpDic.ContainsValue(_pos))
+                        if (!summon.ContainsKey(_uid) && !summon.ContainsValue(_pos))
                         {
                             int nowMoney = GetNowMoney(_isMine);
 
@@ -1354,7 +1325,7 @@ namespace FinalWar
 
                             if (sds.GetCost() <= nowMoney)
                             {
-                                tmpDic.Add(_uid, _pos);
+                                summon.Add(_uid, _pos);
 
                                 return true;
                             }
@@ -1366,11 +1337,11 @@ namespace FinalWar
             return false;
         }
 
-        internal int GetNowMoney(bool _isMine)
+        public int GetNowMoney(bool _isMine)
         {
             int money = _isMine ? mMoney : oMoney;
 
-            Dictionary<int, int>.KeyCollection.Enumerator enumerator = GetSummon().Keys.GetEnumerator();
+            Dictionary<int, int>.KeyCollection.Enumerator enumerator = summon.Keys.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -1389,22 +1360,17 @@ namespace FinalWar
 
         internal void DelSummon(int _uid)
         {
-            GetSummon().Remove(_uid);
+            summon.Remove(_uid);
         }
 
-        private Dictionary<int, int> GetAction()
+        public Dictionary<int, int>.Enumerator GetActionEnumerator()
         {
-            return action[roundNum];
+            return action.GetEnumerator();
         }
 
-        internal Dictionary<int, int>.Enumerator GetActionEnumerator()
+        public int GetActionNum()
         {
-            return GetAction().GetEnumerator();
-        }
-
-        internal int GetActionNum()
-        {
-            return GetAction().Count;
+            return action.Count;
         }
 
         internal bool AddAction(bool _isMine, int _pos, int _targetPos)
@@ -1426,9 +1392,7 @@ namespace FinalWar
                 return false;
             }
 
-            Dictionary<int, int> tmpDic = GetAction();
-
-            if (tmpDic.ContainsKey(_pos))
+            if (action.ContainsKey(_pos))
             {
                 return false;
             }
@@ -1441,7 +1405,7 @@ namespace FinalWar
             {
                 if (targetPosIsMine == hero.isMine)
                 {
-                    tmpDic.Add(_pos, _targetPos);
+                    action.Add(_pos, _targetPos);
                 }
                 else
                 {
@@ -1475,7 +1439,7 @@ namespace FinalWar
                         }
                     }
 
-                    tmpDic.Add(_pos, _targetPos);
+                    action.Add(_pos, _targetPos);
                 }
 
                 return true;
@@ -1490,7 +1454,7 @@ namespace FinalWar
                     {
                         if (targetPosIsMine != hero.isMine)
                         {
-                            tmpDic.Add(_pos, _targetPos);
+                            action.Add(_pos, _targetPos);
 
                             return true;
                         }
@@ -1503,25 +1467,20 @@ namespace FinalWar
 
         internal void DelAction(int _pos)
         {
-            GetAction().Remove(_pos);
+            action.Remove(_pos);
         }
 
         internal void SetRandomIndex(int _index)
         {
-            randomIndexList[roundNum] = _index;
+            randomIndex = _index;
         }
-
-        private int GetRandomIndex()
-        {
-            return randomIndexList[roundNum];
-        }
-
+        
         internal void SetCard(int _uid, int _id)
         {
             cardsArr[_uid] = _id;
         }
 
-        internal int GetCard(int _uid)
+        public int GetCard(int _uid)
         {
             return cardsArr[_uid];
         }
