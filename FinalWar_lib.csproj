@@ -128,7 +128,7 @@
     <Compile Include="battle\battle_client\Battle_client.cs" />
     <Compile Include="battle\battle_server\Battle_server.cs" />
     <Compile Include="battle\battleCore\Hero.cs" />
-    <Compile Include="battle\ai\HeroAi.cs" />
+    <Compile Include="battle\ai\BattleAi.cs" />
     <Compile Include="battle\battleCore\HeroEffect.cs" />
     <Compile Include="battle\battleCore\HeroSkill.cs" />
     <Compile Include="battle\log\Log.cs" />

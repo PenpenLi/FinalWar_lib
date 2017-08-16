@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace FinalWar
 {
-    public static class HeroAi
+    public static class BattleAi
     {
         private static BtRoot<Battle, Hero, AiActionData> actionBtRoot;
 

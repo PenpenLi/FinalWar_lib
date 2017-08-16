@@ -6,7 +6,7 @@ using superEnumerator;
 
 namespace FinalWar
 {
-    public partial class Battle
+    public class Battle_client : Battle
     {
         public bool clientIsMine { get; private set; }
 
@@ -16,6 +16,8 @@ namespace FinalWar
         private Action clientRefreshDataCallBack;
         private Action<SuperEnumerator<ValueType>> clientDoActionCallBack;
         private Action<BattleResult> clientBattleOverCallBack;
+
+        private bool isVsAi;
 
         public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action<BattleResult> _clientBattleOverCallBack)
         {
@@ -29,42 +31,43 @@ namespace FinalWar
 
         public void ClientGetPackage(byte[] _bytes)
         {
-            MemoryStream ms = new MemoryStream(_bytes);
-            BinaryReader br = new BinaryReader(ms);
-
-            byte tag = br.ReadByte();
-
-            switch (tag)
+            using (MemoryStream ms = new MemoryStream(_bytes))
             {
-                case PackageTag.S2C_REFRESH:
+                using (BinaryReader br = new BinaryReader(ms))
+                {
+                    byte tag = br.ReadByte();
 
-                    ClientRefreshData(br);
+                    switch (tag)
+                    {
+                        case PackageTag.S2C_REFRESH:
 
-                    br.Close();
+                            ClientRefreshData(br);
 
-                    ms.Dispose();
+                            break;
 
-                    break;
+                        case PackageTag.S2C_DOACTION:
 
-                case PackageTag.S2C_DOACTION:
+                            ClientDoAction(br);
 
-                    ClientDoAction(br);
+                            break;
 
-                    break;
+                        case PackageTag.S2C_QUIT:
 
-                case PackageTag.S2C_QUIT:
+                            BattleOver();
 
-                    BattleOver();
+                            clientBattleOverCallBack(BattleResult.QUIT);
 
-                    clientBattleOverCallBack(BattleResult.QUIT);
-
-                    break;
+                            break;
+                    }
+                }
             }
         }
 
         private void ClientRefreshData(BinaryReader _br)
         {
             BattleOver();
+
+            isVsAi = _br.ReadBoolean();
 
             clientIsMine = _br.ReadBoolean();
 
@@ -240,6 +243,11 @@ namespace FinalWar
             ClearSummon();
 
             ClearAction();
+
+            if (isVsAi)
+            {
+                BattleAi.Start(this, false, GetRandomValue);
+            }
 
             ReadRoundDataFromStream(_br);
 

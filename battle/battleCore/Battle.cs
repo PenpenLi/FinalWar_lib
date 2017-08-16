@@ -5,7 +5,7 @@ using superEvent;
 
 namespace FinalWar
 {
-    public partial class Battle
+    public class Battle
     {
         public enum BattleResult
         {
@@ -164,7 +164,7 @@ namespace FinalWar
         {
             BattleData battleData = GetBattleData();
 
-            action.Clear();
+            ClearAction();
 
             yield return DoSkill(battleData);
 
@@ -172,7 +172,7 @@ namespace FinalWar
 
             yield return DoSummon(battleData);
 
-            summon.Clear();
+            ClearSummon();
 
             yield return DoRush(battleData);
 
@@ -266,16 +266,16 @@ namespace FinalWar
 
             oCards.Clear();
 
-            summon.Clear();
+            ClearSummon();
 
-            action.Clear();
+            ClearAction();
 
             roundNum = 0;
         }
 
         private IEnumerator DoSummon(BattleData _battleData)
         {
-            Dictionary<int, int>.Enumerator enumerator = summon.GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator = GetSummonEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -381,7 +381,7 @@ namespace FinalWar
 
             BattleData battleData = new BattleData();
 
-            Dictionary<int, int>.Enumerator enumerator2 = action.GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator2 = GetActionEnumerator();
 
             while (enumerator2.MoveNext())
             {
@@ -1350,6 +1350,11 @@ namespace FinalWar
             return summon.ContainsKey(_uid);
         }
 
+        public bool GetSummonContainsValue(int _pos)
+        {
+            return summon.ContainsValue(_pos);
+        }
+
         internal bool AddSummon(bool _isMine, int _uid, int _pos)
         {
             List<int> handCards;
@@ -1375,7 +1380,7 @@ namespace FinalWar
                 {
                     if (!heroMapDic.ContainsKey(_pos))
                     {
-                        if (!summon.ContainsKey(_uid) && !summon.ContainsValue(_pos))
+                        if (!GetSummonContainsKey(_uid) && !GetSummonContainsValue(_pos))
                         {
                             int nowMoney = GetNowMoney(_isMine);
 
@@ -1404,11 +1409,11 @@ namespace FinalWar
         {
             int money = _isMine ? mMoney : oMoney;
 
-            Dictionary<int, int>.KeyCollection.Enumerator enumerator = summon.Keys.GetEnumerator();
+            Dictionary<int, int>.Enumerator enumerator = GetSummonEnumerator();
 
             while (enumerator.MoveNext())
             {
-                int uid = enumerator.Current;
+                int uid = enumerator.Current.Key;
 
                 if ((_isMine && uid < BattleConst.DECK_CARD_NUM) || (!_isMine && uid >= BattleConst.DECK_CARD_NUM))
                 {
@@ -1441,6 +1446,11 @@ namespace FinalWar
             return action.Count;
         }
 
+        public bool GetActionContainsKey(int _pos)
+        {
+            return action.ContainsKey(_pos);
+        }
+
         internal bool AddAction(bool _isMine, int _pos, int _targetPos)
         {
             Hero hero;
@@ -1460,7 +1470,7 @@ namespace FinalWar
                 return false;
             }
 
-            if (action.ContainsKey(_pos))
+            if (GetActionContainsKey(_pos))
             {
                 return false;
             }

@@ -46,6 +46,8 @@ namespace FinalWar
         private int[] mCards;
 
         private int[] oCards;
+
+        private bool isVsAi;
         //-----------------
 
         private CardState[] cardStateArr = new CardState[BattleConst.DECK_CARD_NUM * 2];
@@ -75,11 +77,13 @@ namespace FinalWar
 #endif
         }
 
-        public void ServerStart(int _mapID, List<int> _mCards, List<int> _oCards)
+        public void ServerStart(int _mapID, List<int> _mCards, List<int> _oCards, bool _isVsAi)
         {
             Log.Write("Battle Start!");
 
             mapID = _mapID;
+
+            isVsAi = _isVsAi;
 
             InitCards(_mCards, _oCards, out mCards, out oCards);
 
@@ -215,6 +219,8 @@ namespace FinalWar
                     }
 
                     bw.Write(PackageTag.S2C_REFRESH);
+
+                    bw.Write(isVsAi);
 
                     bw.Write(_isMine);
 
@@ -375,6 +381,13 @@ namespace FinalWar
 
             if (mOver && oOver)
             {
+                ServerStartBattle();
+            }
+            else if (isVsAi)
+            {
+#if BATTLE
+                BattleAi.Start(battle, false, battle.GetRandomValue);
+#endif
                 ServerStartBattle();
             }
         }
