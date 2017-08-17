@@ -29,6 +29,8 @@ namespace FinalWar
 
         public static void Start(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack)
         {
+            Log.Write("start ai!");
+
             ClearAction(_battle, _isMine);
 
             ActionHero(_battle, _isMine, _getRandomValueCallBack);
@@ -636,9 +638,9 @@ namespace FinalWar
 
                 for (int i = 0; i < list.Count; i++)
                 {
-                    int nowRange;
-
                     int tmpPos = list[i];
+
+                    int nowRange;
 
                     if (_battle.GetPosIsMine(tmpPos) == _isMine)
                     {
@@ -687,7 +689,7 @@ namespace FinalWar
 
                 int range = pair.Value;
 
-                if (range > -1 && range < _max && _battle.heroMapDic.ContainsKey(pos))
+                if (range > -1 && range < _max && !_battle.heroMapDic.ContainsKey(pos))
                 {
                     List<int> tmpList;
 
