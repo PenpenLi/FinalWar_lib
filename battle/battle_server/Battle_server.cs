@@ -242,7 +242,7 @@ namespace FinalWar
 
                         CardState cardState = cardStateArr[index];
 
-                        if (cardState == CardState.A || cardState == tmpCardState)
+                        if (cardState == CardState.A || cardState == tmpCardState || (isVsAi && cardState != CardState.N))
                         {
                             bw.Write(index);
 
@@ -255,7 +255,7 @@ namespace FinalWar
 
                         cardState = cardStateArr[index];
 
-                        if (cardState == CardState.A || cardState == tmpCardState)
+                        if (cardState == CardState.A || cardState == tmpCardState || (isVsAi && cardState != CardState.N))
                         {
                             bw.Write(index);
 
@@ -458,20 +458,50 @@ namespace FinalWar
 
                         if (index < mCards.Length)
                         {
-                            cardStateArr[index] = CardState.M;
+                            int uid = index;
 
-                            mBw.Write(mCards[index]);
+                            cardStateArr[uid] = CardState.M;
+
+                            int id = mCards[index];
+
+                            mBw.Write(uid);
+
+                            mBw.Write(id);
 
                             mNum++;
+
+                            if (isVsAi)
+                            {
+                                oBw.Write(uid);
+
+                                oBw.Write(id);
+
+                                oNum++;
+                            }
                         }
 
                         if (index < oCards.Length)
                         {
-                            cardStateArr[BattleConst.DECK_CARD_NUM + index] = CardState.O;
+                            int uid = BattleConst.DECK_CARD_NUM + index;
 
-                            oBw.Write(oCards[index]);
+                            cardStateArr[uid] = CardState.O;
+
+                            int id = oCards[index];
+
+                            oBw.Write(uid);
+
+                            oBw.Write(id);
 
                             oNum++;
+
+                            if (isVsAi)
+                            {
+                                mBw.Write(uid);
+
+                                mBw.Write(id);
+
+                                mNum++;
+                            }
                         }
                     }
 

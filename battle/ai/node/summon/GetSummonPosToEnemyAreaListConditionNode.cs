@@ -26,7 +26,7 @@ namespace FinalWar
         {
             _v.summonPosList = BattleAi.GetSummonPosToEmemyAreaList(_t, _u, value);
 
-            return _v.summonPosList.Count > 0;
+            return _v.summonPosList != null;
         }
     }
 }

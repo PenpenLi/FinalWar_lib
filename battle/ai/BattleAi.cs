@@ -466,7 +466,7 @@ namespace FinalWar
 
         public static List<int> GetCanShootHeroPos(Battle _battle, Hero _hero)
         {
-            List<int> result = new List<int>();
+            List<int> result = null;
 
             if (_hero.sds.GetSkill() != 0)
             {
@@ -480,6 +480,11 @@ namespace FinalWar
 
                     if (b != _hero.isMine && _battle.heroMapDic.ContainsKey(pos))
                     {
+                        if (result == null)
+                        {
+                            result = new List<int>();
+                        }
+
                         result.Add(pos);
                     }
                 }
@@ -490,7 +495,7 @@ namespace FinalWar
 
         public static List<int> GetCanThrowHeroPos(Battle _battle, Hero _hero)
         {
-            List<int> result = new List<int>();
+            List<int> result = null;
 
             List<int> posList = BattlePublicTools.GetNeighbourPos3(_battle.mapData, _hero.pos);
 
@@ -502,6 +507,11 @@ namespace FinalWar
 
                 if (b != _hero.isMine && _battle.heroMapDic.ContainsKey(pos))
                 {
+                    if (result == null)
+                    {
+                        result = new List<int>();
+                    }
+
                     result.Add(pos);
                 }
             }
@@ -565,7 +575,7 @@ namespace FinalWar
 
         public static List<int> GetCanSupportHeroPos(Battle _battle, Hero _hero)
         {
-            List<int> result = new List<int>();
+            List<int> result = null;
 
             List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
@@ -581,6 +591,11 @@ namespace FinalWar
                     {
                         if (CheckHeroCanBeAttack(_battle, hero))
                         {
+                            if (result == null)
+                            {
+                                result = new List<int>();
+                            }
+
                             result.Add(pos);
                         }
                     }
@@ -592,7 +607,7 @@ namespace FinalWar
 
         public static List<int> GetCanSupportPos(Battle _battle, Hero _hero)
         {
-            List<int> result = new List<int>();
+            List<int> result = null;
 
             List<int> posList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
@@ -604,6 +619,11 @@ namespace FinalWar
                 {
                     if (CheckPosCanBeAttack(_battle, pos))
                     {
+                        if (result == null)
+                        {
+                            result = new List<int>();
+                        }
+
                         result.Add(pos);
                     }
                 }
@@ -677,7 +697,7 @@ namespace FinalWar
                 }
             }
 
-            List<List<int>> result = new List<List<int>>();
+            List<List<int>> result = null;
 
             Dictionary<int, int>.Enumerator enumerator = close.GetEnumerator();
 
@@ -691,6 +711,11 @@ namespace FinalWar
 
                 if (range > -1 && range < _max && !_battle.heroMapDic.ContainsKey(pos))
                 {
+                    if (result == null)
+                    {
+                        result = new List<List<int>>();
+                    }
+
                     List<int> tmpList;
 
                     for (int i = result.Count; i < range + 1; i++)
@@ -780,7 +805,7 @@ namespace FinalWar
                 }
             }
 
-            List<List<int>> result = new List<List<int>>();
+            List<List<int>> result = null;
 
             Dictionary<int, int>.Enumerator enumerator2 = close.GetEnumerator();
 
@@ -794,6 +819,11 @@ namespace FinalWar
 
                 if (range > -1 && range < _max && _battle.heroMapDic.ContainsKey(pos))
                 {
+                    if (result == null)
+                    {
+                        result = new List<List<int>>();
+                    }
+
                     List<int> tmpList;
 
                     for (int i = result.Count; i < range + 1; i++)
