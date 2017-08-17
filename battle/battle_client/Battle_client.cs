@@ -102,6 +102,11 @@ namespace FinalWar
             {
                 ReadRoundDataFromStream(_br);
 
+                if (isVsAi)
+                {
+                    BattleAi.Start(this, false, GetRandomValue);
+                }
+
                 SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(StartBattle());
 
                 superEnumerator.Done();
@@ -244,11 +249,6 @@ namespace FinalWar
 
             ClearAction();
 
-            if (isVsAi)
-            {
-                BattleAi.Start(this, false, GetRandomValue);
-            }
-
             ReadRoundDataFromStream(_br);
 
             int num = _br.ReadInt32();
@@ -260,6 +260,11 @@ namespace FinalWar
                 int id = _br.ReadInt32();
 
                 SetCard(uid, id);
+            }
+
+            if (isVsAi)
+            {
+                BattleAi.Start(this, false, GetRandomValue);
             }
 
             clientDoActionCallBack(new SuperEnumerator<ValueType>(StartBattle()));

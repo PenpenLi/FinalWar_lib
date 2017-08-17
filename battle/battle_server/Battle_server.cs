@@ -379,15 +379,8 @@ namespace FinalWar
                 tmpDic.Add(pos, new KeyValuePair<int, bool>(targetPos, _isMine));
             }
 
-            if (mOver && oOver)
+            if ((mOver && oOver) || isVsAi)
             {
-                ServerStartBattle();
-            }
-            else if (isVsAi)
-            {
-#if BATTLE
-                BattleAi.Start(battle, false, battle.GetRandomValue);
-#endif
                 ServerStartBattle();
             }
         }
@@ -518,7 +511,6 @@ namespace FinalWar
                     serverSendDataCallBack(false, oMs);
                 }
             }
-
 #if BATTLE
             Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
 
@@ -536,11 +528,12 @@ namespace FinalWar
 
             battle.SetRandomIndex(randomIndex);
 
+            BattleAi.Start(battle, false, battle.GetRandomValue);
+
             SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(battle.StartBattle());
 
             superEnumerator.Done();
 #endif
-
             roundNum++;
 
             mOver = oOver = false;
