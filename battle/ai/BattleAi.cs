@@ -29,8 +29,6 @@ namespace FinalWar
 
         public static void Start(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack)
         {
-            Log.Write("start ai!");
-
             ClearAction(_battle, _isMine);
 
             ActionHero(_battle, _isMine, _getRandomValueCallBack);
