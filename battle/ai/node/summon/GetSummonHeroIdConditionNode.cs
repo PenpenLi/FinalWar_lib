@@ -12,6 +12,11 @@ namespace FinalWar
         {
             List<int> handCards = _u ? _t.mHandCards : _t.oHandCards;
 
+            if (handCards.Count == 0)
+            {
+                return false;
+            }
+
             int index = _getRandomValueCallBack(handCards.Count);
 
             int uid = handCards[index];
