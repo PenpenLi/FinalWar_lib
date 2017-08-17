@@ -77,7 +77,7 @@ namespace FinalWar
 #endif
         }
 
-        public void ServerStart(int _mapID, List<int> _mCards, List<int> _oCards, bool _isVsAi)
+        public void ServerStart(int _mapID, IList<int> _mCards, IList<int> _oCards, bool _isVsAi)
         {
             Log.Write("Battle Start!");
 
@@ -96,7 +96,7 @@ namespace FinalWar
             ServerRefreshData(false);
         }
 
-        private void InitCards(List<int> _mCards, List<int> _oCards, out int[] _mCardsResult, out int[] _oCardsResult)
+        private void InitCards(IList<int> _mCards, IList<int> _oCards, out int[] _mCardsResult, out int[] _oCardsResult)
         {
             List<int> mTmpCards = new List<int>(_mCards);
 
