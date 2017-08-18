@@ -63,15 +63,15 @@ public class BattlePublicTools
         return result;
     }
 
+    private static Dictionary<int, bool> checkedDic = new Dictionary<int, bool>();
+
+    private static int[] indexArr = new int[3];
+
     public static List<int> GetNeighbourPos3(MapData _mapData, int _pos)
     {
         List<int> result = new List<int>();
 
         int[] arr = _mapData.neighbourPosMap[_pos];
-
-        Dictionary<int, bool> checkedDic = new Dictionary<int, bool>();
-
-        int[] indexArr = new int[3];
 
         for (int i = 0; i < 6; i++)
         {
@@ -122,6 +122,8 @@ public class BattlePublicTools
                 }
             }
         }
+
+        checkedDic.Clear();
 
         return result;
     }
