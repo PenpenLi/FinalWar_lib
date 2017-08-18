@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace FinalWar
 {
@@ -77,11 +76,6 @@ namespace FinalWar
 
                 HeroAura.Init(battle, this);
             }
-        }
-
-        internal Hero(Battle _battle)
-        {
-            battle = _battle;
         }
 
         internal void SetAction(HeroAction _action, int _actionTarget)
@@ -203,7 +197,7 @@ namespace FinalWar
             }
             else if (_nowHp > sds.GetHp())
             {
-                nowHp = sds.GetHp();
+                _nowHp = sds.GetHp();
             }
         }
 
@@ -445,46 +439,6 @@ namespace FinalWar
 
             battle.eventListener.DispatchEvent(BattleConst.BE_SILENCE, this);
         }
-
-        internal void WriteToStream(BinaryWriter _bw)
-        {
-            _bw.Write(sds.GetID());
-
-            _bw.Write(isMine);
-
-            _bw.Write(pos);
-
-            _bw.Write(nowHp);
-
-            _bw.Write(nowShield);
-
-            _bw.Write(canAction);
-        }
-
-        internal void ReadFromStream(BinaryReader _br)
-        {
-            sds = Battle.GetHeroData(_br.ReadInt32());
-
-            isMine = _br.ReadBoolean();
-
-            PosChange(_br.ReadInt32());
-
-            nowHp = _br.ReadInt32();
-
-            nowShield = _br.ReadInt32();
-
-            canAction = _br.ReadInt32();
-
-            attackTimes = sds.GetHeroType().GetAttackTimes();
-
-            SetAction(HeroAction.NULL);
-
-            initAura = true;
-
-            HeroAura.Init(battle, this);
-        }
-
-
 
         internal void MoneyChange(int _num)
         {
