@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace FinalWar
 {
-    internal static class BattleAStar
+    public static class BattleAStar
     {
         private struct AstarUnit
         {
@@ -16,7 +17,7 @@ namespace FinalWar
 
         private static Dictionary<int, AstarUnit> close = new Dictionary<int, AstarUnit>();
 
-        internal static List<int> Find(MapData _mapData, int _startPos, int _endPos, int _maxNum)
+        public static List<int> Find(MapData _mapData, int _startPos, int _endPos, int _maxNum, Func<int, int> _getRandomValueCallBack)
         {
             open.Clear();
 
@@ -52,26 +53,40 @@ namespace FinalWar
 
                 close.Add(nowUnit.pos, nowUnit);
 
-                int[] tmpArr = _mapData.neighbourPosMap[nowUnit.pos];
+                List<int> tmpList = BattlePublicTools.GetNeighbourPos(_mapData, nowUnit.pos);
 
-                for (int i = 0; i < 6; i++)
+                while (tmpList.Count > 0)
                 {
-                    int pos = tmpArr[i];
+                    int index;
 
-                    if (pos == -1)
+                    if (_getRandomValueCallBack != null)
                     {
-                        continue;
+                        index = _getRandomValueCallBack(tmpList.Count);
+                    }
+                    else
+                    {
+                        index = 0;
                     }
 
-                    if (close.ContainsKey(pos))
-                    {
-                        continue;
-                    }
+                    int pos = tmpList[index];
 
-                    MapData.MapUnitType mapUnitType = _mapData.dic[pos];
+                    tmpList.RemoveAt(index);
 
-                    if (mapUnitType != MapData.MapUnitType.M_AREA && mapUnitType != MapData.MapUnitType.O_AREA)
+                    AstarUnit closeUnit;
+
+                    if (close.TryGetValue(pos, out closeUnit))
                     {
+                        int newQ = nowUnit.q + 1;
+
+                        if (newQ < closeUnit.q)
+                        {
+                            closeUnit.q = newQ;
+
+                            closeUnit.parent = nowUnit.pos;
+
+                            close[pos] = closeUnit;
+                        }
+
                         continue;
                     }
 
