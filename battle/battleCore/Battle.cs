@@ -1415,7 +1415,7 @@ namespace FinalWar
             {
                 int uid = enumerator.Current.Key;
 
-                if ((_isMine && uid < BattleConst.DECK_CARD_NUM) || (!_isMine && uid >= BattleConst.DECK_CARD_NUM))
+                if (_isMine == uid < BattleConst.DECK_CARD_NUM)
                 {
                     IHeroSDS sds = GetHeroData(GetCard(uid));
 
