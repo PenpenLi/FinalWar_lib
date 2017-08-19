@@ -132,7 +132,7 @@ public class BattlePublicTools
     {
         int y0;
 
-        int ty = (int)(_pos / (_width * 2 - 1));
+        int ty = _pos / (_width * 2 - 1);
         int tx = _pos % (_width * 2 - 1);
 
         if (tx < _width)
@@ -146,7 +146,7 @@ public class BattlePublicTools
 
         int y1;
 
-        ty = (int)(_targetPos / (_width * 2 - 1));
+        ty = _targetPos / (_width * 2 - 1);
         tx = _targetPos % (_width * 2 - 1);
 
         if (tx < _width)
