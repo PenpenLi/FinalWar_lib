@@ -36,7 +36,7 @@ public class MapData
         mapWidth = _mapWidth;
         mapHeight = _mapHeight;
 
-        size = mapWidth * mapHeight - mapHeight / 2;
+        size = mapWidth * mapHeight - mapWidth / 2;
     }
 
     public void SetData(BinaryWriter _bw)
@@ -116,11 +116,11 @@ public class MapData
     {
         int[] vec = new int[6];
 
-        if (_pos % (mapWidth * 2 - 1) != 0)
+        if (_pos % (mapHeight * 2 - 1) != 0)
         {
-            if (_pos > mapWidth - 1)
+            if (_pos > mapHeight - 1)
             {
-                int p = _pos - mapWidth;
+                int p = _pos - mapHeight;
 
                 if (dic.ContainsKey(p))
                 {
@@ -136,9 +136,9 @@ public class MapData
                 vec[5] = -1;
             }
 
-            if (_pos < size - mapWidth)
+            if (_pos < size - mapHeight)
             {
-                int p = _pos + mapWidth - 1;
+                int p = _pos + mapHeight - 1;
 
                 if (dic.ContainsKey(p))
                 {
@@ -154,7 +154,7 @@ public class MapData
                 vec[3] = -1;
             }
 
-            if (_pos % (mapWidth * 2 - 1) != mapWidth)
+            if (_pos % (mapHeight * 2 - 1) != mapHeight)
             {
                 int p = _pos - 1;
 
@@ -179,11 +179,11 @@ public class MapData
             vec[5] = -1;
         }
 
-        if (_pos % (mapWidth * 2 - 1) != mapWidth - 1)
+        if (_pos % (mapHeight * 2 - 1) != mapHeight - 1)
         {
-            if (_pos > mapWidth - 1)
+            if (_pos > mapHeight - 1)
             {
-                int p = _pos - mapWidth + 1;
+                int p = _pos - mapHeight + 1;
 
                 if (dic.ContainsKey(p))
                 {
@@ -199,9 +199,9 @@ public class MapData
                 vec[0] = -1;
             }
 
-            if (_pos < size - mapWidth)
+            if (_pos < size - mapHeight)
             {
-                int p = _pos + mapWidth;
+                int p = _pos + mapHeight;
 
                 if (dic.ContainsKey(p))
                 {
@@ -217,7 +217,7 @@ public class MapData
                 vec[2] = -1;
             }
 
-            if (_pos % (mapWidth * 2 - 1) != mapWidth * 2 - 2)
+            if (_pos % (mapHeight * 2 - 1) != mapHeight * 2 - 2)
             {
                 int p = _pos + 1;
 
