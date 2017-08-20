@@ -49,7 +49,12 @@ namespace FinalWar
                     {
                         int index = _getRandomValueCallBack(finalList.Count);
 
-                        _v.summonPos = finalList[index];
+                        for (int i = _v.summonPos.Count; i < value; i++)
+                        {
+                            _v.summonPos.Add(0);
+                        }
+
+                        _v.summonPos[value - 1] = finalList[index];
 
                         return true;
                     }

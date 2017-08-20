@@ -8,7 +8,7 @@ namespace FinalWar
 
         internal KeyValuePair<int, int> pair;
 
-        internal int summonPos;
+        internal List<int> summonPos = new List<int>();
 
         internal int money;
     }

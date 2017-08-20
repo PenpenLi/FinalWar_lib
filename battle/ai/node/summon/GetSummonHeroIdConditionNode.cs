@@ -17,6 +17,21 @@ namespace FinalWar
                 return false;
             }
 
+            handCards = new List<int>(handCards);
+
+            for (int i = handCards.Count - 1; i > -1; i--)
+            {
+                if (_t.GetSummonContainsKey(handCards[i]))
+                {
+                    handCards.RemoveAt(i);
+                }
+            }
+
+            if (handCards.Count == 0)
+            {
+                return false;
+            }
+
             int index = _getRandomValueCallBack(handCards.Count);
 
             int uid = handCards[index];

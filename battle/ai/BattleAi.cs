@@ -279,7 +279,7 @@ namespace FinalWar
             {
                 case SummonActionNode.key:
 
-                    actionNode = new SummonActionNode();
+                    actionNode = new SummonActionNode(_node);
 
                     break;
 
