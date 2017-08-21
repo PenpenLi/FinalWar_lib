@@ -21,7 +21,6 @@ namespace FinalWar
         internal static Func<int, IAuraSDS> GetAuraData;
         internal static Func<int, IEffectSDS> GetEffectData;
 
-        public int mapID { get; private set; }
         public MapData mapData { get; private set; }
 
         private Dictionary<int, bool> mapBelongDic = new Dictionary<int, bool>();
@@ -102,9 +101,7 @@ namespace FinalWar
 
         internal void InitBattle(int _mapID, int[] _mCards, int[] _oCards)
         {
-            mapID = _mapID;
-
-            IMapSDS mapSDS = GetMapData(mapID);
+            IMapSDS mapSDS = GetMapData(_mapID);
 
             mapData = mapSDS.GetMapData();
 
