@@ -89,19 +89,9 @@ namespace FinalWar
                     }
                     else
                     {
-                        SuperEventListener.SuperFunctionCallBackV<List<Func<BattleTriggerAuraVO>>> dele3 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list)
+                        SuperEventListener.SuperFunctionCallBackV<List<BattleTriggerAuraVO>> dele3 = delegate (int _index, ref List<BattleTriggerAuraVO> _list)
                         {
-                            if (_list == null)
-                            {
-                                _list = new List<Func<BattleTriggerAuraVO>>();
-                            }
-
-                            Func<BattleTriggerAuraVO> func = delegate ()
-                            {
-                                return AuraCastSkill(_battle, _hero, _sds);
-                            };
-
-                            _list.Add(func);
+                            AuraCastSkill(_battle, _hero, _sds, ref _list);
                         };
 
                         result = _battle.eventListener.AddListener(_sds.GetEventName(), dele3);
@@ -203,7 +193,7 @@ namespace FinalWar
             }
         }
 
-        private static BattleTriggerAuraVO AuraCastSkill(Battle _battle, Hero _hero, IAuraSDS _sds)
+        private static void AuraCastSkill(Battle _battle, Hero _hero, IAuraSDS _sds, ref List<BattleTriggerAuraVO> _list)
         {
             Dictionary<int, List<BattleHeroEffectVO>> dic = null;
 
@@ -301,7 +291,15 @@ namespace FinalWar
                     throw new Exception("AuraCastSkill error! Unknown AuraTarget:" + _sds.GetAuraTarget());
             }
 
-            return new BattleTriggerAuraVO(_hero.pos, dic);
+            if (dic != null)
+            {
+                if (_list == null)
+                {
+                    _list = new List<BattleTriggerAuraVO>();
+                }
+
+                _list.Add(new BattleTriggerAuraVO(_hero.pos, dic));
+            }
         }
     }
 }

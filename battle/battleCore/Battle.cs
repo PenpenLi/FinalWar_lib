@@ -573,7 +573,7 @@ namespace FinalWar
 
         private IEnumerator DoRoundStart(BattleData _battleData)
         {
-            List<Func<BattleTriggerAuraVO>> list = null;
+            List<BattleTriggerAuraVO> list = null;
 
             eventListener.DispatchEvent(BattleConst.ROUND_START, ref list);
 
@@ -581,20 +581,20 @@ namespace FinalWar
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    yield return list[i]();
+                    yield return list[i];
                 }
+
+                Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+
+                while (enumerator.MoveNext())
+                {
+                    enumerator.Current.ProcessDamage();
+                }
+
+                yield return new BattleRoundStartVO();
+
+                yield return RemoveDieHero(_battleData);
             }
-
-            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                enumerator.Current.ProcessDamage();
-            }
-
-            yield return new BattleRoundStartVO();
-
-            yield return RemoveDieHero(_battleData);
         }
 
         private IEnumerator DoRush(BattleData _battleData)
