@@ -50,7 +50,10 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV1<bool, Hero> dele0 = delegate (int _index, ref bool _result, Hero _triggerHero)
                     {
-                        AuraFixBool(_index, _battle, _hero, _triggerHero, _sds, ref _result);
+                        if (CheckAuraCondition(_battle, _hero, null, _sds))
+                        {
+                            AuraFixBool(_index, _battle, _hero, _triggerHero, _sds, ref _result);
+                        }
                     };
 
                     result = _battle.eventListener.AddListener(_sds.GetEventName(), dele0);
@@ -61,7 +64,10 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV1<int, Hero> dele1 = delegate (int _index, ref int _result, Hero _triggerHero)
                     {
-                        AuraFixInt(_index, _battle, _hero, _triggerHero, _sds, ref _result);
+                        if (CheckAuraCondition(_battle, _hero, null, _sds))
+                        {
+                            AuraFixInt(_index, _battle, _hero, _triggerHero, _sds, ref _result);
+                        }
                     };
 
                     result = _battle.eventListener.AddListener(_sds.GetEventName(), dele1);
@@ -76,12 +82,15 @@ namespace FinalWar
                         {
                             if (_triggerHero == _hero)
                             {
-                                if (_list == null)
+                                if (CheckAuraCondition(_battle, _hero, _targetHero, _sds))
                                 {
-                                    _list = new List<BattleHeroEffectVO>();
-                                }
+                                    if (_list == null)
+                                    {
+                                        _list = new List<BattleHeroEffectVO>();
+                                    }
 
-                                AuraCastSkillTrigger(_battle, _targetHero, _sds, _list);
+                                    AuraCastSkillTrigger(_battle, _targetHero, _sds, _list);
+                                }
                             }
                         };
 
@@ -91,7 +100,10 @@ namespace FinalWar
                     {
                         SuperEventListener.SuperFunctionCallBackV<List<BattleTriggerAuraVO>> dele3 = delegate (int _index, ref List<BattleTriggerAuraVO> _list)
                         {
-                            AuraCastSkill(_battle, _hero, _sds, ref _list);
+                            if (CheckAuraCondition(_battle, _hero, null, _sds))
+                            {
+                                AuraCastSkill(_battle, _hero, _sds, ref _list);
+                            }
                         };
 
                         result = _battle.eventListener.AddListener(_sds.GetEventName(), dele3);
@@ -300,6 +312,34 @@ namespace FinalWar
 
                 _list.Add(new BattleTriggerAuraVO(_hero.pos, dic));
             }
+        }
+
+        private static bool CheckAuraCondition(Battle _battle, Hero _hero, Hero _targetHero, IAuraSDS _sds)
+        {
+            for (int i = 0; i < _sds.GetAuraCondition().Length; i++)
+            {
+                AuraCondition condition = _sds.GetAuraCondition()[i];
+
+                int conditionData = _sds.GetAuraConditionData()[i];
+
+                switch (condition)
+                {
+                    case AuraCondition.INJURED:
+
+                        if (_hero.nowHp == _hero.sds.GetHp())
+                        {
+                            return false;
+                        }
+
+                        break;
+
+                    default:
+
+                        throw new Exception("Unknown AuraCondition:" + _sds.GetAuraCondition());
+                }
+            }
+
+            return true;
         }
     }
 }

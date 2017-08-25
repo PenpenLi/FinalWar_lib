@@ -13,9 +13,16 @@ public enum AuraTarget
     TRIGGER
 }
 
+public enum AuraCondition
+{
+    INJURED,
+}
+
 public interface IAuraSDS
 {
     string GetEventName();
+    AuraCondition[] GetAuraCondition();
+    int[] GetAuraConditionData();
     AuraType GetAuraType();
     AuraTarget GetAuraTarget();
     int[] GetAuraData();
