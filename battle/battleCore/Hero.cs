@@ -259,6 +259,11 @@ namespace FinalWar
         {
             sds = Battle.GetHeroData(_id);
 
+            if (nowHp > sds.GetHp())
+            {
+                nowHp = sds.GetHp();
+            }
+
             UnregisterAura();
         }
 
