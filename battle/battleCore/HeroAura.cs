@@ -333,6 +333,15 @@ namespace FinalWar
 
                         break;
 
+                    case AuraCondition.HEALTHY:
+
+                        if (_hero.nowHp < _hero.sds.GetHp())
+                        {
+                            return false;
+                        }
+
+                        break;
+
                     default:
 
                         throw new Exception("Unknown AuraCondition:" + _sds.GetAuraCondition());

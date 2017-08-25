@@ -16,6 +16,7 @@ public enum AuraTarget
 public enum AuraCondition
 {
     INJURED,
+    HEALTHY,
 }
 
 public interface IAuraSDS
