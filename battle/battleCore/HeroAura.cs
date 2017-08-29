@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace FinalWar
 {
-    internal static partial class HeroAura
+    internal static class HeroAura
     {
         internal static void Init(Battle _battle, Hero _hero)
         {
