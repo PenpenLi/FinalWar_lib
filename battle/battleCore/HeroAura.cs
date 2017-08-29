@@ -302,30 +302,7 @@ namespace FinalWar
                     }
                 }
 
-                switch (_sds.GetAuraCondition())
-                {
-                    case AuraCondition.INJURED:
-
-                        if (firstHero.nowHp == firstHero.sds.GetHp())
-                        {
-                            return false;
-                        }
-
-                        break;
-
-                    case AuraCondition.HEALTHY:
-
-                        if (firstHero.nowHp < firstHero.sds.GetHp())
-                        {
-                            return false;
-                        }
-
-                        break;
-
-                    default:
-
-                        throw new Exception("Unknown AuraCondition:" + _sds.GetAuraCondition());
-                }
+                return CheckAuraConditionReal(_battle, firstHero, secondHero, _sds);
             }
 
             return true;
@@ -376,6 +353,36 @@ namespace FinalWar
 
                     throw new Exception("CheckAuraTrigger error:" + _sds.GetAuraTrigger());
             }
+        }
+
+        private static bool CheckAuraConditionReal(Battle _battle, Hero _firstHero, Hero _secondHero, IAuraSDS _sds)
+        {
+            switch (_sds.GetAuraCondition())
+            {
+                case AuraCondition.INJURED:
+
+                    if (_firstHero.nowHp == _firstHero.sds.GetHp())
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case AuraCondition.HEALTHY:
+
+                    if (_firstHero.nowHp < _firstHero.sds.GetHp())
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                default:
+
+                    throw new Exception("Unknown AuraCondition:" + _sds.GetAuraCondition());
+            }
+
+            return true;
         }
     }
 }
