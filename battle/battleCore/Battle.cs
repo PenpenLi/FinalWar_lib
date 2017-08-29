@@ -154,7 +154,17 @@ namespace FinalWar
                 heroMapDic.Add(pos, hero);
             }
 
-            eventListener.DispatchEvent(BattleConst.BATTLE_START);
+            List<Func<BattleTriggerAuraVO>> list = null;
+
+            eventListener.DispatchEvent(BattleConst.BATTLE_START, ref list, default(Hero), default(Hero));
+
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list[i]();
+                }
+            }
         }
 
         internal IEnumerator StartBattle()
@@ -573,15 +583,15 @@ namespace FinalWar
 
         private IEnumerator DoRoundStart(BattleData _battleData)
         {
-            List<BattleTriggerAuraVO> list = null;
+            List<Func<BattleTriggerAuraVO>> list = null;
 
-            eventListener.DispatchEvent(BattleConst.ROUND_START, ref list);
+            eventListener.DispatchEvent(BattleConst.ROUND_START, ref list, default(Hero), default(Hero));
 
             if (list != null)
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    yield return list[i];
+                    yield return list[i]();
                 }
 
                 Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
@@ -674,12 +684,16 @@ namespace FinalWar
 
                 int damage = _dic[attacker.pos];
 
-                List<BattleHeroEffectVO> effectList = attacker.Attack(stander, damage);
+                List<BattleHeroEffectVO> attackerEffectList = null;
+
+                List<BattleHeroEffectVO> defenderEffectList = null;
+
+                attacker.Attack(stander, damage, ref attackerEffectList, ref defenderEffectList);
 
                 //因为攻击有先后顺序  所以每打完一次就结算一次
                 stander.ProcessDamage();
 
-                yield return new BattleRushVO(attacker.pos, _cellData.pos, effectList);
+                yield return new BattleRushVO(attacker.pos, _cellData.pos, attackerEffectList, defenderEffectList);
             }
         }
 
@@ -851,9 +865,13 @@ namespace FinalWar
 
                         defenseDamage = defender.GetDamage();
 
-                        List<BattleHeroEffectVO> defenderEffectList = attacker.Attack(defender, attackDamage);
+                        List<BattleHeroEffectVO> attackerEffectList = null;
 
-                        List<BattleHeroEffectVO> attackerEffectList = defender.Attack(attacker, defenseDamage);
+                        List<BattleHeroEffectVO> defenderEffectList = null;
+
+                        attacker.Attack(defender, attackDamage, ref attackerEffectList, ref defenderEffectList);
+
+                        defender.Attack(attacker, defenseDamage, ref defenderEffectList, ref attackerEffectList);
 
                         defender.ProcessDamage();
 
@@ -865,42 +883,58 @@ namespace FinalWar
                     {
                         attackDamage = attacker.GetDamage();
 
-                        List<BattleHeroEffectVO> effectList = attacker.Attack(defender, attackDamage);
+                        List<BattleHeroEffectVO> attackerEffectList = null;
+
+                        List<BattleHeroEffectVO> defenderEffectList = null;
+
+                        attacker.Attack(defender, attackDamage, ref attackerEffectList, ref defenderEffectList);
 
                         defender.ProcessDamage();
 
-                        yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage, effectList);
+                        yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage, attackerEffectList, defenderEffectList);
 
                         if (speedDiff == 1 && defender.IsAlive())
                         {
                             defenseDamage = defender.GetDamage();
 
-                            effectList = defender.Attack(attacker, defenseDamage);
+                            attackerEffectList = null;
+
+                            defenderEffectList = null;
+
+                            defender.Attack(attacker, defenseDamage, ref attackerEffectList, ref defenderEffectList);
 
                             attacker.ProcessDamage();
 
-                            yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseDamage, effectList);
+                            yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseDamage, attackerEffectList, defenderEffectList);
                         }
                     }
                     else
                     {
                         defenseDamage = defender.GetDamage();
 
-                        List<BattleHeroEffectVO> effectList = defender.Attack(attacker, defenseDamage);
+                        List<BattleHeroEffectVO> attackerEffectList = null;
+
+                        List<BattleHeroEffectVO> defenderEffectList = null;
+
+                        defender.Attack(attacker, defenseDamage, ref attackerEffectList, ref defenderEffectList);
 
                         attacker.ProcessDamage();
 
-                        yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseDamage, effectList);
+                        yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseDamage, attackerEffectList, defenderEffectList);
 
                         if (speedDiff == -1 && attacker.IsAlive())
                         {
                             attackDamage = attacker.GetDamage();
 
-                            effectList = attacker.Attack(defender, attackDamage);
+                            attackerEffectList = null;
+
+                            defenderEffectList = null;
+
+                            attacker.Attack(defender, attackDamage, ref attackerEffectList, ref defenderEffectList);
 
                             defender.ProcessDamage();
 
-                            yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage, effectList);
+                            yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage, attackerEffectList, defenderEffectList);
                         }
                     }
 
@@ -978,7 +1012,7 @@ namespace FinalWar
 
                     if (GetPosIsMine(pos) != hero.isMine)
                     {
-                        CaptureArea(hero, pos);
+                        yield return CaptureArea(hero, pos);
                     }
                 }
             }
@@ -1135,14 +1169,24 @@ namespace FinalWar
                 enumerator.Current.Recover();
             }
 
-            eventListener.DispatchEvent(BattleConst.ROUND_OVER);
+            List<Func<BattleTriggerAuraVO>> list = null;
+
+            eventListener.DispatchEvent(BattleConst.ROUND_OVER, ref list, default(Hero), default(Hero));
+
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    yield return list[i]();
+                }
+            }
 
             yield return new BattleRecoverVO();
         }
 
-        private void RemoveHero(BattleData _battleData, Hero _hero)
+        private IEnumerator RemoveHero(BattleData _battleData, Hero _hero)
         {
-            _hero.Die();
+            yield return _hero.Die();
 
             heroMapDic.Remove(_hero.pos);
 
@@ -1192,7 +1236,7 @@ namespace FinalWar
             _hero.SetAction(Hero.HeroAction.NULL);
         }
 
-        private void CaptureArea(Hero _hero, int _nowPos)
+        private IEnumerator CaptureArea(Hero _hero, int _nowPos)
         {
             if (mapBelongDic.ContainsKey(_nowPos))
             {
@@ -1203,10 +1247,17 @@ namespace FinalWar
                 mapBelongDic.Add(_nowPos, true);
             }
 
-            bool b = eventListener.DispatchEvent(BattleConst.CAPTURE_MAP_AREA, _hero);
+            List<Func<BattleTriggerAuraVO>> list = null;
 
-            if (b)
+            eventListener.DispatchEvent(BattleConst.CAPTURE_MAP_AREA, ref list, _hero, default(Hero));
+
+            if (list != null)
             {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    yield return list[i]();
+                }
+
                 _hero.ProcessDamage();
             }
         }

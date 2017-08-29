@@ -7,14 +7,17 @@
 
 public enum AuraTarget
 {
+    NULL,
     SELF,
     ALLY,
     ENEMY,
-    TRIGGER
+    TRIGGER,
+    TARGET
 }
 
 public enum AuraCondition
 {
+    NULL,
     INJURED,
     HEALTHY,
 }
@@ -22,8 +25,10 @@ public enum AuraCondition
 public interface IAuraSDS
 {
     string GetEventName();
-    AuraCondition[] GetAuraCondition();
-    int[] GetAuraConditionData();
+    AuraTarget GetAuraTrigger();
+    AuraCondition GetAuraCondition();
+    AuraTarget[] GetAuraConditionTarget();
+    int GetAuraConditionData();
     AuraType GetAuraType();
     AuraTarget GetAuraTarget();
     int[] GetAuraData();

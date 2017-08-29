@@ -8,15 +8,17 @@ namespace FinalWar
         public int attacker;
         public int defender;
         public int damage;
-        public List<BattleHeroEffectVO> effectList;
+        public List<BattleHeroEffectVO> attackerEffectList;
+        public List<BattleHeroEffectVO> defenderEffectList;
 
-        public BattleCounterVO(int _pos, int _attacker, int _defender, int _damage, List<BattleHeroEffectVO> _effectList)
+        public BattleCounterVO(int _pos, int _attacker, int _defender, int _damage, List<BattleHeroEffectVO> _attackerEffectList, List<BattleHeroEffectVO> _defenderEffectList)
         {
             pos = _pos;
             attacker = _attacker;
             defender = _defender;
             damage = _damage;
-            effectList = _effectList;
+            attackerEffectList = _attackerEffectList;
+            defenderEffectList = _defenderEffectList;
         }
     }
 }

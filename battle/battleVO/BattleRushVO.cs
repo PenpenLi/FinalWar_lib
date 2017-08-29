@@ -6,13 +6,15 @@ namespace FinalWar
     {
         public int attacker;
         public int stander;
-        public List<BattleHeroEffectVO> effectList;
+        public List<BattleHeroEffectVO> attackerEffectList;
+        public List<BattleHeroEffectVO> standerEffectList;
 
-        public BattleRushVO(int _attacker, int _stander, List<BattleHeroEffectVO> _effectList)
+        public BattleRushVO(int _attacker, int _stander, List<BattleHeroEffectVO> _attackerEffectList, List<BattleHeroEffectVO> _standerEffectList)
         {
             attacker = _attacker;
             stander = _stander;
-            effectList = _effectList;
+            attackerEffectList = _attackerEffectList;
+            standerEffectList = _standerEffectList;
         }
     }
 }

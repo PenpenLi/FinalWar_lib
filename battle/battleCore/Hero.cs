@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
+using System;
 
 namespace FinalWar
 {
@@ -231,7 +233,7 @@ namespace FinalWar
         {
             int tmpSpeedFix = 0;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_SPEED, ref tmpSpeedFix, this);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_SPEED, ref tmpSpeedFix, this, default(Hero));
 
             return tmpSpeedFix;
         }
@@ -267,20 +269,11 @@ namespace FinalWar
             UnregisterAura();
         }
 
-        internal bool GetCanPierceShield()
-        {
-            bool tmpCanPierceShield = false;
-
-            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this);
-
-            return tmpCanPierceShield;
-        }
-
         internal bool GetCanMove()
         {
             bool tmpCanMove = true;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_MOVE, ref tmpCanMove, this);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_MOVE, ref tmpCanMove, this, default(Hero));
 
             return tmpCanMove;
         }
@@ -321,7 +314,7 @@ namespace FinalWar
         {
             int attackFixAura = 0;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK, ref attackFixAura, this);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK, ref attackFixAura, this, default(Hero));
 
             return attackFixAura;
         }
@@ -330,7 +323,7 @@ namespace FinalWar
         {
             bool recoverShield = true;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this, default(Hero));
 
             if (recoverShield)
             {
@@ -361,7 +354,7 @@ namespace FinalWar
         {
             bool willeFear = true;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_FEAR, ref willeFear, this);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_FEAR, ref willeFear, this, default(Hero));
 
             if (willeFear)
             {
@@ -407,42 +400,107 @@ namespace FinalWar
             UnregisterAura();
         }
 
-        internal void Die()
+        internal IEnumerator Die()
         {
-            battle.eventListener.DispatchEvent(BattleConst.DIE, this);
+            List<Func<BattleTriggerAuraVO>> list = null;
+
+            battle.eventListener.DispatchEvent(BattleConst.DIE, ref list, this, default(Hero));
+
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    yield return list[i]();
+                }
+            }
         }
 
-        internal List<BattleHeroEffectVO> Attack(Hero _hero, int _damage)
+        internal void Attack(Hero _hero, int _damage, ref List<BattleHeroEffectVO> _attackerEffectList, ref List<BattleHeroEffectVO> _defenderEffectList)
         {
-            List<BattleHeroEffectVO> effectList = new List<BattleHeroEffectVO>();
+            bool tmpCanPierceShield = false;
 
-            if (GetCanPierceShield())
+            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this, _hero);
+
+            BattleHeroEffectVO vo;
+
+            if (tmpCanPierceShield)
             {
                 _hero.HpChange(-_damage);
 
-                BattleHeroEffectVO vo = new BattleHeroEffectVO(Effect.HP_CHANGE, -_damage);
-
-                effectList.Add(vo);
+                vo = new BattleHeroEffectVO(Effect.HP_CHANGE, -_damage);
             }
             else
             {
                 _hero.BeDamage(_damage);
 
-                BattleHeroEffectVO vo = new BattleHeroEffectVO(Effect.DAMAGE, _damage);
-
-                effectList.Add(vo);
+                vo = new BattleHeroEffectVO(Effect.DAMAGE, _damage);
             }
 
-            battle.eventListener.DispatchEvent(BattleConst.ATTACK, ref effectList, this, _hero);
+            _defenderEffectList = new List<BattleHeroEffectVO>();
 
-            return effectList;
+            _defenderEffectList.Add(vo);
+
+            List<Func<BattleTriggerAuraVO>> list = null;
+
+            battle.eventListener.DispatchEvent(BattleConst.ATTACK, ref list, this, _hero);
+
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    BattleTriggerAuraVO triggerVO = list[i]();
+
+                    Dictionary<int, List<BattleHeroEffectVO>>.Enumerator enumerator = triggerVO.data.GetEnumerator();
+
+                    while (enumerator.MoveNext())
+                    {
+                        int tmpPos = enumerator.Current.Key;
+
+                        List<BattleHeroEffectVO> tmpList = enumerator.Current.Value;
+
+                        if (tmpPos == pos)
+                        {
+                            if (_attackerEffectList == null)
+                            {
+                                _attackerEffectList = new List<BattleHeroEffectVO>();
+                            }
+
+                            for (int m = 0; m < tmpList.Count; m++)
+                            {
+                                _attackerEffectList.Add(tmpList[m]);
+                            }
+                        }
+                        else if (enumerator.Current.Key == _hero.pos)
+                        {
+                            for (int m = 0; m < tmpList.Count; m++)
+                            {
+                                _defenderEffectList.Add(tmpList[m]);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Attack error:" + enumerator.Current.Key);
+                        }
+                    }
+                }
+            }
         }
 
         private void UnregisterAura()
         {
             initAura = false;
 
-            battle.eventListener.DispatchEvent(BattleConst.BE_SILENCE, this);
+            List<Func<BattleTriggerAuraVO>> list = null;
+
+            battle.eventListener.DispatchEvent(BattleConst.BE_SILENCE, ref list, this, default(Hero));
+
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list[i]();
+                }
+            }
         }
 
         internal void MoneyChange(int _num)

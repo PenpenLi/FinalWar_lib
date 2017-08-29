@@ -24,7 +24,7 @@ namespace FinalWar
                 ids[i] = RegisterAura(_battle, _hero, sds);
             }
 
-            SuperEventListener.SuperFunctionCallBack1<Hero> dele = delegate (int _index, Hero _triggerHero)
+            SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list, Hero _triggerHero, Hero _targetHero)
             {
                 if (_triggerHero == _hero)
                 {
@@ -48,11 +48,11 @@ namespace FinalWar
             {
                 case AuraType.FIX_BOOL:
 
-                    SuperEventListener.SuperFunctionCallBackV1<bool, Hero> dele0 = delegate (int _index, ref bool _result, Hero _triggerHero)
+                    SuperEventListener.SuperFunctionCallBackV2<bool, Hero, Hero> dele0 = delegate (int _index, ref bool _result, Hero _triggerHero, Hero _targetHero)
                     {
-                        if (CheckAuraCondition(_battle, _hero, null, _sds))
+                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _targetHero, _sds))
                         {
-                            AuraFixBool(_index, _battle, _hero, _triggerHero, _sds, ref _result);
+                            _result = _sds.GetAuraData()[0] == 1;
                         }
                     };
 
@@ -62,11 +62,11 @@ namespace FinalWar
 
                 case AuraType.FIX_INT:
 
-                    SuperEventListener.SuperFunctionCallBackV1<int, Hero> dele1 = delegate (int _index, ref int _result, Hero _triggerHero)
+                    SuperEventListener.SuperFunctionCallBackV2<int, Hero, Hero> dele1 = delegate (int _index, ref int _result, Hero _triggerHero, Hero _targetHero)
                     {
-                        if (CheckAuraCondition(_battle, _hero, null, _sds))
+                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _targetHero, _sds))
                         {
-                            AuraFixInt(_index, _battle, _hero, _triggerHero, _sds, ref _result);
+                            _result += _sds.GetAuraData()[0];
                         }
                     };
 
@@ -76,38 +76,25 @@ namespace FinalWar
 
                 case AuraType.CAST_SKILL:
 
-                    if (_sds.GetAuraTarget() == AuraTarget.TRIGGER)
+                    SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list, Hero _triggerHero, Hero _targetHero)
                     {
-                        SuperEventListener.SuperFunctionCallBackV2<List<BattleHeroEffectVO>, Hero, Hero> dele2 = delegate (int _index, ref List<BattleHeroEffectVO> _list, Hero _triggerHero, Hero _targetHero)
+                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _targetHero, _sds))
                         {
-                            if (_triggerHero == _hero)
+                            if (_list == null)
                             {
-                                if (CheckAuraCondition(_battle, _hero, _targetHero, _sds))
-                                {
-                                    if (_list == null)
-                                    {
-                                        _list = new List<BattleHeroEffectVO>();
-                                    }
-
-                                    AuraCastSkillTrigger(_battle, _targetHero, _sds, _list);
-                                }
+                                _list = new List<Func<BattleTriggerAuraVO>>();
                             }
-                        };
 
-                        result = _battle.eventListener.AddListener(_sds.GetEventName(), dele2);
-                    }
-                    else
-                    {
-                        SuperEventListener.SuperFunctionCallBackV<List<BattleTriggerAuraVO>> dele3 = delegate (int _index, ref List<BattleTriggerAuraVO> _list)
-                        {
-                            if (CheckAuraCondition(_battle, _hero, null, _sds))
+                            Func<BattleTriggerAuraVO> func = delegate ()
                             {
-                                AuraCastSkill(_battle, _hero, _sds, ref _list);
-                            }
-                        };
+                                return AuraCastSkill(_battle, _hero, _triggerHero, _targetHero, _sds);
+                            };
 
-                        result = _battle.eventListener.AddListener(_sds.GetEventName(), dele3);
-                    }
+                            _list.Add(func);
+                        }
+                    };
+
+                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele2);
 
                     break;
 
@@ -119,95 +106,9 @@ namespace FinalWar
             return result;
         }
 
-        private static void AuraFixBool(int _index, Battle _battle, Hero _hero, Hero _triggerHero, IAuraSDS _sds, ref bool _result)
+        private static BattleTriggerAuraVO AuraCastSkill(Battle _battle, Hero _hero, Hero _triggerHero, Hero _targetHero, IAuraSDS _sds)
         {
-            switch (_sds.GetAuraTarget())
-            {
-                case AuraTarget.SELF:
-
-                    if (_triggerHero == _hero)
-                    {
-                        _result = _sds.GetAuraData()[0] == 1;
-                    }
-
-                    break;
-
-                case AuraTarget.ALLY:
-
-                    if (_hero.isMine == _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, _triggerHero.pos) == 1)
-                    {
-                        _result = _sds.GetAuraData()[0] == 1;
-                    }
-
-                    break;
-
-                case AuraTarget.ENEMY:
-
-                    if (_hero.isMine != _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, _triggerHero.pos) == 1)
-                    {
-                        _result = _sds.GetAuraData()[0] == 1;
-                    }
-
-                    break;
-
-                default:
-
-                    throw new Exception("AuraFixBool error:" + _sds.GetAuraTarget());
-
-            }
-        }
-
-        private static void AuraFixInt(int _index, Battle _battle, Hero _hero, Hero _triggerHero, IAuraSDS _sds, ref int _result)
-        {
-            switch (_sds.GetAuraTarget())
-            {
-                case AuraTarget.SELF:
-
-                    if (_triggerHero == _hero)
-                    {
-                        _result += _sds.GetAuraData()[0];
-                    }
-
-                    break;
-
-                case AuraTarget.ALLY:
-
-                    if (_hero.isMine == _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, _triggerHero.pos) == 1)
-                    {
-                        _result += _sds.GetAuraData()[0];
-                    }
-
-                    break;
-
-                case AuraTarget.ENEMY:
-
-                    if (_hero.isMine != _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, _triggerHero.pos) == 1)
-                    {
-                        _result += _sds.GetAuraData()[0];
-                    }
-
-                    break;
-
-                default:
-
-                    throw new Exception("AuraFixInt error:" + _sds.GetAuraTarget());
-
-            }
-        }
-
-        private static void AuraCastSkillTrigger(Battle _battle, Hero _hero, IAuraSDS _sds, List<BattleHeroEffectVO> _list)
-        {
-            for (int i = 0; i < _sds.GetAuraData().Length; i++)
-            {
-                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _hero, _sds.GetAuraData()[i]);
-
-                _list.Add(vo);
-            }
-        }
-
-        private static void AuraCastSkill(Battle _battle, Hero _hero, IAuraSDS _sds, ref List<BattleTriggerAuraVO> _list)
-        {
-            Dictionary<int, List<BattleHeroEffectVO>> dic = null;
+            Dictionary<int, List<BattleHeroEffectVO>> dic = new Dictionary<int, List<BattleHeroEffectVO>>();
 
             switch (_sds.GetAuraTarget())
             {
@@ -221,8 +122,6 @@ namespace FinalWar
 
                         list.Add(vo);
                     }
-
-                    dic = new Dictionary<int, List<BattleHeroEffectVO>>();
 
                     dic.Add(_hero.pos, list);
 
@@ -249,11 +148,6 @@ namespace FinalWar
                                     BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _sds.GetAuraData()[m]);
 
                                     list.Add(vo);
-                                }
-
-                                if (dic == null)
-                                {
-                                    dic = new Dictionary<int, List<BattleHeroEffectVO>>();
                                 }
 
                                 dic.Add(targetHero.pos, list);
@@ -286,15 +180,40 @@ namespace FinalWar
                                     list.Add(vo);
                                 }
 
-                                if (dic == null)
-                                {
-                                    dic = new Dictionary<int, List<BattleHeroEffectVO>>();
-                                }
-
                                 dic.Add(targetHero.pos, list);
                             }
                         }
                     }
+
+                    break;
+
+                case AuraTarget.TRIGGER:
+
+                    list = new List<BattleHeroEffectVO>();
+
+                    for (int m = 0; m < _sds.GetAuraData().Length; m++)
+                    {
+                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _triggerHero, _sds.GetAuraData()[m]);
+
+                        list.Add(vo);
+                    }
+
+                    dic.Add(_triggerHero.pos, list);
+
+                    break;
+
+                case AuraTarget.TARGET:
+
+                    list = new List<BattleHeroEffectVO>();
+
+                    for (int m = 0; m < _sds.GetAuraData().Length; m++)
+                    {
+                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _targetHero, _sds.GetAuraData()[m]);
+
+                        list.Add(vo);
+                    }
+
+                    dic.Add(_targetHero.pos, list);
 
                     break;
 
@@ -303,30 +222,91 @@ namespace FinalWar
                     throw new Exception("AuraCastSkill error! Unknown AuraTarget:" + _sds.GetAuraTarget());
             }
 
-            if (dic != null)
-            {
-                if (_list == null)
-                {
-                    _list = new List<BattleTriggerAuraVO>();
-                }
+            BattleTriggerAuraVO result = new BattleTriggerAuraVO(_hero.pos, dic);
 
-                _list.Add(new BattleTriggerAuraVO(_hero.pos, dic));
-            }
+            return result;
         }
 
-        private static bool CheckAuraCondition(Battle _battle, Hero _hero, Hero _targetHero, IAuraSDS _sds)
+        private static bool CheckAuraCondition(Battle _battle, Hero _hero, Hero _triggerHero, Hero _targetHero, IAuraSDS _sds)
         {
-            for (int i = 0; i < _sds.GetAuraCondition().Length; i++)
+            if (_sds.GetAuraCondition() != AuraCondition.NULL)
             {
-                AuraCondition condition = _sds.GetAuraCondition()[i];
+                Hero firstHero;
 
-                int conditionData = _sds.GetAuraConditionData()[i];
+                AuraTarget firstHeroTarget = _sds.GetAuraConditionTarget()[0];
 
-                switch (condition)
+                switch (firstHeroTarget)
+                {
+                    case AuraTarget.SELF:
+
+                        firstHero = _hero;
+
+                        break;
+
+                    case AuraTarget.TRIGGER:
+
+                        firstHero = _triggerHero;
+
+                        break;
+
+                    case AuraTarget.TARGET:
+
+                        firstHero = _targetHero;
+
+                        break;
+
+                    default:
+
+                        throw new Exception("CheckAuraCondition error0:" + firstHeroTarget);
+                }
+
+                if (firstHero == null)
+                {
+                    return false;
+                }
+
+                Hero secondHero = null;
+
+                if (_sds.GetAuraConditionTarget().Length == 2)
+                {
+                    AuraTarget secondHeroTarget = _sds.GetAuraConditionTarget()[1];
+
+                    switch (secondHeroTarget)
+                    {
+                        case AuraTarget.SELF:
+
+                            secondHero = _hero;
+
+                            break;
+
+                        case AuraTarget.TRIGGER:
+
+                            secondHero = _triggerHero;
+
+                            break;
+
+                        case AuraTarget.TARGET:
+
+                            secondHero = _targetHero;
+
+                            break;
+
+                        default:
+
+                            throw new Exception("CheckAuraCondition error1:" + secondHeroTarget);
+                    }
+
+                    if (secondHero == null)
+                    {
+                        return false;
+                    }
+                }
+
+                switch (_sds.GetAuraCondition())
                 {
                     case AuraCondition.INJURED:
 
-                        if (_hero.nowHp == _hero.sds.GetHp())
+                        if (firstHero.nowHp == firstHero.sds.GetHp())
                         {
                             return false;
                         }
@@ -335,7 +315,7 @@ namespace FinalWar
 
                     case AuraCondition.HEALTHY:
 
-                        if (_hero.nowHp < _hero.sds.GetHp())
+                        if (firstHero.nowHp < firstHero.sds.GetHp())
                         {
                             return false;
                         }
@@ -349,6 +329,53 @@ namespace FinalWar
             }
 
             return true;
+        }
+
+        private static bool CheckAuraTrigger(Battle _battle, Hero _hero, Hero _triggerHero, IAuraSDS _sds)
+        {
+            switch (_sds.GetAuraTrigger())
+            {
+                case AuraTarget.NULL:
+
+                    return true;
+
+                case AuraTarget.SELF:
+
+                    if (_triggerHero == _hero)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                case AuraTarget.ALLY:
+
+                    if (_triggerHero != null && _hero.isMine == _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, _triggerHero.pos) == 1)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                case AuraTarget.ENEMY:
+
+                    if (_triggerHero != null && _hero.isMine != _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, _triggerHero.pos) == 1)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                default:
+
+                    throw new Exception("CheckAuraTrigger error:" + _sds.GetAuraTrigger());
+            }
         }
     }
 }
