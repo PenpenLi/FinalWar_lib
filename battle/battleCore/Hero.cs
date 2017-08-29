@@ -257,7 +257,7 @@ namespace FinalWar
             return nowHp > 0;
         }
 
-        internal void LevelUp(int _id)
+        internal void ChangeHero(int _id)
         {
             sds = Battle.GetHeroData(_id);
 

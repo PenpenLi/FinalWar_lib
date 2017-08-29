@@ -9,7 +9,7 @@
     SHIELD_CHANGE,
     SILENCE,
     FIX_SPEED,
-    LEVEL_UP,
+    CHANGE_HERO,
     ADD_MONEY,
 }
 

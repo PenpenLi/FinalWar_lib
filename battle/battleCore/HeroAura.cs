@@ -112,7 +112,7 @@ namespace FinalWar
 
             switch (_sds.GetAuraTarget())
             {
-                case AuraTarget.SELF:
+                case AuraTarget.OWNER:
 
                     List<BattleHeroEffectVO> list = new List<BattleHeroEffectVO>();
 
@@ -127,7 +127,7 @@ namespace FinalWar
 
                     break;
 
-                case AuraTarget.ALLY:
+                case AuraTarget.OWNER_NEIGHBOUR_ALLY:
 
                     List<int> tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
@@ -157,7 +157,7 @@ namespace FinalWar
 
                     break;
 
-                case AuraTarget.ENEMY:
+                case AuraTarget.OWNER_NEIGHBOUR_ENEMY:
 
                     tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
@@ -202,7 +202,7 @@ namespace FinalWar
 
                     break;
 
-                case AuraTarget.TARGET:
+                case AuraTarget.TRIGGER_TARGET:
 
                     list = new List<BattleHeroEffectVO>();
 
@@ -237,7 +237,7 @@ namespace FinalWar
 
                 switch (firstHeroTarget)
                 {
-                    case AuraTarget.SELF:
+                    case AuraTarget.OWNER:
 
                         firstHero = _hero;
 
@@ -249,7 +249,7 @@ namespace FinalWar
 
                         break;
 
-                    case AuraTarget.TARGET:
+                    case AuraTarget.TRIGGER_TARGET:
 
                         firstHero = _targetHero;
 
@@ -273,7 +273,7 @@ namespace FinalWar
 
                     switch (secondHeroTarget)
                     {
-                        case AuraTarget.SELF:
+                        case AuraTarget.OWNER:
 
                             secondHero = _hero;
 
@@ -285,7 +285,7 @@ namespace FinalWar
 
                             break;
 
-                        case AuraTarget.TARGET:
+                        case AuraTarget.TRIGGER_TARGET:
 
                             secondHero = _targetHero;
 
@@ -316,7 +316,7 @@ namespace FinalWar
 
                     return true;
 
-                case AuraTarget.SELF:
+                case AuraTarget.OWNER:
 
                     if (_triggerHero == _hero)
                     {
@@ -327,7 +327,7 @@ namespace FinalWar
                         return false;
                     }
 
-                case AuraTarget.ALLY:
+                case AuraTarget.OWNER_NEIGHBOUR_ALLY:
 
                     if (_triggerHero != null && _hero.isMine == _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, _triggerHero.pos) == 1)
                     {
@@ -338,7 +338,7 @@ namespace FinalWar
                         return false;
                     }
 
-                case AuraTarget.ENEMY:
+                case AuraTarget.OWNER_NEIGHBOUR_ENEMY:
 
                     if (_triggerHero != null && _hero.isMine != _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, _triggerHero.pos) == 1)
                     {
@@ -371,6 +371,24 @@ namespace FinalWar
                 case AuraCondition.HEALTHY:
 
                     if (_firstHero.nowHp < _firstHero.sds.GetHp())
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case AuraCondition.LEVEL_HIGHER:
+
+                    if (_firstHero.sds.GetCost() <= _secondHero.sds.GetCost())
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case AuraCondition.LEVEL_LOWER:
+
+                    if (_firstHero.sds.GetCost() >= _secondHero.sds.GetCost())
                     {
                         return false;
                     }

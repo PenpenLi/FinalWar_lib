@@ -8,11 +8,11 @@
 public enum AuraTarget
 {
     NULL,
-    SELF,
-    ALLY,
-    ENEMY,
+    OWNER,
+    OWNER_NEIGHBOUR_ALLY,
+    OWNER_NEIGHBOUR_ENEMY,
     TRIGGER,
-    TARGET
+    TRIGGER_TARGET
 }
 
 public enum AuraCondition
@@ -20,6 +20,8 @@ public enum AuraCondition
     NULL,
     INJURED,
     HEALTHY,
+    LEVEL_HIGHER,
+    LEVEL_LOWER,
 }
 
 public interface IAuraSDS

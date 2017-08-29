@@ -66,9 +66,9 @@ namespace FinalWar
 
                     break;
 
-                case Effect.LEVEL_UP:
+                case Effect.CHANGE_HERO:
 
-                    _hero.LevelUp(sds.GetData()[0]);
+                    _hero.ChangeHero(sds.GetData()[0]);
 
                     break;
 
