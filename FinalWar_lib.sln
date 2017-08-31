@@ -7,18 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinalWar_lib", "FinalWar_li
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Client|Any CPU = Client|Any CPU
-		Client|x64 = Client|x64
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{460F5C93-146F-4228-9889-F490BBFCB5F7}.Client|Any CPU.ActiveCfg = Client|Any CPU
-		{460F5C93-146F-4228-9889-F490BBFCB5F7}.Client|Any CPU.Build.0 = Client|Any CPU
-		{460F5C93-146F-4228-9889-F490BBFCB5F7}.Client|x64.ActiveCfg = Client|x64
-		{460F5C93-146F-4228-9889-F490BBFCB5F7}.Client|x64.Build.0 = Client|x64
 		{460F5C93-146F-4228-9889-F490BBFCB5F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{460F5C93-146F-4228-9889-F490BBFCB5F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{460F5C93-146F-4228-9889-F490BBFCB5F7}.Debug|x64.ActiveCfg = Debug|x64

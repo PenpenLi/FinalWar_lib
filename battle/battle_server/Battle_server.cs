@@ -1,11 +1,7 @@
-﻿#if !CLIENT
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-
-#if BATTLE
 using superEnumerator;
-#endif
 
 namespace FinalWar
 {
@@ -26,15 +22,14 @@ namespace FinalWar
             return random.Next(_max);
         }
 
-#if BATTLE
-        private Battle battle = new Battle();
-#endif
+        private Battle battle;
+
         private bool mOver;
         private bool oOver;
 
         private int roundNum;
 
-        //-----------------
+        //-----------------record data
         private int mapID;
 
         private Dictionary<int, KeyValuePair<int, bool>>[] summon = new Dictionary<int, KeyValuePair<int, bool>>[BattleConst.MAX_ROUND_NUM];
@@ -56,8 +51,13 @@ namespace FinalWar
 
         private Action<Battle.BattleResult> serverBattleOverCallBack;
 
-        public Battle_server()
+        public Battle_server(bool _isBattle)
         {
+            if (_isBattle)
+            {
+                battle = new Battle();
+            }
+
             for (int i = 0; i < BattleConst.MAX_ROUND_NUM; i++)
             {
                 summon[i] = new Dictionary<int, KeyValuePair<int, bool>>();
@@ -72,9 +72,10 @@ namespace FinalWar
 
             serverBattleOverCallBack = _serverBattleOverCallBack;
 
-#if BATTLE
-            battle.InitBattleEndCallBack(serverBattleOverCallBack);
-#endif
+            if (battle != null)
+            {
+                battle.InitBattleEndCallBack(serverBattleOverCallBack);
+            }
         }
 
         public void ServerStart(int _mapID, IList<int> _mCards, IList<int> _oCards, bool _isVsAi)
@@ -87,9 +88,10 @@ namespace FinalWar
 
             InitCards(_mCards, _oCards, out mCards, out oCards);
 
-#if BATTLE
-            battle.InitBattle(_mapID, mCards, oCards);
-#endif
+            if (battle != null)
+            {
+                battle.InitBattle(_mapID, mCards, oCards);
+            }
 
             ServerRefreshData(true);
 
@@ -511,29 +513,32 @@ namespace FinalWar
                     serverSendDataCallBack(false, oMs);
                 }
             }
-#if BATTLE
-            Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
 
-            while (enumerator2.MoveNext())
+            if (battle != null)
             {
-                battle.AddSummon(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
+                Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
+
+                while (enumerator2.MoveNext())
+                {
+                    battle.AddSummon(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
+                }
+
+                enumerator2 = action[roundNum].GetEnumerator();
+
+                while (enumerator2.MoveNext())
+                {
+                    battle.AddAction(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
+                }
+
+                battle.SetRandomIndex(randomIndex);
+
+                BattleAi.Start(battle, false, battle.GetRandomValue);
+
+                SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(battle.StartBattle());
+
+                superEnumerator.Done();
             }
 
-            enumerator2 = action[roundNum].GetEnumerator();
-
-            while (enumerator2.MoveNext())
-            {
-                battle.AddAction(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
-            }
-
-            battle.SetRandomIndex(randomIndex);
-
-            BattleAi.Start(battle, false, battle.GetRandomValue);
-
-            SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(battle.StartBattle());
-
-            superEnumerator.Done();
-#endif
             roundNum++;
 
             mOver = oOver = false;
@@ -553,9 +558,11 @@ namespace FinalWar
                 }
             }
 
-#if BATTLE
-            battle.BattleOver();
-#endif
+            if (battle != null)
+            {
+                battle.BattleOver();
+            }
+
             BattleOver();
         }
 
@@ -581,4 +588,3 @@ namespace FinalWar
         }
     }
 }
-#endif

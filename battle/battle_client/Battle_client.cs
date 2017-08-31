@@ -1,5 +1,4 @@
-﻿#if CLIENT
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using superEnumerator;
@@ -278,4 +277,3 @@ namespace FinalWar
         }
     }
 }
-#endif
