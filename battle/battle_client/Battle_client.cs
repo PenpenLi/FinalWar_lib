@@ -11,14 +11,14 @@ namespace FinalWar
 
         private bool clientIsOver;
 
-        private Action<MemoryStream> clientSendDataCallBack;
+        private Action<MemoryStream, Action<BinaryReader>> clientSendDataCallBack;
         private Action clientRefreshDataCallBack;
         private Action<SuperEnumerator<ValueType>> clientDoActionCallBack;
         private Action<BattleResult> clientBattleOverCallBack;
 
         private bool isVsAi;
 
-        public void ClientSetCallBack(Action<MemoryStream> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action<BattleResult> _clientBattleOverCallBack)
+        public void ClientSetCallBack(Action<MemoryStream, Action<BinaryReader>> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action<BattleResult> _clientBattleOverCallBack)
         {
             clientSendDataCallBack = _clientSendDataCallBack;
             clientRefreshDataCallBack = _clientRefreshDataCallBack;
@@ -28,37 +28,25 @@ namespace FinalWar
             InitBattleEndCallBack(clientBattleOverCallBack);
         }
 
-        public void ClientGetPackage(byte[] _bytes)
+        public void ClientGetPackage(BinaryReader _br)
         {
-            using (MemoryStream ms = new MemoryStream(_bytes))
+            byte tag = _br.ReadByte();
+
+            switch (tag)
             {
-                using (BinaryReader br = new BinaryReader(ms))
-                {
-                    byte tag = br.ReadByte();
+                case PackageTag.S2C_DOACTION:
 
-                    switch (tag)
-                    {
-                        case PackageTag.S2C_REFRESH:
+                    ClientDoAction(_br);
 
-                            ClientRefreshData(br);
+                    break;
 
-                            break;
+                case PackageTag.S2C_QUIT:
 
-                        case PackageTag.S2C_DOACTION:
+                    BattleOver();
 
-                            ClientDoAction(br);
+                    clientBattleOverCallBack(BattleResult.QUIT);
 
-                            break;
-
-                        case PackageTag.S2C_QUIT:
-
-                            BattleOver();
-
-                            clientBattleOverCallBack(BattleResult.QUIT);
-
-                            break;
-                    }
-                }
+                    break;
             }
         }
 
@@ -173,7 +161,7 @@ namespace FinalWar
                 {
                     bw.Write((short)PackageTag.C2S_QUIT);
 
-                    clientSendDataCallBack(ms);
+                    clientSendDataCallBack(ms, GetResponse);
                 }
             }
         }
@@ -224,7 +212,7 @@ namespace FinalWar
                         bw.Write(pair.Value);
                     }
 
-                    clientSendDataCallBack(ms);
+                    clientSendDataCallBack(ms, GetResponse);
                 }
             }
         }
@@ -237,7 +225,7 @@ namespace FinalWar
                 {
                     bw.Write(PackageTag.C2S_REFRESH);
 
-                    clientSendDataCallBack(ms);
+                    clientSendDataCallBack(ms, ClientRefreshData);
                 }
             }
         }
@@ -274,6 +262,11 @@ namespace FinalWar
         public bool GetClientCanAction()
         {
             return !clientIsOver;
+        }
+
+        private void GetResponse(BinaryReader _br)
+        {
+
         }
     }
 }

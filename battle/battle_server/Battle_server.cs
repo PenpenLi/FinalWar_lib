@@ -22,6 +22,8 @@ namespace FinalWar
             return random.Next(_max);
         }
 
+        private static MemoryStream responseMs = new MemoryStream();
+
         private Battle battle;
 
         private bool mOver;
@@ -47,7 +49,7 @@ namespace FinalWar
 
         private CardState[] cardStateArr = new CardState[BattleConst.DECK_CARD_NUM * 2];
 
-        private Action<bool, MemoryStream> serverSendDataCallBack;
+        private Action<bool, bool, MemoryStream> serverSendDataCallBack;
 
         private Action<Battle.BattleResult> serverBattleOverCallBack;
 
@@ -66,7 +68,7 @@ namespace FinalWar
             }
         }
 
-        public void ServerSetCallBack(Action<bool, MemoryStream> _serverSendDataCallBack, Action<Battle.BattleResult> _serverBattleOverCallBack)
+        public void ServerSetCallBack(Action<bool, bool, MemoryStream> _serverSendDataCallBack, Action<Battle.BattleResult> _serverBattleOverCallBack)
         {
             serverSendDataCallBack = _serverSendDataCallBack;
 
@@ -93,9 +95,9 @@ namespace FinalWar
                 battle.InitBattle(_mapID, mCards, oCards);
             }
 
-            ServerRefreshData(true);
+            //ServerRefreshData(true);
 
-            ServerRefreshData(false);
+            //ServerRefreshData(false);
         }
 
         private void InitCards(IList<int> _mCards, IList<int> _oCards, out int[] _mCardsResult, out int[] _oCardsResult)
@@ -163,35 +165,29 @@ namespace FinalWar
             }
         }
 
-        public void ServerGetPackage(byte[] _bytes, bool _isMine)
+        public void ServerGetPackage(BinaryReader _br, bool _isMine)
         {
-            using (MemoryStream ms = new MemoryStream(_bytes))
+            byte tag = _br.ReadByte();
+
+            switch (tag)
             {
-                using (BinaryReader br = new BinaryReader(ms))
-                {
-                    byte tag = br.ReadByte();
+                case PackageTag.C2S_REFRESH:
 
-                    switch (tag)
-                    {
-                        case PackageTag.C2S_REFRESH:
+                    ServerRefreshData(_isMine);
 
-                            ServerRefreshData(_isMine);
+                    break;
 
-                            break;
+                case PackageTag.C2S_DOACTION:
 
-                        case PackageTag.C2S_DOACTION:
+                    ServerDoAction(_isMine, _br);
 
-                            ServerDoAction(_isMine, br);
+                    break;
 
-                            break;
+                case PackageTag.C2S_QUIT:
 
-                        case PackageTag.C2S_QUIT:
+                    ServerQuitBattle(_isMine);
 
-                            ServerQuitBattle();
-
-                            break;
-                    }
-                }
+                    break;
             }
         }
 
@@ -219,8 +215,6 @@ namespace FinalWar
 
                         tmpCardState = CardState.O;
                     }
-
-                    bw.Write(PackageTag.S2C_REFRESH);
 
                     bw.Write(isVsAi);
 
@@ -289,7 +283,7 @@ namespace FinalWar
                         WriteRoundDataToStream(bw, roundNum);
                     }
 
-                    serverSendDataCallBack(_isMine, ms);
+                    serverSendDataCallBack(_isMine, false, ms);
                 }
             }
         }
@@ -380,6 +374,8 @@ namespace FinalWar
 
                 tmpDic.Add(pos, new KeyValuePair<int, bool>(targetPos, _isMine));
             }
+
+            serverSendDataCallBack(_isMine, false, responseMs);
 
             if ((mOver && oOver) || isVsAi)
             {
@@ -508,9 +504,9 @@ namespace FinalWar
 
                     oBw.Write(oNum);
 
-                    serverSendDataCallBack(true, mMs);
+                    serverSendDataCallBack(true, true, mMs);
 
-                    serverSendDataCallBack(false, oMs);
+                    serverSendDataCallBack(false, true, oMs);
                 }
             }
 
@@ -544,17 +540,19 @@ namespace FinalWar
             mOver = oOver = false;
         }
 
-        private void ServerQuitBattle()
+        private void ServerQuitBattle(bool _isMine)
         {
+            serverSendDataCallBack(_isMine, false, responseMs);
+
             using (MemoryStream ms = new MemoryStream())
             {
                 using (BinaryWriter bw = new BinaryWriter(ms))
                 {
                     bw.Write(PackageTag.S2C_QUIT);
 
-                    serverSendDataCallBack(true, ms);
+                    serverSendDataCallBack(true, true, ms);
 
-                    serverSendDataCallBack(false, ms);
+                    serverSendDataCallBack(false, true, ms);
                 }
             }
 
