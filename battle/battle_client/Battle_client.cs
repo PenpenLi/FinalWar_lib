@@ -159,7 +159,7 @@ namespace FinalWar
             {
                 using (BinaryWriter bw = new BinaryWriter(ms))
                 {
-                    bw.Write((short)PackageTag.C2S_QUIT);
+                    bw.Write(PackageTag.C2S_QUIT);
 
                     clientSendDataCallBack(ms, GetResponse);
                 }
