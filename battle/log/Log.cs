@@ -1,19 +1,22 @@
 ﻿using System;
 
-public class Log
+namespace FinalWar
 {
-    private static Action<string> logCallBack;
-
-    public static void Init(Action<string> _logCallBack)
+    public class Log
     {
-        logCallBack = _logCallBack;
-    }
+        private static Action<string> logCallBack;
 
-    public static void Write(string _str)
-    {
-        if (logCallBack != null)
+        public static void Init(Action<string> _logCallBack)
         {
-            logCallBack(_str);
+            logCallBack = _logCallBack;
+        }
+
+        public static void Write(string _str)
+        {
+            if (logCallBack != null)
+            {
+                logCallBack(_str);
+            }
         }
     }
 }

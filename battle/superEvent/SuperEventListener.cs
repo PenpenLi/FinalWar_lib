@@ -710,7 +710,6 @@ namespace superEvent
 
         internal void LogNum()
         {
-            Log.Write("SuperEventListener:" + dicWithID.Count);
         }
     }
 }
