@@ -86,7 +86,7 @@
     <Compile Include="battle\battleCore\BattleConst.cs" />
     <Compile Include="battle\battleCore\BattleData.cs" />
     <Compile Include="battle\battleCore\BattleRandomPool.cs" />
-    <Compile Include="battle\battlePublicTools\BattleAStar.cs" />
+    <Compile Include="battle\ai\BattleAStar.cs" />
     <Compile Include="battle\battleVO\BattleAddCardsVO.cs" />
     <Compile Include="battle\battleVO\BattleAttackAndCounterVO.cs" />
     <Compile Include="battle\battleVO\BattleAttackOverVO.cs" />
@@ -124,7 +124,7 @@
     <Compile Include="battle\superEvent\SuperEventListener.cs" />
     <Compile Include="battle\battleCore\HeroAura.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="battle\battlePublicTools\BattlePublicTools.cs" />
+    <Compile Include="battle\battleCore\BattlePublicTools.cs" />
     <Compile Include="battle\sds\IHeroSDS.cs" />
   </ItemGroup>
   <ItemGroup />

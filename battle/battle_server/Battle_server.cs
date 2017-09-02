@@ -516,14 +516,24 @@ namespace FinalWar
 
                 while (enumerator2.MoveNext())
                 {
-                    battle.AddSummon(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
+                    bool b = battle.AddSummon(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
+
+                    if (!b)
+                    {
+                        throw new Exception("summon error!");
+                    }
                 }
 
                 enumerator2 = action[roundNum].GetEnumerator();
 
                 while (enumerator2.MoveNext())
                 {
-                    battle.AddAction(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
+                    bool b = battle.AddAction(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
+
+                    if (!b)
+                    {
+                        throw new Exception("action error!");
+                    }
                 }
 
                 battle.SetRandomIndex(randomIndex);

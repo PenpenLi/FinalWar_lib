@@ -10,11 +10,6 @@ namespace FinalWar
 
             ISkillSDS sds = Battle.GetSkillData(_hero.sds.GetSkill());
 
-            if (sds.GetIsStop())
-            {
-                _hero.DisableAction();
-            }
-
             List<BattleHeroEffectVO> effectList = new List<BattleHeroEffectVO>();
 
             for (int i = 0; i < sds.GetEffects().Length; i++)

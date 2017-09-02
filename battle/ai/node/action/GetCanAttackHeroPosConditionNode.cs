@@ -10,7 +10,7 @@ namespace FinalWar
 
         public override bool Enter(Func<int, int> _getRandomValueCallBack, Battle _t, Hero _u, AiActionData _v)
         {
-            List<int> posList = BattleAi.GetCanAttackHeroPos(_t, _u);
+            List<int> posList = BattlePublicTools.GetCanAttackHeroPos(_t, _u);
 
             if (posList != null)
             {

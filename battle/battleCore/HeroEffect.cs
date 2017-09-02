@@ -48,12 +48,6 @@ namespace FinalWar
 
                     break;
 
-                case Effect.DISABLE_ACTION:
-
-                    _hero.DisableAction();
-
-                    break;
-
                 case Effect.SILENCE:
 
                     _hero.Silence();

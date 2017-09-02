@@ -31,8 +31,6 @@ namespace FinalWar
 
         private int nowShield;
 
-        private int canAction;
-
         internal int attackTimes { get; private set; }
 
         private Battle battle;
@@ -45,7 +43,7 @@ namespace FinalWar
 
         private int damage = 0;
 
-        internal Hero(Battle _battle, bool _isMine, IHeroSDS _sds, int _pos, bool _initAura)
+        internal Hero(Battle _battle, bool _isMine, IHeroSDS _sds, int _pos)
         {
             battle = _battle;
 
@@ -59,25 +57,9 @@ namespace FinalWar
 
             nowShield = sds.GetShield();
 
-            if (sds.GetHeroType().GetCanDoAction())
-            {
-                canAction = 0;
-            }
-            else
-            {
-                canAction = -1;
-            }
-
             attackTimes = sds.GetHeroType().GetAttackTimes();
 
             SetAction(HeroAction.NULL);
-
-            if (_initAura)
-            {
-                initAura = true;
-
-                HeroAura.Init(battle, this);
-            }
         }
 
         internal void SetAction(HeroAction _action, int _actionTarget)
@@ -205,7 +187,7 @@ namespace FinalWar
 
         public bool GetCanAction()
         {
-            return canAction == 0;
+            return !battle.GetFearActionContainsKey(pos);
         }
 
         internal int GetAttackSpeed(int _speedBonus)
@@ -278,14 +260,6 @@ namespace FinalWar
             return tmpCanMove;
         }
 
-        internal void DisableAction()
-        {
-            if (canAction > -1)
-            {
-                canAction = 2;
-            }
-        }
-
         public int GetDamage()
         {
             int attack = sds.GetAttack() + GetAttackFix() + nowShield;
@@ -330,11 +304,6 @@ namespace FinalWar
                 nowShield = sds.GetShield();
             }
 
-            if (canAction > 0)
-            {
-                canAction--;
-            }
-
             attackTimes = sds.GetHeroType().GetAttackTimes();
 
             if (!initAura)
@@ -344,9 +313,23 @@ namespace FinalWar
                 HeroAura.Init(battle, this);
             }
 
-            if (GetCanAction())
+            switch (sds.GetHeroType().GetFearType())
             {
-                CheckFear();
+                case FearType.ALWAYS_DEFENSE:
+
+                    battle.AddFearAction(pos, pos);
+
+                    break;
+
+                case FearType.NEVER:
+
+                    break;
+
+                default:
+
+                    CheckFear();
+
+                    break;
             }
         }
 
@@ -389,9 +372,48 @@ namespace FinalWar
 
                     if (randomValue < numDiff)
                     {
-                        canAction = 1;
+                        CheckFearReal();
                     }
                 }
+            }
+        }
+
+        private void CheckFearReal()
+        {
+            switch (sds.GetHeroType().GetFearType())
+            {
+                case FearType.DEFENSE:
+
+                    battle.AddFearAction(pos, pos);
+
+                    break;
+
+                case FearType.ATTACK:
+
+                    List<int> tmpList = BattlePublicTools.GetCanAttackPos(battle, this);
+
+                    int index = battle.GetRandomValue(tmpList.Count);
+
+                    battle.AddFearAction(pos, tmpList[index]);
+
+                    break;
+
+                default:
+
+                    tmpList = BattlePublicTools.GetCanSupportPos(battle, this);
+
+                    if (tmpList != null)
+                    {
+                        index = battle.GetRandomValue(tmpList.Count);
+
+                        battle.AddFearAction(pos, tmpList[index]);
+                    }
+                    else
+                    {
+                        battle.AddFearAction(pos, pos);
+                    }
+
+                    break;
             }
         }
 

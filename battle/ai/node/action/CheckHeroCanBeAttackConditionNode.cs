@@ -9,7 +9,7 @@ namespace FinalWar
 
         public override bool Enter(Func<int, int> _getRandomValueCallBack, Battle _t, Hero _u, AiActionData _v)
         {
-            return BattleAi.CheckHeroCanBeAttack(_t, _u);
+            return BattlePublicTools.CheckHeroCanBeAttacked(_t, _u);
         }
     }
 }

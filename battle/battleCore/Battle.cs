@@ -44,6 +44,8 @@ namespace FinalWar
 
         private Dictionary<int, int> action = new Dictionary<int, int>();
 
+        private List<KeyValuePair<int, int>> fearAction = new List<KeyValuePair<int, int>>();
+
         private int randomIndex;
 
         private int roundNum;
@@ -149,21 +151,16 @@ namespace FinalWar
 
                 IHeroSDS heroSDS = GetHeroData(id);
 
-                Hero hero = new Hero(this, isMine, heroSDS, pos, true);
+                Hero hero = new Hero(this, isMine, heroSDS, pos);
 
                 heroMapDic.Add(pos, hero);
             }
 
-            List<Func<BattleTriggerAuraVO>> list = null;
+            IEnumerator ie = DoRecover();
 
-            eventListener.DispatchEvent(BattleConst.BATTLE_START, ref list, default(Hero), default(Hero));
-
-            if (list != null)
+            while (ie.MoveNext())
             {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    list[i]();
-                }
+
             }
         }
 
@@ -172,6 +169,8 @@ namespace FinalWar
             BattleData battleData = GetBattleData();
 
             ClearAction();
+
+            ClearFearAction();
 
             yield return DoSkill(battleData);
 
@@ -189,7 +188,7 @@ namespace FinalWar
 
             yield return DoMove(battleData);
 
-            yield return DoRecover(battleData);
+            yield return DoRecover();
 
             yield return DoAddMoney();
 
@@ -277,6 +276,8 @@ namespace FinalWar
 
             ClearAction();
 
+            ClearFearAction();
+
             roundNum = 0;
         }
 
@@ -360,7 +361,7 @@ namespace FinalWar
                 }
             }
 
-            Hero hero = new Hero(this, isMine, sds, _pos, false);
+            Hero hero = new Hero(this, isMine, sds, _pos);
 
             return hero;
         }
@@ -388,6 +389,20 @@ namespace FinalWar
 
             BattleData battleData = new BattleData();
 
+            for (int i = 0; i < fearAction.Count; i++)
+            {
+                KeyValuePair<int, int> pair = fearAction[i];
+
+                int pos = pair.Key;
+
+                int targetPos = pair.Value;
+
+                if (pos != targetPos)
+                {
+                    GetOneUnitAction(pos, targetPos, battleData);
+                }
+            }
+
             Dictionary<int, int>.Enumerator enumerator2 = GetActionEnumerator();
 
             while (enumerator2.MoveNext())
@@ -412,11 +427,6 @@ namespace FinalWar
             }
 
             Hero hero = heroMapDic[_pos];
-
-            if (!hero.GetCanAction())
-            {
-                throw new Exception("action error999");
-            }
 
             bool targetPosIsMine = GetPosIsMine(_targetPos);
 
@@ -722,7 +732,7 @@ namespace FinalWar
                 {
                     Hero hero = heroMapDic[dieList[i]];
 
-                    RemoveHero(_battleData, hero);
+                    yield return RemoveHero(_battleData, hero);
                 }
 
                 yield return new BattleDeathVO(dieList);
@@ -1160,7 +1170,7 @@ namespace FinalWar
             return hero;
         }
 
-        private IEnumerator DoRecover(BattleData _battleData)
+        private IEnumerator DoRecover()
         {
             Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
 
@@ -1494,9 +1504,9 @@ namespace FinalWar
             return action.Count;
         }
 
-        public bool GetActionContainsKey(int _pos)
+        public bool GetActionContainsKey(int _pos, out int _targetPos)
         {
-            return action.ContainsKey(_pos);
+            return action.TryGetValue(_pos, out _targetPos);
         }
 
         internal bool AddAction(bool _isMine, int _pos, int _targetPos)
@@ -1518,7 +1528,9 @@ namespace FinalWar
                 return false;
             }
 
-            if (GetActionContainsKey(_pos))
+            int targetPos;
+
+            if (GetActionContainsKey(_pos, out targetPos))
             {
                 return false;
             }
@@ -1604,6 +1616,36 @@ namespace FinalWar
         internal void ClearAction()
         {
             action.Clear();
+        }
+
+        public List<KeyValuePair<int, int>>.Enumerator GetFearActionEnumerator()
+        {
+            return fearAction.GetEnumerator();
+        }
+
+        internal bool GetFearActionContainsKey(int _pos)
+        {
+            for (int i = 0; i < fearAction.Count; i++)
+            {
+                if (fearAction[i].Key == _pos)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        internal void AddFearAction(int _pos, int _targetPos)
+        {
+            int index = GetRandomValue(fearAction.Count);
+
+            fearAction.Insert(index, new KeyValuePair<int, int>(_pos, _targetPos));
+        }
+
+        internal void ClearFearAction()
+        {
+            fearAction.Clear();
         }
 
         internal void SetRandomIndex(int _index)

@@ -1,7 +1,15 @@
-﻿public interface IHeroTypeSDS
+﻿public enum FearType
+{
+    NEVER,
+    ATTACK,
+    DEFENSE,
+    SUPPORT,
+    ALWAYS_DEFENSE
+}
+
+public interface IHeroTypeSDS
 {
     int GetID();
-    bool GetCanDoAction();
 
     int GetAttackSpeed();
     int GetDefenseSpeed();
@@ -10,4 +18,6 @@
     int GetAttackTimes();
     int GetThread();
     int GetSupportSpeedBonus();
+
+    FearType GetFearType();
 }
