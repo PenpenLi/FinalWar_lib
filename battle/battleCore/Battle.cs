@@ -619,8 +619,6 @@ namespace FinalWar
 
         private IEnumerator DoRush(BattleData _battleData)
         {
-            Dictionary<int, int> dic = null;
-
             while (true)
             {
                 bool hasRush = false;
@@ -637,31 +635,22 @@ namespace FinalWar
                         {
                             hasRush = true;
 
-                            if (dic == null)
-                            {
-                                dic = new Dictionary<int, int>();
-                            }
-                            else
-                            {
-                                dic.Clear();
-                            }
-
-                            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
-
-                            while (enumerator2.MoveNext())
-                            {
-                                dic.Add(enumerator2.Current.pos, enumerator2.Current.GetDamage());
-                            }
-
                             yield return new BattlePrepareRushVO();
                         }
 
-                        yield return ProcessCellDataRush(_battleData, cellData, dic);
+                        yield return ProcessCellDataRush(_battleData, cellData);
                     }
                 }
 
                 if (hasRush)
                 {
+                    Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
+
+                    while (enumerator2.MoveNext())
+                    {
+                        enumerator2.Current.ProcessDamage();
+                    }
+
                     yield return RemoveDieHero(_battleData);
                 }
                 else
@@ -673,7 +662,7 @@ namespace FinalWar
             }
         }
 
-        private IEnumerator ProcessCellDataRush(BattleData _battleData, BattleCellData _cellData, Dictionary<int, int> _dic)
+        private IEnumerator ProcessCellDataRush(BattleData _battleData, BattleCellData _cellData)
         {
             Hero stander = _cellData.stander;
 
@@ -692,16 +681,13 @@ namespace FinalWar
                     attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
                 }
 
-                int damage = _dic[attacker.pos];
+                int damage = attacker.GetDamage();
 
                 List<BattleHeroEffectVO> attackerEffectList = null;
 
                 List<BattleHeroEffectVO> defenderEffectList = null;
 
                 attacker.Attack(stander, damage, ref attackerEffectList, ref defenderEffectList);
-
-                //因为攻击有先后顺序  所以每打完一次就结算一次
-                stander.ProcessDamage();
 
                 yield return new BattleRushVO(attacker.pos, _cellData.pos, attackerEffectList, defenderEffectList);
             }

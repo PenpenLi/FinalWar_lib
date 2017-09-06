@@ -315,9 +315,9 @@ namespace FinalWar
 
             switch (sds.GetHeroType().GetFearType())
             {
-                case FearType.ALWAYS_DEFENSE:
+                case FearType.ALWAYS:
 
-                    battle.AddFearAction(pos, pos);
+                    CheckFearReal();
 
                     break;
 
@@ -327,13 +327,16 @@ namespace FinalWar
 
                 default:
 
-                    CheckFear();
+                    if (CheckFear())
+                    {
+                        CheckFearReal();
+                    }
 
                     break;
             }
         }
 
-        private void CheckFear()
+        private bool CheckFear()
         {
             bool willeFear = true;
 
@@ -372,48 +375,29 @@ namespace FinalWar
 
                     if (randomValue < numDiff)
                     {
-                        CheckFearReal();
+                        return true;
                     }
                 }
             }
+
+            return false;
         }
 
         private void CheckFearReal()
         {
-            switch (sds.GetHeroType().GetFearType())
+            int num = battle.GetRandomValue(sds.GetHeroType().GetFearAttackWeight() + sds.GetHeroType().GetFearDefenseWeight());
+
+            if (num < sds.GetHeroType().GetFearAttackWeight())
             {
-                case FearType.DEFENSE:
+                List<int> tmpList = BattlePublicTools.GetCanAttackPos(battle, this);
 
-                    battle.AddFearAction(pos, pos);
+                int index = battle.GetRandomValue(tmpList.Count);
 
-                    break;
-
-                case FearType.ATTACK:
-
-                    List<int> tmpList = BattlePublicTools.GetCanAttackPos(battle, this);
-
-                    int index = battle.GetRandomValue(tmpList.Count);
-
-                    battle.AddFearAction(pos, tmpList[index]);
-
-                    break;
-
-                default:
-
-                    tmpList = BattlePublicTools.GetCanSupportPos(battle, this);
-
-                    if (tmpList != null)
-                    {
-                        index = battle.GetRandomValue(tmpList.Count);
-
-                        battle.AddFearAction(pos, tmpList[index]);
-                    }
-                    else
-                    {
-                        battle.AddFearAction(pos, pos);
-                    }
-
-                    break;
+                battle.AddFearAction(pos, tmpList[index]);
+            }
+            else
+            {
+                battle.AddFearAction(pos, pos);
             }
         }
 

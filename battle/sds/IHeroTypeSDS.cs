@@ -1,10 +1,8 @@
 ﻿public enum FearType
 {
     NEVER,
-    ATTACK,
-    DEFENSE,
-    SUPPORT,
-    ALWAYS_DEFENSE
+    ALWAYS,
+    CHANCE
 }
 
 public interface IHeroTypeSDS
@@ -20,4 +18,7 @@ public interface IHeroTypeSDS
     int GetSupportSpeedBonus();
 
     FearType GetFearType();
+
+    int GetFearAttackWeight();
+    int GetFearDefenseWeight();
 }
