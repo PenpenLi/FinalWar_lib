@@ -22,8 +22,6 @@ namespace FinalWar
             return random.Next(_max);
         }
 
-        private static MemoryStream responseMs = new MemoryStream();
-
         private Battle battle;
 
         private bool mOver;
@@ -191,7 +189,7 @@ namespace FinalWar
             }
         }
 
-        public void ServerRefreshData(bool _isMine)
+        private void ServerRefreshData(bool _isMine)
         {
             using (MemoryStream ms = new MemoryStream())
             {
@@ -375,7 +373,7 @@ namespace FinalWar
                 tmpDic.Add(pos, new KeyValuePair<int, bool>(targetPos, _isMine));
             }
 
-            serverSendDataCallBack(_isMine, false, responseMs);
+            serverSendDataCallBack(_isMine, false, new MemoryStream());
 
             if ((mOver && oOver) || isVsAi)
             {
@@ -552,7 +550,7 @@ namespace FinalWar
 
         private void ServerQuitBattle(bool _isMine)
         {
-            serverSendDataCallBack(_isMine, false, responseMs);
+            serverSendDataCallBack(_isMine, false, new MemoryStream());
 
             using (MemoryStream ms = new MemoryStream())
             {
