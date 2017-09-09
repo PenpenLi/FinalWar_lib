@@ -377,7 +377,7 @@ namespace FinalWar
 
                     break;
 
-                case AuraCondition.LEVEL_HIGHER:
+                case AuraCondition.LEVEL_HIGHER_THAN:
 
                     if (_firstHero.sds.GetCost() <= _secondHero.sds.GetCost())
                     {
@@ -386,9 +386,121 @@ namespace FinalWar
 
                     break;
 
-                case AuraCondition.LEVEL_LOWER:
+                case AuraCondition.LEVEL_LOWER_THAN:
 
                     if (_firstHero.sds.GetCost() >= _secondHero.sds.GetCost())
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case AuraCondition.NEIGHBOUR_ALLY_MORE_THAN:
+
+                    List<int> tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _firstHero.pos);
+
+                    int num = 0;
+
+                    for (int i = 0; i < tmpList.Count; i++)
+                    {
+                        int tmpPos = tmpList[i];
+
+                        Hero tmpHero;
+
+                        if (_battle.heroMapDic.TryGetValue(tmpPos, out tmpHero))
+                        {
+                            if (tmpHero.isMine == _firstHero.isMine)
+                            {
+                                num++;
+                            }
+                        }
+                    }
+
+                    if (num <= _sds.GetAuraConditionData())
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case AuraCondition.NEIGHBOUR_ALLY_LESS_THAN:
+
+                    tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _firstHero.pos);
+
+                    num = 0;
+
+                    for (int i = 0; i < tmpList.Count; i++)
+                    {
+                        int tmpPos = tmpList[i];
+
+                        Hero tmpHero;
+
+                        if (_battle.heroMapDic.TryGetValue(tmpPos, out tmpHero))
+                        {
+                            if (tmpHero.isMine == _firstHero.isMine)
+                            {
+                                num++;
+                            }
+                        }
+                    }
+
+                    if (num >= _sds.GetAuraConditionData())
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case AuraCondition.NEIGHBOUR_ENEMY_MORE_THAN:
+
+                    tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _firstHero.pos);
+
+                    num = 0;
+
+                    for (int i = 0; i < tmpList.Count; i++)
+                    {
+                        int tmpPos = tmpList[i];
+
+                        Hero tmpHero;
+
+                        if (_battle.heroMapDic.TryGetValue(tmpPos, out tmpHero))
+                        {
+                            if (tmpHero.isMine != _firstHero.isMine)
+                            {
+                                num++;
+                            }
+                        }
+                    }
+
+                    if (num <= _sds.GetAuraConditionData())
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case AuraCondition.NEIGHBOUR_ENEMY_LESS_THAN:
+
+                    tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _firstHero.pos);
+
+                    num = 0;
+
+                    for (int i = 0; i < tmpList.Count; i++)
+                    {
+                        int tmpPos = tmpList[i];
+
+                        Hero tmpHero;
+
+                        if (_battle.heroMapDic.TryGetValue(tmpPos, out tmpHero))
+                        {
+                            if (tmpHero.isMine != _firstHero.isMine)
+                            {
+                                num++;
+                            }
+                        }
+                    }
+
+                    if (num >= _sds.GetAuraConditionData())
                     {
                         return false;
                     }
