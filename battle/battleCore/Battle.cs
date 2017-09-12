@@ -595,7 +595,7 @@ namespace FinalWar
         {
             List<Func<BattleTriggerAuraVO>> list = null;
 
-            eventListener.DispatchEvent(BattleConst.ROUND_START, ref list, default(Hero), default(Hero));
+            eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.ROUND_START, ref list, null, null);
 
             if (list != null)
             {
@@ -1167,7 +1167,7 @@ namespace FinalWar
 
             List<Func<BattleTriggerAuraVO>> list = null;
 
-            eventListener.DispatchEvent(BattleConst.ROUND_OVER, ref list, default(Hero), default(Hero));
+            eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.ROUND_OVER, ref list, null, null);
 
             if (list != null)
             {
@@ -1245,7 +1245,7 @@ namespace FinalWar
 
             List<Func<BattleTriggerAuraVO>> list = null;
 
-            eventListener.DispatchEvent(BattleConst.CAPTURE_MAP_AREA, ref list, _hero, default(Hero));
+            eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.CAPTURE_MAP_AREA, ref list, _hero, null);
 
             if (list != null)
             {

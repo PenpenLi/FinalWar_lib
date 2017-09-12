@@ -215,7 +215,7 @@ namespace FinalWar
         {
             int tmpSpeedFix = 0;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_SPEED, ref tmpSpeedFix, this, default(Hero));
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_SPEED, ref tmpSpeedFix, this, null);
 
             return tmpSpeedFix;
         }
@@ -255,7 +255,7 @@ namespace FinalWar
         {
             bool tmpCanMove = true;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_MOVE, ref tmpCanMove, this, default(Hero));
+            battle.eventListener.DispatchEvent<bool, Hero, Hero>(BattleConst.FIX_CAN_MOVE, ref tmpCanMove, this, null);
 
             return tmpCanMove;
         }
@@ -288,7 +288,7 @@ namespace FinalWar
         {
             int attackFixAura = 0;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK, ref attackFixAura, this, default(Hero));
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_ATTACK, ref attackFixAura, this, null);
 
             return attackFixAura;
         }
@@ -297,7 +297,7 @@ namespace FinalWar
         {
             bool recoverShield = true;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this, default(Hero));
+            battle.eventListener.DispatchEvent<bool, Hero, Hero>(BattleConst.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this, null);
 
             if (recoverShield)
             {
@@ -340,7 +340,7 @@ namespace FinalWar
         {
             bool willeFear = true;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_FEAR, ref willeFear, this, default(Hero));
+            battle.eventListener.DispatchEvent<bool, Hero, Hero>(BattleConst.FIX_FEAR, ref willeFear, this, null);
 
             if (willeFear)
             {
@@ -410,7 +410,7 @@ namespace FinalWar
         {
             List<Func<BattleTriggerAuraVO>> list = null;
 
-            battle.eventListener.DispatchEvent(BattleConst.DIE, ref list, this, default(Hero));
+            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.DIE, ref list, this, null);
 
             if (list != null)
             {
@@ -498,7 +498,7 @@ namespace FinalWar
 
             List<Func<BattleTriggerAuraVO>> list = null;
 
-            battle.eventListener.DispatchEvent(BattleConst.BE_SILENCE, ref list, this, default(Hero));
+            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.BE_SILENCE, ref list, this, null);
 
             if (list != null)
             {

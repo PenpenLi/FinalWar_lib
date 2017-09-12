@@ -2,7 +2,7 @@
 {
     NEVER,
     ALWAYS,
-    CHANCE
+    PROBABILITY
 }
 
 public interface IHeroTypeSDS
