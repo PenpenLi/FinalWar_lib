@@ -321,10 +321,6 @@ namespace FinalWar
 
                     break;
 
-                case FearType.NEVER:
-
-                    break;
-
                 default:
 
                     if (CheckFear())
@@ -358,11 +354,11 @@ namespace FinalWar
                     {
                         if (hero.isMine == isMine)
                         {
-                            myNum++;
+                            myNum += hero.sds.GetHeroType().GetFearValue();
                         }
                         else
                         {
-                            oppNum++;
+                            oppNum += hero.sds.GetHeroType().GetFearValue();
                         }
                     }
                 }

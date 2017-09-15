@@ -18,6 +18,16 @@ namespace FinalWar
 
         private bool isVsAi;
 
+        private int m_battleResult = -1;
+
+        public int battleResult
+        {
+            get
+            {
+                return m_battleResult;
+            }
+        }
+
         public void ClientSetCallBack(Action<MemoryStream, Action<BinaryReader>> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action<BattleResult> _clientBattleOverCallBack)
         {
             clientSendDataCallBack = _clientSendDataCallBack;
@@ -25,7 +35,7 @@ namespace FinalWar
             clientDoActionCallBack = _clientDoActionCallBack;
             clientBattleOverCallBack = _clientBattleOverCallBack;
 
-            InitBattleEndCallBack(clientBattleOverCallBack);
+            InitBattleEndCallBack(BattleOver);
         }
 
         public void ClientGetPackage(BinaryReader _br)
@@ -44,7 +54,9 @@ namespace FinalWar
 
                     BattleOver();
 
-                    clientBattleOverCallBack(BattleResult.QUIT);
+                    BattleResult battleResult = _br.ReadBoolean() ? BattleResult.O_WIN : BattleResult.M_WIN;
+
+                    clientBattleOverCallBack(battleResult);
 
                     break;
             }
@@ -52,6 +64,8 @@ namespace FinalWar
 
         private void ClientRefreshData(BinaryReader _br)
         {
+            m_battleResult = -1;
+
             BattleOver();
 
             isVsAi = _br.ReadBoolean();
@@ -232,6 +246,8 @@ namespace FinalWar
 
         private void ClientDoAction(BinaryReader _br)
         {
+            clientIsOver = false;
+
             ClearSummon();
 
             ClearAction();
@@ -255,8 +271,11 @@ namespace FinalWar
             }
 
             clientDoActionCallBack(new SuperEnumerator<ValueType>(StartBattle()));
+        }
 
-            clientIsOver = false;
+        private void BattleOver(BattleResult _battleResult)
+        {
+            m_battleResult = (int)_battleResult;
         }
 
         public bool GetClientCanAction()

@@ -12,7 +12,6 @@ namespace FinalWar
             M_WIN,
             O_WIN,
             DRAW,
-            QUIT
         }
 
         internal static Func<int, IMapSDS> GetMapData;
@@ -171,6 +170,8 @@ namespace FinalWar
             ClearAction();
 
             ClearFearAction();
+
+            yield return new BattleRefreshVO();
 
             yield return DoSkill(battleData);
 

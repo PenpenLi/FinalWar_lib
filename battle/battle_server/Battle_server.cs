@@ -51,6 +51,8 @@ namespace FinalWar
 
         private Action<Battle.BattleResult> serverBattleOverCallBack;
 
+        private int battleResult = -1;
+
         public Battle_server(bool _isBattle)
         {
             if (_isBattle)
@@ -74,7 +76,7 @@ namespace FinalWar
 
             if (battle != null)
             {
-                battle.InitBattleEndCallBack(serverBattleOverCallBack);
+                battle.InitBattleEndCallBack(BattleOver);
             }
         }
 
@@ -380,15 +382,45 @@ namespace FinalWar
 
                         ServerStartBattle(mBw, oBw);
 
-                        ProcessBattle();
+                        if (battle != null)
+                        {
+                            ProcessBattle();
 
-                        roundNum++;
+                            if (battleResult == -1)
+                            {
+                                roundNum++;
 
-                        mOver = oOver = false;
+                                mOver = oOver = false;
 
-                        serverSendDataCallBack(true, true, mMs);
+                                serverSendDataCallBack(true, true, mMs);
 
-                        serverSendDataCallBack(false, true, oMs);
+                                serverSendDataCallBack(false, true, oMs);
+                            }
+                            else
+                            {
+                                ResetData();
+
+                                Battle.BattleResult tmpResult = (Battle.BattleResult)battleResult;
+
+                                battleResult = -1;
+
+                                serverSendDataCallBack(true, true, mMs);
+
+                                serverSendDataCallBack(false, true, oMs);
+
+                                serverBattleOverCallBack(tmpResult);
+                            }
+                        }
+                        else
+                        {
+                            roundNum++;
+
+                            mOver = oOver = false;
+
+                            serverSendDataCallBack(true, true, mMs);
+
+                            serverSendDataCallBack(false, true, oMs);
+                        }
                     }
                 }
             }
@@ -544,40 +576,37 @@ namespace FinalWar
 
         private void ProcessBattle()
         {
-            if (battle != null)
+            Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
+
+            while (enumerator2.MoveNext())
             {
-                Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
+                bool b = battle.AddSummon(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
 
-                while (enumerator2.MoveNext())
+                if (!b)
                 {
-                    bool b = battle.AddSummon(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
-
-                    if (!b)
-                    {
-                        throw new Exception("summon error!");
-                    }
+                    throw new Exception("summon error!");
                 }
-
-                enumerator2 = action[roundNum].GetEnumerator();
-
-                while (enumerator2.MoveNext())
-                {
-                    bool b = battle.AddAction(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
-
-                    if (!b)
-                    {
-                        throw new Exception("action error!");
-                    }
-                }
-
-                battle.SetRandomIndex(randomIndexList[roundNum]);
-
-                BattleAi.Start(battle, false, battle.GetRandomValue);
-
-                SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(battle.StartBattle());
-
-                superEnumerator.Done();
             }
+
+            enumerator2 = action[roundNum].GetEnumerator();
+
+            while (enumerator2.MoveNext())
+            {
+                bool b = battle.AddAction(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
+
+                if (!b)
+                {
+                    throw new Exception("action error!");
+                }
+            }
+
+            battle.SetRandomIndex(randomIndexList[roundNum]);
+
+            BattleAi.Start(battle, false, battle.GetRandomValue);
+
+            SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(battle.StartBattle());
+
+            superEnumerator.Done();
         }
 
         private void ServerQuitBattle(bool _isMine)
@@ -590,6 +619,8 @@ namespace FinalWar
                 {
                     bw.Write(PackageTag.S2C_QUIT);
 
+                    bw.Write(_isMine);
+
                     serverSendDataCallBack(true, true, ms);
 
                     serverSendDataCallBack(false, true, ms);
@@ -601,17 +632,29 @@ namespace FinalWar
                 battle.BattleOver();
             }
 
-            BattleOver();
+            BattleQuit(_isMine);
         }
 
-        private void BattleOver()
+        private void BattleQuit(bool _isMine)
         {
             ResetData();
 
-            serverBattleOverCallBack(Battle.BattleResult.QUIT);
+            if (_isMine)
+            {
+                serverBattleOverCallBack(Battle.BattleResult.O_WIN);
+            }
+            else
+            {
+                serverBattleOverCallBack(Battle.BattleResult.M_WIN);
+            }
         }
 
-        private void ResetData()
+        private void BattleOver(Battle.BattleResult _result)
+        {
+            battleResult = (int)_result;
+        }
+
+        public void ResetData()
         {
             mOver = oOver = false;
 
