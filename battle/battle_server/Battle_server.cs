@@ -53,12 +53,15 @@ namespace FinalWar
 
         private int battleResult = -1;
 
+        private bool isBattle;
+
         public Battle_server(bool _isBattle)
         {
-            if (_isBattle)
-            {
-                battle = new Battle();
-            }
+            isBattle = _isBattle;
+
+            battle = new Battle();
+
+            battle.InitBattleEndCallBack(BattleOver);
 
             for (int i = 0; i < BattleConst.MAX_ROUND_NUM; i++)
             {
@@ -73,11 +76,6 @@ namespace FinalWar
             serverSendDataCallBack = _serverSendDataCallBack;
 
             serverBattleOverCallBack = _serverBattleOverCallBack;
-
-            if (battle != null)
-            {
-                battle.InitBattleEndCallBack(BattleOver);
-            }
         }
 
         public void ServerStart(int _mapID, IList<int> _mCards, IList<int> _oCards, bool _isVsAi)
@@ -92,7 +90,7 @@ namespace FinalWar
 
             InitCardState();
 
-            if (battle != null)
+            if (isBattle)
             {
                 battle.InitBattle(_mapID, mCards, oCards);
             }
@@ -158,7 +156,7 @@ namespace FinalWar
             }
         }
 
-        public void ServerGetPackage(BinaryReader _br, bool _isMine)
+        public void ServerGetPackage(BinaryReader _br, bool _isMine, long _tick)
         {
             byte tag = _br.ReadByte();
 
@@ -182,6 +180,11 @@ namespace FinalWar
 
                     break;
             }
+        }
+
+        public void Update(long _tick)
+        {
+
         }
 
         private void ServerRefreshData(bool _isMine)
@@ -382,7 +385,7 @@ namespace FinalWar
 
                         ServerStartBattle(mBw, oBw);
 
-                        if (battle != null)
+                        if (isBattle)
                         {
                             ProcessBattle();
 
@@ -627,7 +630,7 @@ namespace FinalWar
                 }
             }
 
-            if (battle != null)
+            if (isBattle)
             {
                 battle.BattleOver();
             }
