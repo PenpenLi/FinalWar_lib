@@ -27,10 +27,6 @@ namespace FinalWar
                 return m_battleResult;
             }
         }
-        public Battle_client()
-        {
-            InitBattleEndCallBack(BattleOver);
-        }
 
         public void ClientSetCallBack(Action<MemoryStream, Action<BinaryReader>> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action<BattleResult> _clientBattleOverCallBack)
         {
@@ -201,6 +197,8 @@ namespace FinalWar
                 using (BinaryWriter bw = new BinaryWriter(ms))
                 {
                     bw.Write(PackageTag.C2S_DOACTION);
+
+                    bw.Write(roundNum);
 
                     bw.Write(GetSummonNum());
 

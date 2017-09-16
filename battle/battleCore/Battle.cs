@@ -9,6 +9,7 @@ namespace FinalWar
     {
         public enum BattleResult
         {
+            NOT_OVER,
             M_WIN,
             O_WIN,
             DRAW,
@@ -47,11 +48,11 @@ namespace FinalWar
 
         private int randomIndex;
 
-        private int roundNum;
+        public int roundNum { private set; get; }
 
         internal SuperEventListener eventListener = new SuperEventListener();
 
-        private Action<BattleResult> battleEndCallBack;
+        //private Action<BattleResult> battleEndCallBack;
 
         public static void Init<S, T, U, V, W>(Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
         {
@@ -93,11 +94,6 @@ namespace FinalWar
             }
 
             return (int)(randomValue * _max);
-        }
-
-        public void InitBattleEndCallBack(Action<BattleResult> _battleEndCallBack)
-        {
-            battleEndCallBack = _battleEndCallBack;
         }
 
         internal void InitBattle(int _mapID, int[] _mCards, int[] _oCards)
@@ -195,10 +191,10 @@ namespace FinalWar
 
             yield return DoAddCards();
 
-            RoundOver();
+            yield return RoundOver();
         }
 
-        private void RoundOver()
+        private BattleResult RoundOver()
         {
             bool mWin = false;
 
@@ -218,28 +214,19 @@ namespace FinalWar
             {
                 BattleOver();
 
-                if (battleEndCallBack != null)
-                {
-                    battleEndCallBack(BattleResult.DRAW);
-                }
+                return BattleResult.DRAW;
             }
             else if (oWin)
             {
                 BattleOver();
 
-                if (battleEndCallBack != null)
-                {
-                    battleEndCallBack(BattleResult.O_WIN);
-                }
+                return BattleResult.O_WIN;
             }
             else if (mWin)
             {
                 BattleOver();
 
-                if (battleEndCallBack != null)
-                {
-                    battleEndCallBack(BattleResult.M_WIN);
-                }
+                return BattleResult.M_WIN;
             }
             else
             {
@@ -249,10 +236,11 @@ namespace FinalWar
                 {
                     BattleOver();
 
-                    if (battleEndCallBack != null)
-                    {
-                        battleEndCallBack(BattleResult.DRAW);
-                    }
+                    return BattleResult.DRAW;
+                }
+                else
+                {
+                    return BattleResult.NOT_OVER;
                 }
             }
         }

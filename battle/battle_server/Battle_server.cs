@@ -61,8 +61,6 @@ namespace FinalWar
 
             battle = new Battle();
 
-            battle.InitBattleEndCallBack(BattleOver);
-
             for (int i = 0; i < BattleConst.MAX_ROUND_NUM; i++)
             {
                 summon[i] = new Dictionary<int, KeyValuePair<int, bool>>();
@@ -156,7 +154,7 @@ namespace FinalWar
             }
         }
 
-        public void ServerGetPackage(BinaryReader _br, bool _isMine, long _tick)
+        public void ServerGetPackage(BinaryReader _br, bool _isMine)
         {
             byte tag = _br.ReadByte();
 
@@ -180,11 +178,6 @@ namespace FinalWar
 
                     break;
             }
-        }
-
-        public void Update(long _tick)
-        {
-
         }
 
         private void ServerRefreshData(bool _isMine)
@@ -345,30 +338,35 @@ namespace FinalWar
                 }
             }
 
-            Dictionary<int, KeyValuePair<int, bool>> tmpDic = summon[roundNum];
+            int tmpRoundNum = _br.ReadInt32();
 
-            int num = _br.ReadInt32();
-
-            for (int i = 0; i < num; i++)
+            if (tmpRoundNum == roundNum)
             {
-                int uid = _br.ReadInt32();
+                Dictionary<int, KeyValuePair<int, bool>> tmpDic = summon[roundNum];
 
-                int pos = _br.ReadInt32();
+                int num = _br.ReadInt32();
 
-                tmpDic.Add(uid, new KeyValuePair<int, bool>(pos, _isMine));
-            }
+                for (int i = 0; i < num; i++)
+                {
+                    int uid = _br.ReadInt32();
 
-            tmpDic = action[roundNum];
+                    int pos = _br.ReadInt32();
 
-            num = _br.ReadInt32();
+                    tmpDic.Add(uid, new KeyValuePair<int, bool>(pos, _isMine));
+                }
 
-            for (int i = 0; i < num; i++)
-            {
-                int pos = _br.ReadInt32();
+                tmpDic = action[roundNum];
 
-                int targetPos = _br.ReadInt32();
+                num = _br.ReadInt32();
 
-                tmpDic.Add(pos, new KeyValuePair<int, bool>(targetPos, _isMine));
+                for (int i = 0; i < num; i++)
+                {
+                    int pos = _br.ReadInt32();
+
+                    int targetPos = _br.ReadInt32();
+
+                    tmpDic.Add(pos, new KeyValuePair<int, bool>(targetPos, _isMine));
+                }
             }
 
             serverSendDataCallBack(_isMine, false, new MemoryStream());
@@ -611,6 +609,11 @@ namespace FinalWar
 
             superEnumerator.Done();
         }
+
+        //public Battle.BattleResult VerifyBattle()
+        //{
+
+        //}
 
         private void ServerQuitBattle(bool _isMine)
         {
