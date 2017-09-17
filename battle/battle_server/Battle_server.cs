@@ -28,7 +28,7 @@ namespace FinalWar
         private bool oOver;
 
         //-----------------record data
-        private int roundNum;
+        public int roundNum { private set; get; }
 
         private int mapID;
 
@@ -154,7 +154,7 @@ namespace FinalWar
             }
         }
 
-        public void ServerGetPackage(BinaryReader _br, bool _isMine)
+        public bool ServerGetPackage(BinaryReader _br, bool _isMine, bool _reply)
         {
             byte tag = _br.ReadByte();
 
@@ -164,19 +164,23 @@ namespace FinalWar
 
                     ServerRefreshData(_isMine);
 
-                    break;
+                    return false;
 
                 case PackageTag.C2S_DOACTION:
 
-                    ServerDoAction(_isMine, _br);
+                    ServerDoAction(_isMine, _br, _reply);
 
-                    break;
+                    return true;
 
                 case PackageTag.C2S_QUIT:
 
-                    ServerQuitBattle(_isMine);
+                    ServerQuitBattle(_isMine, _reply);
 
-                    break;
+                    return false;
+
+                default:
+
+                    throw new Exception("Unknow PackageTag:" + tag);
             }
         }
 
@@ -313,7 +317,7 @@ namespace FinalWar
         }
 
 
-        private void ServerDoAction(bool _isMine, BinaryReader _br)
+        private void ServerDoAction(bool _isMine, BinaryReader _br, bool _reply)
         {
             if (_isMine)
             {
@@ -369,7 +373,10 @@ namespace FinalWar
                 }
             }
 
-            serverSendDataCallBack(_isMine, false, new MemoryStream());
+            if (_reply)
+            {
+                serverSendDataCallBack(_isMine, false, new MemoryStream());
+            }
 
             if ((mOver && oOver) || isVsAi)
             {
@@ -617,11 +624,13 @@ namespace FinalWar
 
             roundNum = 0;
 
+            Battle.BattleResult battleResult = Battle.BattleResult.NOT_OVER;
+
             battle.InitBattle(mapID, mCards, oCards);
 
             while (roundNum < tmpRoundNum)
             {
-                Battle.BattleResult battleResult = ProcessBattle();
+                battleResult = ProcessBattle();
 
                 if (battleResult == Battle.BattleResult.NOT_OVER)
                 {
@@ -629,16 +638,23 @@ namespace FinalWar
                 }
                 else
                 {
-                    return battleResult;
+                    break;
                 }
             }
 
-            return Battle.BattleResult.NOT_OVER;
+            battle.BattleOver();
+
+            roundNum = tmpRoundNum;
+
+            return battleResult;
         }
 
-        private void ServerQuitBattle(bool _isMine)
+        private void ServerQuitBattle(bool _isMine, bool _reply)
         {
-            serverSendDataCallBack(_isMine, false, new MemoryStream());
+            if (_reply)
+            {
+                serverSendDataCallBack(_isMine, false, new MemoryStream());
+            }
 
             using (MemoryStream ms = new MemoryStream())
             {

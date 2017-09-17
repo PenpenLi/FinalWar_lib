@@ -52,8 +52,6 @@ namespace FinalWar
 
         internal SuperEventListener eventListener = new SuperEventListener();
 
-        //private Action<BattleResult> battleEndCallBack;
-
         public static void Init<S, T, U, V, W>(Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
         {
             GetMapData = delegate (int _id)
