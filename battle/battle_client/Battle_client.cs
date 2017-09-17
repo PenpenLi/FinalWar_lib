@@ -18,16 +18,6 @@ namespace FinalWar
 
         private bool isVsAi;
 
-        private int m_battleResult = -1;
-
-        public int battleResult
-        {
-            get
-            {
-                return m_battleResult;
-            }
-        }
-
         public void ClientSetCallBack(Action<MemoryStream, Action<BinaryReader>> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action<BattleResult> _clientBattleOverCallBack)
         {
             clientSendDataCallBack = _clientSendDataCallBack;
@@ -62,8 +52,6 @@ namespace FinalWar
 
         private void ClientRefreshData(BinaryReader _br)
         {
-            m_battleResult = -1;
-
             BattleOver();
 
             isVsAi = _br.ReadBoolean();
@@ -271,11 +259,6 @@ namespace FinalWar
             }
 
             clientDoActionCallBack(new SuperEnumerator<ValueType>(StartBattle()));
-        }
-
-        private void BattleOver(BattleResult _battleResult)
-        {
-            m_battleResult = (int)_battleResult;
         }
 
         public bool GetClientCanAction()

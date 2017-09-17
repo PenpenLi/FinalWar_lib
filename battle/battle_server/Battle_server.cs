@@ -51,7 +51,7 @@ namespace FinalWar
 
         private Action<Battle.BattleResult> serverBattleOverCallBack;
 
-        private int battleResult = -1;
+        //private int battleResult = -1;
 
         private bool isBattle;
 
@@ -90,7 +90,7 @@ namespace FinalWar
 
             if (isBattle)
             {
-                battle.InitBattle(_mapID, mCards, oCards);
+                battle.InitBattle(mapID, mCards, oCards);
             }
         }
 
@@ -385,9 +385,9 @@ namespace FinalWar
 
                         if (isBattle)
                         {
-                            ProcessBattle();
+                            Battle.BattleResult battleResult = ProcessBattle();
 
-                            if (battleResult == -1)
+                            if (battleResult == Battle.BattleResult.NOT_OVER)
                             {
                                 roundNum++;
 
@@ -401,15 +401,11 @@ namespace FinalWar
                             {
                                 ResetData();
 
-                                Battle.BattleResult tmpResult = (Battle.BattleResult)battleResult;
-
-                                battleResult = -1;
-
                                 serverSendDataCallBack(true, true, mMs);
 
                                 serverSendDataCallBack(false, true, oMs);
 
-                                serverBattleOverCallBack(tmpResult);
+                                serverBattleOverCallBack(battleResult);
                             }
                         }
                         else
@@ -575,7 +571,7 @@ namespace FinalWar
             _oBw.Write(oNum);
         }
 
-        private void ProcessBattle()
+        private Battle.BattleResult ProcessBattle()
         {
             Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
 
@@ -603,17 +599,42 @@ namespace FinalWar
 
             battle.SetRandomIndex(randomIndexList[roundNum]);
 
-            BattleAi.Start(battle, false, battle.GetRandomValue);
+            if (isVsAi)
+            {
+                BattleAi.Start(battle, false, battle.GetRandomValue);
+            }
 
             SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(battle.StartBattle());
 
             superEnumerator.Done();
+
+            return (Battle.BattleResult)superEnumerator.Current;
         }
 
-        //public Battle.BattleResult VerifyBattle()
-        //{
+        public Battle.BattleResult VerifyBattle()
+        {
+            int tmpRoundNum = roundNum;
 
-        //}
+            roundNum = 0;
+
+            battle.InitBattle(mapID, mCards, oCards);
+
+            while (roundNum < tmpRoundNum)
+            {
+                Battle.BattleResult battleResult = ProcessBattle();
+
+                if (battleResult == Battle.BattleResult.NOT_OVER)
+                {
+                    roundNum++;
+                }
+                else
+                {
+                    return battleResult;
+                }
+            }
+
+            return Battle.BattleResult.NOT_OVER;
+        }
 
         private void ServerQuitBattle(bool _isMine)
         {
@@ -653,11 +674,6 @@ namespace FinalWar
             {
                 serverBattleOverCallBack(Battle.BattleResult.M_WIN);
             }
-        }
-
-        private void BattleOver(Battle.BattleResult _result)
-        {
-            battleResult = (int)_result;
         }
 
         public void ResetData()
