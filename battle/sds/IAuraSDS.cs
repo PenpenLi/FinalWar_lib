@@ -28,6 +28,24 @@ public enum AuraCondition
     NEIGHBOUR_ENEMY_LESS_THAN,
 }
 
+public enum AuraConditionCompare
+{
+    NULL,
+    EQUAL,
+    BIGGER,
+    SMALLER
+}
+
+public enum AuraConditionType
+{
+    DATA,
+    NOWHP,
+    MAXHP,
+    LEVEL,
+    NEIGHBOUR_ALLY_NUM,
+    NEIGHBOUR_ENEMY_NUM
+}
+
 public interface IAuraSDS
 {
     string GetEventName();
@@ -39,4 +57,11 @@ public interface IAuraSDS
     AuraTarget GetAuraTarget();
     int GetAuraTargetNum();
     int[] GetAuraData();
+}
+
+public interface IAuraConditionSDS
+{
+    AuraConditionType GetConditionType();
+    int GetConditionData();
+    AuraTarget GetConditionTarget();
 }
