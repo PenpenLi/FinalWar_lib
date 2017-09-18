@@ -37,5 +37,6 @@ public interface IAuraSDS
     int GetAuraConditionData();
     AuraType GetAuraType();
     AuraTarget GetAuraTarget();
+    int GetAuraTargetNum();
     int[] GetAuraData();
 }
