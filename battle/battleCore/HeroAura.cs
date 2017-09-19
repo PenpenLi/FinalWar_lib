@@ -307,85 +307,16 @@ namespace FinalWar
             return result;
         }
 
-        private static bool CheckAuraCondition(Battle _battle, Hero _hero, Hero _triggerHero, Hero _targetHero, IAuraSDS _sds)
+        private static bool CheckAuraCondition(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds)
         {
-            if (_sds.GetAuraCondition() != AuraCondition.NULL)
+            if (_sds.GetAuraConditionCompare() != AuraConditionCompare.NULL)
             {
-                Hero firstHero;
-
-                AuraTarget firstHeroTarget = _sds.GetAuraConditionTarget()[0];
-
-                switch (firstHeroTarget)
-                {
-                    case AuraTarget.OWNER:
-
-                        firstHero = _hero;
-
-                        break;
-
-                    case AuraTarget.TRIGGER:
-
-                        firstHero = _triggerHero;
-
-                        break;
-
-                    case AuraTarget.TRIGGER_TARGET:
-
-                        firstHero = _targetHero;
-
-                        break;
-
-                    default:
-
-                        throw new Exception("CheckAuraCondition error0:" + firstHeroTarget);
-                }
-
-                if (firstHero == null)
-                {
-                    return false;
-                }
-
-                Hero secondHero = null;
-
-                if (_sds.GetAuraConditionTarget().Length == 2)
-                {
-                    AuraTarget secondHeroTarget = _sds.GetAuraConditionTarget()[1];
-
-                    switch (secondHeroTarget)
-                    {
-                        case AuraTarget.OWNER:
-
-                            secondHero = _hero;
-
-                            break;
-
-                        case AuraTarget.TRIGGER:
-
-                            secondHero = _triggerHero;
-
-                            break;
-
-                        case AuraTarget.TRIGGER_TARGET:
-
-                            secondHero = _targetHero;
-
-                            break;
-
-                        default:
-
-                            throw new Exception("CheckAuraCondition error1:" + secondHeroTarget);
-                    }
-
-                    if (secondHero == null)
-                    {
-                        return false;
-                    }
-                }
-
-                return CheckAuraConditionReal(_battle, firstHero, secondHero, _sds);
+                return CheckAuraConditionReal(_battle, _hero, _triggerHero, _triggerTargetHero, _sds);
             }
-
-            return true;
+            else
+            {
+                return true;
+            }
         }
 
         private static bool CheckAuraTrigger(Battle _battle, Hero _hero, Hero _triggerHero, IAuraSDS _sds)
@@ -435,49 +366,71 @@ namespace FinalWar
             }
         }
 
-        private static bool CheckAuraConditionReal(Battle _battle, Hero _firstHero, Hero _secondHero, IAuraSDS _sds)
+        private static bool CheckAuraConditionReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds)
         {
-            switch (_sds.GetAuraCondition())
+            int first;
+
+            int second;
+
+            if (_sds.GetAuraConditionType()[0] == AuraConditionType.DATA)
             {
-                case AuraCondition.INJURED:
+                first = _sds.GetAuraConditionData()[0];
+            }
+            else
+            {
+                Hero hero = GetConditionHero(_hero, _triggerHero, _triggerTargetHero, _sds.GetAuraConditionTarget()[0]);
 
-                    if (_firstHero.nowHp == _firstHero.sds.GetHp())
-                    {
-                        return false;
-                    }
+                first = GetConditionData(_battle, hero, _sds.GetAuraConditionType()[0]);
+            }
 
-                    break;
+            return true;
+        }
 
-                case AuraCondition.HEALTHY:
+        private static Hero GetConditionHero(Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, AuraTarget _conditionTarget)
+        {
+            switch (_conditionTarget)
+            {
+                case AuraTarget.OWNER:
 
-                    if (_firstHero.nowHp < _firstHero.sds.GetHp())
-                    {
-                        return false;
-                    }
+                    return _hero;
 
-                    break;
+                case AuraTarget.TRIGGER:
 
-                case AuraCondition.LEVEL_HIGHER_THAN:
+                    return _triggerHero;
 
-                    if (_firstHero.sds.GetCost() <= _secondHero.sds.GetCost())
-                    {
-                        return false;
-                    }
+                case AuraTarget.TRIGGER_TARGET:
 
-                    break;
+                    return _triggerTargetHero;
 
-                case AuraCondition.LEVEL_LOWER_THAN:
+                default:
 
-                    if (_firstHero.sds.GetCost() >= _secondHero.sds.GetCost())
-                    {
-                        return false;
-                    }
+                    throw new Exception("Unknown auraConditionTarget:" + _conditionTarget);
+            }
+        }
 
-                    break;
+        private static int GetConditionData(Battle _battle, Hero _hero, AuraConditionType _type)
+        {
+            switch (_type)
+            {
+                case AuraConditionType.LEVEL:
 
-                case AuraCondition.NEIGHBOUR_ALLY_MORE_THAN:
+                    return _hero.sds.GetCost();
 
-                    List<int> tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _firstHero.pos);
+                case AuraConditionType.ATTACK:
+
+                    return _hero.sds.GetAttack();
+
+                case AuraConditionType.MAXHP:
+
+                    return _hero.sds.GetHp();
+
+                case AuraConditionType.NOWHP:
+
+                    return _hero.nowHp;
+
+                case AuraConditionType.NEIGHBOUR_ALLY_NUM:
+
+                    List<int> tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     int num = 0;
 
@@ -489,23 +442,18 @@ namespace FinalWar
 
                         if (_battle.heroMapDic.TryGetValue(tmpPos, out tmpHero))
                         {
-                            if (tmpHero.isMine == _firstHero.isMine)
+                            if (tmpHero.isMine == _hero.isMine)
                             {
                                 num++;
                             }
                         }
                     }
 
-                    if (num <= _sds.GetAuraConditionData())
-                    {
-                        return false;
-                    }
+                    return num;
 
-                    break;
+                case AuraConditionType.NEIGHBOUR_ENEMY_NUM:
 
-                case AuraCondition.NEIGHBOUR_ALLY_LESS_THAN:
-
-                    tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _firstHero.pos);
+                    tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     num = 0;
 
@@ -517,82 +465,19 @@ namespace FinalWar
 
                         if (_battle.heroMapDic.TryGetValue(tmpPos, out tmpHero))
                         {
-                            if (tmpHero.isMine == _firstHero.isMine)
+                            if (tmpHero.isMine != _hero.isMine)
                             {
                                 num++;
                             }
                         }
                     }
 
-                    if (num >= _sds.GetAuraConditionData())
-                    {
-                        return false;
-                    }
-
-                    break;
-
-                case AuraCondition.NEIGHBOUR_ENEMY_MORE_THAN:
-
-                    tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _firstHero.pos);
-
-                    num = 0;
-
-                    for (int i = 0; i < tmpList.Count; i++)
-                    {
-                        int tmpPos = tmpList[i];
-
-                        Hero tmpHero;
-
-                        if (_battle.heroMapDic.TryGetValue(tmpPos, out tmpHero))
-                        {
-                            if (tmpHero.isMine != _firstHero.isMine)
-                            {
-                                num++;
-                            }
-                        }
-                    }
-
-                    if (num <= _sds.GetAuraConditionData())
-                    {
-                        return false;
-                    }
-
-                    break;
-
-                case AuraCondition.NEIGHBOUR_ENEMY_LESS_THAN:
-
-                    tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _firstHero.pos);
-
-                    num = 0;
-
-                    for (int i = 0; i < tmpList.Count; i++)
-                    {
-                        int tmpPos = tmpList[i];
-
-                        Hero tmpHero;
-
-                        if (_battle.heroMapDic.TryGetValue(tmpPos, out tmpHero))
-                        {
-                            if (tmpHero.isMine != _firstHero.isMine)
-                            {
-                                num++;
-                            }
-                        }
-                    }
-
-                    if (num >= _sds.GetAuraConditionData())
-                    {
-                        return false;
-                    }
-
-                    break;
+                    return num;
 
                 default:
 
-                    throw new Exception("Unknown AuraCondition:" + _sds.GetAuraCondition());
+                    throw new Exception("Unknown AuraConditionType:" + _type);
             }
-
-            return true;
         }
     }
 }

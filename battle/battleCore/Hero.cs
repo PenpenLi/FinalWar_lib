@@ -310,7 +310,7 @@ namespace FinalWar
             {
                 initAura = true;
 
-                HeroAura.Init(battle, this, battle.GetRandomValue);
+                HeroAura.Init(battle, this);
             }
 
             switch (sds.GetHeroType().GetFearType())
