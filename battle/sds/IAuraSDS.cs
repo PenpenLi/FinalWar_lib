@@ -37,20 +37,14 @@ public enum AuraConditionType
 public interface IAuraSDS
 {
     string GetEventName();
-    AuraTarget GetAuraTrigger();
-    AuraConditionCompare GetAuraConditionCompare();
-    AuraConditionType[] GetAuraConditionType();
-    AuraTarget[] GetAuraConditionTarget();
-    int[] GetAuraConditionData();
-    AuraType GetAuraType();
-    AuraTarget GetAuraTarget();
-    int GetAuraTargetNum();
-    int[] GetAuraData();
-}
-
-public interface IAuraConditionSDS
-{
-    AuraConditionType GetConditionType();
-    int GetConditionData();
-    AuraTarget GetConditionTarget();
+    int GetEventPriority();
+    AuraTarget GetTriggerTarget();
+    AuraConditionCompare GetConditionCompare();
+    AuraConditionType[] GetConditionType();
+    AuraTarget[] GetConditionTarget();
+    int[] GetConditionData();
+    AuraType GetEffectType();
+    AuraTarget GetEffectTarget();
+    int GetEffectTargetNum();
+    int[] GetEffectData();
 }

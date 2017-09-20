@@ -32,19 +32,19 @@ namespace FinalWar
 
                 case Effect.DISABLE_MOVE:
 
-                    FixBool(_battle, _hero, BattleConst.FIX_CAN_MOVE, false);
+                    FixBool(_battle, _hero, BattleConst.FIX_CAN_MOVE, false, sds.GetEffectPriority());
 
                     break;
 
                 case Effect.DISABLE_RECOVER_SHIELD:
 
-                    FixBool(_battle, _hero, BattleConst.FIX_CAN_RECOVER_SHIELD, false);
+                    FixBool(_battle, _hero, BattleConst.FIX_CAN_RECOVER_SHIELD, false, sds.GetEffectPriority());
 
                     break;
 
                 case Effect.FIX_ATTACK:
 
-                    FixInt(_battle, _hero, BattleConst.FIX_ATTACK, sds.GetData()[0]);
+                    FixInt(_battle, _hero, BattleConst.FIX_ATTACK, sds.GetData()[0], sds.GetEffectPriority());
 
                     break;
 
@@ -56,7 +56,7 @@ namespace FinalWar
 
                 case Effect.FIX_SPEED:
 
-                    FixInt(_battle, _hero, BattleConst.FIX_SPEED, sds.GetData()[0]);
+                    FixInt(_battle, _hero, BattleConst.FIX_SPEED, sds.GetData()[0], sds.GetEffectPriority());
 
                     break;
 
@@ -80,7 +80,7 @@ namespace FinalWar
             return new BattleHeroEffectVO(sds.GetEffect(), sds.GetData()[0]);
         }
 
-        private static void FixBool(Battle _battle, Hero _hero, string _eventName, bool _result)
+        private static void FixBool(Battle _battle, Hero _hero, string _eventName, bool _result, int _priority)
         {
             int id0 = 0;
             int id1 = 0;
@@ -94,7 +94,7 @@ namespace FinalWar
                 }
             };
 
-            id0 = _battle.eventListener.AddListener(_eventName, dele);
+            id0 = _battle.eventListener.AddListener(_eventName, dele, _priority);
 
             SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list, Hero _triggerHero, Hero _targetHero)
             {
@@ -111,7 +111,7 @@ namespace FinalWar
             id2 = _battle.eventListener.AddListener(BattleConst.ROUND_OVER, dele2, SuperEventListener.MAX_PRIORITY - 1);
         }
 
-        private static void FixInt(Battle _battle, Hero _hero, string _eventName, int _result)
+        private static void FixInt(Battle _battle, Hero _hero, string _eventName, int _result, int _priority)
         {
             int id0 = 0;
             int id1 = 0;
@@ -125,7 +125,7 @@ namespace FinalWar
                 }
             };
 
-            id0 = _battle.eventListener.AddListener(_eventName, dele);
+            id0 = _battle.eventListener.AddListener(_eventName, dele, _priority);
 
             SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list, Hero _triggerHero, Hero _targetHero)
             {
