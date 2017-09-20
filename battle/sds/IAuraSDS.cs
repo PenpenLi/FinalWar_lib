@@ -15,19 +15,6 @@ public enum AuraTarget
     TRIGGER_TARGET
 }
 
-//public enum AuraCondition
-//{
-//    NULL,
-//    INJURED,
-//    HEALTHY,
-//    LEVEL_HIGHER_THAN,
-//    LEVEL_LOWER_THAN,
-//    NEIGHBOUR_ALLY_MORE_THAN,
-//    NEIGHBOUR_ALLY_LESS_THAN,
-//    NEIGHBOUR_ENEMY_MORE_THAN,
-//    NEIGHBOUR_ENEMY_LESS_THAN,
-//}
-
 public enum AuraConditionCompare
 {
     NULL,
@@ -51,7 +38,6 @@ public interface IAuraSDS
 {
     string GetEventName();
     AuraTarget GetAuraTrigger();
-    //AuraCondition GetAuraCondition();
     AuraConditionCompare GetAuraConditionCompare();
     AuraConditionType[] GetAuraConditionType();
     AuraTarget[] GetAuraConditionTarget();

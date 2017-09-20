@@ -372,7 +372,9 @@ namespace FinalWar
 
             int second;
 
-            if (_sds.GetAuraConditionType()[0] == AuraConditionType.DATA)
+            AuraConditionType conditionType = _sds.GetAuraConditionType()[0];
+
+            if (conditionType == AuraConditionType.DATA)
             {
                 first = _sds.GetAuraConditionData()[0];
             }
@@ -380,10 +382,36 @@ namespace FinalWar
             {
                 Hero hero = GetConditionHero(_hero, _triggerHero, _triggerTargetHero, _sds.GetAuraConditionTarget()[0]);
 
-                first = GetConditionData(_battle, hero, _sds.GetAuraConditionType()[0]);
+                first = GetConditionData(_battle, hero, conditionType);
             }
 
-            return true;
+            conditionType = _sds.GetAuraConditionType()[1];
+
+            if (conditionType == AuraConditionType.DATA)
+            {
+                second = _sds.GetAuraConditionData()[1];
+            }
+            else
+            {
+                Hero hero = GetConditionHero(_hero, _triggerHero, _triggerTargetHero, _sds.GetAuraConditionTarget()[1]);
+
+                second = GetConditionData(_battle, hero, conditionType);
+            }
+
+            switch (_sds.GetAuraConditionCompare())
+            {
+                case AuraConditionCompare.EQUAL:
+
+                    return first == second;
+
+                case AuraConditionCompare.BIGGER:
+
+                    return first > second;
+
+                default:
+
+                    return first < second;
+            }
         }
 
         private static Hero GetConditionHero(Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, AuraTarget _conditionTarget)
