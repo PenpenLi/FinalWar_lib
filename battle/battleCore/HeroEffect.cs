@@ -106,9 +106,16 @@ namespace FinalWar
                 }
             };
 
+            SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele3 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list, Hero _triggerHero, Hero _targetHero)
+            {
+                _battle.eventListener.RemoveListener(id0);
+                _battle.eventListener.RemoveListener(id1);
+                _battle.eventListener.RemoveListener(id2);
+            };
+
             id1 = _battle.eventListener.AddListener(BattleConst.DIE, dele2, SuperEventListener.MAX_PRIORITY - 1);
 
-            id2 = _battle.eventListener.AddListener(BattleConst.ROUND_OVER, dele2, SuperEventListener.MAX_PRIORITY - 1);
+            id2 = _battle.eventListener.AddListener(BattleConst.ROUND_OVER, dele3, SuperEventListener.MAX_PRIORITY - 1);
         }
 
         private static void FixInt(Battle _battle, Hero _hero, string _eventName, int _result, int _priority)
@@ -137,9 +144,16 @@ namespace FinalWar
                 }
             };
 
+            SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele3 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list, Hero _triggerHero, Hero _targetHero)
+            {
+                _battle.eventListener.RemoveListener(id0);
+                _battle.eventListener.RemoveListener(id1);
+                _battle.eventListener.RemoveListener(id2);
+            };
+
             id1 = _battle.eventListener.AddListener(BattleConst.DIE, dele2, SuperEventListener.MAX_PRIORITY - 1);
 
-            id2 = _battle.eventListener.AddListener(BattleConst.ROUND_OVER, dele2, SuperEventListener.MAX_PRIORITY - 1);
+            id2 = _battle.eventListener.AddListener(BattleConst.ROUND_OVER, dele3, SuperEventListener.MAX_PRIORITY - 1);
         }
     }
 }

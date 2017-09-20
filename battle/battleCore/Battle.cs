@@ -1162,9 +1162,22 @@ namespace FinalWar
                 {
                     yield return list[i]();
                 }
-            }
 
-            yield return new BattleRecoverVO();
+                enumerator = heroMapDic.Values.GetEnumerator();
+
+                while (enumerator.MoveNext())
+                {
+                    enumerator.Current.ProcessDamage();
+                }
+
+                yield return new BattleRecoverVO();
+
+                yield return RemoveDieHero(null);
+            }
+            else
+            {
+                yield return new BattleRecoverVO();
+            }
         }
 
         private IEnumerator RemoveHero(BattleData _battleData, Hero _hero)
@@ -1173,45 +1186,48 @@ namespace FinalWar
 
             heroMapDic.Remove(_hero.pos);
 
-            RemoveHeroAction(_battleData, _hero);
+            if (_battleData != null)
+            {
+                RemoveHeroAction(_battleData, _hero);
+            }
+        }
 
+        private void RemoveHeroAction(BattleData _battleData, Hero _hero)
+        {
             BattleCellData cellData;
 
             if (_battleData.actionDic.TryGetValue(_hero.pos, out cellData))
             {
                 cellData.stander = null;
             }
-        }
 
-        private void RemoveHeroAction(BattleData _battleData, Hero _hero)
-        {
             if (_hero.action == Hero.HeroAction.ATTACK)
             {
-                BattleCellData cellData = _battleData.actionDic[_hero.actionTarget];
+                cellData = _battleData.actionDic[_hero.actionTarget];
 
                 cellData.attackers.Remove(_hero);
             }
             else if (_hero.action == Hero.HeroAction.SHOOT)
             {
-                BattleCellData cellData = _battleData.actionDic[_hero.actionTarget];
+                cellData = _battleData.actionDic[_hero.actionTarget];
 
                 cellData.shooters.Remove(_hero);
             }
             else if (_hero.action == Hero.HeroAction.SUPPORT)
             {
-                BattleCellData cellData = _battleData.actionDic[_hero.actionTarget];
+                cellData = _battleData.actionDic[_hero.actionTarget];
 
                 cellData.supporters.Remove(_hero);
             }
             else if (_hero.action == Hero.HeroAction.ATTACK_OVER)
             {
-                BattleCellData cellData = _battleData.actionDic[_hero.actionTarget];
+                cellData = _battleData.actionDic[_hero.actionTarget];
 
                 cellData.attackOvers.Remove(_hero);
             }
             else if (_hero.action == Hero.HeroAction.SUPPORT_OVER)
             {
-                BattleCellData cellData = _battleData.actionDic[_hero.actionTarget];
+                cellData = _battleData.actionDic[_hero.actionTarget];
 
                 cellData.supportOvers.Remove(_hero);
             }
