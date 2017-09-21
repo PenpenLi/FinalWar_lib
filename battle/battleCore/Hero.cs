@@ -211,7 +211,7 @@ namespace FinalWar
             return FixSpeed(speed);
         }
 
-        private int GetSpeedFix()
+        public int GetSpeedFix()
         {
             int tmpSpeedFix = 0;
 
