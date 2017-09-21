@@ -32,19 +32,19 @@ namespace FinalWar
 
                 case Effect.DISABLE_MOVE:
 
-                    FixBool(_battle, _hero, BattleConst.FIX_CAN_MOVE, false, sds.GetEffectPriority());
+                    FixBool(_battle, _hero, BattleConst.FIX_CAN_MOVE, false, sds.GetEffectPriority(), false);
 
                     break;
 
                 case Effect.DISABLE_RECOVER_SHIELD:
 
-                    FixBool(_battle, _hero, BattleConst.FIX_CAN_RECOVER_SHIELD, false, sds.GetEffectPriority());
+                    FixBool(_battle, _hero, BattleConst.FIX_CAN_RECOVER_SHIELD, false, sds.GetEffectPriority(), false);
 
                     break;
 
                 case Effect.FIX_ATTACK:
 
-                    FixInt(_battle, _hero, BattleConst.FIX_ATTACK, sds.GetData()[0], sds.GetEffectPriority());
+                    FixInt(_battle, _hero, BattleConst.FIX_ATTACK, sds.GetData()[0], sds.GetEffectPriority(), false);
 
                     break;
 
@@ -56,7 +56,7 @@ namespace FinalWar
 
                 case Effect.FIX_SPEED:
 
-                    FixInt(_battle, _hero, BattleConst.FIX_SPEED, sds.GetData()[0], sds.GetEffectPriority());
+                    FixInt(_battle, _hero, BattleConst.FIX_SPEED, sds.GetData()[0], sds.GetEffectPriority(), false);
 
                     break;
 
@@ -72,6 +72,18 @@ namespace FinalWar
 
                     break;
 
+                case Effect.FIX_ATTACK_UNTIL_NEXT_ROUND_OVER:
+
+                    FixInt(_battle, _hero, BattleConst.FIX_ATTACK, sds.GetData()[0], sds.GetEffectPriority(), true);
+
+                    break;
+
+                case Effect.FIX_SPEED_UNTIL_NEXT_ROUND_OVER:
+
+                    FixInt(_battle, _hero, BattleConst.FIX_SPEED, sds.GetData()[0], sds.GetEffectPriority(), true);
+
+                    break;
+
                 default:
 
                     throw new Exception("skill effect error:" + sds.GetEffect().ToString());
@@ -80,8 +92,10 @@ namespace FinalWar
             return new BattleHeroEffectVO(sds.GetEffect(), sds.GetData()[0]);
         }
 
-        private static void FixBool(Battle _battle, Hero _hero, string _eventName, bool _result, int _priority)
+        private static void FixBool(Battle _battle, Hero _hero, string _eventName, bool _result, int _priority, bool _untilNextRoundOver)
         {
+            int tmpRoundNum = _untilNextRoundOver ? _battle.roundNum + 1 : _battle.roundNum;
+
             int id0 = 0;
             int id1 = 0;
             int id2 = 0;
@@ -108,9 +122,12 @@ namespace FinalWar
 
             SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele3 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list, Hero _triggerHero, Hero _targetHero)
             {
-                _battle.eventListener.RemoveListener(id0);
-                _battle.eventListener.RemoveListener(id1);
-                _battle.eventListener.RemoveListener(id2);
+                if (_battle.roundNum == tmpRoundNum)
+                {
+                    _battle.eventListener.RemoveListener(id0);
+                    _battle.eventListener.RemoveListener(id1);
+                    _battle.eventListener.RemoveListener(id2);
+                }
             };
 
             id1 = _battle.eventListener.AddListener(BattleConst.DIE, dele2, SuperEventListener.MAX_PRIORITY - 1);
@@ -118,8 +135,10 @@ namespace FinalWar
             id2 = _battle.eventListener.AddListener(BattleConst.ROUND_OVER, dele3, SuperEventListener.MAX_PRIORITY - 1);
         }
 
-        private static void FixInt(Battle _battle, Hero _hero, string _eventName, int _result, int _priority)
+        private static void FixInt(Battle _battle, Hero _hero, string _eventName, int _result, int _priority, bool _untilNextRoundOver)
         {
+            int tmpRoundNum = _untilNextRoundOver ? _battle.roundNum + 1 : _battle.roundNum;
+
             int id0 = 0;
             int id1 = 0;
             int id2 = 0;
@@ -146,9 +165,12 @@ namespace FinalWar
 
             SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele3 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list, Hero _triggerHero, Hero _targetHero)
             {
-                _battle.eventListener.RemoveListener(id0);
-                _battle.eventListener.RemoveListener(id1);
-                _battle.eventListener.RemoveListener(id2);
+                if (_battle.roundNum == tmpRoundNum)
+                {
+                    _battle.eventListener.RemoveListener(id0);
+                    _battle.eventListener.RemoveListener(id1);
+                    _battle.eventListener.RemoveListener(id2);
+                }
             };
 
             id1 = _battle.eventListener.AddListener(BattleConst.DIE, dele2, SuperEventListener.MAX_PRIORITY - 1);
