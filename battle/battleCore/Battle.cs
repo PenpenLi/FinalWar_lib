@@ -972,6 +972,8 @@ namespace FinalWar
 
             Dictionary<int, int> dic = null;
 
+            List<Hero> captureList = null;
+
             Dictionary<Hero, int>.Enumerator enumerator2 = moveDic.GetEnumerator();
 
             while (enumerator2.MoveNext())
@@ -995,7 +997,12 @@ namespace FinalWar
 
                     if (GetPosIsMine(pos) != hero.isMine)
                     {
-                        yield return CaptureArea(hero, pos);
+                        if (captureList == null)
+                        {
+                            captureList = new List<Hero>();
+                        }
+
+                        captureList.Add(hero);
                     }
                 }
             }
@@ -1017,6 +1024,16 @@ namespace FinalWar
             if (dic != null)
             {
                 yield return new BattleMoveVO(dic);
+            }
+
+            if (captureList != null)
+            {
+                for (int i = 0; i < captureList.Count; i++)
+                {
+                    Hero hero = captureList[i];
+
+                    yield return CaptureArea(hero, hero.pos);
+                }
             }
         }
 
