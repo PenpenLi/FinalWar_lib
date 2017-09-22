@@ -42,7 +42,7 @@ namespace FinalWar
 
         private Dictionary<int, int> summon = new Dictionary<int, int>();
 
-        private Dictionary<int, int> action = new Dictionary<int, int>();
+        private List<KeyValuePair<int, int>> action = new List<KeyValuePair<int, int>>();
 
         private List<KeyValuePair<int, int>> fearAction = new List<KeyValuePair<int, int>>();
 
@@ -270,7 +270,7 @@ namespace FinalWar
 
         private IEnumerator DoSummon(BattleData _battleData)
         {
-            Dictionary<int, int>.Enumerator enumerator = GetSummonEnumerator();
+            IEnumerator<KeyValuePair<int, int>> enumerator = GetSummonEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -390,7 +390,7 @@ namespace FinalWar
                 }
             }
 
-            Dictionary<int, int>.Enumerator enumerator2 = GetActionEnumerator();
+            IEnumerator<KeyValuePair<int, int>> enumerator2 = GetActionEnumerator();
 
             while (enumerator2.MoveNext())
             {
@@ -598,14 +598,16 @@ namespace FinalWar
                     enumerator.Current.ProcessDamage();
                 }
 
-                yield return new BattleRoundStartVO();
-
                 yield return RemoveDieHero(_battleData);
+
+                yield return new BattleRoundStartVO();
             }
         }
 
         private IEnumerator DoRush(BattleData _battleData)
         {
+            Dictionary<BattleCellData, int> damageDic = null;
+
             while (true)
             {
                 bool hasRush = false;
@@ -622,15 +624,35 @@ namespace FinalWar
                         {
                             hasRush = true;
 
+                            if (damageDic == null)
+                            {
+                                damageDic = new Dictionary<BattleCellData, int>();
+                            }
+                            else
+                            {
+                                damageDic.Clear();
+                            }
+
                             yield return new BattlePrepareRushVO();
                         }
 
-                        yield return ProcessCellDataRush(_battleData, cellData);
+                        Hero hero = cellData.attackers[0];
+
+                        int damage = hero.GetDamage();
+
+                        damageDic.Add(cellData, damage);
                     }
                 }
 
                 if (hasRush)
                 {
+                    Dictionary<BattleCellData, int>.Enumerator enumerator3 = damageDic.GetEnumerator();
+
+                    while (enumerator3.MoveNext())
+                    {
+                        yield return ProcessCellDataRush(enumerator3.Current.Key, enumerator3.Current.Value);
+                    }
+
                     Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
 
                     while (enumerator2.MoveNext())
@@ -649,35 +671,30 @@ namespace FinalWar
             }
         }
 
-        private IEnumerator ProcessCellDataRush(BattleData _battleData, BattleCellData _cellData)
+        private BattleRushVO ProcessCellDataRush(BattleCellData _cellData, int _damage)
         {
             Hero stander = _cellData.stander;
 
-            while (_cellData.attackers.Count > 0 && stander.IsAlive())
+            Hero attacker = _cellData.attackers[0];
+
+            attacker.DoAttack();
+
+            if (attacker.attackTimes == 0)
             {
-                Hero attacker = _cellData.attackers[0];
+                _cellData.attackOvers.Add(attacker);
 
-                attacker.DoAttack();
+                _cellData.attackers.RemoveAt(0);
 
-                if (attacker.attackTimes == 0)
-                {
-                    _cellData.attackOvers.Add(attacker);
-
-                    _cellData.attackers.RemoveAt(0);
-
-                    attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
-                }
-
-                int damage = attacker.GetDamage();
-
-                List<BattleHeroEffectVO> attackerEffectList = null;
-
-                List<BattleHeroEffectVO> defenderEffectList = null;
-
-                attacker.Attack(stander, damage, ref attackerEffectList, ref defenderEffectList);
-
-                yield return new BattleRushVO(attacker.pos, _cellData.pos, attackerEffectList, defenderEffectList);
+                attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
             }
+
+            List<BattleHeroEffectVO> attackerEffectList = null;
+
+            List<BattleHeroEffectVO> defenderEffectList = null;
+
+            attacker.Attack(stander, _damage, ref attackerEffectList, ref defenderEffectList);
+
+            return new BattleRushVO(attacker.pos, _cellData.pos, attackerEffectList, defenderEffectList);
         }
 
         private IEnumerator RemoveDieHero(BattleData _battleData)
@@ -1024,15 +1041,26 @@ namespace FinalWar
             if (dic != null)
             {
                 yield return new BattleMoveVO(dic);
-            }
 
-            if (captureList != null)
-            {
-                for (int i = 0; i < captureList.Count; i++)
+                if (captureList != null)
                 {
-                    Hero hero = captureList[i];
+                    for (int i = 0; i < captureList.Count; i++)
+                    {
+                        Hero hero = captureList[i];
 
-                    yield return CaptureArea(hero, hero.pos);
+                        yield return CaptureArea(hero, hero.pos);
+                    }
+
+                    enumerator = heroMapDic.Values.GetEnumerator();
+
+                    while (enumerator.MoveNext())
+                    {
+                        enumerator.Current.ProcessDamage();
+                    }
+
+                    yield return RemoveDieHero(_battleData);
+
+                    yield return new BattleRecoverVO();
                 }
             }
         }
@@ -1187,14 +1215,10 @@ namespace FinalWar
                     enumerator.Current.ProcessDamage();
                 }
 
-                yield return new BattleRecoverVO();
-
                 yield return RemoveDieHero(null);
             }
-            else
-            {
-                yield return new BattleRecoverVO();
-            }
+
+            yield return new BattleRecoverVO();
         }
 
         private IEnumerator RemoveHero(BattleData _battleData, Hero _hero)
@@ -1273,8 +1297,6 @@ namespace FinalWar
                 {
                     yield return list[i]();
                 }
-
-                _hero.ProcessDamage();
             }
         }
 
@@ -1399,7 +1421,7 @@ namespace FinalWar
 
 
 
-        public Dictionary<int, int>.Enumerator GetSummonEnumerator()
+        public IEnumerator<KeyValuePair<int, int>> GetSummonEnumerator()
         {
             return summon.GetEnumerator();
         }
@@ -1473,7 +1495,7 @@ namespace FinalWar
         {
             int money = _isMine ? mMoney : oMoney;
 
-            Dictionary<int, int>.Enumerator enumerator = GetSummonEnumerator();
+            IEnumerator<KeyValuePair<int, int>> enumerator = GetSummonEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -1500,7 +1522,7 @@ namespace FinalWar
             summon.Clear();
         }
 
-        public Dictionary<int, int>.Enumerator GetActionEnumerator()
+        public IEnumerator<KeyValuePair<int, int>> GetActionEnumerator()
         {
             return action.GetEnumerator();
         }
@@ -1512,7 +1534,21 @@ namespace FinalWar
 
         public bool GetActionContainsKey(int _pos, out int _targetPos)
         {
-            return action.TryGetValue(_pos, out _targetPos);
+            for (int i = 0; i < action.Count; i++)
+            {
+                KeyValuePair<int, int> pair = action[i];
+
+                if (pair.Key == _pos)
+                {
+                    _targetPos = pair.Value;
+
+                    return true;
+                }
+            }
+
+            _targetPos = -1;
+
+            return false;
         }
 
         internal bool AddAction(bool _isMine, int _pos, int _targetPos)
@@ -1611,12 +1647,22 @@ namespace FinalWar
 
         internal void AddAction(int _pos, int _targetPos)
         {
-            action.Add(_pos, _targetPos);
+            action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
         }
 
         internal void DelAction(int _pos)
         {
-            action.Remove(_pos);
+            for (int i = action.Count - 1; i > -1; i--)
+            {
+                KeyValuePair<int, int> pair = action[i];
+
+                if (pair.Key == _pos)
+                {
+                    action.RemoveAt(i);
+
+                    break;
+                }
+            }
         }
 
         internal void ClearAction()

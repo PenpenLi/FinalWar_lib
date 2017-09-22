@@ -85,7 +85,7 @@ namespace FinalWar
         {
             List<int> delList = null;
 
-            Dictionary<int, int>.Enumerator enumerator = _battle.GetSummonEnumerator();
+            IEnumerator<KeyValuePair<int, int>> enumerator = _battle.GetSummonEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -353,7 +353,7 @@ namespace FinalWar
 
 
 
-        
+
 
         public static List<List<int>> GetSummonPosToEmemyAreaList(Battle _battle, bool _isMine, int _max)
         {

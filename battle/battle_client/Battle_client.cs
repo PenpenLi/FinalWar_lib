@@ -190,7 +190,7 @@ namespace FinalWar
 
                     bw.Write(GetSummonNum());
 
-                    Dictionary<int, int>.Enumerator enumerator = GetSummonEnumerator();
+                    IEnumerator<KeyValuePair<int, int>> enumerator = GetSummonEnumerator();
 
                     while (enumerator.MoveNext())
                     {

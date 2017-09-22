@@ -7,6 +7,20 @@ namespace FinalWar
 {
     public class Battle_server
     {
+        private struct PlayerAction
+        {
+            public bool isMine;
+            public int key;
+            public int value;
+
+            public PlayerAction(bool _isMine, int _key, int _value)
+            {
+                isMine = _isMine;
+                key = _key;
+                value = _value;
+            }
+        }
+
         private enum CardState
         {
             N,
@@ -32,9 +46,9 @@ namespace FinalWar
 
         private int mapID;
 
-        private Dictionary<int, KeyValuePair<int, bool>>[] summon = new Dictionary<int, KeyValuePair<int, bool>>[BattleConst.MAX_ROUND_NUM];
+        private List<PlayerAction>[] summon = new List<PlayerAction>[BattleConst.MAX_ROUND_NUM];
 
-        private Dictionary<int, KeyValuePair<int, bool>>[] action = new Dictionary<int, KeyValuePair<int, bool>>[BattleConst.MAX_ROUND_NUM];
+        private List<PlayerAction>[] action = new List<PlayerAction>[BattleConst.MAX_ROUND_NUM];
 
         private int[] randomIndexList = new int[BattleConst.MAX_ROUND_NUM];
 
@@ -51,8 +65,6 @@ namespace FinalWar
 
         private Action<Battle.BattleResult> serverBattleOverCallBack;
 
-        //private int battleResult = -1;
-
         private bool isBattle;
 
         public Battle_server(bool _isBattle)
@@ -63,9 +75,9 @@ namespace FinalWar
 
             for (int i = 0; i < BattleConst.MAX_ROUND_NUM; i++)
             {
-                summon[i] = new Dictionary<int, KeyValuePair<int, bool>>();
+                summon[i] = new List<PlayerAction>();
 
-                action[i] = new Dictionary<int, KeyValuePair<int, bool>>();
+                action[i] = new List<PlayerAction>();
             }
         }
 
@@ -283,19 +295,19 @@ namespace FinalWar
 
         private void WriteRoundDataToStream(BinaryWriter _bw, int _roundNum)
         {
-            Dictionary<int, KeyValuePair<int, bool>> tmpDic = summon[_roundNum];
+            List<PlayerAction> tmpDic = summon[_roundNum];
 
             _bw.Write(tmpDic.Count);
 
-            Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator = tmpDic.GetEnumerator();
+            List<PlayerAction>.Enumerator enumerator = tmpDic.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                KeyValuePair<int, KeyValuePair<int, bool>> pair = enumerator.Current;
+                PlayerAction action = enumerator.Current;
 
-                _bw.Write(pair.Key);
+                _bw.Write(action.key);
 
-                _bw.Write(pair.Value.Key);
+                _bw.Write(action.value);
             }
 
             tmpDic = action[_roundNum];
@@ -306,11 +318,11 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                KeyValuePair<int, KeyValuePair<int, bool>> pair = enumerator.Current;
+                PlayerAction action = enumerator.Current;
 
-                _bw.Write(pair.Key);
+                _bw.Write(action.key);
 
-                _bw.Write(pair.Value.Key);
+                _bw.Write(action.value);
             }
 
             _bw.Write(randomIndexList[_roundNum]);
@@ -346,7 +358,7 @@ namespace FinalWar
 
             if (tmpRoundNum == roundNum)
             {
-                Dictionary<int, KeyValuePair<int, bool>> tmpDic = summon[roundNum];
+                List<PlayerAction> tmpDic = summon[roundNum];
 
                 int num = _br.ReadInt32();
 
@@ -356,7 +368,7 @@ namespace FinalWar
 
                     int pos = _br.ReadInt32();
 
-                    tmpDic.Add(uid, new KeyValuePair<int, bool>(pos, _isMine));
+                    tmpDic.Add(new PlayerAction(_isMine, uid, pos));
                 }
 
                 tmpDic = action[roundNum];
@@ -369,7 +381,7 @@ namespace FinalWar
 
                     int targetPos = _br.ReadInt32();
 
-                    tmpDic.Add(pos, new KeyValuePair<int, bool>(targetPos, _isMine));
+                    tmpDic.Add(new PlayerAction(_isMine, pos, targetPos));
                 }
             }
 
@@ -432,13 +444,11 @@ namespace FinalWar
 
         private void ServerStartBattleSetCardState()
         {
-            Dictionary<int, KeyValuePair<int, bool>> tmpDic = summon[roundNum];
+            List<PlayerAction> tmpDic = summon[roundNum];
 
-            Dictionary<int, KeyValuePair<int, bool>>.KeyCollection.Enumerator enumerator = tmpDic.Keys.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < tmpDic.Count; i++)
             {
-                int uid = enumerator.Current;
+                int uid = tmpDic[i].key;
 
                 cardStateArr[uid] = CardState.A;
             }
@@ -490,13 +500,11 @@ namespace FinalWar
 
             int oNum = 0;
 
-            Dictionary<int, KeyValuePair<int, bool>> tmpDic = summon[roundNum];
+            List<PlayerAction> tmpDic = summon[roundNum];
 
-            Dictionary<int, KeyValuePair<int, bool>>.KeyCollection.Enumerator enumerator = tmpDic.Keys.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            for (int i = 0; i < tmpDic.Count; i++)
             {
-                int uid = enumerator.Current;
+                int uid = tmpDic[i].key;
 
                 _mBw.Write(uid);
 
@@ -580,11 +588,11 @@ namespace FinalWar
 
         private Battle.BattleResult ProcessBattle()
         {
-            Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
+            List<PlayerAction>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
 
             while (enumerator2.MoveNext())
             {
-                bool b = battle.AddSummon(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
+                bool b = battle.AddSummon(enumerator2.Current.isMine, enumerator2.Current.key, enumerator2.Current.value);
 
                 if (!b)
                 {
@@ -596,7 +604,7 @@ namespace FinalWar
 
             while (enumerator2.MoveNext())
             {
-                bool b = battle.AddAction(enumerator2.Current.Value.Value, enumerator2.Current.Key, enumerator2.Current.Value.Key);
+                bool b = battle.AddAction(enumerator2.Current.isMine, enumerator2.Current.key, enumerator2.Current.value);
 
                 if (!b)
                 {
@@ -723,19 +731,19 @@ namespace FinalWar
 
                     for (int i = 0; i < roundNum; i++)
                     {
-                        Dictionary<int, KeyValuePair<int, bool>> tmpDic = action[i];
+                        List<PlayerAction> tmpDic = action[i];
 
                         bw.Write(tmpDic.Count);
 
-                        Dictionary<int, KeyValuePair<int, bool>>.Enumerator enumerator = tmpDic.GetEnumerator();
+                        List<PlayerAction>.Enumerator enumerator = tmpDic.GetEnumerator();
 
                         while (enumerator.MoveNext())
                         {
-                            bw.Write(enumerator.Current.Key);
+                            bw.Write(enumerator.Current.isMine);
 
-                            bw.Write(enumerator.Current.Value.Key);
+                            bw.Write(enumerator.Current.key);
 
-                            bw.Write(enumerator.Current.Value.Value);
+                            bw.Write(enumerator.Current.value);
                         }
 
                         tmpDic = summon[i];
@@ -746,11 +754,11 @@ namespace FinalWar
 
                         while (enumerator.MoveNext())
                         {
-                            bw.Write(enumerator.Current.Key);
+                            bw.Write(enumerator.Current.isMine);
 
-                            bw.Write(enumerator.Current.Value.Key);
+                            bw.Write(enumerator.Current.key);
 
-                            bw.Write(enumerator.Current.Value.Value);
+                            bw.Write(enumerator.Current.value);
                         }
 
                         bw.Write(randomIndexList[i]);
@@ -795,26 +803,26 @@ namespace FinalWar
 
                         for (int m = 0; m < num; m++)
                         {
-                            int k = br.ReadInt32();
+                            bool isMine = br.ReadBoolean();
 
-                            int v1 = br.ReadInt32();
+                            int key = br.ReadInt32();
 
-                            bool v2 = br.ReadBoolean();
+                            int value = br.ReadInt32();
 
-                            action[i].Add(k, new KeyValuePair<int, bool>(v1, v2));
+                            action[i].Add(new PlayerAction(isMine, key, value));
                         }
 
                         num = br.ReadInt32();
 
                         for (int m = 0; m < num; m++)
                         {
-                            int k = br.ReadInt32();
+                            bool isMine = br.ReadBoolean();
 
-                            int v1 = br.ReadInt32();
+                            int key = br.ReadInt32();
 
-                            bool v2 = br.ReadBoolean();
+                            int value = br.ReadInt32();
 
-                            summon[i].Add(k, new KeyValuePair<int, bool>(v1, v2));
+                            summon[i].Add(new PlayerAction(isMine, key, value));
                         }
 
                         randomIndexList[i] = br.ReadInt32();
