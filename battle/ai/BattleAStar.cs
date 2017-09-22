@@ -129,7 +129,7 @@ namespace FinalWar
 
                             newUnit.q = nowUnit.q + 1;
 
-                            newUnit.h = BattlePublicTools.GetDistance(_mapData.mapWidth, pos, _endPos);
+                            newUnit.h = BattlePublicTools.GetDistance(_mapData.mapHeight, pos, _endPos);
 
                             newUnit.parent = nowUnit.pos;
 
@@ -165,7 +165,11 @@ namespace FinalWar
             {
                 AstarUnit k = _list[m];
 
-                if (_unit.q + _unit.h <= k.q + k.h)
+                int newValue = _unit.q + _unit.h;
+
+                int oldValue = k.q + k.h;
+
+                if (newValue < oldValue || (newValue == oldValue && _unit.h < k.h))
                 {
                     _list.Insert(m, _unit);
 

@@ -340,7 +340,7 @@ namespace FinalWar
 
                 case AuraTarget.OWNER_NEIGHBOUR_ALLY:
 
-                    if (_triggerHero != null && _hero.isMine == _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, _triggerHero.pos) == 1)
+                    if (_triggerHero != null && _hero.isMine == _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapHeight, _hero.pos, _triggerHero.pos) == 1)
                     {
                         return true;
                     }
@@ -351,7 +351,7 @@ namespace FinalWar
 
                 case AuraTarget.OWNER_NEIGHBOUR_ENEMY:
 
-                    if (_triggerHero != null && _hero.isMine != _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapWidth, _hero.pos, _triggerHero.pos) == 1)
+                    if (_triggerHero != null && _hero.isMine != _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapHeight, _hero.pos, _triggerHero.pos) == 1)
                     {
                         return true;
                     }
