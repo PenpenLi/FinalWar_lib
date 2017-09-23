@@ -12,7 +12,8 @@ public enum AuraTarget
     OWNER_NEIGHBOUR_ALLY,
     OWNER_NEIGHBOUR_ENEMY,
     TRIGGER,
-    TRIGGER_TARGET
+    TRIGGER_TARGET,
+    OWNER_NEIGHBOUR,
 }
 
 public enum AuraConditionCompare

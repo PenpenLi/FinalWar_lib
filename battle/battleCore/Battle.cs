@@ -568,11 +568,15 @@ namespace FinalWar
                         yield return new BattleShootVO(hero.pos, cellData.pos, effectList);
                     }
 
-                    //对同一个目标的所有法术施放完毕后再进行结算  因为施放法术没有先后顺序  所以最后一起结算
-                    cellData.stander.ProcessDamage();
-
                     cellData.shooters.Clear();
                 }
+            }
+
+            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
+
+            while (enumerator2.MoveNext())
+            {
+                enumerator2.Current.ProcessDamage();
             }
 
             yield return RemoveDieHero(_battleData);
@@ -718,14 +722,39 @@ namespace FinalWar
 
             if (dieList != null)
             {
+                Hero[] dieHeroArr = new Hero[dieList.Count];
+
                 for (int i = 0; i < dieList.Count; i++)
                 {
-                    Hero hero = heroMapDic[dieList[i]];
+                    int pos = dieList[i];
 
-                    yield return RemoveHero(_battleData, hero);
+                    Hero hero = heroMapDic[pos];
+
+                    dieHeroArr[i] = hero;
+
+                    heroMapDic.Remove(pos);
+
+                    if (_battleData != null)
+                    {
+                        RemoveHeroAction(_battleData, hero);
+                    }
+                }
+
+                for (int i = 0; i < dieHeroArr.Length; i++)
+                {
+                    yield return dieHeroArr[i].Die();
                 }
 
                 yield return new BattleDeathVO(dieList);
+
+                enumerator = heroMapDic.Values.GetEnumerator();
+
+                while (enumerator.MoveNext())
+                {
+                    enumerator.Current.ProcessDamage();
+                }
+
+                yield return RemoveDieHero(_battleData);
             }
         }
 
@@ -1223,9 +1252,9 @@ namespace FinalWar
 
         private IEnumerator RemoveHero(BattleData _battleData, Hero _hero)
         {
-            yield return _hero.Die();
-
             heroMapDic.Remove(_hero.pos);
+
+            yield return _hero.Die();
 
             if (_battleData != null)
             {
