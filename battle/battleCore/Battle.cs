@@ -1017,6 +1017,15 @@ namespace FinalWar
                         }
 
                         captureList.Add(hero);
+
+                        if (mapBelongDic.ContainsKey(pos))
+                        {
+                            mapBelongDic.Remove(pos);
+                        }
+                        else
+                        {
+                            mapBelongDic.Add(pos, true);
+                        }
                     }
                 }
             }
@@ -1045,7 +1054,7 @@ namespace FinalWar
                     {
                         Hero hero = captureList[i];
 
-                        yield return CaptureArea(hero, hero.pos);
+                        yield return CaptureArea(hero);
                     }
 
                     enumerator = heroMapDic.Values.GetEnumerator();
@@ -1267,17 +1276,8 @@ namespace FinalWar
             _hero.SetAction(Hero.HeroAction.NULL);
         }
 
-        private IEnumerator CaptureArea(Hero _hero, int _nowPos)
+        private IEnumerator CaptureArea(Hero _hero)
         {
-            if (mapBelongDic.ContainsKey(_nowPos))
-            {
-                mapBelongDic.Remove(_nowPos);
-            }
-            else
-            {
-                mapBelongDic.Add(_nowPos, true);
-            }
-
             List<Func<BattleTriggerAuraVO>> list = null;
 
             eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.CAPTURE_MAP_AREA, ref list, _hero, null);
