@@ -12,7 +12,6 @@ namespace FinalWar
             ATTACK_OVER,
             SHOOT,
             SUPPORT,
-            SUPPORT_OVER,
             DEFENSE,
             NULL
         }

@@ -16,8 +16,6 @@ namespace FinalWar
 
         public List<Hero> supporters = new List<Hero>();
 
-        internal List<Hero> supportOvers = new List<Hero>();
-
         public BattleCellData(int _pos)
         {
             pos = _pos;
