@@ -783,6 +783,15 @@ namespace FinalWar
 
                         attacker.DoAttack();
 
+                        if (attacker.attackTimes == 0)
+                        {
+                            cellData.attackOvers.Add(attacker);
+
+                            cellData.attackers.RemoveAt(0);
+
+                            attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
+                        }
+
                         Hero defender;
 
                         if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
@@ -942,15 +951,6 @@ namespace FinalWar
 
                                 yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackDamage, attackerEffectList, defenderEffectList);
                             }
-                        }
-
-                        if (attacker.attackTimes == 0)
-                        {
-                            attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
-
-                            cellData.attackOvers.Add(attacker);
-
-                            cellData.attackers.RemoveAt(0);
                         }
 
                         yield return new BattleAttackOverVO(cellData.pos, attacker.pos, defender.pos);
