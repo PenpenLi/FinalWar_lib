@@ -32,7 +32,8 @@ public enum AuraConditionType
     LEVEL,
     ATTACK,
     NEIGHBOUR_ALLY_NUM,
-    NEIGHBOUR_ENEMY_NUM
+    NEIGHBOUR_ENEMY_NUM,
+    NEIGHBOUR_NUM,
 }
 
 public interface IAuraSDS
