@@ -169,7 +169,7 @@ namespace FinalWar
 
             yield return DoSkill(battleData);
 
-            yield return DoRoundStart(battleData);
+            //yield return DoRoundStart(battleData);
 
             yield return DoSummon(battleData);
 
@@ -582,31 +582,31 @@ namespace FinalWar
             yield return RemoveDieHero(_battleData);
         }
 
-        private IEnumerator DoRoundStart(BattleData _battleData)
-        {
-            List<Func<BattleTriggerAuraVO>> list = null;
+        //private IEnumerator DoRoundStart(BattleData _battleData)
+        //{
+        //    List<Func<BattleTriggerAuraVO>> list = null;
 
-            eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.ROUND_START, ref list, null, null);
+        //    eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.ROUND_START, ref list, null, null);
 
-            if (list != null)
-            {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    yield return list[i]();
-                }
+        //    if (list != null)
+        //    {
+        //        for (int i = 0; i < list.Count; i++)
+        //        {
+        //            yield return list[i]();
+        //        }
 
-                Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+        //        Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
 
-                while (enumerator.MoveNext())
-                {
-                    enumerator.Current.ProcessDamage();
-                }
+        //        while (enumerator.MoveNext())
+        //        {
+        //            enumerator.Current.ProcessDamage();
+        //        }
 
-                yield return RemoveDieHero(_battleData);
+        //        yield return RemoveDieHero(_battleData);
 
-                yield return new BattleRoundStartVO();
-            }
-        }
+        //        yield return new BattleRoundStartVO();
+        //    }
+        //}
 
         private IEnumerator DoRush(BattleData _battleData)
         {

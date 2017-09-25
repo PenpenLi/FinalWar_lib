@@ -22,7 +22,7 @@
         public const string FIX_CAN_MOVE = "fixCanMove";
         public const string FIX_CAN_RECOVER_SHIELD = "fixCanRecoverShield";
         public const string ATTACK = "attack";
-        public const string ROUND_START = "roundStart";
+        //public const string ROUND_START = "roundStart";
         public const string FIX_FEAR = "fixFear";
         public const string ROUND_OVER = "roundOver";
         public const string DIE = "die";
