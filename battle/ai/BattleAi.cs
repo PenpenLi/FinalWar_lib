@@ -40,7 +40,7 @@ namespace FinalWar
         {
             List<Hero> heroList = null;
 
-            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = _battle.heroMapDic.Values.GetEnumerator();
+            IEnumerator<Hero> enumerator = _battle.heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -422,7 +422,7 @@ namespace FinalWar
 
             List<List<int>> result = null;
 
-            Dictionary<int, int>.Enumerator enumerator = close.GetEnumerator();
+            IEnumerator<KeyValuePair<int, int>> enumerator = close.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -463,7 +463,7 @@ namespace FinalWar
 
             Dictionary<int, int> open = new Dictionary<int, int>();
 
-            Dictionary<int, Hero>.Enumerator enumerator = _battle.heroMapDic.GetEnumerator();
+            IEnumerator<KeyValuePair<int, Hero>> enumerator = _battle.heroMapDic.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -530,7 +530,7 @@ namespace FinalWar
 
             List<List<int>> result = null;
 
-            Dictionary<int, int>.Enumerator enumerator2 = close.GetEnumerator();
+            IEnumerator<KeyValuePair<int, int>> enumerator2 = close.GetEnumerator();
 
             while (enumerator.MoveNext())
             {

@@ -618,7 +618,7 @@ namespace superEvent
 
             if (dicWithEvent.TryGetValue(_eventName, out dic))
             {
-                Dictionary<Delegate, SuperEventListenerUnit>.Enumerator enumerator = dic.GetEnumerator();
+                IEnumerator<KeyValuePair<Delegate, SuperEventListenerUnit>> enumerator = dic.GetEnumerator();
 
                 while (enumerator.MoveNext())
                 {
@@ -696,7 +696,7 @@ namespace superEvent
         {
             dicWithID.Clear();
 
-            Dictionary<string, Dictionary<Delegate, SuperEventListenerUnit>>.ValueCollection.Enumerator enumerator = dicWithEvent.Values.GetEnumerator();
+            IEnumerator<Dictionary<Delegate, SuperEventListenerUnit>> enumerator = dicWithEvent.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {

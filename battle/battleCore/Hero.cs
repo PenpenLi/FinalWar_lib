@@ -451,7 +451,7 @@ namespace FinalWar
                 {
                     BattleTriggerAuraVO triggerVO = list[i]();
 
-                    Dictionary<int, List<BattleHeroEffectVO>>.Enumerator enumerator = triggerVO.data.GetEnumerator();
+                    IEnumerator<KeyValuePair<int, List<BattleHeroEffectVO>>> enumerator = triggerVO.data.GetEnumerator();
 
                     while (enumerator.MoveNext())
                     {

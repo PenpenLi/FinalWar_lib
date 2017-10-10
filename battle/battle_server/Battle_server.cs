@@ -299,7 +299,7 @@ namespace FinalWar
 
             _bw.Write(tmpDic.Count);
 
-            List<PlayerAction>.Enumerator enumerator = tmpDic.GetEnumerator();
+            IEnumerator<PlayerAction> enumerator = tmpDic.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -588,7 +588,7 @@ namespace FinalWar
 
         private Battle.BattleResult ProcessBattle()
         {
-            List<PlayerAction>.Enumerator enumerator2 = summon[roundNum].GetEnumerator();
+            IEnumerator<PlayerAction> enumerator2 = summon[roundNum].GetEnumerator();
 
             while (enumerator2.MoveNext())
             {
@@ -735,7 +735,7 @@ namespace FinalWar
 
                         bw.Write(tmpDic.Count);
 
-                        List<PlayerAction>.Enumerator enumerator = tmpDic.GetEnumerator();
+                        IEnumerator<PlayerAction> enumerator = tmpDic.GetEnumerator();
 
                         while (enumerator.MoveNext())
                         {

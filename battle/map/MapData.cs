@@ -49,7 +49,7 @@ public class MapData
 
         _bw.Write(dic.Count);
 
-        Dictionary<int, MapUnitType>.Enumerator enumerator = dic.GetEnumerator();
+        IEnumerator<KeyValuePair<int, MapUnitType>> enumerator = dic.GetEnumerator();
 
         while (enumerator.MoveNext())
         {
@@ -89,7 +89,7 @@ public class MapData
 
     public void SetNeighbourPosMap()
     {
-        Dictionary<int, MapUnitType>.Enumerator enumerator = dic.GetEnumerator();
+        IEnumerator<KeyValuePair<int, MapUnitType>> enumerator = dic.GetEnumerator();
 
         while (enumerator.MoveNext())
         {

@@ -367,7 +367,7 @@ namespace FinalWar
 
         public BattleData GetBattleData()
         {
-            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+            IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -549,7 +549,7 @@ namespace FinalWar
 
         private IEnumerator DoSkill(BattleData _battleData)
         {
-            Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
+            IEnumerator<BattleCellData> enumerator = _battleData.actionDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -572,7 +572,7 @@ namespace FinalWar
                 }
             }
 
-            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
+            IEnumerator<Hero> enumerator2 = heroMapDic.Values.GetEnumerator();
 
             while (enumerator2.MoveNext())
             {
@@ -595,7 +595,7 @@ namespace FinalWar
         //            yield return list[i]();
         //        }
 
-        //        Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+        //        IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
         //        while (enumerator.MoveNext())
         //        {
@@ -616,7 +616,7 @@ namespace FinalWar
             {
                 bool hasRush = false;
 
-                Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
+                IEnumerator<BattleCellData> enumerator = _battleData.actionDic.Values.GetEnumerator();
 
                 while (enumerator.MoveNext())
                 {
@@ -650,14 +650,14 @@ namespace FinalWar
 
                 if (hasRush)
                 {
-                    Dictionary<BattleCellData, int>.Enumerator enumerator3 = damageDic.GetEnumerator();
+                    IEnumerator<KeyValuePair<BattleCellData, int>> enumerator3 = damageDic.GetEnumerator();
 
                     while (enumerator3.MoveNext())
                     {
                         yield return ProcessCellDataRush(enumerator3.Current.Key, enumerator3.Current.Value);
                     }
 
-                    Dictionary<int, Hero>.ValueCollection.Enumerator enumerator2 = heroMapDic.Values.GetEnumerator();
+                    IEnumerator<Hero> enumerator2 = heroMapDic.Values.GetEnumerator();
 
                     while (enumerator2.MoveNext())
                     {
@@ -705,7 +705,7 @@ namespace FinalWar
         {
             List<int> dieList = null;
 
-            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+            IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -766,7 +766,7 @@ namespace FinalWar
 
                 bool hasAttack = false;
 
-                Dictionary<int, BattleCellData>.ValueCollection.Enumerator enumerator = _battleData.actionDic.Values.GetEnumerator();
+                IEnumerator<BattleCellData> enumerator = _battleData.actionDic.Values.GetEnumerator();
 
                 while (enumerator.MoveNext())
                 {
@@ -972,7 +972,7 @@ namespace FinalWar
         {
             Dictionary<Hero, int> moveDic = new Dictionary<Hero, int>();
 
-            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+            IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -988,7 +988,7 @@ namespace FinalWar
 
             List<Hero> captureList = null;
 
-            Dictionary<Hero, int>.Enumerator enumerator2 = moveDic.GetEnumerator();
+            IEnumerator<KeyValuePair<Hero, int>> enumerator2 = moveDic.GetEnumerator();
 
             while (enumerator2.MoveNext())
             {
@@ -1196,7 +1196,7 @@ namespace FinalWar
 
         private IEnumerator DoRecover()
         {
-            Dictionary<int, Hero>.ValueCollection.Enumerator enumerator = heroMapDic.Values.GetEnumerator();
+            IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -1661,7 +1661,7 @@ namespace FinalWar
             action.Clear();
         }
 
-        public List<KeyValuePair<int, int>>.Enumerator GetFearActionEnumerator()
+        public IEnumerator<KeyValuePair<int, int>> GetFearActionEnumerator()
         {
             return fearAction.GetEnumerator();
         }
