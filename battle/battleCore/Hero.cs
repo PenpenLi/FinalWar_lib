@@ -416,75 +416,26 @@ namespace FinalWar
             }
         }
 
-        internal void Attack(Hero _hero, int _damage, ref List<BattleHeroEffectVO> _attackerEffectList, ref List<BattleHeroEffectVO> _defenderEffectList)
+        internal void Attack(Hero _hero, int _damage, out BattleHeroEffectVO _vo, ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
             bool tmpCanPierceShield = false;
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this, _hero);
 
-            BattleHeroEffectVO vo;
-
             if (tmpCanPierceShield)
             {
                 _hero.HpChange(-_damage);
 
-                vo = new BattleHeroEffectVO(Effect.HP_CHANGE, -_damage);
+                _vo = new BattleHeroEffectVO(Effect.HP_CHANGE, -_damage);
             }
             else
             {
                 _hero.BeDamage(_damage);
 
-                vo = new BattleHeroEffectVO(Effect.DAMAGE, _damage);
+                _vo = new BattleHeroEffectVO(Effect.DAMAGE, _damage);
             }
 
-            _defenderEffectList = new List<BattleHeroEffectVO>();
-
-            _defenderEffectList.Add(vo);
-
-            List<Func<BattleTriggerAuraVO>> list = null;
-
-            battle.eventListener.DispatchEvent(BattleConst.ATTACK, ref list, this, _hero);
-
-            if (list != null)
-            {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    BattleTriggerAuraVO triggerVO = list[i]();
-
-                    IEnumerator<KeyValuePair<int, List<BattleHeroEffectVO>>> enumerator = triggerVO.data.GetEnumerator();
-
-                    while (enumerator.MoveNext())
-                    {
-                        int tmpPos = enumerator.Current.Key;
-
-                        List<BattleHeroEffectVO> tmpList = enumerator.Current.Value;
-
-                        if (tmpPos == pos)
-                        {
-                            if (_attackerEffectList == null)
-                            {
-                                _attackerEffectList = new List<BattleHeroEffectVO>();
-                            }
-
-                            for (int m = 0; m < tmpList.Count; m++)
-                            {
-                                _attackerEffectList.Add(tmpList[m]);
-                            }
-                        }
-                        else if (enumerator.Current.Key == _hero.pos)
-                        {
-                            for (int m = 0; m < tmpList.Count; m++)
-                            {
-                                _defenderEffectList.Add(tmpList[m]);
-                            }
-                        }
-                        else
-                        {
-                            throw new Exception("Attack error:" + enumerator.Current.Key);
-                        }
-                    }
-                }
-            }
+            battle.eventListener.DispatchEvent(BattleConst.ATTACK, ref _funcList, this, _hero);
         }
 
         private void UnregisterAura()

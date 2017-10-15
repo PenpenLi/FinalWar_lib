@@ -1,26 +1,24 @@
-﻿using System.Collections.Generic;
-
-namespace FinalWar
+﻿namespace FinalWar
 {
     public struct BattleAttackAndCounterVO
     {
         public int pos;
         public int attacker;
         public int defender;
-        public int attackDamage;
-        public int defenseDamage;
-        public List<BattleHeroEffectVO> attackerEffectList;
-        public List<BattleHeroEffectVO> defenderEffectList;
+        public bool attackerShield;
+        public bool defenderShield;
+        public BattleHeroEffectVO attackVO;
+        public BattleHeroEffectVO defenseVO;
 
-        public BattleAttackAndCounterVO(int _pos, int _attacker, int _defender, int _attackDamage, int _defenseDamage, List<BattleHeroEffectVO> _attackerEffectList, List<BattleHeroEffectVO> _defenderEffectList)
+        public BattleAttackAndCounterVO(int _pos, int _attacker, int _defender, bool _attackerShield, bool _defenderShield,  BattleHeroEffectVO _attackVO, BattleHeroEffectVO _defenseVO)
         {
             pos = _pos;
             attacker = _attacker;
             defender = _defender;
-            attackDamage = _attackDamage;
-            defenseDamage = _defenseDamage;
-            attackerEffectList = _attackerEffectList;
-            defenderEffectList = _defenderEffectList;
+            attackerShield = _attackerShield;
+            defenderShield = _defenderShield;
+            attackVO = _attackVO;
+            defenseVO = _defenseVO;
         }
     }
 }

@@ -1,20 +1,16 @@
-﻿using System.Collections.Generic;
-
-namespace FinalWar
+﻿namespace FinalWar
 {
     public struct BattleRushVO
     {
         public int attacker;
         public int stander;
-        public List<BattleHeroEffectVO> attackerEffectList;
-        public List<BattleHeroEffectVO> standerEffectList;
+        public BattleHeroEffectVO vo;
 
-        public BattleRushVO(int _attacker, int _stander, List<BattleHeroEffectVO> _attackerEffectList, List<BattleHeroEffectVO> _standerEffectList)
+        public BattleRushVO(int _attacker, int _stander, BattleHeroEffectVO _vo)
         {
             attacker = _attacker;
             stander = _stander;
-            attackerEffectList = _attackerEffectList;
-            standerEffectList = _standerEffectList;
+            vo = _vo;
         }
     }
 }
