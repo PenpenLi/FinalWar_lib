@@ -13,6 +13,5 @@
 public interface IEffectSDS
 {
     Effect GetEffect();
-    int GetEffectPriority();
     int[] GetData();
 }

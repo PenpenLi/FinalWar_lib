@@ -63,7 +63,7 @@ namespace FinalWar
                     throw new Exception("skill effect error:" + sds.GetEffect().ToString());
             }
 
-            return new BattleHeroEffectVO(sds.GetEffect(), sds.GetData()[0]);
+            return new BattleHeroEffectVO(sds.GetEffect(), sds.GetData());
         }
     }
 }

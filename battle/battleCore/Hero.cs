@@ -459,13 +459,13 @@ namespace FinalWar
             {
                 _hero.HpChange(-_damage);
 
-                vo = new BattleHeroEffectVO(Effect.HP_CHANGE, -_damage);
+                vo = new BattleHeroEffectVO(Effect.HP_CHANGE, new int[] { -_damage });
             }
             else
             {
                 _hero.BeDamage(_damage);
 
-                vo = new BattleHeroEffectVO(Effect.DAMAGE, _damage);
+                vo = new BattleHeroEffectVO(Effect.DAMAGE, new int[] { _damage });
             }
 
             return vo;
