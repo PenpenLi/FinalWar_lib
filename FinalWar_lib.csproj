@@ -106,6 +106,7 @@
     <Compile Include="battle\battleVO\BattleShootVO.cs" />
     <Compile Include="battle\battleVO\BattleSummonVO.cs" />
     <Compile Include="battle\battleVO\BattlePrepareAttackVO.cs" />
+    <Compile Include="battle\battleVO\BattleSupportVO.cs" />
     <Compile Include="battle\battleVO\BattleTriggerAuraVO.cs" />
     <Compile Include="battle\battle_client\Battle_client.cs" />
     <Compile Include="battle\battle_server\Battle_server.cs" />
@@ -120,7 +121,6 @@
     <Compile Include="battle\sds\IEffectSDS.cs" />
     <Compile Include="battle\sds\IHeroTypeSDS.cs" />
     <Compile Include="battle\sds\IMapSDS.cs" />
-    <Compile Include="battle\sds\ISkillSDS.cs" />
     <Compile Include="battle\superEnumerator\SuperEnumerator.cs" />
     <Compile Include="battle\superEvent\SuperEventListener.cs" />
     <Compile Include="battle\battleCore\HeroAura.cs" />

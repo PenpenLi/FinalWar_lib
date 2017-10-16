@@ -5,7 +5,8 @@
     int GetShield();
     int GetCost();
     int GetAttack();
-    int GetSkill();
+    int[] GetShootSkills();
+    int[] GetSupportSkills();
     int[] GetAuras();
     IHeroTypeSDS GetHeroType();
 }

@@ -189,23 +189,23 @@ namespace FinalWar
             return !battle.GetFearActionContainsKey(pos);
         }
 
-        internal int GetAttackSpeed(int _speedBonus)
+        internal int GetAttackSpeed()
         {
-            int speed = sds.GetHeroType().GetAttackSpeed() + _speedBonus + GetSpeedFix();
+            int speed = sds.GetHeroType().GetAttackSpeed() + GetSpeedFix();
 
             return FixSpeed(speed);
         }
 
-        internal int GetDefenseSpeed(int _speedBonus)
+        internal int GetDefenseSpeed()
         {
-            int speed = sds.GetHeroType().GetDefenseSpeed() + _speedBonus + GetSpeedFix();
+            int speed = sds.GetHeroType().GetDefenseSpeed() + GetSpeedFix();
 
             return FixSpeed(speed);
         }
 
-        internal int GetSupportSpeed(int _speedBonus)
+        internal int GetSupportSpeed()
         {
-            int speed = sds.GetHeroType().GetSupportSpeed() + _speedBonus + GetSpeedFix();
+            int speed = sds.GetHeroType().GetSupportSpeed() + GetSpeedFix();
 
             return FixSpeed(speed);
         }
@@ -292,7 +292,7 @@ namespace FinalWar
             return attackFixAura;
         }
 
-        internal void Recover()
+        internal void Recover(ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
             bool recoverShield = true;
 
@@ -329,6 +329,8 @@ namespace FinalWar
 
                     break;
             }
+
+            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.ROUND_OVER, ref _funcList, this, null);
         }
 
         private bool CheckFear()

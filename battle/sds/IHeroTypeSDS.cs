@@ -14,7 +14,6 @@ public interface IHeroTypeSDS
 
     int GetAttackTimes();
     int GetThread();
-    int GetSupportSpeedBonus();
     int GetFearValue();
 
     FearType GetFearType();

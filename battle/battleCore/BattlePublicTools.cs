@@ -318,7 +318,7 @@ public class BattlePublicTools
     {
         List<int> result = null;
 
-        if (_hero.sds.GetSkill() != 0)
+        if (_hero.sds.GetShootSkills().Length > 0)
         {
             List<int> posList = GetNeighbourPos2(_battle.mapData, _hero.pos);
 

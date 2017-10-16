@@ -17,7 +17,6 @@ namespace FinalWar
 
         internal static Func<int, IMapSDS> GetMapData;
         internal static Func<int, IHeroSDS> GetHeroData;
-        internal static Func<int, ISkillSDS> GetSkillData;
         internal static Func<int, IAuraSDS> GetAuraData;
         internal static Func<int, IEffectSDS> GetEffectData;
 
@@ -52,7 +51,7 @@ namespace FinalWar
 
         internal SuperEventListener eventListener = new SuperEventListener();
 
-        public static void Init<S, T, U, V, W>(Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _skillDataDic, Dictionary<int, V> _auraDataDic, Dictionary<int, W> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : ISkillSDS where V : IAuraSDS where W : IEffectSDS
+        public static void Init<S, T, U, V>(Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _auraDataDic, Dictionary<int, V> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : IAuraSDS where V : IEffectSDS
         {
             GetMapData = delegate (int _id)
             {
@@ -62,11 +61,6 @@ namespace FinalWar
             GetHeroData = delegate (int _id)
             {
                 return _heroDataDic[_id];
-            };
-
-            GetSkillData = delegate (int _id)
-            {
-                return _skillDataDic[_id];
             };
 
             GetAuraData = delegate (int _id)
@@ -500,14 +494,12 @@ namespace FinalWar
             }
             else
             {
-                if (hero.sds.GetSkill() != 0 && heroMapDic.ContainsKey(_targetPos))
+                if (hero.sds.GetShootSkills().Length > 0 && heroMapDic.ContainsKey(_targetPos))
                 {
                     List<int> arr2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
 
                     if (arr2.Contains(_targetPos))
                     {
-                        ISkillSDS skillSDS = GetSkillData(hero.sds.GetSkill());
-
                         if (targetPosIsMine != hero.isMine)
                         {
                             hero.SetAction(Hero.HeroAction.SHOOT, _targetPos);
@@ -563,12 +555,27 @@ namespace FinalWar
 
                         hero.SetAction(Hero.HeroAction.NULL);
 
-                        List<BattleHeroEffectVO> effectList = HeroSkill.CastSkill(this, hero, cellData.stander);
+                        List<BattleHeroEffectVO> effectList = HeroSkill.CastSkill(this, hero, cellData.stander, hero.sds.GetShootSkills());
 
                         yield return new BattleShootVO(hero.pos, cellData.pos, effectList);
                     }
 
                     cellData.shooters.Clear();
+                }
+
+                if (cellData.stander != null && cellData.supporters.Count > 0)
+                {
+                    for (int i = 0; i < cellData.supporters.Count; i++)
+                    {
+                        Hero hero = cellData.supporters[i];
+
+                        if (hero.sds.GetSupportSkills().Length > 0)
+                        {
+                            List<BattleHeroEffectVO> effectList = HeroSkill.CastSkill(this, hero, cellData.stander, hero.sds.GetSupportSkills());
+
+                            yield return new BattleSupportVO(hero.pos, cellData.pos, effectList);
+                        }
+                    }
                 }
             }
 
@@ -798,70 +805,20 @@ namespace FinalWar
                             defender = cellData.supporters[0];
                         }
 
-                        List<int> attackerSupporters = null;
-
-                        int attackerSpeedBonus = 0;
-
-                        BattleCellData tmpCellData;
-
-                        if (_battleData.actionDic.TryGetValue(attacker.pos, out tmpCellData))
-                        {
-                            for (int m = 0; m < tmpCellData.supporters.Count; m++)
-                            {
-                                Hero tmpHero = tmpCellData.supporters[m];
-
-                                if (tmpHero.sds.GetHeroType().GetSupportSpeedBonus() > 0)
-                                {
-                                    attackerSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBonus();
-
-                                    if (attackerSupporters == null)
-                                    {
-                                        attackerSupporters = new List<int>();
-                                    }
-
-                                    attackerSupporters.Add(tmpHero.pos);
-                                }
-                            }
-                        }
-
-                        List<int> defenderSupporters = null;
-
-                        int defenderSpeedBonus = 0;
-
-                        if (_battleData.actionDic.TryGetValue(defender.pos, out tmpCellData))
-                        {
-                            for (int m = 0; m < tmpCellData.supporters.Count; m++)
-                            {
-                                Hero tmpHero = tmpCellData.supporters[m];
-
-                                if (tmpHero.sds.GetHeroType().GetSupportSpeedBonus() > 0)
-                                {
-                                    defenderSpeedBonus += tmpHero.sds.GetHeroType().GetSupportSpeedBonus();
-
-                                    if (defenderSupporters == null)
-                                    {
-                                        defenderSupporters = new List<int>();
-                                    }
-
-                                    defenderSupporters.Add(tmpHero.pos);
-                                }
-                            }
-                        }
-
-                        int attackerSpeed = attacker.GetAttackSpeed(attackerSpeedBonus);
+                        int attackerSpeed = attacker.GetAttackSpeed();
 
                         int defenderSpeed;
 
                         if (defender == cellData.stander)
                         {
-                            defenderSpeed = defender.GetDefenseSpeed(defenderSpeedBonus);
+                            defenderSpeed = defender.GetDefenseSpeed();
                         }
                         else
                         {
-                            defenderSpeed = defender.GetSupportSpeed(defenderSpeedBonus);
+                            defenderSpeed = defender.GetSupportSpeed();
                         }
 
-                        yield return new BattlePrepareAttackVO(cellData.pos, attacker.pos, attackerSupporters, attackerSpeed, defender.pos, defenderSupporters, defenderSpeed);
+                        yield return new BattlePrepareAttackVO(cellData.pos, attacker.pos, attackerSpeed, defender.pos, defenderSpeed);
 
                         int speedDiff = attackerSpeed - defenderSpeed;
 
@@ -1193,16 +1150,14 @@ namespace FinalWar
 
         private IEnumerator DoRecover()
         {
+            List<Func<BattleTriggerAuraVO>> list = null;
+
             IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                enumerator.Current.Recover();
+                enumerator.Current.Recover(ref list);
             }
-
-            List<Func<BattleTriggerAuraVO>> list = null;
-
-            eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.ROUND_OVER, ref list, null, null);
 
             if (list != null)
             {
@@ -1614,7 +1569,7 @@ namespace FinalWar
             }
             else
             {
-                if (hero.sds.GetSkill() != 0 && heroMapDic.ContainsKey(_targetPos))
+                if (hero.sds.GetShootSkills().Length > 0 && heroMapDic.ContainsKey(_targetPos))
                 {
                     List<int> tmpList2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
 

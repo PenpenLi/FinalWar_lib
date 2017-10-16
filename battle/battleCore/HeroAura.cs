@@ -13,31 +13,45 @@ namespace FinalWar
                 return;
             }
 
-            int[] ids = new int[_hero.sds.GetAuras().Length + 2];
-
             for (int i = 0; i < _hero.sds.GetAuras().Length; i++)
             {
                 int id = _hero.sds.GetAuras()[i];
 
-                IAuraSDS sds = Battle.GetAuraData(id);
-
-                ids[i] = RegisterAura(_battle, _hero, sds);
+                Init(_battle, _hero, id);
             }
+        }
+
+        internal static void Init(Battle _battle, Hero _hero, int _auraID)
+        {
+            IAuraSDS sds = Battle.GetAuraData(_auraID);
+
+            List<int> ids = new List<int>();
+
+            int id = RegisterAura(_battle, _hero, sds);
+
+            ids.Add(id);
 
             SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list, Hero _triggerHero, Hero _triggerTargetHero)
             {
                 if (_triggerHero == _hero)
                 {
-                    for (int i = 0; i < ids.Length; i++)
+                    for (int i = 0; i < ids.Count; i++)
                     {
                         _battle.eventListener.RemoveListener(ids[i]);
                     }
                 }
             };
 
-            ids[ids.Length - 2] = _battle.eventListener.AddListener(BattleConst.BE_SILENCE, dele, SuperEventListener.MAX_PRIORITY - 1);
+            id = _battle.eventListener.AddListener(BattleConst.DIE, dele, SuperEventListener.MAX_PRIORITY - 1);
 
-            ids[ids.Length - 1] = _battle.eventListener.AddListener(BattleConst.DIE, dele, SuperEventListener.MAX_PRIORITY - 1);
+            ids.Add(id);
+
+            for (int i = 0; i < sds.GetRemoveEventNames().Length; i++)
+            {
+                id = _battle.eventListener.AddListener(sds.GetRemoveEventNames()[i], dele, SuperEventListener.MAX_PRIORITY - 1);
+
+                ids.Add(id);
+            }
         }
 
         private static int RegisterAura(Battle _battle, Hero _hero, IAuraSDS _sds)
