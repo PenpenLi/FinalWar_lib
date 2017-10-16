@@ -437,17 +437,17 @@ namespace FinalWar
         {
             battle.eventListener.DispatchEvent(BattleConst.ATTACK, ref _funcList, this, _hero);
 
-            return Hurt(_hero, _damage);
+            return DoDamage(_hero, _damage, ref _funcList);
         }
 
         internal BattleHeroEffectVO Rush(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
             battle.eventListener.DispatchEvent(BattleConst.RUSH, ref _funcList, this, _hero);
 
-            return Hurt(_hero, _damage);
+            return DoDamage(_hero, _damage, ref _funcList);
         }
 
-        private BattleHeroEffectVO Hurt(Hero _hero, int _damage)
+        private BattleHeroEffectVO DoDamage(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
             bool tmpCanPierceShield = false;
 
@@ -467,6 +467,8 @@ namespace FinalWar
 
                 vo = new BattleHeroEffectVO(Effect.DAMAGE, new int[] { _damage });
             }
+
+            battle.eventListener.DispatchEvent(BattleConst.DO_DAMAGE, ref _funcList, this, _hero);
 
             return vo;
         }
