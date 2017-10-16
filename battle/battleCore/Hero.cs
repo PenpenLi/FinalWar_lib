@@ -418,26 +418,42 @@ namespace FinalWar
             }
         }
 
-        internal void Attack(Hero _hero, int _damage, out BattleHeroEffectVO _vo, ref List<Func<BattleTriggerAuraVO>> _funcList)
+        internal BattleHeroEffectVO Attack(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>> _funcList)
+        {
+            battle.eventListener.DispatchEvent(BattleConst.ATTACK, ref _funcList, this, _hero);
+
+            return Hurt(_hero, _damage);
+        }
+
+        internal BattleHeroEffectVO Rush(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>> _funcList)
+        {
+            battle.eventListener.DispatchEvent(BattleConst.RUSH, ref _funcList, this, _hero);
+
+            return Hurt(_hero, _damage);
+        }
+
+        private BattleHeroEffectVO Hurt(Hero _hero, int _damage)
         {
             bool tmpCanPierceShield = false;
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this, _hero);
 
+            BattleHeroEffectVO vo;
+
             if (tmpCanPierceShield)
             {
                 _hero.HpChange(-_damage);
 
-                _vo = new BattleHeroEffectVO(Effect.HP_CHANGE, -_damage);
+                vo = new BattleHeroEffectVO(Effect.HP_CHANGE, -_damage);
             }
             else
             {
                 _hero.BeDamage(_damage);
 
-                _vo = new BattleHeroEffectVO(Effect.DAMAGE, _damage);
+                vo = new BattleHeroEffectVO(Effect.DAMAGE, _damage);
             }
 
-            battle.eventListener.DispatchEvent(BattleConst.ATTACK, ref _funcList, this, _hero);
+            return vo;
         }
 
         private void UnregisterAura()

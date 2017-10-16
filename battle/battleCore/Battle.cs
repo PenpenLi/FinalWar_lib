@@ -660,9 +660,7 @@ namespace FinalWar
 
                         int damage = attacker.GetDamage();
 
-                        BattleHeroEffectVO vo;
-
-                        attacker.Attack(stander, damage, out vo, ref funcList);
+                        BattleHeroEffectVO vo = attacker.Rush(stander, damage, ref funcList);
 
                         yield return new BattleRushVO(attacker.pos, stander.pos, vo);
                     }
@@ -863,13 +861,9 @@ namespace FinalWar
                                 defenderShield = true;
                             }
 
-                            BattleHeroEffectVO attackVO;
+                            BattleHeroEffectVO attackVO = attacker.Attack(defender, attackDamage, ref funcList);
 
-                            BattleHeroEffectVO defenseVO;
-
-                            attacker.Attack(defender, attackDamage, out attackVO, ref funcList);
-
-                            defender.Attack(attacker, defenseDamage, out defenseVO, ref funcList);
+                            BattleHeroEffectVO defenseVO = defender.Attack(attacker, defenseDamage, ref funcList);
 
                             yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos, attackerShield, defenderShield, attackVO, defenseVO);
                         }
@@ -877,21 +871,17 @@ namespace FinalWar
                         {
                             int attackDamage = attacker.GetDamage();
 
-                            BattleHeroEffectVO attackVO;
+                            BattleHeroEffectVO vo = attacker.Attack(defender, attackDamage, ref funcList);
 
-                            attacker.Attack(defender, attackDamage, out attackVO, ref funcList);
-
-                            yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, attackVO);
+                            yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, vo);
                         }
                         else
                         {
                             int defenseDamage = defender.GetDamage();
 
-                            BattleHeroEffectVO defenseVO;
+                            BattleHeroEffectVO vo = defender.Attack(attacker, defenseDamage, ref funcList);
 
-                            defender.Attack(attacker, defenseDamage, out defenseVO, ref funcList);
-
-                            yield return new BattleCounterVO(cellData.pos, defender.pos, attacker.pos, defenseVO);
+                            yield return new BattleCounterVO(cellData.pos, attacker.pos, defender.pos, vo);
                         }
                     }
                 }
