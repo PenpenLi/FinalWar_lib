@@ -46,8 +46,8 @@ public interface IAuraSDS
     AuraTarget[] GetConditionTarget();
     int[] GetConditionData();
     AuraType GetEffectType();
-    AuraTarget GetEffectTarget();
-    int GetEffectTargetNum();
+    AuraTarget[] GetEffectTarget();
+    int[] GetEffectTargetNum();
     int[] GetEffectData();
     string[] GetRemoveEventNames();
 }

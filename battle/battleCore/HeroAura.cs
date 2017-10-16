@@ -133,11 +133,32 @@ namespace FinalWar
         {
             Dictionary<int, List<BattleHeroEffectVO>> dic = new Dictionary<int, List<BattleHeroEffectVO>>();
 
-            switch (_sds.GetEffectTarget())
+            for (int i = 0; i < _sds.GetEffectTarget().Length; i++)
+            {
+                AuraCastSkillReal(_battle, _hero, _triggerHero, _triggerTargetHero, _sds, i, dic);
+            }
+
+            BattleTriggerAuraVO result = new BattleTriggerAuraVO(_hero.pos, dic);
+
+            return result;
+        }
+
+        private static void AuraCastSkillReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds, int _index, Dictionary<int, List<BattleHeroEffectVO>> _dic)
+        {
+            AuraTarget auraTarget = _sds.GetEffectTarget()[_index];
+
+            switch (auraTarget)
             {
                 case AuraTarget.OWNER:
 
-                    List<BattleHeroEffectVO> list = new List<BattleHeroEffectVO>();
+                    List<BattleHeroEffectVO> list;
+
+                    if (!_dic.TryGetValue(_hero.pos, out list))
+                    {
+                        list = new List<BattleHeroEffectVO>();
+
+                        _dic.Add(_hero.pos, list);
+                    }
 
                     for (int m = 0; m < _sds.GetEffectData().Length; m++)
                     {
@@ -146,17 +167,17 @@ namespace FinalWar
                         list.Add(vo);
                     }
 
-                    dic.Add(_hero.pos, list);
-
                     break;
 
                 case AuraTarget.OWNER_NEIGHBOUR_ALLY:
+
+                    int targetNum = _sds.GetEffectTargetNum()[_index];
 
                     List<int> tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     List<Hero> targetHerolist = null;
 
-                    if (_sds.GetEffectTargetNum() > 0)
+                    if (targetNum > 0)
                     {
                         targetHerolist = new List<Hero>();
                     }
@@ -171,13 +192,18 @@ namespace FinalWar
                         {
                             if (targetHero.isMine == _hero.isMine)
                             {
-                                if (_sds.GetEffectTargetNum() > 0)
+                                if (targetNum > 0)
                                 {
                                     targetHerolist.Add(targetHero);
                                 }
                                 else
                                 {
-                                    list = new List<BattleHeroEffectVO>();
+                                    if (!_dic.TryGetValue(targetHero.pos, out list))
+                                    {
+                                        list = new List<BattleHeroEffectVO>();
+
+                                        _dic.Add(targetHero.pos, list);
+                                    }
 
                                     for (int m = 0; m < _sds.GetEffectData().Length; m++)
                                     {
@@ -185,16 +211,14 @@ namespace FinalWar
 
                                         list.Add(vo);
                                     }
-
-                                    dic.Add(targetHero.pos, list);
                                 }
                             }
                         }
                     }
 
-                    if (_sds.GetEffectTargetNum() > 0)
+                    if (targetNum > 0)
                     {
-                        while (targetHerolist.Count > _sds.GetEffectTargetNum())
+                        while (targetHerolist.Count > targetNum)
                         {
                             int index = _battle.GetRandomValue(targetHerolist.Count);
 
@@ -205,7 +229,12 @@ namespace FinalWar
                         {
                             Hero targetHero = targetHerolist[i];
 
-                            list = new List<BattleHeroEffectVO>();
+                            if (!_dic.TryGetValue(targetHero.pos, out list))
+                            {
+                                list = new List<BattleHeroEffectVO>();
+
+                                _dic.Add(targetHero.pos, list);
+                            }
 
                             for (int m = 0; m < _sds.GetEffectData().Length; m++)
                             {
@@ -213,8 +242,6 @@ namespace FinalWar
 
                                 list.Add(vo);
                             }
-
-                            dic.Add(targetHero.pos, list);
                         }
                     }
 
@@ -222,11 +249,13 @@ namespace FinalWar
 
                 case AuraTarget.OWNER_NEIGHBOUR_ENEMY:
 
+                    targetNum = _sds.GetEffectTargetNum()[_index];
+
                     tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     targetHerolist = null;
 
-                    if (_sds.GetEffectTargetNum() > 0)
+                    if (targetNum > 0)
                     {
                         targetHerolist = new List<Hero>();
                     }
@@ -241,13 +270,18 @@ namespace FinalWar
                         {
                             if (targetHero.isMine != _hero.isMine)
                             {
-                                if (_sds.GetEffectTargetNum() > 0)
+                                if (targetNum > 0)
                                 {
                                     targetHerolist.Add(targetHero);
                                 }
                                 else
                                 {
-                                    list = new List<BattleHeroEffectVO>();
+                                    if (!_dic.TryGetValue(targetHero.pos, out list))
+                                    {
+                                        list = new List<BattleHeroEffectVO>();
+
+                                        _dic.Add(targetHero.pos, list);
+                                    }
 
                                     for (int m = 0; m < _sds.GetEffectData().Length; m++)
                                     {
@@ -255,16 +289,14 @@ namespace FinalWar
 
                                         list.Add(vo);
                                     }
-
-                                    dic.Add(targetHero.pos, list);
                                 }
                             }
                         }
                     }
 
-                    if (_sds.GetEffectTargetNum() > 0)
+                    if (targetNum > 0)
                     {
-                        while (targetHerolist.Count > _sds.GetEffectTargetNum())
+                        while (targetHerolist.Count > targetNum)
                         {
                             int index = _battle.GetRandomValue(targetHerolist.Count);
 
@@ -275,7 +307,12 @@ namespace FinalWar
                         {
                             Hero targetHero = targetHerolist[i];
 
-                            list = new List<BattleHeroEffectVO>();
+                            if (!_dic.TryGetValue(targetHero.pos, out list))
+                            {
+                                list = new List<BattleHeroEffectVO>();
+
+                                _dic.Add(targetHero.pos, list);
+                            }
 
                             for (int m = 0; m < _sds.GetEffectData().Length; m++)
                             {
@@ -283,8 +320,6 @@ namespace FinalWar
 
                                 list.Add(vo);
                             }
-
-                            dic.Add(targetHero.pos, list);
                         }
                     }
 
@@ -292,7 +327,12 @@ namespace FinalWar
 
                 case AuraTarget.TRIGGER:
 
-                    list = new List<BattleHeroEffectVO>();
+                    if (!_dic.TryGetValue(_triggerHero.pos, out list))
+                    {
+                        list = new List<BattleHeroEffectVO>();
+
+                        _dic.Add(_triggerHero.pos, list);
+                    }
 
                     for (int m = 0; m < _sds.GetEffectData().Length; m++)
                     {
@@ -301,13 +341,16 @@ namespace FinalWar
                         list.Add(vo);
                     }
 
-                    dic.Add(_triggerHero.pos, list);
-
                     break;
 
                 case AuraTarget.TRIGGER_TARGET:
 
-                    list = new List<BattleHeroEffectVO>();
+                    if (!_dic.TryGetValue(_triggerTargetHero.pos, out list))
+                    {
+                        list = new List<BattleHeroEffectVO>();
+
+                        _dic.Add(_triggerTargetHero.pos, list);
+                    }
 
                     for (int m = 0; m < _sds.GetEffectData().Length; m++)
                     {
@@ -316,17 +359,17 @@ namespace FinalWar
                         list.Add(vo);
                     }
 
-                    dic.Add(_triggerTargetHero.pos, list);
-
                     break;
 
                 case AuraTarget.OWNER_NEIGHBOUR:
+
+                    targetNum = _sds.GetEffectTargetNum()[_index];
 
                     tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     targetHerolist = null;
 
-                    if (_sds.GetEffectTargetNum() > 0)
+                    if (targetNum > 0)
                     {
                         targetHerolist = new List<Hero>();
                     }
@@ -339,13 +382,18 @@ namespace FinalWar
 
                         if (_battle.heroMapDic.TryGetValue(pos, out targetHero))
                         {
-                            if (_sds.GetEffectTargetNum() > 0)
+                            if (targetNum > 0)
                             {
                                 targetHerolist.Add(targetHero);
                             }
                             else
                             {
-                                list = new List<BattleHeroEffectVO>();
+                                if (!_dic.TryGetValue(targetHero.pos, out list))
+                                {
+                                    list = new List<BattleHeroEffectVO>();
+
+                                    _dic.Add(targetHero.pos, list);
+                                }
 
                                 for (int m = 0; m < _sds.GetEffectData().Length; m++)
                                 {
@@ -353,15 +401,13 @@ namespace FinalWar
 
                                     list.Add(vo);
                                 }
-
-                                dic.Add(targetHero.pos, list);
                             }
                         }
                     }
 
-                    if (_sds.GetEffectTargetNum() > 0)
+                    if (targetNum > 0)
                     {
-                        while (targetHerolist.Count > _sds.GetEffectTargetNum())
+                        while (targetHerolist.Count > targetNum)
                         {
                             int index = _battle.GetRandomValue(targetHerolist.Count);
 
@@ -372,7 +418,12 @@ namespace FinalWar
                         {
                             Hero targetHero = targetHerolist[i];
 
-                            list = new List<BattleHeroEffectVO>();
+                            if (!_dic.TryGetValue(targetHero.pos, out list))
+                            {
+                                list = new List<BattleHeroEffectVO>();
+
+                                _dic.Add(targetHero.pos, list);
+                            }
 
                             for (int m = 0; m < _sds.GetEffectData().Length; m++)
                             {
@@ -380,8 +431,6 @@ namespace FinalWar
 
                                 list.Add(vo);
                             }
-
-                            dic.Add(targetHero.pos, list);
                         }
                     }
 
@@ -391,10 +440,6 @@ namespace FinalWar
 
                     throw new Exception("AuraCastSkill error! Unknown AuraTarget:" + _sds.GetEffectTarget());
             }
-
-            BattleTriggerAuraVO result = new BattleTriggerAuraVO(_hero.pos, dic);
-
-            return result;
         }
 
         private static bool CheckAuraCondition(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds)
