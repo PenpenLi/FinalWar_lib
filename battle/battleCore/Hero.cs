@@ -398,9 +398,24 @@ namespace FinalWar
             }
         }
 
-        internal void Silence()
+        internal void BeSilence()
         {
             UnregisterAura();
+        }
+
+        internal void BeClean()
+        {
+            List<Func<BattleTriggerAuraVO>> list = null;
+
+            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.BE_CLEAN, ref list, this, null);
+
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list[i]();
+                }
+            }
         }
 
         internal IEnumerator Die()

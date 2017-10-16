@@ -3,10 +3,11 @@
     DAMAGE,
     HP_CHANGE,
     SHIELD_CHANGE,
-    SILENCE,
+    BE_SILENCE,
     CHANGE_HERO,
     ADD_MONEY,
-    AURA,
+    ADD_AURA,
+    BE_CLEAN,
 }
 
 public interface IEffectSDS

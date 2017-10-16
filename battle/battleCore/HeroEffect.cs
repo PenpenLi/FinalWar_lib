@@ -28,9 +28,9 @@ namespace FinalWar
 
                     break;
 
-                case Effect.SILENCE:
+                case Effect.BE_SILENCE:
 
-                    _hero.Silence();
+                    _hero.BeSilence();
 
                     break;
 
@@ -46,7 +46,13 @@ namespace FinalWar
 
                     break;
 
-                case Effect.AURA:
+                case Effect.BE_CLEAN:
+
+                    _hero.BeClean();
+
+                    break;
+
+                case Effect.ADD_AURA:
 
                     HeroAura.Init(_battle, _hero, sds.GetData()[0]);
 

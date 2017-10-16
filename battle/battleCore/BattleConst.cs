@@ -28,5 +28,6 @@
         public const string ROUND_OVER = "roundOver";
         public const string DIE = "die";
         public const string CAPTURE_MAP_AREA = "captureMapArea";
+        public const string BE_CLEAN = "beClean";
     }
 }
