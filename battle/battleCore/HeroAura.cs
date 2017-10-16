@@ -31,7 +31,7 @@ namespace FinalWar
 
             ids.Add(id);
 
-            SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list, Hero _triggerHero, Hero _triggerTargetHero)
+            SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>[], Hero, Hero> dele = delegate (int _index, ref List<Func<BattleTriggerAuraVO>>[] _funcList, Hero _triggerHero, Hero _triggerTargetHero)
             {
                 if (_triggerHero == _hero)
                 {
@@ -90,25 +90,34 @@ namespace FinalWar
 
                 case AuraType.CAST_SKILL:
 
-                    SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _list, Hero _triggerHero, Hero _triggerTargetHero)
+                    SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>[], Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>>[] _funcList, Hero _triggerHero, Hero _triggerTargetHero)
                     {
                         if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
                         {
-                            if (_list == null)
-                            {
-                                _list = new List<Func<BattleTriggerAuraVO>>();
-                            }
-
                             Func<BattleTriggerAuraVO> func = delegate ()
                             {
                                 return AuraCastSkill(_battle, _hero, _triggerHero, _triggerTargetHero, _sds);
                             };
 
-                            _list.Add(func);
+                            if (_funcList == null)
+                            {
+                                _funcList = new List<Func<BattleTriggerAuraVO>>[SuperEventListener.MAX_PRIORITY];
+                            }
+
+                            List<Func<BattleTriggerAuraVO>> tmpList = _funcList[_sds.GetEventPriority()];
+
+                            if (tmpList == null)
+                            {
+                                tmpList = new List<Func<BattleTriggerAuraVO>>();
+
+                                _funcList[_sds.GetEventPriority()] = tmpList;
+                            }
+
+                            tmpList.Add(func);
                         }
                     };
 
-                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele2, _sds.GetEventPriority());
+                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele2);
 
                     break;
 

@@ -292,7 +292,7 @@ namespace FinalWar
             return attackFixAura;
         }
 
-        internal void Recover(ref List<Func<BattleTriggerAuraVO>> _funcList)
+        internal void Recover(ref List<Func<BattleTriggerAuraVO>>[] _funcList)
         {
             bool recoverShield = true;
 
@@ -330,7 +330,7 @@ namespace FinalWar
                     break;
             }
 
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.ROUND_OVER, ref _funcList, this, null);
+            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>[], Hero, Hero>(BattleConst.ROUND_OVER, ref _funcList, this, null);
         }
 
         private bool CheckFear()
@@ -405,49 +405,26 @@ namespace FinalWar
 
         internal void BeClean()
         {
-            List<Func<BattleTriggerAuraVO>> list = null;
+            List<Func<BattleTriggerAuraVO>>[] funcList = null;
 
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.BE_CLEAN, ref list, this, null);
-
-            if (list != null)
-            {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    list[i]();
-                }
-            }
+            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>[], Hero, Hero>(BattleConst.BE_CLEAN, ref funcList, this, null);
         }
 
-        internal IEnumerator Die()
-        {
-            List<Func<BattleTriggerAuraVO>> list = null;
-
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.DIE, ref list, this, null);
-
-            if (list != null)
-            {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    yield return list[i]();
-                }
-            }
-        }
-
-        internal BattleHeroEffectVO Attack(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>> _funcList)
+        internal BattleHeroEffectVO Attack(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>>[] _funcList)
         {
             battle.eventListener.DispatchEvent(BattleConst.ATTACK, ref _funcList, this, _hero);
 
             return DoDamage(_hero, _damage, ref _funcList);
         }
 
-        internal BattleHeroEffectVO Rush(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>> _funcList)
+        internal BattleHeroEffectVO Rush(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>>[] _funcList)
         {
             battle.eventListener.DispatchEvent(BattleConst.RUSH, ref _funcList, this, _hero);
 
             return DoDamage(_hero, _damage, ref _funcList);
         }
 
-        private BattleHeroEffectVO DoDamage(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>> _funcList)
+        private BattleHeroEffectVO DoDamage(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>>[] _funcList)
         {
             bool tmpCanPierceShield = false;
 
@@ -477,17 +454,9 @@ namespace FinalWar
         {
             initAura = false;
 
-            List<Func<BattleTriggerAuraVO>> list = null;
+            List<Func<BattleTriggerAuraVO>>[] funcList = null;
 
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.BE_SILENCE, ref list, this, null);
-
-            if (list != null)
-            {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    list[i]();
-                }
-            }
+            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>[], Hero, Hero>(BattleConst.BE_SILENCE, ref funcList, this, null);
         }
 
         internal void MoneyChange(int _num)
