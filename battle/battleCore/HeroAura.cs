@@ -458,10 +458,6 @@ namespace FinalWar
         {
             switch (_sds.GetTriggerTarget())
             {
-                case AuraTarget.NULL:
-
-                    return true;
-
                 case AuraTarget.OWNER:
 
                     if (_triggerHero == _hero)

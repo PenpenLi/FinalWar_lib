@@ -7,7 +7,6 @@
 
 public enum AuraTarget
 {
-    NULL,
     OWNER,
     OWNER_NEIGHBOUR_ALLY,
     OWNER_NEIGHBOUR_ENEMY,
