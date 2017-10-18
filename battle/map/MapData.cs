@@ -71,7 +71,7 @@ public class MapData
         mBase = _br.ReadInt32();
         oBase = _br.ReadInt32();
 
-        size = mapWidth * mapHeight - mapHeight / 2;
+        size = mapWidth * mapHeight - mapWidth / 2;
 
         int num = _br.ReadInt32();
 
@@ -136,7 +136,7 @@ public class MapData
                 vec[5] = -1;
             }
 
-            if (_pos < size - mapHeight)
+            if (_pos < size - (mapWidth % 2 == 1 ? mapHeight : mapHeight - 1))
             {
                 int p = _pos + mapHeight - 1;
 
