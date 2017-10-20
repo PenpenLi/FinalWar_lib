@@ -4,27 +4,25 @@ namespace FinalWar
 {
     internal static class HeroEffect
     {
-        internal static BattleHeroEffectVO HeroTakeEffect(Battle _battle, Hero _hero, int _id)
+        internal static BattleHeroEffectVO HeroTakeEffect(Battle _battle, Hero _hero, IEffectSDS _sds)
         {
-            IEffectSDS sds = Battle.GetEffectData(_id);
-
-            switch (sds.GetEffect())
+            switch (_sds.GetEffect())
             {
                 case Effect.DAMAGE:
 
-                    _hero.BeDamage(sds.GetData()[0]);
+                    _hero.BeDamage(_sds.GetData()[0]);
 
                     break;
 
                 case Effect.HP_CHANGE:
 
-                    _hero.HpChange(sds.GetData()[0]);
+                    _hero.HpChange(_sds.GetData()[0]);
 
                     break;
 
                 case Effect.SHIELD_CHANGE:
 
-                    _hero.ShieldChange(sds.GetData()[0]);
+                    _hero.ShieldChange(_sds.GetData()[0]);
 
                     break;
 
@@ -36,13 +34,13 @@ namespace FinalWar
 
                 case Effect.CHANGE_HERO:
 
-                    _hero.ChangeHero(sds.GetData()[0]);
+                    _hero.ChangeHero(_sds.GetData()[0]);
 
                     break;
 
                 case Effect.ADD_MONEY:
 
-                    _hero.MoneyChange(sds.GetData()[0]);
+                    _hero.MoneyChange(_sds.GetData()[0]);
 
                     break;
 
@@ -54,16 +52,16 @@ namespace FinalWar
 
                 case Effect.ADD_AURA:
 
-                    HeroAura.Init(_battle, _hero, sds.GetData()[0]);
+                    HeroAura.Init(_battle, _hero, _sds.GetData()[0]);
 
                     break;
 
                 default:
 
-                    throw new Exception("skill effect error:" + sds.GetEffect().ToString());
+                    throw new Exception("skill effect error:" + _sds.GetEffect().ToString());
             }
 
-            return new BattleHeroEffectVO(sds.GetEffect(), sds.GetData());
+            return new BattleHeroEffectVO(_sds.GetEffect(), _sds.GetData());
         }
     }
 }

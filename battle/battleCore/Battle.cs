@@ -549,17 +549,22 @@ namespace FinalWar
 
                 if (cellData.stander != null)
                 {
+                    Dictionary<Hero, List<Func<BattleHeroEffectVO>>>[] arr = null;
+
                     if (cellData.shooters.Count > 0)
                     {
+                        if (arr == null)
+                        {
+                            arr = new Dictionary<Hero, List<Func<BattleHeroEffectVO>>>[SuperEventListener.MAX_PRIORITY];
+                        }
+
                         for (int i = 0; i < cellData.shooters.Count; i++)
                         {
                             Hero hero = cellData.shooters[i];
 
                             hero.SetAction(Hero.HeroAction.NULL);
 
-                            List<BattleHeroEffectVO> effectList = HeroSkill.CastSkill(this, hero, cellData.stander, hero.sds.GetShootSkills());
-
-                            yield return new BattleShootVO(hero.pos, cellData.pos, effectList);
+                            HeroSkill.CastSkill(this, hero, cellData.stander, hero.sds.GetShootSkills(), arr);
                         }
 
                         cellData.shooters.Clear();
@@ -567,15 +572,74 @@ namespace FinalWar
 
                     if (cellData.supporters.Count > 0)
                     {
+                        if (arr == null)
+                        {
+                            arr = new Dictionary<Hero, List<Func<BattleHeroEffectVO>>>[SuperEventListener.MAX_PRIORITY];
+                        }
+
                         for (int i = 0; i < cellData.supporters.Count; i++)
                         {
                             Hero hero = cellData.supporters[i];
 
                             if (hero.sds.GetSupportSkills().Length > 0)
                             {
-                                List<BattleHeroEffectVO> effectList = HeroSkill.CastSkill(this, hero, cellData.stander, hero.sds.GetSupportSkills());
+                                HeroSkill.CastSkill(this, hero, cellData.stander, hero.sds.GetSupportSkills(), arr);
+                            }
+                        }
+                    }
 
-                                yield return new BattleSupportVO(hero.pos, cellData.pos, effectList);
+                    if (arr != null)
+                    {
+                        Dictionary<Hero, List<BattleHeroEffectVO>> result = new Dictionary<Hero, List<BattleHeroEffectVO>>();
+
+                        for (int i = 0; i < SuperEventListener.MAX_PRIORITY; i++)
+                        {
+                            Dictionary<Hero, List<Func<BattleHeroEffectVO>>> dic = arr[i];
+
+                            if (dic != null)
+                            {
+                                IEnumerator<KeyValuePair<Hero, List<Func<BattleHeroEffectVO>>>> enumerator3 = dic.GetEnumerator();
+
+                                while (enumerator3.MoveNext())
+                                {
+                                    KeyValuePair<Hero, List<Func<BattleHeroEffectVO>>> pair = enumerator3.Current;
+
+                                    Hero hero = pair.Key;
+
+                                    List<Func<BattleHeroEffectVO>> tmpList = pair.Value;
+
+                                    List<BattleHeroEffectVO> list;
+
+                                    if (!result.TryGetValue(hero, out list))
+                                    {
+                                        list = new List<BattleHeroEffectVO>();
+
+                                        result.Add(hero, list);
+                                    }
+
+                                    for (int m = 0; m < tmpList.Count; m++)
+                                    {
+                                        BattleHeroEffectVO vo = tmpList[m]();
+
+                                        list.Add(vo);
+                                    }
+                                }
+                            }
+                        }
+
+                        IEnumerator<KeyValuePair<Hero, List<BattleHeroEffectVO>>> enumerator4 = result.GetEnumerator();
+
+                        while (enumerator4.MoveNext())
+                        {
+                            Hero hero = enumerator4.Current.Key;
+
+                            if (hero.isMine == cellData.stander.isMine)
+                            {
+                                yield return new BattleSupportVO(hero.pos, cellData.pos, enumerator4.Current.Value);
+                            }
+                            else
+                            {
+                                yield return new BattleShootVO(hero.pos, cellData.pos, enumerator4.Current.Value);
                             }
                         }
                     }

@@ -162,7 +162,9 @@ namespace FinalWar
 
                     for (int m = 0; m < _sds.GetEffectData().Length; m++)
                     {
-                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _hero, _sds.GetEffectData()[m]);
+                        IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
+
+                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _hero, effectSDS);
 
                         list.Add(vo);
                     }
@@ -207,7 +209,9 @@ namespace FinalWar
 
                                     for (int m = 0; m < _sds.GetEffectData().Length; m++)
                                     {
-                                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _sds.GetEffectData()[m]);
+                                        IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
+
+                                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                                         list.Add(vo);
                                     }
@@ -238,7 +242,9 @@ namespace FinalWar
 
                             for (int m = 0; m < _sds.GetEffectData().Length; m++)
                             {
-                                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _sds.GetEffectData()[m]);
+                                IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
+
+                                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                                 list.Add(vo);
                             }
@@ -285,7 +291,9 @@ namespace FinalWar
 
                                     for (int m = 0; m < _sds.GetEffectData().Length; m++)
                                     {
-                                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _sds.GetEffectData()[m]);
+                                        IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
+
+                                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                                         list.Add(vo);
                                     }
@@ -316,7 +324,9 @@ namespace FinalWar
 
                             for (int m = 0; m < _sds.GetEffectData().Length; m++)
                             {
-                                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _sds.GetEffectData()[m]);
+                                IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
+
+                                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                                 list.Add(vo);
                             }
@@ -336,7 +346,9 @@ namespace FinalWar
 
                     for (int m = 0; m < _sds.GetEffectData().Length; m++)
                     {
-                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _triggerHero, _sds.GetEffectData()[m]);
+                        IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
+
+                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _triggerHero, effectSDS);
 
                         list.Add(vo);
                     }
@@ -354,7 +366,9 @@ namespace FinalWar
 
                     for (int m = 0; m < _sds.GetEffectData().Length; m++)
                     {
-                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _triggerTargetHero, _sds.GetEffectData()[m]);
+                        IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
+
+                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _triggerTargetHero, effectSDS);
 
                         list.Add(vo);
                     }
@@ -397,7 +411,9 @@ namespace FinalWar
 
                                 for (int m = 0; m < _sds.GetEffectData().Length; m++)
                                 {
-                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _sds.GetEffectData()[m]);
+                                    IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
+
+                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                                     list.Add(vo);
                                 }
@@ -427,7 +443,9 @@ namespace FinalWar
 
                             for (int m = 0; m < _sds.GetEffectData().Length; m++)
                             {
-                                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _sds.GetEffectData()[m]);
+                                IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
+
+                                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                                 list.Add(vo);
                             }
