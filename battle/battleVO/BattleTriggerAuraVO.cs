@@ -5,9 +5,9 @@ namespace FinalWar
     public struct BattleTriggerAuraVO
     {
         public int pos;
-        public Dictionary<int, List<BattleHeroEffectVO>> data;
+        public Dictionary<int, BattleHeroEffectVO> data;
 
-        public BattleTriggerAuraVO(int _pos, Dictionary<int, List<BattleHeroEffectVO>> _data)
+        public BattleTriggerAuraVO(int _pos, Dictionary<int, BattleHeroEffectVO> _data)
         {
             pos = _pos;
             data = _data;

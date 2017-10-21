@@ -66,11 +66,11 @@ namespace FinalWar
                     {
                         if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
                         {
-                            _result = _sds.GetEffectData()[0] == 1;
+                            _result = _sds.GetEffectData() == 1;
                         }
                     };
 
-                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele0, _sds.GetEventPriority());
+                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele0, _sds.GetPriority());
 
                     break;
 
@@ -80,15 +80,19 @@ namespace FinalWar
                     {
                         if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
                         {
-                            _result += _sds.GetEffectData()[0];
+                            _result += _sds.GetEffectData();
                         }
                     };
 
-                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele1, _sds.GetEventPriority());
+                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele1, _sds.GetPriority());
 
                     break;
 
                 case AuraType.CAST_SKILL:
+
+                    IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData());
+
+                    int priority = effectSDS.GetPriority();
 
                     SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>[], Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>>[] _funcList, Hero _triggerHero, Hero _triggerTargetHero)
                     {
@@ -104,13 +108,13 @@ namespace FinalWar
                                 _funcList = new List<Func<BattleTriggerAuraVO>>[SuperEventListener.MAX_PRIORITY];
                             }
 
-                            List<Func<BattleTriggerAuraVO>> tmpList = _funcList[_sds.GetEventPriority()];
+                            List<Func<BattleTriggerAuraVO>> tmpList = _funcList[priority];
 
                             if (tmpList == null)
                             {
                                 tmpList = new List<Func<BattleTriggerAuraVO>>();
 
-                                _funcList[_sds.GetEventPriority()] = tmpList;
+                                _funcList[priority] = tmpList;
                             }
 
                             tmpList.Add(func);
@@ -131,7 +135,7 @@ namespace FinalWar
 
         private static BattleTriggerAuraVO AuraCastSkill(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds)
         {
-            Dictionary<int, List<BattleHeroEffectVO>> dic = new Dictionary<int, List<BattleHeroEffectVO>>();
+            Dictionary<int, BattleHeroEffectVO> dic = new Dictionary<int, BattleHeroEffectVO>();
 
             for (int i = 0; i < _sds.GetEffectTarget().Length; i++)
             {
@@ -143,7 +147,7 @@ namespace FinalWar
             return result;
         }
 
-        private static void AuraCastSkillReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds, int _index, Dictionary<int, List<BattleHeroEffectVO>> _dic)
+        private static void AuraCastSkillReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds, int _index, Dictionary<int, BattleHeroEffectVO> _dic)
         {
             AuraTarget auraTarget = _sds.GetEffectTarget()[_index];
 
@@ -151,23 +155,11 @@ namespace FinalWar
             {
                 case AuraTarget.OWNER:
 
-                    List<BattleHeroEffectVO> list;
+                    IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData());
 
-                    if (!_dic.TryGetValue(_hero.pos, out list))
-                    {
-                        list = new List<BattleHeroEffectVO>();
+                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _hero, effectSDS);
 
-                        _dic.Add(_hero.pos, list);
-                    }
-
-                    for (int m = 0; m < _sds.GetEffectData().Length; m++)
-                    {
-                        IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
-
-                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _hero, effectSDS);
-
-                        list.Add(vo);
-                    }
+                    _dic.Add(_hero.pos, vo);
 
                     break;
 
@@ -200,21 +192,11 @@ namespace FinalWar
                                 }
                                 else
                                 {
-                                    if (!_dic.TryGetValue(targetHero.pos, out list))
-                                    {
-                                        list = new List<BattleHeroEffectVO>();
+                                    effectSDS = Battle.GetEffectData(_sds.GetEffectData());
 
-                                        _dic.Add(targetHero.pos, list);
-                                    }
+                                    vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
-                                    for (int m = 0; m < _sds.GetEffectData().Length; m++)
-                                    {
-                                        IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
-
-                                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
-
-                                        list.Add(vo);
-                                    }
+                                    _dic.Add(targetHero.pos, vo);
                                 }
                             }
                         }
@@ -233,21 +215,11 @@ namespace FinalWar
                         {
                             Hero targetHero = targetHerolist[i];
 
-                            if (!_dic.TryGetValue(targetHero.pos, out list))
-                            {
-                                list = new List<BattleHeroEffectVO>();
+                            effectSDS = Battle.GetEffectData(_sds.GetEffectData());
 
-                                _dic.Add(targetHero.pos, list);
-                            }
+                            vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
-                            for (int m = 0; m < _sds.GetEffectData().Length; m++)
-                            {
-                                IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
-
-                                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
-
-                                list.Add(vo);
-                            }
+                            _dic.Add(targetHero.pos, vo);
                         }
                     }
 
@@ -282,21 +254,11 @@ namespace FinalWar
                                 }
                                 else
                                 {
-                                    if (!_dic.TryGetValue(targetHero.pos, out list))
-                                    {
-                                        list = new List<BattleHeroEffectVO>();
+                                    effectSDS = Battle.GetEffectData(_sds.GetEffectData());
 
-                                        _dic.Add(targetHero.pos, list);
-                                    }
+                                    vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
-                                    for (int m = 0; m < _sds.GetEffectData().Length; m++)
-                                    {
-                                        IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
-
-                                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
-
-                                        list.Add(vo);
-                                    }
+                                    _dic.Add(targetHero.pos, vo);
                                 }
                             }
                         }
@@ -315,21 +277,11 @@ namespace FinalWar
                         {
                             Hero targetHero = targetHerolist[i];
 
-                            if (!_dic.TryGetValue(targetHero.pos, out list))
-                            {
-                                list = new List<BattleHeroEffectVO>();
+                            effectSDS = Battle.GetEffectData(_sds.GetEffectData());
 
-                                _dic.Add(targetHero.pos, list);
-                            }
+                            vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
-                            for (int m = 0; m < _sds.GetEffectData().Length; m++)
-                            {
-                                IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
-
-                                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
-
-                                list.Add(vo);
-                            }
+                            _dic.Add(targetHero.pos, vo);
                         }
                     }
 
@@ -337,41 +289,21 @@ namespace FinalWar
 
                 case AuraTarget.TRIGGER:
 
-                    if (!_dic.TryGetValue(_triggerHero.pos, out list))
-                    {
-                        list = new List<BattleHeroEffectVO>();
+                    effectSDS = Battle.GetEffectData(_sds.GetEffectData());
 
-                        _dic.Add(_triggerHero.pos, list);
-                    }
+                    vo = HeroEffect.HeroTakeEffect(_battle, _triggerHero, effectSDS);
 
-                    for (int m = 0; m < _sds.GetEffectData().Length; m++)
-                    {
-                        IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
-
-                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _triggerHero, effectSDS);
-
-                        list.Add(vo);
-                    }
+                    _dic.Add(_triggerHero.pos, vo);
 
                     break;
 
                 case AuraTarget.TRIGGER_TARGET:
 
-                    if (!_dic.TryGetValue(_triggerTargetHero.pos, out list))
-                    {
-                        list = new List<BattleHeroEffectVO>();
+                    effectSDS = Battle.GetEffectData(_sds.GetEffectData());
 
-                        _dic.Add(_triggerTargetHero.pos, list);
-                    }
+                    vo = HeroEffect.HeroTakeEffect(_battle, _triggerTargetHero, effectSDS);
 
-                    for (int m = 0; m < _sds.GetEffectData().Length; m++)
-                    {
-                        IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
-
-                        BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _triggerTargetHero, effectSDS);
-
-                        list.Add(vo);
-                    }
+                    _dic.Add(_triggerTargetHero.pos, vo);
 
                     break;
 
@@ -402,21 +334,11 @@ namespace FinalWar
                             }
                             else
                             {
-                                if (!_dic.TryGetValue(targetHero.pos, out list))
-                                {
-                                    list = new List<BattleHeroEffectVO>();
+                                effectSDS = Battle.GetEffectData(_sds.GetEffectData());
 
-                                    _dic.Add(targetHero.pos, list);
-                                }
+                                vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
-                                for (int m = 0; m < _sds.GetEffectData().Length; m++)
-                                {
-                                    IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
-
-                                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
-
-                                    list.Add(vo);
-                                }
+                                _dic.Add(targetHero.pos, vo);
                             }
                         }
                     }
@@ -434,21 +356,11 @@ namespace FinalWar
                         {
                             Hero targetHero = targetHerolist[i];
 
-                            if (!_dic.TryGetValue(targetHero.pos, out list))
-                            {
-                                list = new List<BattleHeroEffectVO>();
+                            effectSDS = Battle.GetEffectData(_sds.GetEffectData());
 
-                                _dic.Add(targetHero.pos, list);
-                            }
+                            vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
-                            for (int m = 0; m < _sds.GetEffectData().Length; m++)
-                            {
-                                IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[m]);
-
-                                BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
-
-                                list.Add(vo);
-                            }
+                            _dic.Add(targetHero.pos, vo);
                         }
                     }
 
