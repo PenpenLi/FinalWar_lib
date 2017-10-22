@@ -305,13 +305,6 @@ namespace FinalWar
 
             attackTimes = sds.GetHeroType().GetAttackTimes();
 
-            if (!initAura)
-            {
-                initAura = true;
-
-                HeroAura.Init(battle, this);
-            }
-
             switch (sds.GetHeroType().GetFearType())
             {
                 case FearType.ALWAYS:
@@ -331,6 +324,13 @@ namespace FinalWar
             }
 
             battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>[], Hero, Hero>(BattleConst.ROUND_OVER, ref _funcList, this, null);
+
+            if (!initAura)
+            {
+                initAura = true;
+
+                HeroAura.Init(battle, this);
+            }
         }
 
         private bool CheckFear()

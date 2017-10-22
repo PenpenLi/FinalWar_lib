@@ -914,6 +914,8 @@ namespace FinalWar
 
                             yield return new BattleCounterVO(cellData.pos, attacker.pos, defender.pos, vo);
                         }
+
+                        yield return new BattleAttackOverVO(cellData.pos, attacker.pos, defender.pos);
                     }
                 }
 
@@ -1348,7 +1350,7 @@ namespace FinalWar
                 {
                     for (int m = 0; m < tmpList.Count; m++)
                     {
-                        yield return tmpList[i]();
+                        yield return tmpList[m]();
                     }
                 }
             }
