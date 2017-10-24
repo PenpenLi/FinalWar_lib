@@ -388,9 +388,16 @@ namespace FinalWar
             {
                 List<int> tmpList = BattlePublicTools.GetCanAttackPos(battle, this);
 
-                int index = battle.GetRandomValue(tmpList.Count);
+                if (tmpList.Count > 0)
+                {
+                    int index = battle.GetRandomValue(tmpList.Count);
 
-                battle.AddFearAction(pos, tmpList[index]);
+                    battle.AddFearAction(pos, tmpList[index]);
+                }
+                else
+                {
+                    battle.AddFearAction(pos, pos);
+                }
             }
             else
             {
