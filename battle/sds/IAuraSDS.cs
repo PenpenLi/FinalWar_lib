@@ -49,4 +49,5 @@ public interface IAuraSDS
     int[] GetEffectTargetNum();
     int GetEffectData();
     string[] GetRemoveEventNames();
+    string GetDesc();
 }

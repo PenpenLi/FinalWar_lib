@@ -52,7 +52,7 @@ namespace FinalWar
 
                 case Effect.ADD_AURA:
 
-                    HeroAura.Init(_battle, _hero, _sds.GetData()[0]);
+                    HeroAura.Init(_battle, _hero, _sds.GetData()[0], false);
 
                     break;
 

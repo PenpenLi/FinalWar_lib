@@ -17,11 +17,11 @@ namespace FinalWar
             {
                 int id = _hero.sds.GetAuras()[i];
 
-                Init(_battle, _hero, id);
+                Init(_battle, _hero, id, true);
             }
         }
 
-        internal static void Init(Battle _battle, Hero _hero, int _auraID)
+        internal static void Init(Battle _battle, Hero _hero, int _auraID, bool _isInBorn)
         {
             IAuraSDS sds = Battle.GetAuraData(_auraID);
 
@@ -45,6 +45,36 @@ namespace FinalWar
             id = _battle.eventListener.AddListener(BattleConst.DIE, dele, SuperEventListener.MAX_PRIORITY - 1);
 
             ids.Add(id);
+
+            if (_isInBorn)
+            {
+                id = _battle.eventListener.AddListener(BattleConst.BE_SILENCE, dele, SuperEventListener.MAX_PRIORITY - 1);
+
+                ids.Add(id);
+            }
+            else
+            {
+                id = _battle.eventListener.AddListener(BattleConst.BE_CLEAN, dele, SuperEventListener.MAX_PRIORITY - 1);
+
+                ids.Add(id);
+
+                SuperEventListener.SuperFunctionCallBackV1<List<string>, Hero> dele2 = delegate (int _index, ref List<string> _list, Hero _triggerHero)
+                {
+                    if (_triggerHero == _hero)
+                    {
+                        if (_list == null)
+                        {
+                            _list = new List<string>();
+                        }
+
+                        _list.Add(sds.GetDesc());
+                    }
+                };
+
+                id = _battle.eventListener.AddListener(BattleConst.GET_AURA_DESC, dele2);
+
+                ids.Add(id);
+            }
 
             for (int i = 0; i < sds.GetRemoveEventNames().Length; i++)
             {
