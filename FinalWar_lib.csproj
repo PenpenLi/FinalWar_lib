@@ -85,7 +85,7 @@
     <Compile Include="battle\battleCore\BattleCellData.cs" />
     <Compile Include="battle\battleCore\BattleConst.cs" />
     <Compile Include="battle\battleCore\BattleData.cs" />
-    <Compile Include="battle\battleCore\BattleRandomPool.cs" />
+    <Compile Include="battle\battleCore\BattleRandom.cs" />
     <Compile Include="battle\ai\BattleAStar.cs" />
     <Compile Include="battle\battleVO\BattleAddCardsVO.cs" />
     <Compile Include="battle\battleVO\BattleAttackAndCounterVO.cs" />

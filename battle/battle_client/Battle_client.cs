@@ -135,7 +135,7 @@ namespace FinalWar
 
             int randomIndex = _br.ReadInt32();
 
-            SetRandomIndex(randomIndex);
+            SetRandomSeed(randomIndex);
         }
 
         public bool ClientRequestSummon(int _cardUid, int _pos)

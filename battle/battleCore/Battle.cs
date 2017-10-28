@@ -45,11 +45,13 @@ namespace FinalWar
 
         private List<KeyValuePair<int, int>> fearAction = new List<KeyValuePair<int, int>>();
 
-        private int randomIndex;
+        //private int randomIndex;
 
         public int roundNum { private set; get; }
 
         internal SuperEventListener eventListener = new SuperEventListener();
+
+        private BattleRandom battleRandom = new BattleRandom();
 
         public static void Init<S, T, U, V>(Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _auraDataDic, Dictionary<int, V> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : IAuraSDS where V : IEffectSDS
         {
@@ -76,14 +78,7 @@ namespace FinalWar
 
         internal int GetRandomValue(int _max)
         {
-            double randomValue = BattleRandomPool.Get(randomIndex);
-
-            randomIndex++;
-
-            if (randomIndex == BattleRandomPool.num)
-            {
-                randomIndex = 0;
-            }
+            float randomValue = battleRandom.Get();
 
             return (int)(randomValue * _max);
         }
@@ -1654,9 +1649,9 @@ namespace FinalWar
             fearAction.Clear();
         }
 
-        internal void SetRandomIndex(int _index)
+        internal void SetRandomSeed(int _seed)
         {
-            randomIndex = _index;
+            battleRandom.SetSeed(_seed);
         }
 
         internal void SetCard(int _uid, int _id)

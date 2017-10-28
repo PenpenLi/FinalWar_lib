@@ -31,11 +31,6 @@ namespace FinalWar
 
         private static readonly Random random = new Random();
 
-        private static int GetRandomValue(int _max)
-        {
-            return random.Next(_max);
-        }
-
         private Battle battle;
 
         private bool mOver;
@@ -50,7 +45,7 @@ namespace FinalWar
 
         private List<PlayerAction>[] action = new List<PlayerAction>[BattleConst.MAX_ROUND_NUM];
 
-        private int[] randomIndexList = new int[BattleConst.MAX_ROUND_NUM];
+        private int[] randomSeedArr = new int[BattleConst.MAX_ROUND_NUM];
 
         private int[] mCards;
 
@@ -121,7 +116,7 @@ namespace FinalWar
 
             for (int i = 0; i < _mCardsResult.Length; i++)
             {
-                int index = GetRandomValue(mTmpCards.Count);
+                int index = random.Next(mTmpCards.Count);
 
                 int id = mTmpCards[index];
 
@@ -143,7 +138,7 @@ namespace FinalWar
 
             for (int i = 0; i < _oCardsResult.Length; i++)
             {
-                int index = GetRandomValue(oTmpCards.Count);
+                int index = random.Next(oTmpCards.Count);
 
                 int id = oTmpCards[index];
 
@@ -325,7 +320,7 @@ namespace FinalWar
                 _bw.Write(action.value);
             }
 
-            _bw.Write(randomIndexList[_roundNum]);
+            _bw.Write(randomSeedArr[_roundNum]);
         }
 
 
@@ -475,9 +470,7 @@ namespace FinalWar
 
         private void ServerStartBattleSetRandom()
         {
-            int randomIndex = GetRandomValue(BattleRandomPool.num);
-
-            randomIndexList[roundNum] = randomIndex;
+            randomSeedArr[roundNum] = random.Next();
         }
 
         private void ServerStartBattle(BinaryWriter _mBw, BinaryWriter _oBw)
@@ -612,7 +605,7 @@ namespace FinalWar
                 }
             }
 
-            battle.SetRandomIndex(randomIndexList[roundNum]);
+            battle.SetRandomSeed(randomSeedArr[roundNum]);
 
             if (isVsAi)
             {
@@ -761,7 +754,7 @@ namespace FinalWar
                             bw.Write(enumerator.Current.value);
                         }
 
-                        bw.Write(randomIndexList[i]);
+                        bw.Write(randomSeedArr[i]);
                     }
 
                     bw.Write(mCards.Length);
@@ -825,7 +818,7 @@ namespace FinalWar
                             summon[i].Add(new PlayerAction(isMine, key, value));
                         }
 
-                        randomIndexList[i] = br.ReadInt32();
+                        randomSeedArr[i] = br.ReadInt32();
                     }
 
                     int num2 = br.ReadInt32();
