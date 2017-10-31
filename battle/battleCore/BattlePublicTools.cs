@@ -1,117 +1,56 @@
 ﻿using System.Collections.Generic;
 using System;
-using FinalWar;
 
-public class BattlePublicTools
+namespace FinalWar
 {
-    public static List<int> GetNeighbourPos(MapData _mapData, int _pos)
+    public class BattlePublicTools
     {
-        List<int> result = new List<int>();
-
-        int[] arr = _mapData.neighbourPosMap[_pos];
-
-        for (int i = 0; i < 6; i++)
+        public static List<int> GetNeighbourPos(MapData _mapData, int _pos)
         {
-            int pos = arr[i];
+            List<int> result = new List<int>();
 
-            if (pos != -1)
+            int[] arr = _mapData.neighbourPosMap[_pos];
+
+            for (int i = 0; i < 6; i++)
             {
-                MapData.MapUnitType mapUnitType = _mapData.dic[pos];
+                int pos = arr[i];
 
-                if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
+                if (pos != -1)
                 {
-                    result.Add(arr[i]);
-                }
-            }
-        }
+                    MapData.MapUnitType mapUnitType = _mapData.dic[pos];
 
-        return result;
-    }
-
-    public static List<int> GetNeighbourPos2(MapData _mapData, int _pos)
-    {
-        List<int> result = new List<int>();
-
-        int[] arr = _mapData.neighbourPosMap[_pos];
-
-        for (int i = 0; i < 6; i++)
-        {
-            int pos = arr[i];
-
-            if (pos != -1)
-            {
-                MapData.MapUnitType mapUnitType = _mapData.dic[pos];
-
-                if (mapUnitType != MapData.MapUnitType.HILL)
-                {
-                    int[] arr2 = _mapData.neighbourPosMap[pos];
-
-                    pos = arr2[i];
-
-                    if (pos != -1)
+                    if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
                     {
-                        mapUnitType = _mapData.dic[pos];
-
-                        if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
-                        {
-                            result.Add(pos);
-                        }
+                        result.Add(arr[i]);
                     }
                 }
             }
+
+            return result;
         }
 
-        return result;
-    }
-
-    private static Dictionary<int, bool> checkedDic = new Dictionary<int, bool>();
-
-    private static int[] indexArr = new int[3];
-
-    public static List<int> GetNeighbourPos3(MapData _mapData, int _pos)
-    {
-        List<int> result = new List<int>();
-
-        int[] arr = _mapData.neighbourPosMap[_pos];
-
-        for (int i = 0; i < 6; i++)
+        public static List<int> GetNeighbourPos2(MapData _mapData, int _pos)
         {
-            int pos = arr[i];
+            List<int> result = new List<int>();
 
-            if (pos != -1)
+            int[] arr = _mapData.neighbourPosMap[_pos];
+
+            for (int i = 0; i < 6; i++)
             {
-                MapData.MapUnitType mapUnitType = _mapData.dic[pos];
+                int pos = arr[i];
 
-                if (mapUnitType != MapData.MapUnitType.HILL)
+                if (pos != -1)
                 {
-                    indexArr[0] = i;
+                    MapData.MapUnitType mapUnitType = _mapData.dic[pos];
 
-                    if (i == 5)
+                    if (mapUnitType != MapData.MapUnitType.HILL)
                     {
-                        indexArr[1] = 4;
-                        indexArr[2] = 0;
-                    }
-                    else if (i == 0)
-                    {
-                        indexArr[1] = 5;
-                        indexArr[2] = 1;
-                    }
-                    else
-                    {
-                        indexArr[1] = i - 1;
-                        indexArr[2] = i + 1;
-                    }
+                        int[] arr2 = _mapData.neighbourPosMap[pos];
 
-                    int[] arr2 = _mapData.neighbourPosMap[pos];
+                        pos = arr2[i];
 
-                    for (int m = 0; m < 3; m++)
-                    {
-                        pos = arr2[indexArr[m]];
-
-                        if (pos != -1 && !checkedDic.ContainsKey(pos))
+                        if (pos != -1)
                         {
-                            checkedDic.Add(pos, false);
-
                             mapUnitType = _mapData.dic[pos];
 
                             if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
@@ -122,183 +61,275 @@ public class BattlePublicTools
                     }
                 }
             }
+
+            return result;
         }
 
-        checkedDic.Clear();
+        private static Dictionary<int, bool> checkedDic = new Dictionary<int, bool>();
 
-        return result;
-    }
+        private static int[] indexArr = new int[3];
 
-    public static int GetDistance(int _width, int _pos, int _targetPos)
-    {
-        int y0;
-
-        int ty = _pos / (_width * 2 - 1);
-        int tx = _pos % (_width * 2 - 1);
-
-        if (tx < _width)
+        public static List<int> GetNeighbourPos3(MapData _mapData, int _pos)
         {
-            y0 = ty * 2;
-        }
-        else
-        {
-            y0 = ty * 2 + 1;
-        }
+            List<int> result = new List<int>();
 
-        int y1;
+            int[] arr = _mapData.neighbourPosMap[_pos];
 
-        ty = _targetPos / (_width * 2 - 1);
-        tx = _targetPos % (_width * 2 - 1);
-
-        if (tx < _width)
-        {
-            y1 = ty * 2;
-        }
-        else
-        {
-            y1 = ty * 2 + 1;
-        }
-
-        int dy = y1 - y0;
-
-        if (dy > 0)
-        {
-            int minx = _pos + dy * (_width - 1);
-
-            int maxx = _pos + dy * _width;
-
-            if (_targetPos < minx)
+            for (int i = 0; i < 6; i++)
             {
-                return dy + minx - _targetPos;
-            }
-            else if (_targetPos > maxx)
-            {
-                return dy + _targetPos - maxx;
-            }
-            else
-            {
-                return dy;
-            }
-        }
-        else if (dy < 0)
-        {
-            int minx = _pos + dy * _width;
+                int pos = arr[i];
 
-            int maxx = _pos + dy * (_width - 1);
-
-            if (_targetPos < minx)
-            {
-                return -dy + minx - _targetPos;
-            }
-            else if (_targetPos > maxx)
-            {
-                return -dy + _targetPos - maxx;
-            }
-            else
-            {
-                return -dy;
-            }
-        }
-        else
-        {
-            return Math.Abs(_pos - _targetPos);
-        }
-    }
-
-    public static List<int> GetCanAttackHeroPos(Battle _battle, Hero _hero)
-    {
-        List<int> result = null;
-
-        int nowThreadLevel = 0;
-
-        List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
-
-        for (int i = 0; i < posList.Count; i++)
-        {
-            int pos = posList[i];
-
-            bool b = _battle.GetPosIsMine(pos);
-
-            if (b != _hero.isMine)
-            {
-                Hero hero;
-
-                if (_battle.heroMapDic.TryGetValue(pos, out hero))
+                if (pos != -1)
                 {
-                    if (hero.sds.GetHeroType().GetThread() > nowThreadLevel)
-                    {
-                        nowThreadLevel = hero.sds.GetHeroType().GetThread();
+                    MapData.MapUnitType mapUnitType = _mapData.dic[pos];
 
-                        if (result == null)
+                    if (mapUnitType != MapData.MapUnitType.HILL)
+                    {
+                        indexArr[0] = i;
+
+                        if (i == 5)
                         {
-                            result = new List<int>();
+                            indexArr[1] = 4;
+                            indexArr[2] = 0;
+                        }
+                        else if (i == 0)
+                        {
+                            indexArr[1] = 5;
+                            indexArr[2] = 1;
                         }
                         else
                         {
-                            result.Clear();
+                            indexArr[1] = i - 1;
+                            indexArr[2] = i + 1;
                         }
 
-                        result.Add(pos);
-                    }
-                    else if (hero.sds.GetHeroType().GetThread() == nowThreadLevel)
-                    {
-                        result.Add(pos);
+                        int[] arr2 = _mapData.neighbourPosMap[pos];
+
+                        for (int m = 0; m < 3; m++)
+                        {
+                            pos = arr2[indexArr[m]];
+
+                            if (pos != -1 && !checkedDic.ContainsKey(pos))
+                            {
+                                checkedDic.Add(pos, false);
+
+                                mapUnitType = _mapData.dic[pos];
+
+                                if (mapUnitType == MapData.MapUnitType.M_AREA || mapUnitType == MapData.MapUnitType.O_AREA)
+                                {
+                                    result.Add(pos);
+                                }
+                            }
+                        }
                     }
                 }
             }
+
+            checkedDic.Clear();
+
+            return result;
         }
 
-        return result;
-    }
-
-    public static List<int> GetCanAttackPos(Battle _battle, Hero _hero)
-    {
-        List<int> result = null;
-
-        int nowThreadLevel = 0;
-
-        List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
-
-        for (int i = 0; i < posList.Count; i++)
+        public static int GetDistance(int _width, int _pos, int _targetPos)
         {
-            int pos = posList[i];
+            int y0;
 
-            bool b = _battle.GetPosIsMine(pos);
+            int ty = _pos / (_width * 2 - 1);
+            int tx = _pos % (_width * 2 - 1);
 
-            if (b != _hero.isMine)
+            if (tx < _width)
             {
-                Hero hero;
+                y0 = ty * 2;
+            }
+            else
+            {
+                y0 = ty * 2 + 1;
+            }
 
-                if (_battle.heroMapDic.TryGetValue(pos, out hero))
+            int y1;
+
+            ty = _targetPos / (_width * 2 - 1);
+            tx = _targetPos % (_width * 2 - 1);
+
+            if (tx < _width)
+            {
+                y1 = ty * 2;
+            }
+            else
+            {
+                y1 = ty * 2 + 1;
+            }
+
+            int dy = y1 - y0;
+
+            if (dy > 0)
+            {
+                int minx = _pos + dy * (_width - 1);
+
+                int maxx = _pos + dy * _width;
+
+                if (_targetPos < minx)
                 {
-                    if (hero.sds.GetHeroType().GetThread() > nowThreadLevel)
-                    {
-                        nowThreadLevel = hero.sds.GetHeroType().GetThread();
-
-                        if (result == null)
-                        {
-                            result = new List<int>();
-                        }
-                        else
-                        {
-                            result.Clear();
-                        }
-
-                        result.Add(pos);
-                    }
-                    else if (hero.sds.GetHeroType().GetThread() == nowThreadLevel)
-                    {
-                        if (result == null)
-                        {
-                            result = new List<int>();
-                        }
-
-                        result.Add(pos);
-                    }
+                    return dy + minx - _targetPos;
+                }
+                else if (_targetPos > maxx)
+                {
+                    return dy + _targetPos - maxx;
                 }
                 else
                 {
-                    if (nowThreadLevel == 0)
+                    return dy;
+                }
+            }
+            else if (dy < 0)
+            {
+                int minx = _pos + dy * _width;
+
+                int maxx = _pos + dy * (_width - 1);
+
+                if (_targetPos < minx)
+                {
+                    return -dy + minx - _targetPos;
+                }
+                else if (_targetPos > maxx)
+                {
+                    return -dy + _targetPos - maxx;
+                }
+                else
+                {
+                    return -dy;
+                }
+            }
+            else
+            {
+                return Math.Abs(_pos - _targetPos);
+            }
+        }
+
+        public static List<int> GetCanAttackHeroPos(Battle _battle, Hero _hero)
+        {
+            List<int> result = null;
+
+            int nowThreadLevel = 0;
+
+            List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                bool b = _battle.GetPosIsMine(pos);
+
+                if (b != _hero.isMine)
+                {
+                    Hero hero;
+
+                    if (_battle.heroMapDic.TryGetValue(pos, out hero))
+                    {
+                        if (hero.sds.GetHeroType().GetThread() > nowThreadLevel)
+                        {
+                            nowThreadLevel = hero.sds.GetHeroType().GetThread();
+
+                            if (result == null)
+                            {
+                                result = new List<int>();
+                            }
+                            else
+                            {
+                                result.Clear();
+                            }
+
+                            result.Add(pos);
+                        }
+                        else if (hero.sds.GetHeroType().GetThread() == nowThreadLevel)
+                        {
+                            result.Add(pos);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static List<int> GetCanAttackPos(Battle _battle, Hero _hero)
+        {
+            List<int> result = null;
+
+            int nowThreadLevel = 0;
+
+            List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                bool b = _battle.GetPosIsMine(pos);
+
+                if (b != _hero.isMine)
+                {
+                    Hero hero;
+
+                    if (_battle.heroMapDic.TryGetValue(pos, out hero))
+                    {
+                        if (hero.sds.GetHeroType().GetThread() > nowThreadLevel)
+                        {
+                            nowThreadLevel = hero.sds.GetHeroType().GetThread();
+
+                            if (result == null)
+                            {
+                                result = new List<int>();
+                            }
+                            else
+                            {
+                                result.Clear();
+                            }
+
+                            result.Add(pos);
+                        }
+                        else if (hero.sds.GetHeroType().GetThread() == nowThreadLevel)
+                        {
+                            if (result == null)
+                            {
+                                result = new List<int>();
+                            }
+
+                            result.Add(pos);
+                        }
+                    }
+                    else
+                    {
+                        if (nowThreadLevel == 0)
+                        {
+                            if (result == null)
+                            {
+                                result = new List<int>();
+                            }
+
+                            result.Add(pos);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static List<int> GetCanShootHeroPos(Battle _battle, Hero _hero)
+        {
+            List<int> result = null;
+
+            if (_hero.sds.GetShootSkills().Length > 0)
+            {
+                List<int> posList = GetNeighbourPos2(_battle.mapData, _hero.pos);
+
+                for (int i = 0; i < posList.Count; i++)
+                {
+                    int pos = posList[i];
+
+                    bool b = _battle.GetPosIsMine(pos);
+
+                    if (b != _hero.isMine && _battle.heroMapDic.ContainsKey(pos))
                     {
                         if (result == null)
                         {
@@ -309,18 +340,15 @@ public class BattlePublicTools
                     }
                 }
             }
+
+            return result;
         }
 
-        return result;
-    }
-
-    public static List<int> GetCanShootHeroPos(Battle _battle, Hero _hero)
-    {
-        List<int> result = null;
-
-        if (_hero.sds.GetShootSkills().Length > 0)
+        public static List<int> GetCanThrowHeroPos(Battle _battle, Hero _hero)
         {
-            List<int> posList = GetNeighbourPos2(_battle.mapData, _hero.pos);
+            List<int> result = null;
+
+            List<int> posList = GetNeighbourPos3(_battle.mapData, _hero.pos);
 
             for (int i = 0; i < posList.Count; i++)
             {
@@ -338,128 +366,75 @@ public class BattlePublicTools
                     result.Add(pos);
                 }
             }
+
+            return result;
         }
 
-        return result;
-    }
-
-    public static List<int> GetCanThrowHeroPos(Battle _battle, Hero _hero)
-    {
-        List<int> result = null;
-
-        List<int> posList = GetNeighbourPos3(_battle.mapData, _hero.pos);
-
-        for (int i = 0; i < posList.Count; i++)
+        public static bool CheckHeroCanBeAttacked(Battle _battle, Hero _hero)
         {
-            int pos = posList[i];
+            List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
 
-            bool b = _battle.GetPosIsMine(pos);
-
-            if (b != _hero.isMine && _battle.heroMapDic.ContainsKey(pos))
+            for (int i = 0; i < posList.Count; i++)
             {
-                if (result == null)
+                int pos = posList[i];
+
+                if (_battle.GetPosIsMine(pos) != _hero.isMine)
                 {
-                    result = new List<int>();
-                }
+                    Hero hero;
 
-                result.Add(pos);
-            }
-        }
-
-        return result;
-    }
-
-    public static bool CheckHeroCanBeAttacked(Battle _battle, Hero _hero)
-    {
-        List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
-
-        for (int i = 0; i < posList.Count; i++)
-        {
-            int pos = posList[i];
-
-            if (_battle.GetPosIsMine(pos) != _hero.isMine)
-            {
-                Hero hero;
-
-                if (_battle.heroMapDic.TryGetValue(pos, out hero))
-                {
-                    List<int> tmpList = GetCanAttackHeroPos(_battle, hero);
-
-                    if (tmpList.Contains(_hero.pos))
+                    if (_battle.heroMapDic.TryGetValue(pos, out hero))
                     {
-                        return true;
+                        List<int> tmpList = GetCanAttackHeroPos(_battle, hero);
+
+                        if (tmpList.Contains(_hero.pos))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
+
+            return false;
         }
 
-        return false;
-    }
-
-    public static bool CheckPosCanBeAttacked(Battle _battle, int _pos)
-    {
-        List<int> posList = GetNeighbourPos(_battle.mapData, _pos);
-
-        for (int i = 0; i < posList.Count; i++)
+        public static bool CheckPosCanBeAttacked(Battle _battle, int _pos)
         {
-            int pos = posList[i];
+            List<int> posList = GetNeighbourPos(_battle.mapData, _pos);
 
-            if (_battle.GetPosIsMine(pos) != _battle.GetPosIsMine(_pos))
+            for (int i = 0; i < posList.Count; i++)
             {
-                Hero hero;
+                int pos = posList[i];
 
-                if (_battle.heroMapDic.TryGetValue(pos, out hero))
+                if (_battle.GetPosIsMine(pos) != _battle.GetPosIsMine(_pos))
                 {
-                    List<int> tmpList = GetCanAttackPos(_battle, hero);
+                    Hero hero;
 
-                    if (tmpList.Contains(_pos))
+                    if (_battle.heroMapDic.TryGetValue(pos, out hero))
                     {
-                        return true;
+                        List<int> tmpList = GetCanAttackPos(_battle, hero);
+
+                        if (tmpList.Contains(_pos))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
+
+            return false;
         }
 
-        return false;
-    }
-
-    public static List<int> GetCanSupportPos(Battle _battle, Hero _hero)
-    {
-        List<int> result = null;
-
-        List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
-
-        for (int i = 0; i < posList.Count; i++)
+        public static List<int> GetCanSupportPos(Battle _battle, Hero _hero)
         {
-            int pos = posList[i];
+            List<int> result = null;
 
-            if (_battle.GetPosIsMine(pos) == _hero.isMine)
+            List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
+
+            for (int i = 0; i < posList.Count; i++)
             {
-                if (result == null)
-                {
-                    result = new List<int>();
-                }
+                int pos = posList[i];
 
-                result.Add(pos);
-            }
-        }
-
-        return result;
-    }
-
-    public static List<int> GetCanSupportHeroPos(Battle _battle, Hero _hero)
-    {
-        List<int> result = null;
-
-        List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
-
-        for (int i = 0; i < posList.Count; i++)
-        {
-            int pos = posList[i];
-
-            if (_battle.GetPosIsMine(pos) == _hero.isMine)
-            {
-                if (_battle.heroMapDic.ContainsKey(pos))
+                if (_battle.GetPosIsMine(pos) == _hero.isMine)
                 {
                     if (result == null)
                     {
@@ -469,28 +444,23 @@ public class BattlePublicTools
                     result.Add(pos);
                 }
             }
+
+            return result;
         }
 
-        return result;
-    }
-
-    public static List<int> GetCanSupportCanBeAttackedHeroPos(Battle _battle, Hero _hero)
-    {
-        List<int> result = null;
-
-        List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
-
-        for (int i = 0; i < posList.Count; i++)
+        public static List<int> GetCanSupportHeroPos(Battle _battle, Hero _hero)
         {
-            int pos = posList[i];
+            List<int> result = null;
 
-            if (_battle.GetPosIsMine(pos) == _hero.isMine)
+            List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
+
+            for (int i = 0; i < posList.Count; i++)
             {
-                Hero hero;
+                int pos = posList[i];
 
-                if (_battle.heroMapDic.TryGetValue(pos, out hero))
+                if (_battle.GetPosIsMine(pos) == _hero.isMine)
                 {
-                    if (CheckHeroCanBeAttacked(_battle, hero))
+                    if (_battle.heroMapDic.ContainsKey(pos))
                     {
                         if (result == null)
                         {
@@ -501,36 +471,67 @@ public class BattlePublicTools
                     }
                 }
             }
+
+            return result;
         }
 
-        return result;
-    }
-
-    public static List<int> GetCanSupportCanBeAttackedPos(Battle _battle, Hero _hero)
-    {
-        List<int> result = null;
-
-        List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
-
-        for (int i = 0; i < posList.Count; i++)
+        public static List<int> GetCanSupportCanBeAttackedHeroPos(Battle _battle, Hero _hero)
         {
-            int pos = posList[i];
+            List<int> result = null;
 
-            if (_battle.GetPosIsMine(pos) == _hero.isMine)
+            List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
+
+            for (int i = 0; i < posList.Count; i++)
             {
-                if (CheckPosCanBeAttacked(_battle, pos))
-                {
-                    if (result == null)
-                    {
-                        result = new List<int>();
-                    }
+                int pos = posList[i];
 
-                    result.Add(pos);
+                if (_battle.GetPosIsMine(pos) == _hero.isMine)
+                {
+                    Hero hero;
+
+                    if (_battle.heroMapDic.TryGetValue(pos, out hero))
+                    {
+                        if (CheckHeroCanBeAttacked(_battle, hero))
+                        {
+                            if (result == null)
+                            {
+                                result = new List<int>();
+                            }
+
+                            result.Add(pos);
+                        }
+                    }
                 }
             }
+
+            return result;
         }
 
-        return result;
+        public static List<int> GetCanSupportCanBeAttackedPos(Battle _battle, Hero _hero)
+        {
+            List<int> result = null;
+
+            List<int> posList = GetNeighbourPos(_battle.mapData, _hero.pos);
+
+            for (int i = 0; i < posList.Count; i++)
+            {
+                int pos = posList[i];
+
+                if (_battle.GetPosIsMine(pos) == _hero.isMine)
+                {
+                    if (CheckPosCanBeAttacked(_battle, pos))
+                    {
+                        if (result == null)
+                        {
+                            result = new List<int>();
+                        }
+
+                        result.Add(pos);
+                    }
+                }
+            }
+
+            return result;
+        }
     }
 }
-

@@ -1,166 +1,173 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-public class MapData
+namespace FinalWar
 {
-    public enum MapUnitType
+    public class MapData
     {
-        M_AREA,
-        O_AREA,
-        RIVER,
-        HILL
-    }
-
-    public int mapWidth;
-    public int mapHeight;
-
-    public int size;
-
-    public int mBase = -1;
-    public int oBase = -1;
-
-    public int mScore;
-    public int oScore;
-
-    public Dictionary<int, MapUnitType> dic = new Dictionary<int, MapUnitType>();
-
-    public Dictionary<int, int[]> neighbourPosMap = new Dictionary<int, int[]>();
-
-    public MapData()
-    {
-
-    }
-
-    public MapData(int _mapWidth, int _mapHeight)
-    {
-        mapWidth = _mapWidth;
-        mapHeight = _mapHeight;
-
-        size = mapWidth * mapHeight - mapWidth / 2;
-    }
-
-    public void SetData(BinaryWriter _bw)
-    {
-        _bw.Write(mapWidth);
-        _bw.Write(mapHeight);
-
-        _bw.Write(mBase);
-        _bw.Write(oBase);
-
-        _bw.Write(dic.Count);
-
-        IEnumerator<KeyValuePair<int, MapUnitType>> enumerator = dic.GetEnumerator();
-
-        while (enumerator.MoveNext())
+        public enum MapUnitType
         {
-            KeyValuePair<int, MapUnitType> pair2 = enumerator.Current;
-
-            _bw.Write(pair2.Key);
-
-            MapUnitType mapUnitType = pair2.Value;
-
-            _bw.Write((int)mapUnitType);
-        }
-    }
-
-    public void GetData(BinaryReader _br)
-    {
-        mapWidth = _br.ReadInt32();
-        mapHeight = _br.ReadInt32();
-
-        mBase = _br.ReadInt32();
-        oBase = _br.ReadInt32();
-
-        size = mapWidth * mapHeight - mapWidth / 2;
-
-        int num = _br.ReadInt32();
-
-        for (int i = 0; i < num; i++)
-        {
-            int pos = _br.ReadInt32();
-
-            MapUnitType mapUnitType = (MapUnitType)_br.ReadInt32();
-
-            dic.Add(pos, mapUnitType);
+            M_AREA,
+            O_AREA,
+            RIVER,
+            HILL
         }
 
-        SetNeighbourPosMap();
-    }
+        public int mapWidth;
+        public int mapHeight;
 
-    public void SetNeighbourPosMap()
-    {
-        IEnumerator<KeyValuePair<int, MapUnitType>> enumerator = dic.GetEnumerator();
+        public int size;
 
-        while (enumerator.MoveNext())
+        public int mBase = -1;
+        public int oBase = -1;
+
+        public int mScore;
+        public int oScore;
+
+        public Dictionary<int, MapUnitType> dic = new Dictionary<int, MapUnitType>();
+
+        public Dictionary<int, int[]> neighbourPosMap = new Dictionary<int, int[]>();
+
+        public MapData()
         {
-            int pos = enumerator.Current.Key;
 
-            MapUnitType mapUnitType = enumerator.Current.Value;
+        }
 
-            if (mapUnitType == MapUnitType.M_AREA)
+        public MapData(int _mapWidth, int _mapHeight)
+        {
+            mapWidth = _mapWidth;
+            mapHeight = _mapHeight;
+
+            size = mapWidth * mapHeight - mapWidth / 2;
+        }
+
+        public void SetData(BinaryWriter _bw)
+        {
+            _bw.Write(mapWidth);
+            _bw.Write(mapHeight);
+
+            _bw.Write(mBase);
+            _bw.Write(oBase);
+
+            _bw.Write(dic.Count);
+
+            IEnumerator<KeyValuePair<int, MapUnitType>> enumerator = dic.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                mScore++;
+                KeyValuePair<int, MapUnitType> pair2 = enumerator.Current;
+
+                _bw.Write(pair2.Key);
+
+                MapUnitType mapUnitType = pair2.Value;
+
+                _bw.Write((int)mapUnitType);
             }
-            else if (mapUnitType == MapUnitType.O_AREA)
+        }
+
+        public void GetData(BinaryReader _br)
+        {
+            mapWidth = _br.ReadInt32();
+            mapHeight = _br.ReadInt32();
+
+            mBase = _br.ReadInt32();
+            oBase = _br.ReadInt32();
+
+            size = mapWidth * mapHeight - mapWidth / 2;
+
+            int num = _br.ReadInt32();
+
+            for (int i = 0; i < num; i++)
             {
-                oScore++;
+                int pos = _br.ReadInt32();
+
+                MapUnitType mapUnitType = (MapUnitType)_br.ReadInt32();
+
+                dic.Add(pos, mapUnitType);
             }
 
-            int[] vec = GetNeighbourPosVec(pos);
-
-            neighbourPosMap.Add(pos, vec);
+            SetNeighbourPosMap();
         }
-    }
 
-    private int[] GetNeighbourPosVec(int _pos)
-    {
-        int[] vec = new int[6];
-
-        if (_pos % (mapHeight * 2 - 1) != 0)
+        public void SetNeighbourPosMap()
         {
-            if (_pos > mapHeight - 1)
-            {
-                int p = _pos - mapHeight;
+            IEnumerator<KeyValuePair<int, MapUnitType>> enumerator = dic.GetEnumerator();
 
-                if (dic.ContainsKey(p))
+            while (enumerator.MoveNext())
+            {
+                int pos = enumerator.Current.Key;
+
+                MapUnitType mapUnitType = enumerator.Current.Value;
+
+                if (mapUnitType == MapUnitType.M_AREA)
                 {
-                    vec[5] = p;
+                    mScore++;
+                }
+                else if (mapUnitType == MapUnitType.O_AREA)
+                {
+                    oScore++;
+                }
+
+                int[] vec = GetNeighbourPosVec(pos);
+
+                neighbourPosMap.Add(pos, vec);
+            }
+        }
+
+        private int[] GetNeighbourPosVec(int _pos)
+        {
+            int[] vec = new int[6];
+
+            if (_pos % (mapHeight * 2 - 1) != 0)
+            {
+                if (_pos > mapHeight - 1)
+                {
+                    int p = _pos - mapHeight;
+
+                    if (dic.ContainsKey(p))
+                    {
+                        vec[5] = p;
+                    }
+                    else
+                    {
+                        vec[5] = -1;
+                    }
                 }
                 else
                 {
                     vec[5] = -1;
                 }
-            }
-            else
-            {
-                vec[5] = -1;
-            }
 
-            if (_pos < size - (mapWidth % 2 == 1 ? mapHeight : mapHeight - 1))
-            {
-                int p = _pos + mapHeight - 1;
-
-                if (dic.ContainsKey(p))
+                if (_pos < size - (mapWidth % 2 == 1 ? mapHeight : mapHeight - 1))
                 {
-                    vec[3] = p;
+                    int p = _pos + mapHeight - 1;
+
+                    if (dic.ContainsKey(p))
+                    {
+                        vec[3] = p;
+                    }
+                    else
+                    {
+                        vec[3] = -1;
+                    }
                 }
                 else
                 {
                     vec[3] = -1;
                 }
-            }
-            else
-            {
-                vec[3] = -1;
-            }
 
-            if (_pos % (mapHeight * 2 - 1) != mapHeight)
-            {
-                int p = _pos - 1;
-
-                if (dic.ContainsKey(p))
+                if (_pos % (mapHeight * 2 - 1) != mapHeight)
                 {
-                    vec[4] = p;
+                    int p = _pos - 1;
+
+                    if (dic.ContainsKey(p))
+                    {
+                        vec[4] = p;
+                    }
+                    else
+                    {
+                        vec[4] = -1;
+                    }
                 }
                 else
                 {
@@ -169,61 +176,61 @@ public class MapData
             }
             else
             {
+                vec[3] = -1;
                 vec[4] = -1;
+                vec[5] = -1;
             }
-        }
-        else
-        {
-            vec[3] = -1;
-            vec[4] = -1;
-            vec[5] = -1;
-        }
 
-        if (_pos % (mapHeight * 2 - 1) != mapHeight - 1)
-        {
-            if (_pos > mapHeight - 1)
+            if (_pos % (mapHeight * 2 - 1) != mapHeight - 1)
             {
-                int p = _pos - mapHeight + 1;
-
-                if (dic.ContainsKey(p))
+                if (_pos > mapHeight - 1)
                 {
-                    vec[0] = p;
+                    int p = _pos - mapHeight + 1;
+
+                    if (dic.ContainsKey(p))
+                    {
+                        vec[0] = p;
+                    }
+                    else
+                    {
+                        vec[0] = -1;
+                    }
                 }
                 else
                 {
                     vec[0] = -1;
                 }
-            }
-            else
-            {
-                vec[0] = -1;
-            }
 
-            if (_pos < size - mapHeight)
-            {
-                int p = _pos + mapHeight;
-
-                if (dic.ContainsKey(p))
+                if (_pos < size - mapHeight)
                 {
-                    vec[2] = p;
+                    int p = _pos + mapHeight;
+
+                    if (dic.ContainsKey(p))
+                    {
+                        vec[2] = p;
+                    }
+                    else
+                    {
+                        vec[2] = -1;
+                    }
                 }
                 else
                 {
                     vec[2] = -1;
                 }
-            }
-            else
-            {
-                vec[2] = -1;
-            }
 
-            if (_pos % (mapHeight * 2 - 1) != mapHeight * 2 - 2)
-            {
-                int p = _pos + 1;
-
-                if (dic.ContainsKey(p))
+                if (_pos % (mapHeight * 2 - 1) != mapHeight * 2 - 2)
                 {
-                    vec[1] = p;
+                    int p = _pos + 1;
+
+                    if (dic.ContainsKey(p))
+                    {
+                        vec[1] = p;
+                    }
+                    else
+                    {
+                        vec[1] = -1;
+                    }
                 }
                 else
                 {
@@ -232,16 +239,12 @@ public class MapData
             }
             else
             {
+                vec[0] = -1;
                 vec[1] = -1;
+                vec[2] = -1;
             }
-        }
-        else
-        {
-            vec[0] = -1;
-            vec[1] = -1;
-            vec[2] = -1;
-        }
 
-        return vec;
+            return vec;
+        }
     }
 }
