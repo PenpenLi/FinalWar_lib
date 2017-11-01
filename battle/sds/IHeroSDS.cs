@@ -1,13 +1,15 @@
-﻿public interface IHeroSDS
+﻿namespace FinalWar
 {
-    int GetID();
-    int GetHp();
-    int GetShield();
-    int GetCost();
-    int GetAttack();
-    int[] GetShootSkills();
-    int[] GetSupportSkills();
-    int[] GetAuras();
-    IHeroTypeSDS GetHeroType();
+    public interface IHeroSDS
+    {
+        int GetID();
+        int GetHp();
+        int GetShield();
+        int GetCost();
+        int GetAttack();
+        int[] GetShootSkills();
+        int[] GetSupportSkills();
+        int[] GetAuras();
+        IHeroTypeSDS GetHeroType();
+    }
 }
-

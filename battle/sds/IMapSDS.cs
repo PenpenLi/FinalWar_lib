@@ -1,6 +1,9 @@
-﻿public interface IMapSDS
+﻿namespace FinalWar
 {
-    MapData GetMapData();
-    int[] GetHeroPos();
-    int[] GetHeroID();
+    public interface IMapSDS
+    {
+        MapData GetMapData();
+        int[] GetHeroPos();
+        int[] GetHeroID();
+    }
 }
