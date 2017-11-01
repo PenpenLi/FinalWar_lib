@@ -20,5 +20,19 @@
 
             return (float)v / MAX;
         }
+
+        internal int Get(int _max)
+        {
+            float v = Get();
+
+            return (int)(v * _max);
+        }
+
+        internal int Get(int _min, int _max)
+        {
+            float v = Get();
+
+            return _min + (int)(v * (_max - _min));
+        }
     }
 }

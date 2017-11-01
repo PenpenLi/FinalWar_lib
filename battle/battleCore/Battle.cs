@@ -78,9 +78,7 @@ namespace FinalWar
 
         internal int GetRandomValue(int _max)
         {
-            float randomValue = battleRandom.Get();
-
-            return (int)(randomValue * _max);
+            return battleRandom.Get(_max);
         }
 
         internal void InitBattle(int _mapID, int[] _mCards, int[] _oCards)
