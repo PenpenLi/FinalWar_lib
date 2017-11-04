@@ -470,7 +470,7 @@ namespace FinalWar
 
         private void ServerStartBattleSetRandom()
         {
-            randomSeedArr[roundNum] = random.Next(BattleRandom.MAX);
+            randomSeedArr[roundNum] = random.Next();
         }
 
         private void ServerStartBattle(BinaryWriter _mBw, BinaryWriter _oBw)

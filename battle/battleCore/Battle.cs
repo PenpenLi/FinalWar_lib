@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using superEvent;
+using superRandom;
 
 namespace FinalWar
 {
@@ -51,7 +52,7 @@ namespace FinalWar
 
         internal SuperEventListener eventListener = new SuperEventListener();
 
-        private BattleRandom battleRandom = new BattleRandom();
+        private SuperRandom random = new SuperRandom();
 
         public static void Init<S, T, U, V>(Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _auraDataDic, Dictionary<int, V> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : IAuraSDS where V : IEffectSDS
         {
@@ -78,7 +79,7 @@ namespace FinalWar
 
         internal int GetRandomValue(int _max)
         {
-            return battleRandom.Get(_max);
+            return random.Get(_max);
         }
 
         internal void InitBattle(int _mapID, int[] _mCards, int[] _oCards)
@@ -1649,7 +1650,7 @@ namespace FinalWar
 
         internal void SetRandomSeed(int _seed)
         {
-            battleRandom.SetSeed(_seed);
+            random.SetSeed(_seed);
         }
 
         internal void SetCard(int _uid, int _id)
