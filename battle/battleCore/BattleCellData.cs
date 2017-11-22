@@ -12,7 +12,7 @@ namespace FinalWar
 
         public List<Hero> attackers = new List<Hero>();
 
-        internal List<Hero> attackOvers = new List<Hero>();
+        //internal List<Hero> attackOvers = new List<Hero>();
 
         public List<Hero> supporters = new List<Hero>();
 

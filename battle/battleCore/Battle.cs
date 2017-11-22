@@ -672,41 +672,40 @@ namespace FinalWar
                         {
                             Hero attacker = cellData.attackers[i];
 
-                            if (stander.action == Hero.HeroAction.ATTACK && stander.actionTarget == attacker.pos)
+                            if (attacker.action == Hero.HeroAction.ATTACK)
                             {
-                                BattleCellData cellData2 = _battleData.actionDic[attacker.pos];
-
-                                if (cellData2.supporters.Count == 0)
+                                if (stander.action == Hero.HeroAction.ATTACK && stander.actionTarget == attacker.pos)
                                 {
-                                    continue;
+                                    BattleCellData cellData2 = _battleData.actionDic[attacker.pos];
+
+                                    if (cellData2.supporters.Count == 0)
+                                    {
+                                        continue;
+                                    }
                                 }
+
+                                if (!hasRush)
+                                {
+                                    hasRush = true;
+
+                                    yield return new BattlePrepareRushVO();
+                                }
+
+                                attacker.DoAttack();
+
+                                if (attacker.attackTimes == 0)
+                                {
+                                    attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
+                                }
+
+                                int damage = attacker.GetDamage();
+
+                                BattleHeroEffectVO vo = attacker.Rush(stander, damage, ref funcList);
+
+                                yield return new BattleRushVO(attacker.pos, stander.pos, vo);
+
+                                break;
                             }
-
-                            if (!hasRush)
-                            {
-                                hasRush = true;
-
-                                yield return new BattlePrepareRushVO();
-                            }
-
-                            attacker.DoAttack();
-
-                            if (attacker.attackTimes == 0)
-                            {
-                                cellData.attackOvers.Add(attacker);
-
-                                cellData.attackers.Remove(attacker);
-
-                                attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
-                            }
-
-                            int damage = attacker.GetDamage();
-
-                            BattleHeroEffectVO vo = attacker.Rush(stander, damage, ref funcList);
-
-                            yield return new BattleRushVO(attacker.pos, stander.pos, vo);
-
-                            break;
                         }
                     }
                 }
@@ -804,6 +803,8 @@ namespace FinalWar
 
                 bool hasAttack = false;
 
+                Dictionary<int, bool> checkedPosDic = null;
+
                 List<Func<BattleTriggerAuraVO>>[] funcList = null;
 
                 IEnumerator<BattleCellData> enumerator = _battleData.actionDic.Values.GetEnumerator();
@@ -812,162 +813,174 @@ namespace FinalWar
                 {
                     BattleCellData cellData = enumerator.Current;
 
+                    if (checkedPosDic != null && checkedPosDic.ContainsKey(cellData.pos))
+                    {
+                        continue;
+                    }
+
                     if (cellData.attackers.Count > 0 && (cellData.stander != null || cellData.supporters.Count > 0))
                     {
-                        if (!hasAttack)
+                        for (int i = 0; i < cellData.attackers.Count; i++)
                         {
-                            hasAttack = true;
-                        }
+                            Hero attacker = cellData.attackers[i];
 
-                        Hero attacker = cellData.attackers[0];
-
-                        attacker.DoAttack();
-
-                        if (attacker.attackTimes == 0)
-                        {
-                            cellData.attackOvers.Add(attacker);
-
-                            cellData.attackers.RemoveAt(0);
-
-                            attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
-                        }
-
-                        Hero defender;
-
-                        if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
-                        {
-                            defender = cellData.stander;
-                        }
-                        else if (cellData.supporters.Count > 0)
-                        {
-                            defender = cellData.supporters[0];
-                        }
-                        else
-                        {
-                            defender = cellData.stander;
-
-                            defender.DoAttack();
-
-                            if (defender.attackTimes == 0)
+                            if (attacker.action == Hero.HeroAction.ATTACK)
                             {
-                                BattleCellData tmpCellData = _battleData.actionDic[attacker.pos];
+                                if (!hasAttack)
+                                {
+                                    hasAttack = true;
+                                }
 
-                                tmpCellData.attackOvers.Add(defender);
+                                attacker.DoAttack();
 
-                                tmpCellData.attackers.RemoveAt(0);
+                                if (attacker.attackTimes == 0)
+                                {
+                                    attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
+                                }
 
-                                defender.SetAction(Hero.HeroAction.ATTACK_OVER, defender.actionTarget);
+                                Hero defender;
+
+                                if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
+                                {
+                                    defender = cellData.stander;
+                                }
+                                else if (cellData.supporters.Count > 0)
+                                {
+                                    defender = cellData.supporters[0];
+                                }
+                                else
+                                {
+                                    defender = cellData.stander;
+
+                                    defender.DoAttack();
+
+                                    if (defender.attackTimes == 0)
+                                    {
+                                        BattleCellData tmpCellData = _battleData.actionDic[attacker.pos];
+
+                                        defender.SetAction(Hero.HeroAction.ATTACK_OVER, defender.actionTarget);
+                                    }
+
+                                    if (checkedPosDic == null)
+                                    {
+                                        checkedPosDic = new Dictionary<int, bool>();
+                                    }
+
+                                    checkedPosDic.Add(attacker.pos, true);
+                                }
+
+                                int attackerSpeed = attacker.GetAttackSpeed();
+
+                                int defenderSpeed;
+
+                                if (defender == cellData.stander)
+                                {
+                                    if (defender.action == Hero.HeroAction.DEFENSE)
+                                    {
+                                        defenderSpeed = defender.GetDefenseSpeed();
+                                    }
+                                    else
+                                    {
+                                        defenderSpeed = defender.GetAttackSpeed();
+                                    }
+                                }
+                                else
+                                {
+                                    defenderSpeed = defender.GetSupportSpeed();
+                                }
+
+                                yield return new BattlePrepareAttackVO(cellData.pos, attacker.pos, attackerSpeed, defender.pos, defenderSpeed);
+
+                                int speedDiff = attackerSpeed - defenderSpeed;
+
+                                BattleHeroEffectVO attackVO;
+
+                                BattleHeroEffectVO defenseVO;
+
+                                bool attackerShield;
+
+                                bool defenderShield;
+
+                                if (Math.Abs(speedDiff) < 2)
+                                {
+                                    int attackDamage;
+
+                                    int defenseDamage;
+
+                                    if (speedDiff == 0)
+                                    {
+                                        attackDamage = attacker.GetDamage();
+
+                                        defenseDamage = defender.GetDamage();
+
+                                        attackerShield = true;
+
+                                        defenderShield = true;
+                                    }
+                                    else if (speedDiff == 1)
+                                    {
+                                        attackDamage = attacker.GetDamage();
+
+                                        defenseDamage = defender.GetDamageWithoutShield();
+
+                                        attackerShield = true;
+
+                                        defenderShield = false;
+                                    }
+                                    else
+                                    {
+                                        attackDamage = attacker.GetDamageWithoutShield();
+
+                                        defenseDamage = defender.GetDamage();
+
+                                        attackerShield = false;
+
+                                        defenderShield = true;
+                                    }
+
+                                    attackVO = attacker.Attack(defender, attackDamage, ref funcList);
+
+                                    defenseVO = defender.Attack(attacker, defenseDamage, ref funcList);
+                                }
+                                else if (speedDiff > 1)
+                                {
+                                    attackerShield = true;
+
+                                    defenderShield = false;
+
+                                    int attackDamage = attacker.GetDamage();
+
+                                    attackVO = attacker.Attack(defender, attackDamage, ref funcList);
+
+                                    defenseVO = new BattleHeroEffectVO(Effect.NULL, null);
+                                }
+                                else
+                                {
+                                    attackerShield = false;
+
+                                    defenderShield = true;
+
+                                    int defenseDamage = defender.GetDamage();
+
+                                    attackVO = new BattleHeroEffectVO(Effect.NULL, null);
+
+                                    defenseVO = defender.Attack(attacker, defenseDamage, ref funcList);
+                                }
+
+                                if (defender.action == Hero.HeroAction.DEFENSE || defender.action == Hero.HeroAction.SUPPORT)
+                                {
+                                    yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos, attackerShield, defenderShield, attackVO, defenseVO);
+                                }
+                                else
+                                {
+                                    yield return new BattleAttackBothVO(attacker.pos, defender.pos, attackerShield, defenderShield, attackVO, defenseVO);
+                                }
+
+                                yield return new BattleAttackOverVO(cellData.pos, attacker.pos, defender.pos);
+
+                                break;
                             }
                         }
-
-                        int attackerSpeed = attacker.GetAttackSpeed();
-
-                        int defenderSpeed;
-
-                        if (defender == cellData.stander)
-                        {
-                            if (defender.action == Hero.HeroAction.DEFENSE)
-                            {
-                                defenderSpeed = defender.GetDefenseSpeed();
-                            }
-                            else
-                            {
-                                defenderSpeed = defender.GetAttackSpeed();
-                            }
-                        }
-                        else
-                        {
-                            defenderSpeed = defender.GetSupportSpeed();
-                        }
-
-                        yield return new BattlePrepareAttackVO(cellData.pos, attacker.pos, attackerSpeed, defender.pos, defenderSpeed);
-
-                        int speedDiff = attackerSpeed - defenderSpeed;
-
-                        BattleHeroEffectVO attackVO;
-
-                        BattleHeroEffectVO defenseVO;
-
-                        bool attackerShield;
-
-                        bool defenderShield;
-
-                        if (Math.Abs(speedDiff) < 2)
-                        {
-                            int attackDamage;
-
-                            int defenseDamage;
-
-                            if (speedDiff == 0)
-                            {
-                                attackDamage = attacker.GetDamage();
-
-                                defenseDamage = defender.GetDamage();
-
-                                attackerShield = true;
-
-                                defenderShield = true;
-                            }
-                            else if (speedDiff == 1)
-                            {
-                                attackDamage = attacker.GetDamage();
-
-                                defenseDamage = defender.GetDamageWithoutShield();
-
-                                attackerShield = true;
-
-                                defenderShield = false;
-                            }
-                            else
-                            {
-                                attackDamage = attacker.GetDamageWithoutShield();
-
-                                defenseDamage = defender.GetDamage();
-
-                                attackerShield = false;
-
-                                defenderShield = true;
-                            }
-
-                            attackVO = attacker.Attack(defender, attackDamage, ref funcList);
-
-                            defenseVO = defender.Attack(attacker, defenseDamage, ref funcList);
-                        }
-                        else if (speedDiff > 1)
-                        {
-                            attackerShield = true;
-
-                            defenderShield = false;
-
-                            int attackDamage = attacker.GetDamage();
-
-                            attackVO = attacker.Attack(defender, attackDamage, ref funcList);
-
-                            defenseVO = new BattleHeroEffectVO(Effect.NULL, null);
-                        }
-                        else
-                        {
-                            attackerShield = false;
-
-                            defenderShield = true;
-
-                            int defenseDamage = defender.GetDamage();
-
-                            attackVO = new BattleHeroEffectVO(Effect.NULL, null);
-
-                            defenseVO = defender.Attack(attacker, defenseDamage, ref funcList);
-                        }
-
-                        if (defender.action == Hero.HeroAction.DEFENSE || defender.action == Hero.HeroAction.SUPPORT)
-                        {
-                            yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos, attackerShield, defenderShield, attackVO, defenseVO);
-                        }
-                        else
-                        {
-                            yield return new BattleAttackBothVO(attacker.pos, defender.pos, attackerShield, defenderShield, attackVO, defenseVO);
-                        }
-
-                        yield return new BattleAttackOverVO(cellData.pos, attacker.pos, defender.pos);
                     }
                 }
 
@@ -1196,30 +1209,15 @@ namespace FinalWar
 
             if (hero == null)
             {
-                for (int i = 0; i < _cellData.attackOvers.Count; i++)
+                for (int i = 0; i < _cellData.attackers.Count; i++)
                 {
-                    Hero tmpHero = _cellData.attackOvers[i];
+                    Hero tmpHero = _cellData.attackers[i];
 
                     if (tmpHero.GetCanMove())
                     {
                         hero = tmpHero;
 
                         break;
-                    }
-                }
-
-                if (hero == null)
-                {
-                    for (int i = 0; i < _cellData.attackers.Count; i++)
-                    {
-                        Hero tmpHero = _cellData.attackers[i];
-
-                        if (tmpHero.GetCanMove())
-                        {
-                            hero = tmpHero;
-
-                            break;
-                        }
                     }
                 }
             }
@@ -1264,7 +1262,7 @@ namespace FinalWar
                 cellData.stander = null;
             }
 
-            if (_hero.action == Hero.HeroAction.ATTACK)
+            if (_hero.action == Hero.HeroAction.ATTACK || _hero.action == Hero.HeroAction.ATTACK_OVER)
             {
                 cellData = _battleData.actionDic[_hero.actionTarget];
 
@@ -1281,12 +1279,6 @@ namespace FinalWar
                 cellData = _battleData.actionDic[_hero.actionTarget];
 
                 cellData.supporters.Remove(_hero);
-            }
-            else if (_hero.action == Hero.HeroAction.ATTACK_OVER)
-            {
-                cellData = _battleData.actionDic[_hero.actionTarget];
-
-                cellData.attackOvers.Remove(_hero);
             }
 
             _hero.SetAction(Hero.HeroAction.NULL);
