@@ -2,7 +2,6 @@
 {
     public struct BattleAttackBothVO
     {
-        public int pos;
         public int attacker;
         public int defender;
         public bool attackerShield;
@@ -10,9 +9,8 @@
         public BattleHeroEffectVO attackVO;
         public BattleHeroEffectVO defenseVO;
 
-        public BattleAttackBothVO(int _pos, int _attacker, int _defender, bool _attackerShield, bool _defenderShield, BattleHeroEffectVO _attackVO, BattleHeroEffectVO _defenseVO)
+        public BattleAttackBothVO(int _attacker, int _defender, bool _attackerShield, bool _defenderShield, BattleHeroEffectVO _attackVO, BattleHeroEffectVO _defenseVO)
         {
-            pos = _pos;
             attacker = _attacker;
             defender = _defender;
             attackerShield = _attackerShield;

@@ -884,15 +884,19 @@ namespace FinalWar
 
                         int speedDiff = attackerSpeed - defenderSpeed;
 
+                        BattleHeroEffectVO attackVO;
+
+                        BattleHeroEffectVO defenseVO;
+
+                        bool attackerShield;
+
+                        bool defenderShield;
+
                         if (Math.Abs(speedDiff) < 2)
                         {
                             int attackDamage;
 
                             int defenseDamage;
-
-                            bool attackerShield;
-
-                            bool defenderShield;
 
                             if (speedDiff == 0)
                             {
@@ -925,34 +929,42 @@ namespace FinalWar
                                 defenderShield = true;
                             }
 
-                            BattleHeroEffectVO attackVO = attacker.Attack(defender, attackDamage, ref funcList);
+                            attackVO = attacker.Attack(defender, attackDamage, ref funcList);
 
-                            BattleHeroEffectVO defenseVO = defender.Attack(attacker, defenseDamage, ref funcList);
-
-                            if (defender.action == Hero.HeroAction.DEFENSE)
-                            {
-                                yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos, attackerShield, defenderShield, attackVO, defenseVO);
-                            }
-                            else
-                            {
-                                yield return new BattleAttackBothVO(cellData.pos, attacker.pos, defender.pos, attackerShield, defenderShield, attackVO, defenseVO);
-                            }
+                            defenseVO = defender.Attack(attacker, defenseDamage, ref funcList);
                         }
                         else if (speedDiff > 1)
                         {
+                            attackerShield = true;
+
+                            defenderShield = false;
+
                             int attackDamage = attacker.GetDamage();
 
-                            BattleHeroEffectVO vo = attacker.Attack(defender, attackDamage, ref funcList);
+                            attackVO = attacker.Attack(defender, attackDamage, ref funcList);
 
-                            yield return new BattleAttackVO(cellData.pos, attacker.pos, defender.pos, vo);
+                            defenseVO = new BattleHeroEffectVO(Effect.NULL, null);
                         }
                         else
                         {
+                            attackerShield = false;
+
+                            defenderShield = true;
+
                             int defenseDamage = defender.GetDamage();
 
-                            BattleHeroEffectVO vo = defender.Attack(attacker, defenseDamage, ref funcList);
+                            attackVO = new BattleHeroEffectVO(Effect.NULL, null);
 
-                            yield return new BattleCounterVO(cellData.pos, attacker.pos, defender.pos, vo);
+                            defenseVO = defender.Attack(attacker, defenseDamage, ref funcList);
+                        }
+
+                        if (defender.action == Hero.HeroAction.DEFENSE || defender.action == Hero.HeroAction.SUPPORT)
+                        {
+                            yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos, attackerShield, defenderShield, attackVO, defenseVO);
+                        }
+                        else
+                        {
+                            yield return new BattleAttackBothVO(attacker.pos, defender.pos, attackerShield, defenderShield, attackVO, defenseVO);
                         }
 
                         yield return new BattleAttackOverVO(cellData.pos, attacker.pos, defender.pos);

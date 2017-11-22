@@ -90,8 +90,6 @@
     <Compile Include="battle\battleVO\BattleAttackAndCounterVO.cs" />
     <Compile Include="battle\battleVO\BattleAttackBothVO.cs" />
     <Compile Include="battle\battleVO\BattleAttackOverVO.cs" />
-    <Compile Include="battle\battleVO\BattleAttackVO.cs" />
-    <Compile Include="battle\battleVO\BattleCounterVO.cs" />
     <Compile Include="battle\battleVO\BattleDeathVO.cs" />
     <Compile Include="battle\battleVO\BattleHeroEffectVO.cs" />
     <Compile Include="battle\battleVO\BattleMoneyChangeVO.cs" />
