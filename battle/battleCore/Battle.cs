@@ -46,8 +46,6 @@ namespace FinalWar
 
         private List<KeyValuePair<int, int>> fearAction = new List<KeyValuePair<int, int>>();
 
-        //private int randomIndex;
-
         public int roundNum { private set; get; }
 
         internal SuperEventListener eventListener = new SuperEventListener();
@@ -838,26 +836,34 @@ namespace FinalWar
                                     attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
                                 }
 
+                                int attackerSpeed = attacker.GetAttackSpeed();
+
                                 Hero defender;
+
+                                int defenderSpeed;
 
                                 if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                                 {
                                     defender = cellData.stander;
+
+                                    defenderSpeed = defender.GetDefenseSpeed();
                                 }
                                 else if (cellData.supporters.Count > 0)
                                 {
                                     defender = cellData.supporters[0];
+
+                                    defenderSpeed = defender.GetSupportSpeed();
                                 }
                                 else
                                 {
                                     defender = cellData.stander;
 
+                                    defenderSpeed = defender.GetAttackSpeed();
+
                                     defender.DoAttack();
 
                                     if (defender.attackTimes == 0)
                                     {
-                                        BattleCellData tmpCellData = _battleData.actionDic[attacker.pos];
-
                                         defender.SetAction(Hero.HeroAction.ATTACK_OVER, defender.actionTarget);
                                     }
 
@@ -867,26 +873,6 @@ namespace FinalWar
                                     }
 
                                     checkedPosDic.Add(attacker.pos, true);
-                                }
-
-                                int attackerSpeed = attacker.GetAttackSpeed();
-
-                                int defenderSpeed;
-
-                                if (defender == cellData.stander)
-                                {
-                                    if (defender.action == Hero.HeroAction.DEFENSE)
-                                    {
-                                        defenderSpeed = defender.GetDefenseSpeed();
-                                    }
-                                    else
-                                    {
-                                        defenderSpeed = defender.GetAttackSpeed();
-                                    }
-                                }
-                                else
-                                {
-                                    defenderSpeed = defender.GetSupportSpeed();
                                 }
 
                                 yield return new BattlePrepareAttackVO(cellData.pos, attacker.pos, attackerSpeed, defender.pos, defenderSpeed);
