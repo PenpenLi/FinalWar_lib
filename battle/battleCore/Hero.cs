@@ -367,9 +367,11 @@ namespace FinalWar
 
                 if (numDiff > 0)
                 {
+                    int v = (numDiff + 1) * numDiff / 2;
+
                     int randomValue = battle.GetRandomValue(6);
 
-                    if (randomValue < numDiff)
+                    if (randomValue < v)
                     {
                         return true;
                     }
