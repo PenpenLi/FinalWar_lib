@@ -15,6 +15,8 @@
         TRIGGER,
         TRIGGER_TARGET,
         OWNER_NEIGHBOUR,
+        OWNER_ALLY,
+        OWNER_ENEMY,
     }
 
     public enum AuraConditionCompare
@@ -47,8 +49,8 @@
         AuraTarget[] GetConditionTarget();
         int[] GetConditionData();
         AuraType GetEffectType();
-        AuraTarget[] GetEffectTarget();
-        int[] GetEffectTargetNum();
+        AuraTarget GetEffectTarget();
+        int GetEffectTargetNum();
         int GetEffectData();
         string[] GetRemoveEventNames();
         string GetDesc();

@@ -167,21 +167,16 @@ namespace FinalWar
         {
             Dictionary<int, BattleHeroEffectVO> dic = new Dictionary<int, BattleHeroEffectVO>();
 
-            for (int i = 0; i < _sds.GetEffectTarget().Length; i++)
-            {
-                AuraCastSkillReal(_battle, _hero, _triggerHero, _triggerTargetHero, _sds, i, dic);
-            }
+            AuraCastSkillReal(_battle, _hero, _triggerHero, _triggerTargetHero, _sds, dic);
 
             BattleTriggerAuraVO result = new BattleTriggerAuraVO(_hero.pos, dic);
 
             return result;
         }
 
-        private static void AuraCastSkillReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds, int _index, Dictionary<int, BattleHeroEffectVO> _dic)
+        private static void AuraCastSkillReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds, Dictionary<int, BattleHeroEffectVO> _dic)
         {
-            AuraTarget auraTarget = _sds.GetEffectTarget()[_index];
-
-            switch (auraTarget)
+            switch (_sds.GetEffectTarget())
             {
                 case AuraTarget.OWNER:
 
@@ -195,13 +190,11 @@ namespace FinalWar
 
                 case AuraTarget.OWNER_NEIGHBOUR_ALLY:
 
-                    int targetNum = _sds.GetEffectTargetNum()[_index];
-
                     List<int> tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     List<Hero> targetHerolist = null;
 
-                    if (targetNum > 0)
+                    if (_sds.GetEffectTargetNum() > 0)
                     {
                         targetHerolist = new List<Hero>();
                     }
@@ -216,7 +209,7 @@ namespace FinalWar
                         {
                             if (targetHero.isMine == _hero.isMine)
                             {
-                                if (targetNum > 0)
+                                if (_sds.GetEffectTargetNum() > 0)
                                 {
                                     targetHerolist.Add(targetHero);
                                 }
@@ -232,9 +225,9 @@ namespace FinalWar
                         }
                     }
 
-                    if (targetNum > 0)
+                    if (_sds.GetEffectTargetNum() > 0)
                     {
-                        while (targetHerolist.Count > targetNum)
+                        while (targetHerolist.Count > _sds.GetEffectTargetNum())
                         {
                             int index = _battle.GetRandomValue(targetHerolist.Count);
 
@@ -257,13 +250,11 @@ namespace FinalWar
 
                 case AuraTarget.OWNER_NEIGHBOUR_ENEMY:
 
-                    targetNum = _sds.GetEffectTargetNum()[_index];
-
                     tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     targetHerolist = null;
 
-                    if (targetNum > 0)
+                    if (_sds.GetEffectTargetNum() > 0)
                     {
                         targetHerolist = new List<Hero>();
                     }
@@ -278,7 +269,7 @@ namespace FinalWar
                         {
                             if (targetHero.isMine != _hero.isMine)
                             {
-                                if (targetNum > 0)
+                                if (_sds.GetEffectTargetNum() > 0)
                                 {
                                     targetHerolist.Add(targetHero);
                                 }
@@ -294,9 +285,9 @@ namespace FinalWar
                         }
                     }
 
-                    if (targetNum > 0)
+                    if (_sds.GetEffectTargetNum() > 0)
                     {
-                        while (targetHerolist.Count > targetNum)
+                        while (targetHerolist.Count > _sds.GetEffectTargetNum())
                         {
                             int index = _battle.GetRandomValue(targetHerolist.Count);
 
@@ -339,13 +330,11 @@ namespace FinalWar
 
                 case AuraTarget.OWNER_NEIGHBOUR:
 
-                    targetNum = _sds.GetEffectTargetNum()[_index];
-
                     tmpList = BattlePublicTools.GetNeighbourPos(_battle.mapData, _hero.pos);
 
                     targetHerolist = null;
 
-                    if (targetNum > 0)
+                    if (_sds.GetEffectTargetNum() > 0)
                     {
                         targetHerolist = new List<Hero>();
                     }
@@ -358,7 +347,7 @@ namespace FinalWar
 
                         if (_battle.heroMapDic.TryGetValue(pos, out targetHero))
                         {
-                            if (targetNum > 0)
+                            if (_sds.GetEffectTargetNum() > 0)
                             {
                                 targetHerolist.Add(targetHero);
                             }
@@ -373,9 +362,119 @@ namespace FinalWar
                         }
                     }
 
-                    if (targetNum > 0)
+                    if (_sds.GetEffectTargetNum() > 0)
                     {
-                        while (targetHerolist.Count > targetNum)
+                        while (targetHerolist.Count > _sds.GetEffectTargetNum())
+                        {
+                            int index = _battle.GetRandomValue(targetHerolist.Count);
+
+                            targetHerolist.RemoveAt(index);
+                        }
+
+                        for (int i = 0; i < targetHerolist.Count; i++)
+                        {
+                            Hero targetHero = targetHerolist[i];
+
+                            effectSDS = Battle.GetEffectData(_sds.GetEffectData());
+
+                            vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
+
+                            _dic.Add(targetHero.pos, vo);
+                        }
+                    }
+
+                    break;
+
+                case AuraTarget.OWNER_ALLY:
+
+                    targetHerolist = null;
+
+                    if (_sds.GetEffectTargetNum() > 0)
+                    {
+                        targetHerolist = new List<Hero>();
+                    }
+
+                    IEnumerator<Hero> enumerator = _battle.heroMapDic.Values.GetEnumerator();
+
+                    while (enumerator.MoveNext())
+                    {
+                        Hero targetHero = enumerator.Current;
+
+                        if (targetHero != _hero && targetHero.isMine == _hero.isMine)
+                        {
+                            if (_sds.GetEffectTargetNum() > 0)
+                            {
+                                targetHerolist.Add(targetHero);
+                            }
+                            else
+                            {
+                                effectSDS = Battle.GetEffectData(_sds.GetEffectData());
+
+                                vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
+
+                                _dic.Add(targetHero.pos, vo);
+                            }
+                        }
+                    }
+
+                    if (_sds.GetEffectTargetNum() > 0)
+                    {
+                        while (targetHerolist.Count > _sds.GetEffectTargetNum())
+                        {
+                            int index = _battle.GetRandomValue(targetHerolist.Count);
+
+                            targetHerolist.RemoveAt(index);
+                        }
+
+                        for (int i = 0; i < targetHerolist.Count; i++)
+                        {
+                            Hero targetHero = targetHerolist[i];
+
+                            effectSDS = Battle.GetEffectData(_sds.GetEffectData());
+
+                            vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
+
+                            _dic.Add(targetHero.pos, vo);
+                        }
+                    }
+
+                    break;
+
+                case AuraTarget.OWNER_ENEMY:
+
+                    targetHerolist = null;
+
+                    if (_sds.GetEffectTargetNum() > 0)
+                    {
+                        targetHerolist = new List<Hero>();
+                    }
+
+                    enumerator = _battle.heroMapDic.Values.GetEnumerator();
+
+                    while (enumerator.MoveNext())
+                    {
+                        Hero targetHero = enumerator.Current;
+
+                        if (targetHero.isMine != _hero.isMine)
+                        {
+                            if (_sds.GetEffectTargetNum() > 0)
+                            {
+                                targetHerolist.Add(targetHero);
+                            }
+                            else
+                            {
+                                effectSDS = Battle.GetEffectData(_sds.GetEffectData());
+
+                                vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
+
+                                _dic.Add(targetHero.pos, vo);
+                            }
+                        }
+                    }
+
+                    if (_sds.GetEffectTargetNum() > 0)
+                    {
+                        while (targetHerolist.Count > _sds.GetEffectTargetNum())
                         {
                             int index = _battle.GetRandomValue(targetHerolist.Count);
 
@@ -431,7 +530,7 @@ namespace FinalWar
 
                 case AuraTarget.OWNER_NEIGHBOUR_ALLY:
 
-                    if (_triggerHero != null && _hero.isMine == _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapHeight, _hero.pos, _triggerHero.pos) == 1)
+                    if (_triggerHero != null && _triggerHero.isMine == _hero.isMine && _triggerHero != _hero && BattlePublicTools.GetDistance(_battle.mapData.mapHeight, _hero.pos, _triggerHero.pos) == 1)
                     {
                         return true;
                     }
@@ -442,7 +541,7 @@ namespace FinalWar
 
                 case AuraTarget.OWNER_NEIGHBOUR_ENEMY:
 
-                    if (_triggerHero != null && _hero.isMine != _triggerHero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapHeight, _hero.pos, _triggerHero.pos) == 1)
+                    if (_triggerHero != null && _triggerHero.isMine != _hero.isMine && BattlePublicTools.GetDistance(_battle.mapData.mapHeight, _hero.pos, _triggerHero.pos) == 1)
                     {
                         return true;
                     }
@@ -454,6 +553,28 @@ namespace FinalWar
                 case AuraTarget.OWNER_NEIGHBOUR:
 
                     if (_triggerHero != null && BattlePublicTools.GetDistance(_battle.mapData.mapHeight, _hero.pos, _triggerHero.pos) == 1)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                case AuraTarget.OWNER_ALLY:
+
+                    if (_triggerHero != null && _triggerHero.isMine == _hero.isMine && _triggerHero != _hero)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                case AuraTarget.OWNER_ENEMY:
+
+                    if (_triggerHero != null && _triggerHero.isMine != _hero.isMine)
                     {
                         return true;
                     }
