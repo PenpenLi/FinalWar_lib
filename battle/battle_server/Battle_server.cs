@@ -29,15 +29,10 @@ namespace FinalWar
             A
         }
 
-        private static readonly Random random = new Random();
-
-        private Battle battle;
-
-        private bool mOver;
-        private bool oOver;
-
-        //-----------------record data
-        public int roundNum { private set; get; }
+        //private class BattleRecordData
+        //{
+        //----record data
+        private int roundNum;
 
         private int mapID;
 
@@ -52,7 +47,15 @@ namespace FinalWar
         private int[] oCards;
 
         private bool isVsAi;
-        //-----------------
+        //----
+        //}
+
+        private static readonly Random random = new Random();
+
+        private Battle battle;
+
+        private bool mOver;
+        private bool oOver;
 
         private CardState[] cardStateArr = new CardState[BattleConst.DECK_CARD_NUM * 2];
 
@@ -161,7 +164,7 @@ namespace FinalWar
             }
         }
 
-        public bool ServerGetPackage(BinaryReader _br, bool _isMine, bool _reply)
+        public bool ServerGetPackage(BinaryReader _br, bool _isMine)
         {
             byte tag = _br.ReadByte();
 
@@ -175,13 +178,13 @@ namespace FinalWar
 
                 case PackageTag.C2S_DOACTION:
 
-                    ServerDoAction(_isMine, _br, _reply);
+                    ServerDoAction(_isMine, _br);
 
                     return true;
 
                 case PackageTag.C2S_QUIT:
 
-                    ServerQuitBattle(_isMine, _reply);
+                    ServerQuitBattle(_isMine);
 
                     return false;
 
@@ -324,17 +327,15 @@ namespace FinalWar
         }
 
 
-        private void ServerDoAction(bool _isMine, BinaryReader _br, bool _reply)
+        private void ServerDoAction(bool _isMine, BinaryReader _br)
         {
+            serverSendDataCallBack(_isMine, false, new MemoryStream());
+
             if (_isMine)
             {
                 if (mOver)
                 {
                     return;
-                }
-                else
-                {
-                    mOver = true;
                 }
             }
             else
@@ -342,10 +343,6 @@ namespace FinalWar
                 if (oOver)
                 {
                     return;
-                }
-                else
-                {
-                    oOver = true;
                 }
             }
 
@@ -378,11 +375,20 @@ namespace FinalWar
 
                     tmpDic.Add(new PlayerAction(_isMine, pos, targetPos));
                 }
-            }
 
-            if (_reply)
+                ServerDoActionReal(_isMine);
+            }
+        }
+
+        public void ServerDoActionReal(bool _isMine)
+        {
+            if (_isMine)
             {
-                serverSendDataCallBack(_isMine, false, new MemoryStream());
+                mOver = true;
+            }
+            else
+            {
+                oOver = true;
             }
 
             if ((mOver && oOver) || isVsAi)
@@ -650,13 +656,15 @@ namespace FinalWar
             return battleResult;
         }
 
-        private void ServerQuitBattle(bool _isMine, bool _reply)
+        private void ServerQuitBattle(bool _isMine)
         {
-            if (_reply)
-            {
-                serverSendDataCallBack(_isMine, false, new MemoryStream());
-            }
+            serverSendDataCallBack(_isMine, false, new MemoryStream());
 
+            ServerQuitBattleReal(_isMine);
+        }
+
+        public void ServerQuitBattleReal(bool _isMine)
+        {
             using (MemoryStream ms = new MemoryStream())
             {
                 using (BinaryWriter bw = new BinaryWriter(ms))
