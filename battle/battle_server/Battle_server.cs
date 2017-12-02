@@ -393,7 +393,7 @@ namespace FinalWar
             }
         }
 
-        private void ResetData()
+        public void ResetData()
         {
             mOver = oOver = false;
 
@@ -403,7 +403,7 @@ namespace FinalWar
             }
         }
 
-        private void FromBytes(byte[] _bytes)
+        public void FromBytes(byte[] _bytes)
         {
             ResetData();
 
@@ -415,6 +415,16 @@ namespace FinalWar
             {
                 ServerSetCardState(cardStateArr, recordData, i);
             }
+        }
+
+        public byte[] ToBytes()
+        {
+            return WriteRecordDataToBytes(recordData);
+        }
+
+        public Battle.BattleResult VerifyBattle()
+        {
+            return VerifyBattle(battle, recordData);
         }
 
 
