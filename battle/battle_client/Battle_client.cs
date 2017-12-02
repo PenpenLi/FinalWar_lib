@@ -54,11 +54,11 @@ namespace FinalWar
         {
             BattleOver();
 
-            isVsAi = _br.ReadBoolean();
-
             clientIsMine = _br.ReadBoolean();
 
             Log.Write("ClientRefreshData  isMine:" + clientIsMine);
+
+            isVsAi = _br.ReadBoolean();
 
             int mapID = _br.ReadInt32();
 
