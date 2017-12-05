@@ -62,6 +62,8 @@ namespace FinalWar
 
             int mapID = _br.ReadInt32();
 
+            int maxRoundNum = _br.ReadInt32();
+
             int num = _br.ReadInt32();
 
             int[] mCards = new int[num];
@@ -70,7 +72,7 @@ namespace FinalWar
 
             int[] oCards = new int[num];
 
-            InitBattle(mapID, mCards, oCards);
+            InitBattle(mapID, maxRoundNum, mCards, oCards);
 
             num = _br.ReadInt32();
 

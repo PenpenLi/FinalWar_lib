@@ -48,6 +48,8 @@ namespace FinalWar
 
         public int roundNum { private set; get; }
 
+        private int maxRoundNum;
+
         internal SuperEventListener eventListener = new SuperEventListener();
 
         private SuperRandom random = new SuperRandom();
@@ -80,8 +82,10 @@ namespace FinalWar
             return random.Get(_max);
         }
 
-        internal void InitBattle(int _mapID, int[] _mCards, int[] _oCards)
+        internal void InitBattle(int _mapID, int _maxRoundNum, int[] _mCards, int[] _oCards)
         {
+            maxRoundNum = _maxRoundNum;
+
             IMapSDS mapSDS = GetMapData(_mapID);
 
             mapData = mapSDS.GetMapData();
@@ -216,7 +220,7 @@ namespace FinalWar
             {
                 roundNum++;
 
-                if (roundNum == BattleConst.MAX_ROUND_NUM)
+                if (roundNum == maxRoundNum)
                 {
                     BattleOver();
 

@@ -9,7 +9,6 @@
         public const int DEFAULT_MONEY = 5;
         public const int ADD_MONEY = 3;
         public const int MAX_MONEY = 10;
-        public const int MAX_ROUND_NUM = 20;
         public const int MAX_SPEED = 2;
         public const int MIN_SPEED = -2;
 

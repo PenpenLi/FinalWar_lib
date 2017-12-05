@@ -31,10 +31,11 @@ namespace FinalWar
 
         private class BattleRecordData
         {
-            //----record data
             public int roundNum;
 
             public int mapID;
+
+            public int maxRoundNum;
 
             public List<BattleRecordRoundData> data = new List<BattleRecordRoundData>();
 
@@ -43,7 +44,6 @@ namespace FinalWar
             public int[] oCards;
 
             public bool isVsAi;
-            //----
         }
 
         private class BattleRecordRoundData
@@ -86,7 +86,7 @@ namespace FinalWar
             serverBattleOverCallBack = _serverBattleOverCallBack;
         }
 
-        public void ServerStart(int _mapID, IList<int> _mCards, IList<int> _oCards, bool _isVsAi)
+        public void ServerStart(int _mapID, int _maxRoundNum, IList<int> _mCards, IList<int> _oCards, bool _isVsAi)
         {
             Log.Write("Battle Start!");
 
@@ -96,6 +96,8 @@ namespace FinalWar
 
             recordData.mapID = _mapID;
 
+            recordData.maxRoundNum = _maxRoundNum;
+
             recordData.isVsAi = _isVsAi;
 
             InitCards(_mCards, _oCards, out recordData.mCards, out recordData.oCards);
@@ -104,7 +106,7 @@ namespace FinalWar
 
             if (isBattle)
             {
-                battle.InitBattle(recordData.mapID, recordData.mCards, recordData.oCards);
+                battle.InitBattle(recordData.mapID, recordData.maxRoundNum, recordData.mCards, recordData.oCards);
             }
         }
 
@@ -168,6 +170,8 @@ namespace FinalWar
                     bw.Write(recordData.isVsAi);
 
                     bw.Write(recordData.mapID);
+
+                    bw.Write(recordData.maxRoundNum);
 
                     bw.Write(recordData.mCards.Length);
 
@@ -313,10 +317,10 @@ namespace FinalWar
                         {
                             Battle.BattleResult battleResult = ProcessBattle(battle, recordData.data[recordData.roundNum], recordData.isVsAi);
 
+                            recordData.roundNum++;
+
                             if (battleResult == Battle.BattleResult.NOT_OVER)
                             {
-                                recordData.roundNum++;
-
                                 recordData.data.Add(new BattleRecordRoundData());
 
                                 mOver = oOver = false;
@@ -340,9 +344,16 @@ namespace FinalWar
                         {
                             recordData.roundNum++;
 
-                            recordData.data.Add(new BattleRecordRoundData());
+                            if (recordData.roundNum == recordData.maxRoundNum)
+                            {
+                                ResetData();
+                            }
+                            else
+                            {
+                                recordData.data.Add(new BattleRecordRoundData());
 
-                            mOver = oOver = false;
+                                mOver = oOver = false;
+                            }
 
                             serverSendDataCallBack(true, true, mMs);
 
@@ -401,6 +412,8 @@ namespace FinalWar
             {
                 cardStateArr[i] = CardState.N;
             }
+
+            //save recordData
         }
 
         public void FromBytes(byte[] _bytes)
@@ -710,7 +723,7 @@ namespace FinalWar
 
             _battle.BattleOver();
 
-            _battle.InitBattle(_recordData.mapID, _recordData.mCards, _recordData.oCards);
+            _battle.InitBattle(_recordData.mapID, _recordData.maxRoundNum, _recordData.mCards, _recordData.oCards);
 
             for (int i = 0; i < _recordData.roundNum; i++)
             {
@@ -736,6 +749,8 @@ namespace FinalWar
                     bw.Write(_recordData.isVsAi);
 
                     bw.Write(_recordData.mapID);
+
+                    bw.Write(_recordData.maxRoundNum);
 
                     bw.Write(_recordData.roundNum);
 
@@ -802,6 +817,8 @@ namespace FinalWar
                     recordData.isVsAi = br.ReadBoolean();
 
                     recordData.mapID = br.ReadInt32();
+
+                    recordData.maxRoundNum = br.ReadInt32();
 
                     recordData.data.Add(new BattleRecordRoundData());
 
