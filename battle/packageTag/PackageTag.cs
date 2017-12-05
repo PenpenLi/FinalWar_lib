@@ -1,6 +1,6 @@
 ﻿namespace FinalWar
 {
-    public static class PackageTag
+    internal static class PackageTag
     {
         public const byte C2S_REFRESH = 1;
         public const byte C2S_DOACTION = 2;
