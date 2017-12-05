@@ -198,23 +198,25 @@ namespace FinalWar
                 mWin = true;
             }
 
+            BattleResult battleResult;
+
             if (oWin && mWin)
             {
-                BattleOver();
+                battleResult = BattleResult.DRAW;
 
-                return BattleResult.DRAW;
+                BattleOver();
             }
             else if (oWin)
             {
-                BattleOver();
+                battleResult = BattleResult.O_WIN;
 
-                return BattleResult.O_WIN;
+                BattleOver();
             }
             else if (mWin)
             {
-                BattleOver();
+                battleResult = BattleResult.M_WIN;
 
-                return BattleResult.M_WIN;
+                BattleOver();
             }
             else
             {
@@ -222,15 +224,28 @@ namespace FinalWar
 
                 if (roundNum == maxRoundNum)
                 {
-                    BattleOver();
+                    if (mScore > oScore)
+                    {
+                        battleResult = BattleResult.M_WIN;
+                    }
+                    else if (mScore < oScore)
+                    {
+                        battleResult = BattleResult.O_WIN;
+                    }
+                    else
+                    {
+                        battleResult = BattleResult.DRAW;
+                    }
 
-                    return BattleResult.DRAW;
+                    BattleOver();
                 }
                 else
                 {
-                    return BattleResult.NOT_OVER;
+                    battleResult = BattleResult.NOT_OVER;
                 }
             }
+
+            return battleResult;
         }
 
         internal void BattleOver()
@@ -1054,6 +1069,17 @@ namespace FinalWar
                         else
                         {
                             mapBelongDic.Add(pos, true);
+                        }
+
+                        if (hero.isMine)
+                        {
+                            mScore++;
+                            oScore--;
+                        }
+                        else
+                        {
+                            mScore--;
+                            oScore++;
                         }
                     }
                 }
