@@ -150,11 +150,6 @@ namespace FinalWar
             DelSummon(_cardUid);
         }
 
-        public int ClientGetMoney()
-        {
-            return GetNowMoney(clientIsMine);
-        }
-
         public void ClientRequestQuitBattle()
         {
             using (MemoryStream ms = new MemoryStream())

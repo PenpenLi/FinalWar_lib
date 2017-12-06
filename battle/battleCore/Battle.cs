@@ -155,15 +155,17 @@ namespace FinalWar
 
             ClearFearAction();
 
+            Dictionary<int, int> tmpSummon = summon;
+
+            summon = new Dictionary<int, int>();
+
             yield return new BattleRefreshVO();
 
             yield return DoSkill(battleData);
 
             //yield return DoRoundStart(battleData);
 
-            yield return DoSummon(battleData);
-
-            ClearSummon();
+            yield return DoSummon(battleData, tmpSummon);
 
             //yield return DoRush(battleData);
 
@@ -273,9 +275,9 @@ namespace FinalWar
             roundNum = 0;
         }
 
-        private IEnumerator DoSummon(BattleData _battleData)
+        private IEnumerator DoSummon(BattleData _battleData, Dictionary<int, int> _summon)
         {
-            IEnumerator<KeyValuePair<int, int>> enumerator = GetSummonEnumerator();
+            IEnumerator<KeyValuePair<int, int>> enumerator = _summon.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
