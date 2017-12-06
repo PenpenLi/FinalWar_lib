@@ -296,6 +296,10 @@ namespace FinalWar
 
                 AddHero(_battleData, summonHero);
 
+                yield return new BattleAddCardsVO(summonHero.isMine, null);
+
+                yield return new BattleMoneyChangeVO(summonHero.isMine, -summonHero.sds.GetCost());
+
                 yield return new BattleSummonVO(summonHero.isMine, tmpCardUid, summonHero.sds.GetID(), pos);
             }
         }
@@ -1107,6 +1111,8 @@ namespace FinalWar
 
                 if (captureList != null)
                 {
+                    yield return new BattleScoreChangeVO();
+
                     List<Func<BattleTriggerAuraVO>>[] funcList = null;
 
                     for (int i = 0; i < captureList.Count; i++)
