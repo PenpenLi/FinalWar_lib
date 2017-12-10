@@ -48,7 +48,7 @@ namespace FinalWar
 
         public int roundNum { private set; get; }
 
-        private int maxRoundNum;
+        public int maxRoundNum { private set; get; }
 
         internal SuperEventListener eventListener = new SuperEventListener();
 
@@ -84,6 +84,8 @@ namespace FinalWar
 
         internal void InitBattle(int _mapID, int _maxRoundNum, int[] _mCards, int[] _oCards)
         {
+            Reset();
+
             maxRoundNum = _maxRoundNum;
 
             IMapSDS mapSDS = GetMapData(_mapID);
@@ -205,20 +207,14 @@ namespace FinalWar
             if (oWin && mWin)
             {
                 battleResult = BattleResult.DRAW;
-
-                BattleOver();
             }
             else if (oWin)
             {
                 battleResult = BattleResult.O_WIN;
-
-                BattleOver();
             }
             else if (mWin)
             {
                 battleResult = BattleResult.M_WIN;
-
-                BattleOver();
             }
             else
             {
@@ -238,8 +234,6 @@ namespace FinalWar
                     {
                         battleResult = BattleResult.DRAW;
                     }
-
-                    BattleOver();
                 }
                 else
                 {
@@ -250,7 +244,7 @@ namespace FinalWar
             return battleResult;
         }
 
-        internal void BattleOver()
+        private void Reset()
         {
             eventListener.Clear();
 

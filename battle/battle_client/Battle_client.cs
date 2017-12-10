@@ -16,6 +16,8 @@ namespace FinalWar
         private Action<SuperEnumerator<ValueType>> clientDoActionCallBack;
         private Action<BattleResult> clientBattleOverCallBack;
 
+        private bool isBattle;
+
         private bool isVsAi;
 
         public void ClientSetCallBack(Action<MemoryStream, Action<BinaryReader>> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action<BattleResult> _clientBattleOverCallBack)
@@ -40,8 +42,6 @@ namespace FinalWar
 
                 case PackageTag.S2C_QUIT:
 
-                    BattleOver();
-
                     BattleResult battleResult = _br.ReadBoolean() ? BattleResult.O_WIN : BattleResult.M_WIN;
 
                     clientBattleOverCallBack(battleResult);
@@ -52,11 +52,11 @@ namespace FinalWar
 
         private void ClientRefreshData(BinaryReader _br)
         {
-            BattleOver();
-
             clientIsMine = _br.ReadBoolean();
 
             Log.Write("ClientRefreshData  isMine:" + clientIsMine);
+
+            isBattle = _br.ReadBoolean();
 
             isVsAi = _br.ReadBoolean();
 

@@ -66,7 +66,7 @@ namespace FinalWar
 
         private Action<bool, bool, MemoryStream> serverSendDataCallBack;
 
-        private Action<Battle.BattleResult> serverBattleOverCallBack;
+        private Action<Battle.BattleResult> serverRoundOverCallBack;
 
         private bool isBattle;
 
@@ -83,7 +83,7 @@ namespace FinalWar
         {
             serverSendDataCallBack = _serverSendDataCallBack;
 
-            serverBattleOverCallBack = _serverBattleOverCallBack;
+            serverRoundOverCallBack = _serverBattleOverCallBack;
         }
 
         public void ServerStart(int _mapID, int _maxRoundNum, IList<int> _mCards, IList<int> _oCards, bool _isVsAi)
@@ -124,13 +124,17 @@ namespace FinalWar
 
                 case PackageTag.C2S_DOACTION:
 
-                    ServerDoAction(_isMine, _br);
-
-                    return true;
+                    return ServerDoAction(_isMine, _br);
 
                 case PackageTag.C2S_QUIT:
 
                     ServerQuitBattle(_isMine);
+
+                    return false;
+
+                case PackageTag.C2S_RESULT:
+
+
 
                     return false;
 
@@ -164,6 +168,8 @@ namespace FinalWar
 
                         tmpCardState = CardState.O;
                     }
+
+                    bw.Write(isBattle);
 
                     bw.Write(_isMine);
 
@@ -239,7 +245,7 @@ namespace FinalWar
             }
         }
 
-        private void ServerDoAction(bool _isMine, BinaryReader _br)
+        private bool ServerDoAction(bool _isMine, BinaryReader _br)
         {
             serverSendDataCallBack(_isMine, false, new MemoryStream());
 
@@ -247,14 +253,14 @@ namespace FinalWar
             {
                 if (mOver)
                 {
-                    return;
+                    return false;
                 }
             }
             else
             {
                 if (oOver)
                 {
-                    return;
+                    return false;
                 }
             }
 
@@ -287,6 +293,12 @@ namespace FinalWar
                 }
 
                 ServerDoActionReal(_isMine);
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -336,9 +348,9 @@ namespace FinalWar
                                 serverSendDataCallBack(true, true, mMs);
 
                                 serverSendDataCallBack(false, true, oMs);
-
-                                serverBattleOverCallBack(battleResult);
                             }
+
+                            serverRoundOverCallBack(battleResult);
                         }
                         else
                         {
@@ -387,20 +399,15 @@ namespace FinalWar
                 }
             }
 
-            if (isBattle)
-            {
-                battle.BattleOver();
-            }
-
             ResetData();
 
             if (_isMine)
             {
-                serverBattleOverCallBack(Battle.BattleResult.O_WIN);
+                serverRoundOverCallBack(Battle.BattleResult.O_WIN);
             }
             else
             {
-                serverBattleOverCallBack(Battle.BattleResult.M_WIN);
+                serverRoundOverCallBack(Battle.BattleResult.M_WIN);
             }
         }
 
@@ -721,8 +728,6 @@ namespace FinalWar
         {
             Battle.BattleResult battleResult = Battle.BattleResult.NOT_OVER;
 
-            _battle.BattleOver();
-
             _battle.InitBattle(_recordData.mapID, _recordData.maxRoundNum, _recordData.mCards, _recordData.oCards);
 
             for (int i = 0; i < _recordData.roundNum; i++)
@@ -734,8 +739,6 @@ namespace FinalWar
                     break;
                 }
             }
-
-            _battle.BattleOver();
 
             return battleResult;
         }
