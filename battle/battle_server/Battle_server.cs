@@ -136,6 +136,8 @@ namespace FinalWar
 
                     Battle.BattleResult battleResult = (Battle.BattleResult)_br.ReadByte();
 
+                    Log.Write("server get result:" + battleResult);
+
                     return false;
 
                 default:
@@ -169,9 +171,9 @@ namespace FinalWar
                         tmpCardState = CardState.O;
                     }
 
-                    bw.Write(processBattle);
-
                     bw.Write(_isMine);
+
+                    bw.Write(processBattle);
 
                     bw.Write(recordData.isVsAi);
 

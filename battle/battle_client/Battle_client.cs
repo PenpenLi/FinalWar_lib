@@ -309,7 +309,7 @@ namespace FinalWar
 
             if (!serverProcessBattle)
             {
-                SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(StartBattle());
+                SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(simulateBattle.StartBattle());
 
                 superEnumerator.Done();
 
