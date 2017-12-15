@@ -68,13 +68,13 @@ namespace FinalWar
 
         private Action<Battle.BattleResult> serverRoundOverCallBack;
 
-        private bool isBattle;
+        private bool processBattle;
 
         private BattleRecordData recordData;
 
-        public Battle_server(bool _isBattle)
+        public Battle_server(bool _processBattle)
         {
-            isBattle = _isBattle;
+            processBattle = _processBattle;
 
             battle = new Battle();
         }
@@ -104,7 +104,7 @@ namespace FinalWar
 
             InitCardState(cardStateArr, recordData);
 
-            if (isBattle)
+            if (processBattle)
             {
                 battle.InitBattle(recordData.mapID, recordData.maxRoundNum, recordData.mCards, recordData.oCards);
             }
@@ -134,7 +134,7 @@ namespace FinalWar
 
                 case PackageTag.C2S_RESULT:
 
-
+                    Battle.BattleResult battleResult = (Battle.BattleResult)_br.ReadByte();
 
                     return false;
 
@@ -169,7 +169,7 @@ namespace FinalWar
                         tmpCardState = CardState.O;
                     }
 
-                    bw.Write(isBattle);
+                    bw.Write(processBattle);
 
                     bw.Write(_isMine);
 
@@ -325,7 +325,7 @@ namespace FinalWar
 
                         ServerStartBattle(mBw, oBw, recordData);
 
-                        if (isBattle)
+                        if (processBattle)
                         {
                             Battle.BattleResult battleResult = ProcessBattle(battle, recordData.data[recordData.roundNum], recordData.isVsAi);
 

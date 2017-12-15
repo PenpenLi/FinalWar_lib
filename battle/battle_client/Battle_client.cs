@@ -16,9 +16,11 @@ namespace FinalWar
         private Action<SuperEnumerator<ValueType>> clientDoActionCallBack;
         private Action<BattleResult> clientBattleOverCallBack;
 
-        private bool isBattle;
+        private bool serverProcessBattle;
 
         private bool isVsAi;
+
+        private Battle simulateBattle = new Battle();
 
         public void ClientSetCallBack(Action<MemoryStream, Action<BinaryReader>> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action<BattleResult> _clientBattleOverCallBack)
         {
@@ -56,7 +58,7 @@ namespace FinalWar
 
             Log.Write("ClientRefreshData  isMine:" + clientIsMine);
 
-            isBattle = _br.ReadBoolean();
+            serverProcessBattle = _br.ReadBoolean();
 
             isVsAi = _br.ReadBoolean();
 
@@ -74,6 +76,11 @@ namespace FinalWar
 
             InitBattle(mapID, maxRoundNum, mCards, oCards);
 
+            if (!serverProcessBattle)
+            {
+                simulateBattle.InitBattle(mapID, maxRoundNum, mCards, oCards);
+            }
+
             num = _br.ReadInt32();
 
             for (int i = 0; i < num; i++)
@@ -83,35 +90,61 @@ namespace FinalWar
                 int id = _br.ReadInt32();
 
                 SetCard(uid, id);
+
+                if (!serverProcessBattle)
+                {
+                    simulateBattle.SetCard(uid, id);
+                }
             }
 
             num = _br.ReadInt32();
 
             for (int i = 0; i < num; i++)
             {
-                ReadRoundDataFromStream(_br);
+                long pos = _br.BaseStream.Position;
+
+                ReadRoundDataFromStream(_br, this);
+
+                if (!serverProcessBattle)
+                {
+                    _br.BaseStream.Position = pos;
+
+                    ReadRoundDataFromStream(_br, simulateBattle);
+                }
 
                 if (isVsAi)
                 {
                     BattleAi.Start(this, false, GetRandomValue);
+
+                    if (!serverProcessBattle)
+                    {
+                        BattleAi.Start(simulateBattle, false, simulateBattle.GetRandomValue);
+                    }
                 }
 
                 SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(StartBattle());
 
                 superEnumerator.Done();
+
+                if (!serverProcessBattle)
+                {
+                    superEnumerator = new SuperEnumerator<ValueType>(simulateBattle.StartBattle());
+
+                    superEnumerator.Done();
+                }
             }
 
             clientIsOver = _br.ReadBoolean();
 
             if (clientIsOver)
             {
-                ReadRoundDataFromStream(_br);
+                ReadRoundDataFromStream(_br, this);
             }
 
             clientRefreshDataCallBack();
         }
 
-        private void ReadRoundDataFromStream(BinaryReader _br)
+        private static void ReadRoundDataFromStream(BinaryReader _br, Battle _battle)
         {
             int num = _br.ReadInt32();
 
@@ -121,7 +154,7 @@ namespace FinalWar
 
                 int pos = _br.ReadInt32();
 
-                AddSummon(uid, pos);
+                _battle.AddSummon(uid, pos);
             }
 
             num = _br.ReadInt32();
@@ -132,12 +165,12 @@ namespace FinalWar
 
                 int targetPos = _br.ReadInt32();
 
-                AddAction(pos, targetPos);
+                _battle.AddAction(pos, targetPos);
             }
 
             int randomIndex = _br.ReadInt32();
 
-            SetRandomSeed(randomIndex);
+            _battle.SetRandomSeed(randomIndex);
         }
 
         public bool ClientRequestSummon(int _cardUid, int _pos)
@@ -237,7 +270,16 @@ namespace FinalWar
 
             ClearAction();
 
-            ReadRoundDataFromStream(_br);
+            long pos = _br.BaseStream.Position;
+
+            ReadRoundDataFromStream(_br, this);
+
+            if (!serverProcessBattle)
+            {
+                _br.BaseStream.Position = pos;
+
+                ReadRoundDataFromStream(_br, simulateBattle);
+            }
 
             int num = _br.ReadInt32();
 
@@ -248,11 +290,42 @@ namespace FinalWar
                 int id = _br.ReadInt32();
 
                 SetCard(uid, id);
+
+                if (!serverProcessBattle)
+                {
+                    simulateBattle.SetCard(uid, id);
+                }
             }
 
             if (isVsAi)
             {
                 BattleAi.Start(this, false, GetRandomValue);
+
+                if (!serverProcessBattle)
+                {
+                    BattleAi.Start(simulateBattle, false, simulateBattle.GetRandomValue);
+                }
+            }
+
+            if (!serverProcessBattle)
+            {
+                SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(StartBattle());
+
+                superEnumerator.Done();
+
+                BattleResult battleResult = (BattleResult)superEnumerator.Current;
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (BinaryWriter bw = new BinaryWriter(ms))
+                    {
+                        bw.Write(PackageTag.C2S_RESULT);
+
+                        bw.Write((byte)battleResult);
+
+                        clientSendDataCallBack(ms, GetResponse);
+                    }
+                }
             }
 
             clientDoActionCallBack(new SuperEnumerator<ValueType>(StartBattle()));
