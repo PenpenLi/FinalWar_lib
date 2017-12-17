@@ -429,13 +429,23 @@ namespace FinalWar
         {
             ResetData();
 
-            recordData = GetRecordDataFromBytes(_bytes);
+            recordData = ReadRecordDataFromBytes(_bytes);
 
             InitCardState(cardStateArr, recordData);
 
             for (int i = 0; i < recordData.roundNum; i++)
             {
                 ServerSetCardState(cardStateArr, recordData, i);
+            }
+
+            if (processBattle)
+            {
+                battle.InitBattle(recordData.mapID, recordData.maxRoundNum, recordData.mCards, recordData.oCards);
+
+                for (int i = 0; i < recordData.roundNum; i++)
+                {
+                    ProcessBattle(battle, recordData.data[i], recordData.isVsAi);
+                }
             }
         }
 
@@ -811,7 +821,7 @@ namespace FinalWar
             }
         }
 
-        private static BattleRecordData GetRecordDataFromBytes(byte[] _bytes)
+        private static BattleRecordData ReadRecordDataFromBytes(byte[] _bytes)
         {
             BattleRecordData recordData = new BattleRecordData();
 
