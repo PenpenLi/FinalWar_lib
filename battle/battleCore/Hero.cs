@@ -213,7 +213,7 @@ namespace FinalWar
         {
             int tmpSpeedFix = 0;
 
-            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_SPEED, ref tmpSpeedFix, this, _hero);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_SPEED, ref tmpSpeedFix, this, _hero);
 
             return tmpSpeedFix;
         }
@@ -286,7 +286,7 @@ namespace FinalWar
         {
             int attackFixAura = 0;
 
-            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_ATTACK, ref attackFixAura, this, _hero);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK, ref attackFixAura, this, _hero);
 
             return attackFixAura;
         }
