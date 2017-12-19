@@ -715,7 +715,7 @@ namespace FinalWar
                                     attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
                                 }
 
-                                int damage = attacker.GetDamage();
+                                int damage = attacker.GetDamage(stander);
 
                                 BattleHeroEffectVO vo = attacker.Rush(stander, damage, ref funcList);
 
@@ -855,8 +855,6 @@ namespace FinalWar
                                     attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
                                 }
 
-                                int attackerSpeed = attacker.GetAttackSpeed();
-
                                 Hero defender;
 
                                 int defenderSpeed;
@@ -865,19 +863,19 @@ namespace FinalWar
                                 {
                                     defender = cellData.stander;
 
-                                    defenderSpeed = defender.GetDefenseSpeed();
+                                    defenderSpeed = defender.GetDefenseSpeed(attacker);
                                 }
                                 else if (cellData.supporters.Count > 0)
                                 {
                                     defender = cellData.supporters[0];
 
-                                    defenderSpeed = defender.GetSupportSpeed();
+                                    defenderSpeed = defender.GetSupportSpeed(attacker);
                                 }
                                 else
                                 {
                                     defender = cellData.stander;
 
-                                    defenderSpeed = defender.GetAttackSpeed();
+                                    defenderSpeed = defender.GetAttackSpeed(attacker);
 
                                     defender.DoAttack();
 
@@ -893,6 +891,8 @@ namespace FinalWar
 
                                     checkedPosDic.Add(attacker.pos, true);
                                 }
+
+                                int attackerSpeed = attacker.GetAttackSpeed(defender);
 
                                 yield return new BattlePrepareAttackVO(cellData.pos, attacker.pos, attackerSpeed, defender.pos, defenderSpeed);
 
@@ -914,9 +914,9 @@ namespace FinalWar
 
                                     if (speedDiff == 0)
                                     {
-                                        attackDamage = attacker.GetDamage();
+                                        attackDamage = attacker.GetDamage(defender);
 
-                                        defenseDamage = defender.GetDamage();
+                                        defenseDamage = defender.GetDamage(attacker);
 
                                         attackerShield = true;
 
@@ -924,9 +924,9 @@ namespace FinalWar
                                     }
                                     else if (speedDiff == 1)
                                     {
-                                        attackDamage = attacker.GetDamage();
+                                        attackDamage = attacker.GetDamage(defender);
 
-                                        defenseDamage = defender.GetDamageWithoutShield();
+                                        defenseDamage = defender.GetDamageWithoutShield(attacker);
 
                                         attackerShield = true;
 
@@ -934,9 +934,9 @@ namespace FinalWar
                                     }
                                     else
                                     {
-                                        attackDamage = attacker.GetDamageWithoutShield();
+                                        attackDamage = attacker.GetDamageWithoutShield(defender);
 
-                                        defenseDamage = defender.GetDamage();
+                                        defenseDamage = defender.GetDamage(attacker);
 
                                         attackerShield = false;
 
@@ -953,7 +953,7 @@ namespace FinalWar
 
                                     defenderShield = false;
 
-                                    int attackDamage = attacker.GetDamage();
+                                    int attackDamage = attacker.GetDamage(defender);
 
                                     attackVO = attacker.Attack(defender, attackDamage, ref funcList);
 
@@ -965,7 +965,7 @@ namespace FinalWar
 
                                     defenderShield = true;
 
-                                    int defenseDamage = defender.GetDamage();
+                                    int defenseDamage = defender.GetDamage(attacker);
 
                                     attackVO = new BattleHeroEffectVO(Effect.NULL, null);
 

@@ -188,32 +188,32 @@ namespace FinalWar
             return !battle.GetFearActionContainsKey(pos);
         }
 
-        internal int GetAttackSpeed()
+        internal int GetAttackSpeed(Hero _hero)
         {
-            int speed = sds.GetHeroType().GetAttackSpeed() + GetSpeedFix();
+            int speed = sds.GetHeroType().GetAttackSpeed() + GetSpeedFix(_hero);
 
             return FixSpeed(speed);
         }
 
-        internal int GetDefenseSpeed()
+        internal int GetDefenseSpeed(Hero _hero)
         {
-            int speed = sds.GetHeroType().GetDefenseSpeed() + GetSpeedFix();
+            int speed = sds.GetHeroType().GetDefenseSpeed() + GetSpeedFix(_hero);
 
             return FixSpeed(speed);
         }
 
-        internal int GetSupportSpeed()
+        internal int GetSupportSpeed(Hero _hero)
         {
-            int speed = sds.GetHeroType().GetSupportSpeed() + GetSpeedFix();
+            int speed = sds.GetHeroType().GetSupportSpeed() + GetSpeedFix(_hero);
 
             return FixSpeed(speed);
         }
 
-        public int GetSpeedFix()
+        public int GetSpeedFix(Hero _hero)
         {
             int tmpSpeedFix = 0;
 
-            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_SPEED, ref tmpSpeedFix, this, null);
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_SPEED, ref tmpSpeedFix, this, _hero);
 
             return tmpSpeedFix;
         }
@@ -258,9 +258,9 @@ namespace FinalWar
             return tmpCanMove;
         }
 
-        public int GetDamage()
+        public int GetDamage(Hero _hero)
         {
-            int attack = sds.GetAttack() + GetAttackFix() + nowShield;
+            int attack = sds.GetAttack() + GetAttackFix(_hero) + nowShield;
 
             if (attack < 0)
             {
@@ -270,9 +270,9 @@ namespace FinalWar
             return attack;
         }
 
-        public int GetDamageWithoutShield()
+        public int GetDamageWithoutShield(Hero _hero)
         {
-            int attack = sds.GetAttack() + GetAttackFix();
+            int attack = sds.GetAttack() + GetAttackFix(_hero);
 
             if (attack < 0)
             {
@@ -282,11 +282,11 @@ namespace FinalWar
             return attack;
         }
 
-        private int GetAttackFix()
+        private int GetAttackFix(Hero _hero)
         {
             int attackFixAura = 0;
 
-            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_ATTACK, ref attackFixAura, this, null);
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_ATTACK, ref attackFixAura, this, _hero);
 
             return attackFixAura;
         }
