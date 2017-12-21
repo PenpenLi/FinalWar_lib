@@ -605,6 +605,11 @@ namespace FinalWar
             {
                 Hero hero = GetConditionHero(_hero, _triggerHero, _triggerTargetHero, _sds.GetConditionTarget()[0]);
 
+                if (hero == null)
+                {
+                    return false;
+                }
+
                 first = GetConditionData(_battle, hero, conditionType);
             }
 
@@ -617,6 +622,11 @@ namespace FinalWar
             else
             {
                 Hero hero = GetConditionHero(_hero, _triggerHero, _triggerTargetHero, _sds.GetConditionTarget()[1]);
+
+                if (hero == null)
+                {
+                    return false;
+                }
 
                 second = GetConditionData(_battle, hero, conditionType);
             }

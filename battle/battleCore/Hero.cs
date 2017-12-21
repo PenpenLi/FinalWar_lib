@@ -209,7 +209,12 @@ namespace FinalWar
             return FixSpeed(speed);
         }
 
-        public int GetSpeedFix(Hero _hero)
+        public int GetSpeedFix()
+        {
+            return GetSpeedFix(null);
+        }
+
+        internal int GetSpeedFix(Hero _hero)
         {
             int tmpSpeedFix = 0;
 
@@ -258,7 +263,12 @@ namespace FinalWar
             return tmpCanMove;
         }
 
-        public int GetDamage(Hero _hero)
+        public int GetDamage()
+        {
+            return GetDamage(null);
+        }
+
+        internal int GetDamage(Hero _hero)
         {
             int attack = sds.GetAttack() + GetAttackFix(_hero) + nowShield;
 
@@ -270,7 +280,12 @@ namespace FinalWar
             return attack;
         }
 
-        public int GetDamageWithoutShield(Hero _hero)
+        public int GetDamageWithoutShield()
+        {
+            return GetDamageWithoutShield(null);
+        }
+
+        internal int GetDamageWithoutShield(Hero _hero)
         {
             int attack = sds.GetAttack() + GetAttackFix(_hero);
 
