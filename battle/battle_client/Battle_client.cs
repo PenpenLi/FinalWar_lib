@@ -66,6 +66,8 @@ namespace FinalWar
 
             int maxRoundNum = _br.ReadInt32();
 
+            int randomSeed = _br.ReadInt32();
+
             int num = _br.ReadInt32();
 
             int[] mCards = new int[num];
@@ -74,11 +76,11 @@ namespace FinalWar
 
             int[] oCards = new int[num];
 
-            InitBattle(mapID, maxRoundNum, mCards, oCards);
+            InitBattle(mapID, maxRoundNum, mCards, oCards, randomSeed);
 
             if (!serverProcessBattle)
             {
-                simulateBattle.InitBattle(mapID, maxRoundNum, mCards, oCards);
+                simulateBattle.InitBattle(mapID, maxRoundNum, mCards, oCards, randomSeed);
             }
 
             num = _br.ReadInt32();
@@ -168,9 +170,9 @@ namespace FinalWar
                 _battle.AddAction(pos, targetPos);
             }
 
-            int randomIndex = _br.ReadInt32();
+            int randomSeed = _br.ReadInt32();
 
-            _battle.SetRandomSeed(randomIndex);
+            _battle.SetRandomSeed(randomSeed);
         }
 
         public bool ClientRequestSummon(int _cardUid, int _pos)

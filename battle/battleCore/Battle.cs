@@ -82,7 +82,7 @@ namespace FinalWar
             return random.Get(_max);
         }
 
-        internal void InitBattle(int _mapID, int _maxRoundNum, int[] _mCards, int[] _oCards)
+        internal void InitBattle(int _mapID, int _maxRoundNum, int[] _mCards, int[] _oCards, int _randomSeed)
         {
             Reset();
 
@@ -140,6 +140,8 @@ namespace FinalWar
 
                 heroMapDic.Add(pos, hero);
             }
+
+            random.SetSeed(_randomSeed);
 
             IEnumerator ie = DoRecover();
 
