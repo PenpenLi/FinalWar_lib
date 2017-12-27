@@ -141,7 +141,7 @@ namespace FinalWar
                 heroMapDic.Add(pos, hero);
             }
 
-            random.SetSeed(_randomSeed);
+            SetRandomSeed(_randomSeed);
 
             IEnumerator ie = DoRecover();
 
