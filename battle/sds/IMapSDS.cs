@@ -1,9 +1,11 @@
-﻿namespace FinalWar
+﻿using System.Collections.Generic;
+
+namespace FinalWar
 {
     public interface IMapSDS
     {
         MapData GetMapData();
-        int[] GetHeroPos();
-        int[] GetHeroID();
+        KeyValuePair<int, int>[] GetHero();
+        KeyValuePair<int, int>[] GetFearAction();
     }
 }

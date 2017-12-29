@@ -88,7 +88,7 @@ namespace FinalWar
             serverRoundOverCallBack = _serverBattleOverCallBack;
         }
 
-        public void ServerStart(int _mapID, int _maxRoundNum, IList<int> _mCards, IList<int> _oCards, int _randomSeed, bool _isVsAi)
+        public void ServerStart(int _mapID, int _maxRoundNum, IList<int> _mCards, IList<int> _oCards, bool _isVsAi)
         {
             Log.Write("Battle Start!");
 
@@ -102,14 +102,7 @@ namespace FinalWar
 
             recordData.isVsAi = _isVsAi;
 
-            if (_randomSeed < 0)
-            {
-                recordData.randomSeed = random.Next();
-            }
-            else
-            {
-                recordData.randomSeed = _randomSeed;
-            }
+            recordData.randomSeed = random.Next();
 
             InitCards(_mCards, _oCards, out recordData.mCards, out recordData.oCards);
 

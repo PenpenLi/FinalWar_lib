@@ -126,11 +126,13 @@ namespace FinalWar
                 }
             }
 
-            for (int i = 0; i < mapSDS.GetHeroID().Length; i++)
+            for (int i = 0; i < mapSDS.GetHero().Length; i++)
             {
-                int pos = mapSDS.GetHeroPos()[i];
+                KeyValuePair<int, int> pair = mapSDS.GetHero()[i];
 
-                int id = mapSDS.GetHeroID()[i];
+                int pos = pair.Key;
+
+                int id = pair.Value;
 
                 bool isMine = GetPosIsMine(pos);
 
@@ -148,6 +150,16 @@ namespace FinalWar
             while (ie.MoveNext())
             {
 
+            }
+
+            if (mapSDS.GetFearAction() != null)
+            {
+                fearAction.Clear();
+
+                for (int i = 0; i < mapSDS.GetFearAction().Length; i++)
+                {
+                    fearAction.Add(mapSDS.GetFearAction()[i]);
+                }
             }
         }
 
