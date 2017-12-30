@@ -404,7 +404,7 @@ namespace FinalWar
             {
                 List<int> tmpList = BattlePublicTools.GetCanAttackPos(battle, this);
 
-                if (tmpList.Count > 0)
+                if (tmpList != null)
                 {
                     int index = battle.GetRandomValue(tmpList.Count);
 
