@@ -81,11 +81,11 @@ namespace FinalWar
             battle = new Battle();
         }
 
-        public void ServerSetCallBack(Action<bool, bool, MemoryStream> _serverSendDataCallBack, Action<Battle.BattleResult> _serverBattleOverCallBack)
+        public void ServerSetCallBack(Action<bool, bool, MemoryStream> _serverSendDataCallBack, Action<Battle.BattleResult> _serverRoundOverCallBack)
         {
             serverSendDataCallBack = _serverSendDataCallBack;
 
-            serverRoundOverCallBack = _serverBattleOverCallBack;
+            serverRoundOverCallBack = _serverRoundOverCallBack;
         }
 
         public void ServerStart(int _mapID, int _maxRoundNum, IList<int> _mCards, IList<int> _oCards, bool _isVsAi)
