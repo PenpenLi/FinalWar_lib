@@ -152,7 +152,7 @@ namespace FinalWar
 
             }
 
-            if (mapSDS.GetFearAction() != null)
+            if (mapSDS.GetIsFearAction())
             {
                 fearAction.Clear();
 
