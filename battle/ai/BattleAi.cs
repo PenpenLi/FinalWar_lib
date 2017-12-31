@@ -77,8 +77,6 @@ namespace FinalWar
         private static void SummonHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack)
         {
             summonBtRoot.Enter(_getRandomValueCallBack, _battle, _isMine, aiSummonData);
-
-            aiSummonData.summonPosList.Clear();
         }
 
         private static void ClearAction(Battle _battle, bool _isMine)
