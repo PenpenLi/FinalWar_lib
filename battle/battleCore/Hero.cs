@@ -327,6 +327,10 @@ namespace FinalWar
 
                     break;
 
+                case FearType.NEVER:
+
+                    break;
+
                 default:
 
                     if (CheckFear())

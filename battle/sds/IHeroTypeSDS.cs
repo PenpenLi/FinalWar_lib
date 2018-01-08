@@ -3,7 +3,8 @@
     public enum FearType
     {
         PROBABILITY,
-        ALWAYS
+        ALWAYS,
+        NEVER
     }
 
     public interface IHeroTypeSDS
