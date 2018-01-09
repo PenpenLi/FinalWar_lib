@@ -12,7 +12,7 @@
         public const int MAX_SPEED = 2;
         public const int MIN_SPEED = -2;
 
-
+        public const int MAX_PRIORITY = short.MaxValue;
 
         public const string BE_SILENCE = "beSilence";
         public const string FIX_ATTACK = "fixAttack";

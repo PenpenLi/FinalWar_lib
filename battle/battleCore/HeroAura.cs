@@ -31,7 +31,7 @@ namespace FinalWar
 
             ids.Add(id);
 
-            SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>[], Hero, Hero> dele = delegate (int _index, ref List<Func<BattleTriggerAuraVO>>[] _funcList, Hero _triggerHero, Hero _triggerTargetHero)
+            SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _funcList, Hero _triggerHero, Hero _triggerTargetHero)
             {
                 if (_triggerHero == _hero)
                 {
@@ -42,19 +42,19 @@ namespace FinalWar
                 }
             };
 
-            id = _battle.eventListener.AddListener(BattleConst.DIE, dele, SuperEventListener.MAX_PRIORITY - 1);
+            id = _battle.eventListener.AddListener(BattleConst.DIE, dele, BattleConst.MAX_PRIORITY - 1);
 
             ids.Add(id);
 
             if (_isInBorn)
             {
-                id = _battle.eventListener.AddListener(BattleConst.BE_SILENCE, dele, SuperEventListener.MAX_PRIORITY - 1);
+                id = _battle.eventListener.AddListener(BattleConst.BE_SILENCE, dele, BattleConst.MAX_PRIORITY - 1);
 
                 ids.Add(id);
             }
             else
             {
-                id = _battle.eventListener.AddListener(BattleConst.BE_CLEAN, dele, SuperEventListener.MAX_PRIORITY - 1);
+                id = _battle.eventListener.AddListener(BattleConst.BE_CLEAN, dele, BattleConst.MAX_PRIORITY - 1);
 
                 ids.Add(id);
 
@@ -78,7 +78,7 @@ namespace FinalWar
 
             for (int i = 0; i < sds.GetRemoveEventNames().Length; i++)
             {
-                id = _battle.eventListener.AddListener(sds.GetRemoveEventNames()[i], dele, SuperEventListener.MAX_PRIORITY - 1);
+                id = _battle.eventListener.AddListener(sds.GetRemoveEventNames()[i], dele, BattleConst.MAX_PRIORITY - 1);
 
                 ids.Add(id);
             }
@@ -124,7 +124,7 @@ namespace FinalWar
 
                     int priority = effectSDS.GetPriority();
 
-                    SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>[], Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>>[] _funcList, Hero _triggerHero, Hero _triggerTargetHero)
+                    SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _funcList, Hero _triggerHero, Hero _triggerTargetHero)
                     {
                         if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
                         {
@@ -135,19 +135,10 @@ namespace FinalWar
 
                             if (_funcList == null)
                             {
-                                _funcList = new List<Func<BattleTriggerAuraVO>>[SuperEventListener.MAX_PRIORITY];
+                                _funcList = new List<Func<BattleTriggerAuraVO>>();
                             }
 
-                            List<Func<BattleTriggerAuraVO>> tmpList = _funcList[priority];
-
-                            if (tmpList == null)
-                            {
-                                tmpList = new List<Func<BattleTriggerAuraVO>>();
-
-                                _funcList[priority] = tmpList;
-                            }
-
-                            tmpList.Add(func);
+                            _funcList.Add(func);
                         }
                     };
 

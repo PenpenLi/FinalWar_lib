@@ -33,13 +33,11 @@ namespace superEvent
         internal delegate void SuperFunctionCallBackV3<T, T1, T2, T3>(int _index, ref T t, T1 t1, T2 t2, T3 t3);
         internal delegate void SuperFunctionCallBackV4<T, T1, T2, T3, T4>(int _index, ref T t, T1 t1, T2 t2, T3 t3, T4 t4);
 
-        internal const int MAX_PRIORITY = 16;
-
         private Dictionary<int, SuperEventListenerUnit> dicWithID = new Dictionary<int, SuperEventListenerUnit>();
         private Dictionary<string, Dictionary<Delegate, SuperEventListenerUnit>> dicWithEvent = new Dictionary<string, Dictionary<Delegate, SuperEventListenerUnit>>();
 
-        private Queue<LinkedList<List<SuperEventListenerUnit>>> pool = new Queue<LinkedList<List<SuperEventListenerUnit>>>();
-        private Queue<LinkedListNode<List<SuperEventListenerUnit>>> pool1 = new Queue<LinkedListNode<List<SuperEventListenerUnit>>>();
+        private Queue<LinkedList<SuperEventListenerUnit>> pool = new Queue<LinkedList<SuperEventListenerUnit>>();
+        private Queue<LinkedListNode<SuperEventListenerUnit>> pool1 = new Queue<LinkedListNode<SuperEventListenerUnit>>();
         private Queue<Dictionary<Delegate, SuperEventListenerUnit>> pool2 = new Queue<Dictionary<Delegate, SuperEventListenerUnit>>();
 
         private int nowIndex;
@@ -263,29 +261,26 @@ namespace superEvent
 
         internal bool DispatchEvent(string _eventName)
         {
-            LinkedList<List<SuperEventListenerUnit>> linkedList = DispatchEventReal<SuperFunctionCallBack>(_eventName);
+            LinkedList<SuperEventListenerUnit> linkedList = DispatchEventReal<SuperFunctionCallBack>(_eventName);
 
             if (linkedList != null)
             {
                 while (linkedList.First != null)
                 {
-                    LinkedListNode<List<SuperEventListenerUnit>> node = linkedList.First;
+                    LinkedListNode<SuperEventListenerUnit> node = linkedList.First;
 
-                    for (int i = 0; i < node.Value.Count; i++)
-                    {
-                        SuperEventListenerUnit unit = node.Value[i];
+                    SuperEventListenerUnit unit = node.Value;
 
-                        SuperFunctionCallBack cb = unit.callBack as SuperFunctionCallBack;
+                    SuperFunctionCallBack cb = unit.callBack as SuperFunctionCallBack;
 
-                        cb(unit.index);
-                    }
+                    cb(unit.index);
 
                     ReleaseLinkedListNode(node);
 
                     linkedList.RemoveFirst();
                 }
 
-                ReleaseArr(linkedList);
+                ReleaseLinkedList(linkedList);
 
                 return true;
             }
@@ -297,29 +292,26 @@ namespace superEvent
 
         internal bool DispatchEvent<T1>(string _eventName, T1 t1)
         {
-            LinkedList<List<SuperEventListenerUnit>> linkedList = DispatchEventReal<SuperFunctionCallBack1<T1>>(_eventName);
+            LinkedList<SuperEventListenerUnit> linkedList = DispatchEventReal<SuperFunctionCallBack1<T1>>(_eventName);
 
             if (linkedList != null)
             {
                 while (linkedList.First != null)
                 {
-                    LinkedListNode<List<SuperEventListenerUnit>> node = linkedList.First;
+                    LinkedListNode<SuperEventListenerUnit> node = linkedList.First;
 
-                    for (int i = 0; i < node.Value.Count; i++)
-                    {
-                        SuperEventListenerUnit unit = node.Value[i];
+                    SuperEventListenerUnit unit = node.Value;
 
-                        SuperFunctionCallBack1<T1> cb = unit.callBack as SuperFunctionCallBack1<T1>;
+                    SuperFunctionCallBack1<T1> cb = unit.callBack as SuperFunctionCallBack1<T1>;
 
-                        cb(unit.index, t1);
-                    }
+                    cb(unit.index, t1);
 
                     ReleaseLinkedListNode(node);
 
                     linkedList.RemoveFirst();
                 }
 
-                ReleaseArr(linkedList);
+                ReleaseLinkedList(linkedList);
 
                 return true;
             }
@@ -331,29 +323,26 @@ namespace superEvent
 
         internal bool DispatchEvent<T1, T2>(string _eventName, T1 t1, T2 t2)
         {
-            LinkedList<List<SuperEventListenerUnit>> linkedList = DispatchEventReal<SuperFunctionCallBack2<T1, T2>>(_eventName);
+            LinkedList<SuperEventListenerUnit> linkedList = DispatchEventReal<SuperFunctionCallBack2<T1, T2>>(_eventName);
 
             if (linkedList != null)
             {
                 while (linkedList.First != null)
                 {
-                    LinkedListNode<List<SuperEventListenerUnit>> node = linkedList.First;
+                    LinkedListNode<SuperEventListenerUnit> node = linkedList.First;
 
-                    for (int i = 0; i < node.Value.Count; i++)
-                    {
-                        SuperEventListenerUnit unit = node.Value[i];
+                    SuperEventListenerUnit unit = node.Value;
 
-                        SuperFunctionCallBack2<T1, T2> cb = unit.callBack as SuperFunctionCallBack2<T1, T2>;
+                    SuperFunctionCallBack2<T1, T2> cb = unit.callBack as SuperFunctionCallBack2<T1, T2>;
 
-                        cb(unit.index, t1, t2);
-                    }
+                    cb(unit.index, t1, t2);
 
                     ReleaseLinkedListNode(node);
 
                     linkedList.RemoveFirst();
                 }
 
-                ReleaseArr(linkedList);
+                ReleaseLinkedList(linkedList);
 
                 return true;
             }
@@ -365,29 +354,26 @@ namespace superEvent
 
         internal bool DispatchEvent<T1, T2, T3>(string _eventName, T1 t1, T2 t2, T3 t3)
         {
-            LinkedList<List<SuperEventListenerUnit>> linkedList = DispatchEventReal<SuperFunctionCallBack3<T1, T2, T3>>(_eventName);
+            LinkedList<SuperEventListenerUnit> linkedList = DispatchEventReal<SuperFunctionCallBack3<T1, T2, T3>>(_eventName);
 
             if (linkedList != null)
             {
                 while (linkedList.First != null)
                 {
-                    LinkedListNode<List<SuperEventListenerUnit>> node = linkedList.First;
+                    LinkedListNode<SuperEventListenerUnit> node = linkedList.First;
 
-                    for (int i = 0; i < node.Value.Count; i++)
-                    {
-                        SuperEventListenerUnit unit = node.Value[i];
+                    SuperEventListenerUnit unit = node.Value;
 
-                        SuperFunctionCallBack3<T1, T2, T3> cb = unit.callBack as SuperFunctionCallBack3<T1, T2, T3>;
+                    SuperFunctionCallBack3<T1, T2, T3> cb = unit.callBack as SuperFunctionCallBack3<T1, T2, T3>;
 
-                        cb(unit.index, t1, t2, t3);
-                    }
+                    cb(unit.index, t1, t2, t3);
 
                     ReleaseLinkedListNode(node);
 
                     linkedList.RemoveFirst();
                 }
 
-                ReleaseArr(linkedList);
+                ReleaseLinkedList(linkedList);
 
                 return true;
             }
@@ -399,29 +385,26 @@ namespace superEvent
 
         internal bool DispatchEvent<T1, T2, T3, T4>(string _eventName, T1 t1, T2 t2, T3 t3, T4 t4)
         {
-            LinkedList<List<SuperEventListenerUnit>> linkedList = DispatchEventReal<SuperFunctionCallBack4<T1, T2, T3, T4>>(_eventName);
+            LinkedList<SuperEventListenerUnit> linkedList = DispatchEventReal<SuperFunctionCallBack4<T1, T2, T3, T4>>(_eventName);
 
             if (linkedList != null)
             {
                 while (linkedList.First != null)
                 {
-                    LinkedListNode<List<SuperEventListenerUnit>> node = linkedList.First;
+                    LinkedListNode<SuperEventListenerUnit> node = linkedList.First;
 
-                    for (int i = 0; i < node.Value.Count; i++)
-                    {
-                        SuperEventListenerUnit unit = node.Value[i];
+                    SuperEventListenerUnit unit = node.Value;
 
-                        SuperFunctionCallBack4<T1, T2, T3, T4> cb = unit.callBack as SuperFunctionCallBack4<T1, T2, T3, T4>;
+                    SuperFunctionCallBack4<T1, T2, T3, T4> cb = unit.callBack as SuperFunctionCallBack4<T1, T2, T3, T4>;
 
-                        cb(unit.index, t1, t2, t3, t4);
-                    }
+                    cb(unit.index, t1, t2, t3, t4);
 
                     ReleaseLinkedListNode(node);
 
                     linkedList.RemoveFirst();
                 }
 
-                ReleaseArr(linkedList);
+                ReleaseLinkedList(linkedList);
 
                 return true;
             }
@@ -433,29 +416,26 @@ namespace superEvent
 
         internal bool DispatchEvent<T>(string _eventName, ref T t)
         {
-            LinkedList<List<SuperEventListenerUnit>> linkedList = DispatchEventReal<SuperFunctionCallBackV<T>>(_eventName);
+            LinkedList<SuperEventListenerUnit> linkedList = DispatchEventReal<SuperFunctionCallBackV<T>>(_eventName);
 
             if (linkedList != null)
             {
                 while (linkedList.First != null)
                 {
-                    LinkedListNode<List<SuperEventListenerUnit>> node = linkedList.First;
+                    LinkedListNode<SuperEventListenerUnit> node = linkedList.First;
 
-                    for (int i = 0; i < node.Value.Count; i++)
-                    {
-                        SuperEventListenerUnit unit = node.Value[i];
+                    SuperEventListenerUnit unit = node.Value;
 
-                        SuperFunctionCallBackV<T> cb = unit.callBack as SuperFunctionCallBackV<T>;
+                    SuperFunctionCallBackV<T> cb = unit.callBack as SuperFunctionCallBackV<T>;
 
-                        cb(unit.index, ref t);
-                    }
+                    cb(unit.index, ref t);
 
                     ReleaseLinkedListNode(node);
 
                     linkedList.RemoveFirst();
                 }
 
-                ReleaseArr(linkedList);
+                ReleaseLinkedList(linkedList);
 
                 return true;
             }
@@ -467,29 +447,26 @@ namespace superEvent
 
         internal bool DispatchEvent<T, T1>(string _eventName, ref T t, T1 t1)
         {
-            LinkedList<List<SuperEventListenerUnit>> linkedList = DispatchEventReal<SuperFunctionCallBackV1<T, T1>>(_eventName);
+            LinkedList<SuperEventListenerUnit> linkedList = DispatchEventReal<SuperFunctionCallBackV1<T, T1>>(_eventName);
 
             if (linkedList != null)
             {
                 while (linkedList.First != null)
                 {
-                    LinkedListNode<List<SuperEventListenerUnit>> node = linkedList.First;
+                    LinkedListNode<SuperEventListenerUnit> node = linkedList.First;
 
-                    for (int i = 0; i < node.Value.Count; i++)
-                    {
-                        SuperEventListenerUnit unit = node.Value[i];
+                    SuperEventListenerUnit unit = node.Value;
 
-                        SuperFunctionCallBackV1<T, T1> cb = unit.callBack as SuperFunctionCallBackV1<T, T1>;
+                    SuperFunctionCallBackV1<T, T1> cb = unit.callBack as SuperFunctionCallBackV1<T, T1>;
 
-                        cb(unit.index, ref t, t1);
-                    }
+                    cb(unit.index, ref t, t1);
 
                     ReleaseLinkedListNode(node);
 
                     linkedList.RemoveFirst();
                 }
 
-                ReleaseArr(linkedList);
+                ReleaseLinkedList(linkedList);
 
                 return true;
             }
@@ -501,29 +478,26 @@ namespace superEvent
 
         internal bool DispatchEvent<T, T1, T2>(string _eventName, ref T t, T1 t1, T2 t2)
         {
-            LinkedList<List<SuperEventListenerUnit>> linkedList = DispatchEventReal<SuperFunctionCallBackV2<T, T1, T2>>(_eventName);
+            LinkedList<SuperEventListenerUnit> linkedList = DispatchEventReal<SuperFunctionCallBackV2<T, T1, T2>>(_eventName);
 
             if (linkedList != null)
             {
                 while (linkedList.First != null)
                 {
-                    LinkedListNode<List<SuperEventListenerUnit>> node = linkedList.First;
+                    LinkedListNode<SuperEventListenerUnit> node = linkedList.First;
 
-                    for (int i = 0; i < node.Value.Count; i++)
-                    {
-                        SuperEventListenerUnit unit = node.Value[i];
+                    SuperEventListenerUnit unit = node.Value;
 
-                        SuperFunctionCallBackV2<T, T1, T2> cb = unit.callBack as SuperFunctionCallBackV2<T, T1, T2>;
+                    SuperFunctionCallBackV2<T, T1, T2> cb = unit.callBack as SuperFunctionCallBackV2<T, T1, T2>;
 
-                        cb(unit.index, ref t, t1, t2);
-                    }
+                    cb(unit.index, ref t, t1, t2);
 
                     ReleaseLinkedListNode(node);
 
                     linkedList.RemoveFirst();
                 }
 
-                ReleaseArr(linkedList);
+                ReleaseLinkedList(linkedList);
 
                 return true;
             }
@@ -535,29 +509,26 @@ namespace superEvent
 
         internal bool DispatchEvent<T, T1, T2, T3>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3)
         {
-            LinkedList<List<SuperEventListenerUnit>> linkedList = DispatchEventReal<SuperFunctionCallBackV3<T, T1, T2, T3>>(_eventName);
+            LinkedList<SuperEventListenerUnit> linkedList = DispatchEventReal<SuperFunctionCallBackV3<T, T1, T2, T3>>(_eventName);
 
             if (linkedList != null)
             {
                 while (linkedList.First != null)
                 {
-                    LinkedListNode<List<SuperEventListenerUnit>> node = linkedList.First;
+                    LinkedListNode<SuperEventListenerUnit> node = linkedList.First;
 
-                    for (int i = 0; i < node.Value.Count; i++)
-                    {
-                        SuperEventListenerUnit unit = node.Value[i];
+                    SuperEventListenerUnit unit = node.Value;
 
-                        SuperFunctionCallBackV3<T, T1, T2, T3> cb = unit.callBack as SuperFunctionCallBackV3<T, T1, T2, T3>;
+                    SuperFunctionCallBackV3<T, T1, T2, T3> cb = unit.callBack as SuperFunctionCallBackV3<T, T1, T2, T3>;
 
-                        cb(unit.index, ref t, t1, t2, t3);
-                    }
+                    cb(unit.index, ref t, t1, t2, t3);
 
                     ReleaseLinkedListNode(node);
 
                     linkedList.RemoveFirst();
                 }
 
-                ReleaseArr(linkedList);
+                ReleaseLinkedList(linkedList);
 
                 return true;
             }
@@ -569,29 +540,26 @@ namespace superEvent
 
         internal bool DispatchEvent<T, T1, T2, T3, T4>(string _eventName, ref T t, T1 t1, T2 t2, T3 t3, T4 t4)
         {
-            LinkedList<List<SuperEventListenerUnit>> linkedList = DispatchEventReal<SuperFunctionCallBackV4<T, T1, T2, T3, T4>>(_eventName);
+            LinkedList<SuperEventListenerUnit> linkedList = DispatchEventReal<SuperFunctionCallBackV4<T, T1, T2, T3, T4>>(_eventName);
 
             if (linkedList != null)
             {
                 while (linkedList.First != null)
                 {
-                    LinkedListNode<List<SuperEventListenerUnit>> node = linkedList.First;
+                    LinkedListNode<SuperEventListenerUnit> node = linkedList.First;
 
-                    for (int i = 0; i < node.Value.Count; i++)
-                    {
-                        SuperEventListenerUnit unit = node.Value[i];
+                    SuperEventListenerUnit unit = node.Value;
 
-                        SuperFunctionCallBackV4<T, T1, T2, T3, T4> cb = unit.callBack as SuperFunctionCallBackV4<T, T1, T2, T3, T4>;
+                    SuperFunctionCallBackV4<T, T1, T2, T3, T4> cb = unit.callBack as SuperFunctionCallBackV4<T, T1, T2, T3, T4>;
 
-                        cb(unit.index, ref t, t1, t2, t3, t4);
-                    }
+                    cb(unit.index, ref t, t1, t2, t3, t4);
 
                     ReleaseLinkedListNode(node);
 
                     linkedList.RemoveFirst();
                 }
 
-                ReleaseArr(linkedList);
+                ReleaseLinkedList(linkedList);
 
                 return true;
             }
@@ -601,9 +569,9 @@ namespace superEvent
             }
         }
 
-        private LinkedList<List<SuperEventListenerUnit>> DispatchEventReal<T>(string _eventName)
+        private LinkedList<SuperEventListenerUnit> DispatchEventReal<T>(string _eventName)
         {
-            LinkedList<List<SuperEventListenerUnit>> linkedList = null;
+            LinkedList<SuperEventListenerUnit> linkedList = null;
 
             Dictionary<Delegate, SuperEventListenerUnit> dic;
 
@@ -624,11 +592,11 @@ namespace superEvent
 
                         int priority = pair.Value.priority;
 
-                        LinkedListNode<List<SuperEventListenerUnit>> lastNode = linkedList.First;
+                        LinkedListNode<SuperEventListenerUnit> lastNode = linkedList.First;
 
                         if (lastNode == null)
                         {
-                            LinkedListNode<List<SuperEventListenerUnit>> linkedListNode = GetLinkedListNode(pair.Value);
+                            LinkedListNode<SuperEventListenerUnit> linkedListNode = GetLinkedListNode(pair.Value);
 
                             linkedList.AddFirst(linkedListNode);
                         }
@@ -636,32 +604,22 @@ namespace superEvent
                         {
                             while (true)
                             {
-                                List<SuperEventListenerUnit> list = lastNode.Value;
+                                SuperEventListenerUnit unit = lastNode.Value;
 
-                                int nowPriority = list[0].priority;
-
-                                if (priority == nowPriority)
+                                if (unit.priority > priority)
                                 {
-                                    list.Add(pair.Value);
+                                    lastNode = lastNode.Next;
 
-                                    break;
+                                    if (lastNode == null)
+                                    {
+                                        linkedList.AddLast(pair.Value);
+
+                                        break;
+                                    }
                                 }
-                                else if (priority < nowPriority)
+                                else
                                 {
-                                    LinkedListNode<List<SuperEventListenerUnit>> linkedListNode = GetLinkedListNode(pair.Value);
-
-                                    linkedList.AddBefore(lastNode, linkedListNode);
-
-                                    break;
-                                }
-
-                                lastNode = lastNode.Next;
-
-                                if (lastNode == null)
-                                {
-                                    LinkedListNode<List<SuperEventListenerUnit>> linkedListNode = GetLinkedListNode(pair.Value);
-
-                                    linkedList.AddLast(linkedListNode);
+                                    linkedList.AddBefore(lastNode, pair.Value);
 
                                     break;
                                 }
@@ -674,7 +632,7 @@ namespace superEvent
             return linkedList;
         }
 
-        private LinkedList<List<SuperEventListenerUnit>> GetLinkedList()
+        private LinkedList<SuperEventListenerUnit> GetLinkedList()
         {
             if (pool.Count > 0)
             {
@@ -682,39 +640,37 @@ namespace superEvent
             }
             else
             {
-                LinkedList<List<SuperEventListenerUnit>> linkedList = new LinkedList<List<SuperEventListenerUnit>>();
+                LinkedList<SuperEventListenerUnit> linkedList = new LinkedList<SuperEventListenerUnit>();
 
                 return linkedList;
             }
         }
 
-        private void ReleaseArr(LinkedList<List<SuperEventListenerUnit>> _linkedList)
+        private void ReleaseLinkedList(LinkedList<SuperEventListenerUnit> _linkedList)
         {
             pool.Enqueue(_linkedList);
         }
 
-        private LinkedListNode<List<SuperEventListenerUnit>> GetLinkedListNode(SuperEventListenerUnit _unit)
+        private LinkedListNode<SuperEventListenerUnit> GetLinkedListNode(SuperEventListenerUnit _unit)
         {
-            LinkedListNode<List<SuperEventListenerUnit>> linkedListNode;
+            LinkedListNode<SuperEventListenerUnit> linkedListNode;
 
             if (pool1.Count > 0)
             {
                 linkedListNode = pool1.Dequeue();
+
+                linkedListNode.Value = _unit;
             }
             else
             {
-                linkedListNode = new LinkedListNode<List<SuperEventListenerUnit>>(new List<SuperEventListenerUnit>());
+                linkedListNode = new LinkedListNode<SuperEventListenerUnit>(_unit);
             }
-
-            linkedListNode.Value.Add(_unit);
 
             return linkedListNode;
         }
 
-        private void ReleaseLinkedListNode(LinkedListNode<List<SuperEventListenerUnit>> _linkedListNode)
+        private void ReleaseLinkedListNode(LinkedListNode<SuperEventListenerUnit> _linkedListNode)
         {
-            _linkedListNode.Value.Clear();
-
             pool1.Enqueue(_linkedListNode);
         }
 

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using superEvent;
 using superRandom;
+using tuple;
 
 namespace FinalWar
 {
@@ -574,13 +575,13 @@ namespace FinalWar
 
                 if (cellData.stander != null)
                 {
-                    Dictionary<Hero, List<Func<BattleHeroEffectVO>>>[] arr = null;
+                    LinkedList<Tuple<int, Hero, Func<BattleHeroEffectVO>>> linkedList = null;
 
                     if (cellData.shooters.Count > 0)
                     {
-                        if (arr == null)
+                        if (linkedList == null)
                         {
-                            arr = new Dictionary<Hero, List<Func<BattleHeroEffectVO>>>[SuperEventListener.MAX_PRIORITY];
+                            linkedList = new LinkedList<Tuple<int, Hero, Func<BattleHeroEffectVO>>>();
                         }
 
                         for (int i = 0; i < cellData.shooters.Count; i++)
@@ -589,7 +590,7 @@ namespace FinalWar
 
                             hero.SetAction(Hero.HeroAction.NULL);
 
-                            HeroSkill.CastSkill(this, hero, cellData.stander, hero.sds.GetShootSkills(), arr);
+                            HeroSkill.CastSkill(this, hero, cellData.stander, hero.sds.GetShootSkills(), linkedList);
                         }
 
                         cellData.shooters.Clear();
@@ -597,9 +598,9 @@ namespace FinalWar
 
                     if (cellData.supporters.Count > 0)
                     {
-                        if (arr == null)
+                        if (linkedList == null)
                         {
-                            arr = new Dictionary<Hero, List<Func<BattleHeroEffectVO>>>[SuperEventListener.MAX_PRIORITY];
+                            linkedList = new LinkedList<Tuple<int, Hero, Func<BattleHeroEffectVO>>>();
                         }
 
                         for (int i = 0; i < cellData.supporters.Count; i++)
@@ -608,48 +609,37 @@ namespace FinalWar
 
                             if (hero.sds.GetSupportSkills().Length > 0)
                             {
-                                HeroSkill.CastSkill(this, hero, cellData.stander, hero.sds.GetSupportSkills(), arr);
+                                HeroSkill.CastSkill(this, hero, cellData.stander, hero.sds.GetSupportSkills(), linkedList);
                             }
                         }
                     }
 
-                    if (arr != null)
+                    if (linkedList != null)
                     {
                         Dictionary<Hero, List<BattleHeroEffectVO>> result = new Dictionary<Hero, List<BattleHeroEffectVO>>();
 
-                        for (int i = 0; i < SuperEventListener.MAX_PRIORITY; i++)
+                        IEnumerator<Tuple<int, Hero, Func<BattleHeroEffectVO>>> enumerator3 = linkedList.GetEnumerator();
+
+                        while (enumerator3.MoveNext())
                         {
-                            Dictionary<Hero, List<Func<BattleHeroEffectVO>>> dic = arr[i];
+                            Tuple<int, Hero, Func<BattleHeroEffectVO>> tuple = enumerator3.Current;
 
-                            if (dic != null)
+                            Hero hero = tuple.second;
+
+                            Func<BattleHeroEffectVO> func = tuple.third;
+
+                            List<BattleHeroEffectVO> list;
+
+                            if (!result.TryGetValue(hero, out list))
                             {
-                                IEnumerator<KeyValuePair<Hero, List<Func<BattleHeroEffectVO>>>> enumerator3 = dic.GetEnumerator();
+                                list = new List<BattleHeroEffectVO>();
 
-                                while (enumerator3.MoveNext())
-                                {
-                                    KeyValuePair<Hero, List<Func<BattleHeroEffectVO>>> pair = enumerator3.Current;
-
-                                    Hero hero = pair.Key;
-
-                                    List<Func<BattleHeroEffectVO>> tmpList = pair.Value;
-
-                                    List<BattleHeroEffectVO> list;
-
-                                    if (!result.TryGetValue(hero, out list))
-                                    {
-                                        list = new List<BattleHeroEffectVO>();
-
-                                        result.Add(hero, list);
-                                    }
-
-                                    for (int m = 0; m < tmpList.Count; m++)
-                                    {
-                                        BattleHeroEffectVO vo = tmpList[m]();
-
-                                        list.Add(vo);
-                                    }
-                                }
+                                result.Add(hero, list);
                             }
+
+                            BattleHeroEffectVO vo = func();
+
+                            list.Add(vo);
                         }
 
                         IEnumerator<KeyValuePair<Hero, List<BattleHeroEffectVO>>> enumerator4 = result.GetEnumerator();
@@ -687,7 +677,7 @@ namespace FinalWar
             {
                 bool hasRush = false;
 
-                List<Func<BattleTriggerAuraVO>>[] funcList = null;
+                List<Func<BattleTriggerAuraVO>> funcList = null;
 
                 IEnumerator<BattleCellData> enumerator = _battleData.actionDic.Values.GetEnumerator();
 
@@ -787,7 +777,7 @@ namespace FinalWar
 
             if (dieList != null)
             {
-                List<Func<BattleTriggerAuraVO>>[] funcList = null;
+                List<Func<BattleTriggerAuraVO>> funcList = null;
 
                 for (int i = 0; i < dieList.Count; i++)
                 {
@@ -802,7 +792,7 @@ namespace FinalWar
                         RemoveHeroAction(_battleData, hero);
                     }
 
-                    eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>[], Hero, Hero>(BattleConst.DIE, ref funcList, hero, null);
+                    hero.Die(ref funcList);
                 }
 
                 if (funcList != null)
@@ -836,7 +826,7 @@ namespace FinalWar
 
                 Dictionary<int, bool> checkedPosDic = null;
 
-                List<Func<BattleTriggerAuraVO>>[] funcList = null;
+                List<Func<BattleTriggerAuraVO>> funcList = null;
 
                 IEnumerator<BattleCellData> enumerator = _battleData.actionDic.Values.GetEnumerator();
 
@@ -1121,13 +1111,13 @@ namespace FinalWar
                 {
                     yield return new BattleScoreChangeVO();
 
-                    List<Func<BattleTriggerAuraVO>>[] funcList = null;
+                    List<Func<BattleTriggerAuraVO>> funcList = null;
 
                     for (int i = 0; i < captureList.Count; i++)
                     {
                         Hero hero = captureList[i];
 
-                        eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>[], Hero, Hero>(BattleConst.CAPTURE_MAP_AREA, ref funcList, hero, null);
+                        hero.CaptureArea(ref funcList);
                     }
 
                     if (funcList != null)
@@ -1259,7 +1249,7 @@ namespace FinalWar
 
         private IEnumerator DoRecover()
         {
-            List<Func<BattleTriggerAuraVO>>[] funcList = null;
+            List<Func<BattleTriggerAuraVO>> funcList = null;
 
             IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
@@ -1416,19 +1406,11 @@ namespace FinalWar
             }
         }
 
-        private IEnumerator InvokeFuncList(List<Func<BattleTriggerAuraVO>>[] _funcList)
+        private IEnumerator InvokeFuncList(List<Func<BattleTriggerAuraVO>> _funcList)
         {
-            for (int i = 0; i < SuperEventListener.MAX_PRIORITY; i++)
+            for (int m = 0; m < _funcList.Count; m++)
             {
-                List<Func<BattleTriggerAuraVO>> tmpList = _funcList[i];
-
-                if (tmpList != null)
-                {
-                    for (int m = 0; m < tmpList.Count; m++)
-                    {
-                        yield return tmpList[m]();
-                    }
-                }
+                yield return _funcList[m]();
             }
         }
 

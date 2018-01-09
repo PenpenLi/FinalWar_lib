@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System;
+using tuple;
 
 namespace FinalWar
 {
     internal static class HeroSkill
     {
-        internal static void CastSkill(Battle _battle, Hero _hero, Hero _target, int[] _ids, Dictionary<Hero, List<Func<BattleHeroEffectVO>>>[] _arr)
+        internal static void CastSkill(Battle _battle, Hero _hero, Hero _target, int[] _ids, LinkedList<Tuple<int, Hero, Func<BattleHeroEffectVO>>> _list)
         {
             int stander = _target.pos;
 
@@ -20,25 +21,37 @@ namespace FinalWar
                     return HeroEffect.HeroTakeEffect(_battle, _target, sds);
                 };
 
-                Dictionary<Hero, List<Func<BattleHeroEffectVO>>> dic = _arr[sds.GetPriority()];
+                LinkedListNode<Tuple<int, Hero, Func<BattleHeroEffectVO>>> addNode = new LinkedListNode<Tuple<int, Hero, Func<BattleHeroEffectVO>>>(new Tuple<int, Hero, Func<BattleHeroEffectVO>>(sds.GetPriority(), _hero, func));
 
-                if (dic == null)
+                LinkedListNode<Tuple<int, Hero, Func<BattleHeroEffectVO>>> node = _list.First;
+
+                if (node == null)
                 {
-                    dic = new Dictionary<Hero, List<Func<BattleHeroEffectVO>>>();
-
-                    _arr[sds.GetPriority()] = dic;
+                    _list.AddFirst(addNode);
                 }
-
-                List<Func<BattleHeroEffectVO>> list;
-
-                if (!dic.TryGetValue(_hero, out list))
+                else
                 {
-                    list = new List<Func<BattleHeroEffectVO>>();
+                    while (true)
+                    {
+                        if (sds.GetPriority() > node.Value.first)
+                        {
+                            node = node.Next;
 
-                    dic.Add(_hero, list);
+                            if (node == null)
+                            {
+                                _list.AddLast(addNode);
+
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            _list.AddBefore(node, addNode);
+
+                            break;
+                        }
+                    }
                 }
-
-                list.Add(func);
             }
         }
     }
