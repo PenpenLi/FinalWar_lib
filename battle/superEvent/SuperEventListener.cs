@@ -592,13 +592,13 @@ namespace superEvent
 
                         int priority = pair.Value.priority;
 
+                        LinkedListNode<SuperEventListenerUnit> addNode = GetLinkedListNode(pair.Value);
+
                         LinkedListNode<SuperEventListenerUnit> lastNode = linkedList.First;
 
                         if (lastNode == null)
                         {
-                            LinkedListNode<SuperEventListenerUnit> linkedListNode = GetLinkedListNode(pair.Value);
-
-                            linkedList.AddFirst(linkedListNode);
+                            linkedList.AddFirst(addNode);
                         }
                         else
                         {
@@ -612,14 +612,14 @@ namespace superEvent
 
                                     if (lastNode == null)
                                     {
-                                        linkedList.AddLast(pair.Value);
+                                        linkedList.AddLast(addNode);
 
                                         break;
                                     }
                                 }
                                 else
                                 {
-                                    linkedList.AddBefore(lastNode, pair.Value);
+                                    linkedList.AddBefore(lastNode, addNode);
 
                                     break;
                                 }
