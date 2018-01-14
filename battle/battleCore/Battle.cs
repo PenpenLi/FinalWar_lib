@@ -1474,28 +1474,96 @@ namespace FinalWar
 
             if (handCards.Contains(_uid))
             {
-                if (GetPosIsMine(_pos) == _isMine)
+                int nowMoney = GetNowMoney(_isMine);
+
+                IHeroSDS sds = GetHeroData(GetCard(_uid));
+
+                if (sds.GetCost() <= nowMoney && !GetSummonContainsKey(_uid) && CheckPosCanSummon(_isMine, _pos))
                 {
-                    if (!heroMapDic.ContainsKey(_pos))
-                    {
-                        if (!GetSummonContainsKey(_uid) && !GetSummonContainsValue(_pos))
-                        {
-                            int nowMoney = GetNowMoney(_isMine);
+                    AddSummon(_uid, _pos);
 
-                            IHeroSDS sds = GetHeroData(GetCard(_uid));
-
-                            if (sds.GetCost() <= nowMoney)
-                            {
-                                AddSummon(_uid, _pos);
-
-                                return true;
-                            }
-                        }
-                    }
+                    return true;
                 }
             }
 
             return false;
+        }
+
+        public bool CheckPosCanSummon(bool _isMine, int _pos)
+        {
+            MapData.MapUnitType mapUnitType;
+
+            if (mapData.dic.TryGetValue(_pos, out mapUnitType))
+            {
+                if (mapUnitType != MapData.MapUnitType.M_AREA && mapUnitType != MapData.MapUnitType.O_AREA)
+                {
+                    return false;
+                }
+
+                if (GetPosIsMine(_pos) != _isMine)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            if (!heroMapDic.ContainsKey(_pos) && !GetSummonContainsValue(_pos))
+            {
+                bool isMine = GetPosIsMine(_pos);
+
+                List<int> list = BattlePublicTools.GetNeighbourPos(mapData, _pos);
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    int pos = list[i];
+
+                    if (GetPosIsMine(pos) != isMine)
+                    {
+                        Hero hero;
+
+                        if (heroMapDic.TryGetValue(pos, out hero))
+                        {
+                            bool isFear = false;
+
+                            for (int m = 0; m < fearAction.Count; m++)
+                            {
+                                KeyValuePair<int, int> pair = fearAction[m];
+
+                                if (pair.Key == pos)
+                                {
+                                    isFear = true;
+
+                                    if (pair.Value == _pos)
+                                    {
+                                        return false;
+                                    }
+
+                                    break;
+                                }
+                            }
+
+                            if (!isFear)
+                            {
+                                List<int> tmpList = BattlePublicTools.GetCanAttackPos(this, hero);
+
+                                if (tmpList != null && tmpList.Contains(_pos))
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         internal void AddSummon(int _uid, int _pos)
@@ -1578,6 +1646,20 @@ namespace FinalWar
             }
 
             if (!hero.GetCanAction())
+            {
+                return false;
+            }
+
+            MapData.MapUnitType mapUnitType;
+
+            if (mapData.dic.TryGetValue(_targetPos, out mapUnitType))
+            {
+                if (mapUnitType != MapData.MapUnitType.M_AREA && mapUnitType != MapData.MapUnitType.O_AREA)
+                {
+                    return false;
+                }
+            }
+            else
             {
                 return false;
             }
