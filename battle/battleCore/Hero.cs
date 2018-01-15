@@ -33,8 +33,6 @@ namespace FinalWar
 
         private Battle battle;
 
-        private bool initAura = false;
-
         private int shieldChange = 0;
 
         private int hpChange = 0;
@@ -58,8 +56,6 @@ namespace FinalWar
             attackTimes = sds.GetHeroType().GetAttackTimes();
 
             SetAction(HeroAction.NULL);
-
-            initAura = true;
 
             HeroAura.Init(battle, this);
         }
@@ -255,14 +251,11 @@ namespace FinalWar
                 nowHp = sds.GetHp();
             }
 
-            if (initAura)
-            {
-                List<Func<BattleTriggerAuraVO>> funcList = null;
+            List<Func<BattleTriggerAuraVO>> funcList = null;
 
-                battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.REMOVE_BORN_AURA, ref funcList, this, null);
+            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.REMOVE_BORN_AURA, ref funcList, this, null);
 
-                HeroAura.Init(battle, this);
-            }
+            HeroAura.Init(battle, this);
         }
 
         internal bool GetCanMove()
@@ -353,13 +346,6 @@ namespace FinalWar
             }
 
             battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.ROUND_OVER, ref _funcList, this, null);
-
-            if (!initAura)
-            {
-                initAura = true;
-
-                HeroAura.Init(battle, this);
-            }
         }
 
         private bool CheckFear()
