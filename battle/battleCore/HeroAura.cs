@@ -27,7 +27,7 @@ namespace FinalWar
 
             List<int> ids = new List<int>();
 
-            int id = RegisterAura(_battle, _hero, sds);
+            int id = RegisterAura(_battle, _hero, sds, _isInBorn);
 
             ids.Add(id);
 
@@ -48,7 +48,7 @@ namespace FinalWar
 
             if (_isInBorn)
             {
-                id = _battle.eventListener.AddListener(BattleConst.BE_SILENCE, dele, BattleConst.MAX_PRIORITY - 1);
+                id = _battle.eventListener.AddListener(BattleConst.REMOVE_BORN_AURA, dele, BattleConst.MAX_PRIORITY - 1);
 
                 ids.Add(id);
             }
@@ -84,7 +84,7 @@ namespace FinalWar
             }
         }
 
-        private static int RegisterAura(Battle _battle, Hero _hero, IAuraSDS _sds)
+        private static int RegisterAura(Battle _battle, Hero _hero, IAuraSDS _sds, bool _isInBorn)
         {
             int result;
 
@@ -94,7 +94,7 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV2<bool, Hero, Hero> dele0 = delegate (int _index, ref bool _result, Hero _triggerHero, Hero _triggerTargetHero)
                     {
-                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
+                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds, _isInBorn) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
                         {
                             _result = _sds.GetEffectData() == 1;
                         }
@@ -108,7 +108,7 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV2<int, Hero, Hero> dele1 = delegate (int _index, ref int _result, Hero _triggerHero, Hero _triggerTargetHero)
                     {
-                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
+                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds, _isInBorn) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
                         {
                             _result += _sds.GetEffectData();
                         }
@@ -126,7 +126,7 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _funcList, Hero _triggerHero, Hero _triggerTargetHero)
                     {
-                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
+                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds, _isInBorn) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
                         {
                             Func<BattleTriggerAuraVO> func = delegate ()
                             {
@@ -504,8 +504,20 @@ namespace FinalWar
             }
         }
 
-        private static bool CheckAuraTrigger(Battle _battle, Hero _hero, Hero _triggerHero, IAuraSDS _sds)
+        private static bool CheckAuraTrigger(Battle _battle, Hero _hero, Hero _triggerHero, IAuraSDS _sds, bool _isInBorn)
         {
+            if (_isInBorn)
+            {
+                bool canTrigger = true;
+
+                _battle.eventListener.DispatchEvent<bool, Hero, Hero>(BattleConst.TRIGGER_BORN_AURA, ref canTrigger, _hero, null);
+
+                if (!canTrigger)
+                {
+                    return false;
+                }
+            }
+
             switch (_sds.GetTriggerTarget())
             {
                 case AuraTarget.OWNER:

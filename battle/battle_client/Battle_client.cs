@@ -66,8 +66,6 @@ namespace FinalWar
 
             int maxRoundNum = _br.ReadInt32();
 
-            int randomSeed = _br.ReadInt32();
-
             int num = _br.ReadInt32();
 
             int[] mCards = new int[num];
@@ -76,11 +74,11 @@ namespace FinalWar
 
             int[] oCards = new int[num];
 
-            InitBattle(mapID, maxRoundNum, mCards, oCards, randomSeed);
+            InitBattle(mapID, maxRoundNum, mCards, oCards);
 
             if (!serverProcessBattle)
             {
-                simulateBattle.InitBattle(mapID, maxRoundNum, mCards, oCards, randomSeed);
+                simulateBattle.InitBattle(mapID, maxRoundNum, mCards, oCards);
             }
 
             num = _br.ReadInt32();

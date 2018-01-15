@@ -44,8 +44,6 @@ namespace FinalWar
             public int[] oCards;
 
             public bool isVsAi;
-
-            public int randomSeed;
         }
 
         private class BattleRecordRoundData
@@ -102,15 +100,13 @@ namespace FinalWar
 
             recordData.isVsAi = _isVsAi;
 
-            recordData.randomSeed = random.Next();
-
             InitCards(_mCards, _oCards, out recordData.mCards, out recordData.oCards);
 
             InitCardState(cardStateArr, recordData);
 
             if (processBattle)
             {
-                battle.InitBattle(recordData.mapID, recordData.maxRoundNum, recordData.mCards, recordData.oCards, recordData.randomSeed);
+                battle.InitBattle(recordData.mapID, recordData.maxRoundNum, recordData.mCards, recordData.oCards);
             }
         }
 
@@ -184,8 +180,6 @@ namespace FinalWar
                     bw.Write(recordData.mapID);
 
                     bw.Write(recordData.maxRoundNum);
-
-                    bw.Write(recordData.randomSeed);
 
                     bw.Write(recordData.mCards.Length);
 
@@ -446,7 +440,7 @@ namespace FinalWar
 
             if (processBattle)
             {
-                battle.InitBattle(recordData.mapID, recordData.maxRoundNum, recordData.mCards, recordData.oCards, recordData.randomSeed);
+                battle.InitBattle(recordData.mapID, recordData.maxRoundNum, recordData.mCards, recordData.oCards);
 
                 for (int i = 0; i < recordData.roundNum; i++)
                 {
@@ -746,7 +740,7 @@ namespace FinalWar
         {
             Battle.BattleResult battleResult = Battle.BattleResult.NOT_OVER;
 
-            _battle.InitBattle(_recordData.mapID, _recordData.maxRoundNum, _recordData.mCards, _recordData.oCards, _recordData.randomSeed);
+            _battle.InitBattle(_recordData.mapID, _recordData.maxRoundNum, _recordData.mCards, _recordData.oCards);
 
             for (int i = 0; i < _recordData.roundNum; i++)
             {
@@ -774,8 +768,6 @@ namespace FinalWar
                     bw.Write(_recordData.maxRoundNum);
 
                     bw.Write(_recordData.roundNum);
-
-                    bw.Write(_recordData.randomSeed);
 
                     for (int i = 0; i < _recordData.roundNum; i++)
                     {
@@ -846,8 +838,6 @@ namespace FinalWar
                     recordData.data.Add(new BattleRecordRoundData());
 
                     recordData.roundNum = br.ReadInt32();
-
-                    recordData.randomSeed = br.ReadInt32();
 
                     for (int i = 0; i < recordData.roundNum; i++)
                     {

@@ -26,12 +26,6 @@ namespace FinalWar
 
                     break;
 
-                case Effect.BE_SILENCE:
-
-                    _hero.BeSilence();
-
-                    break;
-
                 case Effect.CHANGE_HERO:
 
                     _hero.ChangeHero(_sds.GetData()[0]);

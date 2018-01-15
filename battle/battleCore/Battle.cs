@@ -83,7 +83,7 @@ namespace FinalWar
             return random.Get(_max);
         }
 
-        internal void InitBattle(int _mapID, int _maxRoundNum, int[] _mCards, int[] _oCards, int _randomSeed)
+        internal void InitBattle(int _mapID, int _maxRoundNum, int[] _mCards, int[] _oCards)
         {
             Reset();
 
@@ -144,15 +144,6 @@ namespace FinalWar
                 heroMapDic.Add(pos, hero);
             }
 
-            SetRandomSeed(_randomSeed);
-
-            IEnumerator ie = DoRecover();
-
-            while (ie.MoveNext())
-            {
-
-            }
-
             if (mapSDS.GetIsFearAction())
             {
                 fearAction.Clear();
@@ -182,7 +173,6 @@ namespace FinalWar
 
             //yield return DoRoundStart(battleData);
 
-            yield return DoSummon(battleData, tmpSummon);
 
             //yield return DoRush(battleData);
 
@@ -193,6 +183,8 @@ namespace FinalWar
             yield return DoMove(battleData);
 
             yield return DoRecover();
+
+            yield return DoSummon(tmpSummon);
 
             yield return DoAddMoney();
 
@@ -284,7 +276,7 @@ namespace FinalWar
             roundNum = 0;
         }
 
-        private IEnumerator DoSummon(BattleData _battleData, Dictionary<int, int> _summon)
+        private IEnumerator DoSummon(Dictionary<int, int> _summon)
         {
             IEnumerator<KeyValuePair<int, int>> enumerator = _summon.GetEnumerator();
 
@@ -301,9 +293,9 @@ namespace FinalWar
                     throw new Exception("Summon error0");
                 }
 
-                Hero summonHero = SummonOneUnit(tmpCardUid, pos, _battleData);
+                Hero summonHero = SummonOneUnit(tmpCardUid, pos);
 
-                AddHero(_battleData, summonHero);
+                heroMapDic.Add(pos, summonHero);
 
                 yield return new BattleAddCardsVO(summonHero.isMine, null);
 
@@ -313,7 +305,7 @@ namespace FinalWar
             }
         }
 
-        private Hero SummonOneUnit(int _uid, int _pos, BattleData _battleData)
+        private Hero SummonOneUnit(int _uid, int _pos)
         {
             bool isMine = GetPosIsMine(_pos);
 
@@ -371,18 +363,6 @@ namespace FinalWar
             Hero hero = new Hero(this, isMine, sds, _pos);
 
             return hero;
-        }
-
-        private void AddHero(BattleData _battleData, Hero _hero)
-        {
-            heroMapDic.Add(_hero.pos, _hero);
-
-            BattleCellData cellData;
-
-            if (_battleData.actionDic.TryGetValue(_hero.pos, out cellData))
-            {
-                cellData.stander = _hero;
-            }
         }
 
         public BattleData GetBattleData()

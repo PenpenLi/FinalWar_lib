@@ -6,7 +6,6 @@
         DAMAGE,
         HP_CHANGE,
         SHIELD_CHANGE,
-        BE_SILENCE,
         CHANGE_HERO,
         ADD_MONEY,
         ADD_AURA,

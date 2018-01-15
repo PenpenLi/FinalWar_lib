@@ -14,7 +14,6 @@
 
         public const int MAX_PRIORITY = short.MaxValue;
 
-        public const string BE_SILENCE = "beSilence";
         public const string FIX_ATTACK = "fixAttack";
         public const string FIX_SPEED = "fixSpeed";
         public const string FIX_CAN_PIERCE_SHIELD = "fixCanPierceShield";
@@ -28,6 +27,8 @@
         public const string DIE = "die";
         public const string CAPTURE_MAP_AREA = "captureMapArea";
         public const string BE_CLEAN = "beClean";
+        public const string TRIGGER_BORN_AURA = "triggerBornAura";
+        public const string REMOVE_BORN_AURA = "removeBornAura";
 
         public const string GET_AURA_DESC = "getAuraDesc";
     }

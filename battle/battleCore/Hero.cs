@@ -58,6 +58,10 @@ namespace FinalWar
             attackTimes = sds.GetHeroType().GetAttackTimes();
 
             SetAction(HeroAction.NULL);
+
+            initAura = true;
+
+            HeroAura.Init(battle, this);
         }
 
         internal void SetAction(HeroAction _action, int _actionTarget)
@@ -251,7 +255,14 @@ namespace FinalWar
                 nowHp = sds.GetHp();
             }
 
-            UnregisterAura();
+            if (initAura)
+            {
+                List<Func<BattleTriggerAuraVO>> funcList = null;
+
+                battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.REMOVE_BORN_AURA, ref funcList, this, null);
+
+                HeroAura.Init(battle, this);
+            }
         }
 
         internal bool GetCanMove()
@@ -425,11 +436,6 @@ namespace FinalWar
             }
         }
 
-        internal void BeSilence()
-        {
-            UnregisterAura();
-        }
-
         internal void BeClean()
         {
             List<Func<BattleTriggerAuraVO>> funcList = null;
@@ -475,15 +481,6 @@ namespace FinalWar
             battle.eventListener.DispatchEvent(BattleConst.DO_DAMAGE, ref _funcList, this, _hero);
 
             return vo;
-        }
-
-        private void UnregisterAura()
-        {
-            initAura = false;
-
-            List<Func<BattleTriggerAuraVO>> funcList = null;
-
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.BE_SILENCE, ref funcList, this, null);
         }
 
         internal void MoneyChange(int _num)
