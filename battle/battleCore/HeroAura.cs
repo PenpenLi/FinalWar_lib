@@ -94,7 +94,7 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV2<bool, Hero, Hero> dele0 = delegate (int _index, ref bool _result, Hero _triggerHero, Hero _triggerTargetHero)
                     {
-                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds, _isInBorn) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
+                        if (CheckAuraIsBeSilenced(_battle, _hero, _isInBorn) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
                         {
                             _result = _sds.GetEffectData() == 1;
                         }
@@ -108,7 +108,7 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV2<int, Hero, Hero> dele1 = delegate (int _index, ref int _result, Hero _triggerHero, Hero _triggerTargetHero)
                     {
-                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds, _isInBorn) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
+                        if (CheckAuraIsBeSilenced(_battle, _hero, _isInBorn) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
                         {
                             _result += _sds.GetEffectData();
                         }
@@ -126,7 +126,7 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _funcList, Hero _triggerHero, Hero _triggerTargetHero)
                     {
-                        if (CheckAuraTrigger(_battle, _hero, _triggerHero, _sds, _isInBorn) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
+                        if (CheckAuraIsBeSilenced(_battle, _hero, _isInBorn) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds))
                         {
                             Func<BattleTriggerAuraVO> func = delegate ()
                             {
@@ -492,19 +492,7 @@ namespace FinalWar
             }
         }
 
-        private static bool CheckAuraCondition(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds)
-        {
-            if (_sds.GetConditionCompare() != AuraConditionCompare.NULL)
-            {
-                return CheckAuraConditionReal(_battle, _hero, _triggerHero, _triggerTargetHero, _sds);
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        private static bool CheckAuraTrigger(Battle _battle, Hero _hero, Hero _triggerHero, IAuraSDS _sds, bool _isInBorn)
+        private static bool CheckAuraIsBeSilenced(Battle _battle, Hero _hero, bool _isInBorn)
         {
             if (_isInBorn)
             {
@@ -518,6 +506,23 @@ namespace FinalWar
                 }
             }
 
+            return true;
+        }
+
+        private static bool CheckAuraCondition(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds)
+        {
+            if (_sds.GetConditionCompare() != AuraConditionCompare.NULL)
+            {
+                return CheckAuraConditionReal(_battle, _hero, _triggerHero, _triggerTargetHero, _sds);
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private static bool CheckAuraTrigger(Battle _battle, Hero _hero, Hero _triggerHero, IAuraSDS _sds)
+        {
             switch (_sds.GetTriggerTarget())
             {
                 case AuraTarget.OWNER:
