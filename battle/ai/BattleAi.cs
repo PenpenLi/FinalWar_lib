@@ -430,7 +430,7 @@ namespace FinalWar
 
                 int range = pair.Value;
 
-                if (range > -1 && range < _max && !_battle.heroMapDic.ContainsKey(pos))
+                if (range > -1 && range < _max && _battle.CheckPosCanSummon(_isMine, pos))
                 {
                     if (result == null)
                     {
@@ -538,7 +538,7 @@ namespace FinalWar
 
                 int range = pair.Value;
 
-                if (range > -1 && range < _max && _battle.heroMapDic.ContainsKey(pos))
+                if (range > -1 && range < _max && _battle.CheckPosCanSummon(_isMine, pos))
                 {
                     if (result == null)
                     {
