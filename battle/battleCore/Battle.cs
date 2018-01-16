@@ -144,14 +144,9 @@ namespace FinalWar
                 heroMapDic.Add(pos, hero);
             }
 
-            if (mapSDS.GetIsFearAction())
+            for (int i = 0; i < mapSDS.GetFearAction().Length; i++)
             {
-                fearAction.Clear();
-
-                for (int i = 0; i < mapSDS.GetFearAction().Length; i++)
-                {
-                    fearAction.Add(mapSDS.GetFearAction()[i]);
-                }
+                fearAction.Add(mapSDS.GetFearAction()[i]);
             }
         }
 
@@ -186,9 +181,7 @@ namespace FinalWar
 
             yield return DoSummon(tmpSummon);
 
-            yield return DoAddMoney();
-
-            yield return DoAddCards();
+            yield return DoAddMoneyAndCards();
 
             yield return RoundOver();
         }
@@ -1286,18 +1279,11 @@ namespace FinalWar
             _hero.SetAction(Hero.HeroAction.NULL);
         }
 
-        private IEnumerator DoAddMoney()
+        private IEnumerator DoAddMoneyAndCards()
         {
-            yield return MoneyChange(true, BattleConst.ADD_MONEY);
+            yield return AddMoneyAndCards(true, BattleConst.ADD_CARD_NUM, BattleConst.ADD_MONEY);
 
-            yield return MoneyChange(false, BattleConst.ADD_MONEY);
-        }
-
-        internal IEnumerator MoneyChange(bool _isMine, int _num)
-        {
-            MoneyChangeReal(_isMine, _num);
-
-            yield return new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney);
+            yield return AddMoneyAndCards(false, BattleConst.ADD_CARD_NUM, BattleConst.ADD_MONEY);
         }
 
         internal void MoneyChangeReal(bool _isMine, int _num)
@@ -1348,29 +1334,22 @@ namespace FinalWar
             }
         }
 
-        private IEnumerator DoAddCards()
-        {
-            yield return AddCards(true, BattleConst.ADD_CARD_NUM);
-
-            yield return AddCards(false, BattleConst.ADD_CARD_NUM);
-        }
-
-        private IEnumerator AddCards(bool _isMine, int _num)
+        private IEnumerator AddMoneyAndCards(bool _isMine, int _addCardsNum, int _addMoneyNum)
         {
             Queue<int> cards = _isMine ? mCards : oCards;
 
             if (cards.Count > 0)
             {
-                if (_num > cards.Count)
+                if (_addCardsNum > cards.Count)
                 {
-                    _num = cards.Count;
+                    _addCardsNum = cards.Count;
                 }
 
                 List<int> handCardsList = _isMine ? mHandCards : oHandCards;
 
                 List<int> addList = new List<int>();
 
-                for (int i = 0; i < _num && cards.Count > 0; i++)
+                for (int i = 0; i < _addCardsNum && cards.Count > 0; i++)
                 {
                     int uid = cards.Dequeue();
 
@@ -1383,6 +1362,10 @@ namespace FinalWar
                 }
 
                 yield return new BattleAddCardsVO(_isMine, addList);
+
+                MoneyChangeReal(_isMine, _addMoneyNum);
+
+                yield return new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney);
             }
         }
 
