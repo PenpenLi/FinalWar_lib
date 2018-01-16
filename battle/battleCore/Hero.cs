@@ -483,5 +483,10 @@ namespace FinalWar
         {
             battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.CAPTURE_MAP_AREA, ref _funcList, this, null);
         }
+
+        public void GetDesc(ref List<string> _list)
+        {
+            battle.eventListener.DispatchEvent(BattleConst.GET_AURA_DESC, ref _list, this);
+        }
     }
 }
