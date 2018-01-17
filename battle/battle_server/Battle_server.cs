@@ -698,19 +698,7 @@ namespace FinalWar
 
         private static Battle.BattleResult ProcessBattle(Battle _battle, BattleRecordRoundData _data, bool _isVsAi)
         {
-            IEnumerator<PlayerAction> enumerator2 = _data.summon.GetEnumerator();
-
-            while (enumerator2.MoveNext())
-            {
-                bool b = _battle.AddSummon(enumerator2.Current.isMine, enumerator2.Current.key, enumerator2.Current.value);
-
-                if (!b)
-                {
-                    throw new Exception("summon error!");
-                }
-            }
-
-            enumerator2 = _data.action.GetEnumerator();
+            IEnumerator<PlayerAction> enumerator2 = _data.action.GetEnumerator();
 
             while (enumerator2.MoveNext())
             {
@@ -719,6 +707,18 @@ namespace FinalWar
                 if (!b)
                 {
                     throw new Exception("action error!");
+                }
+            }
+
+            enumerator2 = _data.summon.GetEnumerator();
+
+            while (enumerator2.MoveNext())
+            {
+                bool b = _battle.AddSummon(enumerator2.Current.isMine, enumerator2.Current.key, enumerator2.Current.value);
+
+                if (!b)
+                {
+                    throw new Exception("summon error!");
                 }
             }
 

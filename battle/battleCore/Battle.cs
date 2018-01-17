@@ -424,11 +424,11 @@ namespace FinalWar
                     {
                         cellData = new BattleCellData(_targetPos);
 
-                        Hero herox;
+                        Hero tmpHero;
 
-                        if (heroMapDic.TryGetValue(_targetPos, out herox))
+                        if (heroMapDic.TryGetValue(_targetPos, out tmpHero))
                         {
-                            cellData.stander = herox;
+                            cellData.stander = tmpHero;
                         }
 
                         _battleData.actionDic.Add(_targetPos, cellData);
@@ -438,38 +438,6 @@ namespace FinalWar
                 }
                 else
                 {
-                    int nowThreadLevel = 0;
-
-                    Hero herox;
-
-                    if (heroMapDic.TryGetValue(_targetPos, out herox))
-                    {
-                        nowThreadLevel = herox.sds.GetHeroType().GetThread();
-                    }
-
-                    for (int i = 0; i < arr.Count; i++)
-                    {
-                        int tmpPos = arr[i];
-
-                        if (tmpPos == _targetPos)
-                        {
-                            continue;
-                        }
-
-                        Hero tmpHero;
-
-                        if (heroMapDic.TryGetValue(tmpPos, out tmpHero))
-                        {
-                            if (tmpHero.isMine != hero.isMine)
-                            {
-                                if (tmpHero.sds.GetHeroType().GetThread() > nowThreadLevel)
-                                {
-                                    throw new Exception("attack error1");
-                                }
-                            }
-                        }
-                    }
-
                     hero.SetAction(Hero.HeroAction.ATTACK, _targetPos);
 
                     BattleCellData cellData;
@@ -493,48 +461,25 @@ namespace FinalWar
             }
             else
             {
-                if (hero.sds.GetShootSkills().Length > 0 && heroMapDic.ContainsKey(_targetPos))
+                hero.SetAction(Hero.HeroAction.SHOOT, _targetPos);
+
+                BattleCellData cellData;
+
+                if (!_battleData.actionDic.TryGetValue(_targetPos, out cellData))
                 {
-                    List<int> arr2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
+                    cellData = new BattleCellData(_targetPos);
 
-                    if (arr2.Contains(_targetPos))
+                    Hero tmpHero;
+
+                    if (heroMapDic.TryGetValue(_targetPos, out tmpHero))
                     {
-                        if (targetPosIsMine != hero.isMine)
-                        {
-                            hero.SetAction(Hero.HeroAction.SHOOT, _targetPos);
-
-                            BattleCellData cellData;
-
-                            if (!_battleData.actionDic.TryGetValue(_targetPos, out cellData))
-                            {
-                                cellData = new BattleCellData(_targetPos);
-
-                                Hero tmpHero;
-
-                                if (heroMapDic.TryGetValue(_targetPos, out tmpHero))
-                                {
-                                    cellData.stander = tmpHero;
-                                }
-
-                                _battleData.actionDic.Add(_targetPos, cellData);
-                            }
-
-                            cellData.shooters.Add(hero);
-                        }
-                        else
-                        {
-                            throw new Exception("shoot error5");
-                        }
+                        cellData.stander = tmpHero;
                     }
-                    else
-                    {
-                        throw new Exception("shoot error4");
-                    }
+
+                    _battleData.actionDic.Add(_targetPos, cellData);
                 }
-                else
-                {
-                    throw new Exception("shoot error0");
-                }
+
+                cellData.shooters.Add(hero);
             }
         }
 
@@ -1473,6 +1418,16 @@ namespace FinalWar
                 return false;
             }
 
+            for (int i = 0; i < action.Count; i++)
+            {
+                KeyValuePair<int, int> pair = action[i];
+
+                if (pair.Value == _pos)
+                {
+                    return false;
+                }
+            }
+
             if (!heroMapDic.ContainsKey(_pos) && !GetSummonContainsValue(_pos))
             {
                 bool isMine = GetPosIsMine(_pos);
@@ -1575,7 +1530,7 @@ namespace FinalWar
             return action.Count;
         }
 
-        public bool GetActionContainsKey(int _pos, out int _targetPos)
+        public int GetActionContainsKey(int _pos)
         {
             for (int i = 0; i < action.Count; i++)
             {
@@ -1583,15 +1538,11 @@ namespace FinalWar
 
                 if (pair.Key == _pos)
                 {
-                    _targetPos = pair.Value;
-
-                    return true;
+                    return pair.Value;
                 }
             }
 
-            _targetPos = -1;
-
-            return false;
+            return -1;
         }
 
         internal bool AddAction(bool _isMine, int _pos, int _targetPos)
@@ -1627,9 +1578,7 @@ namespace FinalWar
                 return false;
             }
 
-            int targetPos;
-
-            if (GetActionContainsKey(_pos, out targetPos))
+            if (GetActionContainsKey(_pos) != -1)
             {
                 return false;
             }
@@ -1642,7 +1591,10 @@ namespace FinalWar
             {
                 if (targetPosIsMine == hero.isMine)
                 {
-                    AddAction(_pos, _targetPos);
+                    if (GetSummonContainsValue(_targetPos))
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
@@ -1675,26 +1627,23 @@ namespace FinalWar
                             }
                         }
                     }
-
-                    AddAction(_pos, _targetPos);
                 }
+
+                AddAction(_pos, _targetPos);
 
                 return true;
             }
             else
             {
-                if (hero.sds.GetShootSkills().Length > 0 && heroMapDic.ContainsKey(_targetPos))
+                if (targetPosIsMine != hero.isMine && hero.sds.GetShootSkills().Length > 0 && heroMapDic.ContainsKey(_targetPos))
                 {
                     List<int> tmpList2 = BattlePublicTools.GetNeighbourPos3(mapData, _pos);
 
                     if (tmpList2.Contains(_targetPos))
                     {
-                        if (targetPosIsMine != hero.isMine)
-                        {
-                            AddAction(_pos, _targetPos);
+                        AddAction(_pos, _targetPos);
 
-                            return true;
-                        }
+                        return true;
                     }
                 }
 
