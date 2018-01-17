@@ -46,7 +46,9 @@ namespace FinalWar
             }
             else
             {
-                _v.pair = new KeyValuePair<int, int>(uid, id);
+                _v.uid = uid;
+
+                _v.id = id;
 
                 return true;
             }

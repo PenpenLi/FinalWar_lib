@@ -353,7 +353,7 @@ namespace FinalWar
 
 
 
-        public static List<List<int>> GetSummonPosToEmemyAreaList(Battle _battle, bool _isMine, int _max)
+        public static Dictionary<int, List<int>> GetSummonPosToEmemyAreaList(Battle _battle, bool _isMine, int _max)
         {
             int startPos = _isMine ? _battle.mapData.oBase : _battle.mapData.mBase;
 
@@ -418,7 +418,7 @@ namespace FinalWar
                 }
             }
 
-            List<List<int>> result = null;
+            Dictionary<int, List<int>> result = null;
 
             IEnumerator<KeyValuePair<int, int>> enumerator = close.GetEnumerator();
 
@@ -434,19 +434,17 @@ namespace FinalWar
                 {
                     if (result == null)
                     {
-                        result = new List<List<int>>();
+                        result = new Dictionary<int, List<int>>();
                     }
 
                     List<int> tmpList;
 
-                    for (int i = result.Count; i < range + 1; i++)
+                    if (!result.TryGetValue(range, out tmpList))
                     {
                         tmpList = new List<int>();
 
-                        result.Add(tmpList);
+                        result.Add(range, tmpList);
                     }
-
-                    tmpList = result[range];
 
                     tmpList.Add(pos);
                 }
@@ -455,7 +453,7 @@ namespace FinalWar
             return result;
         }
 
-        public static List<List<int>> GetSummonPosToEmemyHeroList(Battle _battle, bool _isMine, int _max)
+        public static Dictionary<int, List<int>> GetSummonPosToEmemyHeroList(Battle _battle, bool _isMine, int _max)
         {
             Dictionary<int, int> close = new Dictionary<int, int>();
 
@@ -526,7 +524,7 @@ namespace FinalWar
                 }
             }
 
-            List<List<int>> result = null;
+            Dictionary<int, List<int>> result = null;
 
             IEnumerator<KeyValuePair<int, int>> enumerator2 = close.GetEnumerator();
 
@@ -542,19 +540,17 @@ namespace FinalWar
                 {
                     if (result == null)
                     {
-                        result = new List<List<int>>();
+                        result = new Dictionary<int, List<int>>();
                     }
 
                     List<int> tmpList;
 
-                    for (int i = result.Count; i < range + 1; i++)
+                    if (!result.TryGetValue(range, out tmpList))
                     {
                         tmpList = new List<int>();
 
-                        result.Add(tmpList);
+                        result.Add(range, tmpList);
                     }
-
-                    tmpList = result[range];
 
                     tmpList.Add(pos);
                 }

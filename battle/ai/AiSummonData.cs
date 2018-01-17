@@ -4,11 +4,11 @@ namespace FinalWar
 {
     internal class AiSummonData
     {
-        internal List<List<int>> summonPosList;
+        internal Dictionary<int, List<int>> summonPosDic;
 
-        internal KeyValuePair<int, int> pair;
+        internal int uid;
 
-        internal List<int> summonPos = new List<int>();
+        internal int id;
 
         internal int money;
     }

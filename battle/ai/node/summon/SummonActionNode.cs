@@ -1,5 +1,6 @@
 ﻿using bt;
 using System;
+using System.Collections.Generic;
 using System.Xml;
 
 namespace FinalWar
@@ -24,13 +25,27 @@ namespace FinalWar
 
         public override bool Enter(Func<int, int> _getRandomValueCallBack, Battle _t, bool _u, AiSummonData _v)
         {
-            int pos = _v.summonPos[value - 1];
+            List<int> list = _v.summonPosDic[value - 1];
 
-            _t.AddSummon(_u, _v.pair.Key, pos);
+            int index = _getRandomValueCallBack(list.Count);
 
-            _v.summonPosList[value - 1].Remove(pos);
+            int pos = list[index];
 
-            IHeroSDS sds = Battle.GetHeroData(_v.pair.Value);
+            bool b = _t.AddSummon(_u, _v.uid, pos);
+
+            if (!b)
+            {
+                throw new Exception("SummonActionNode error!");
+            }
+
+            list.RemoveAt(index);
+
+            if (list.Count == 0)
+            {
+                _v.summonPosDic.Remove(value - 1);
+            }
+
+            IHeroSDS sds = Battle.GetHeroData(_v.id);
 
             _v.money -= sds.GetCost();
 
