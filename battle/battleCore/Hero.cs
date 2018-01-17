@@ -488,5 +488,10 @@ namespace FinalWar
         {
             battle.eventListener.DispatchEvent(BattleConst.GET_AURA_DESC, ref _list, this);
         }
+
+        public List<int> GetCanAttackPos()
+        {
+            return BattlePublicTools.GetCanAttackPos(battle, this);
+        }
     }
 }
