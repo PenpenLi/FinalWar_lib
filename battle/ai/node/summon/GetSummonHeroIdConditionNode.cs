@@ -6,8 +6,6 @@ namespace FinalWar
 {
     internal class GetSummonHeroIdConditionNode : ConditionNode<Battle, bool, AiSummonData>
     {
-        internal const string key = "GetSummonHeroIdConditionNode";
-
         public override bool Enter(Func<int, int> _getRandomValueCallBack, Battle _t, bool _u, AiSummonData _v)
         {
             List<int> handCards = _u ? _t.mHandCards : _t.oHandCards;

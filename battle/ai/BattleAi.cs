@@ -3,6 +3,9 @@ using bt;
 using System.Xml;
 using System;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Remoting;
+using System.Collections;
 
 namespace FinalWar
 {
@@ -18,9 +21,11 @@ namespace FinalWar
 
         public static void Init(string _actionStr, string _summonStr)
         {
-            actionBtRoot = BtTools.Create(_actionStr, GetActionConditionNode, GetActionActionNode);
+            bt.Log.Init(Log.Write);
 
-            summonBtRoot = BtTools.Create(_summonStr, GetSummonConditionNode, GetSummonActionNode);
+            actionBtRoot = BtTools.Create<Battle, Hero, AiActionData>(_actionStr, Assembly.GetExecutingAssembly().FullName);
+
+            summonBtRoot = BtTools.Create<Battle, bool, AiSummonData>(_summonStr, Assembly.GetExecutingAssembly().FullName);
 
             aiActionData = new AiActionData();
 
@@ -144,209 +149,6 @@ namespace FinalWar
             }
         }
 
-        private static ActionNode<Battle, Hero, AiActionData> GetActionActionNode(XmlNode _node)
-        {
-            XmlAttribute typeAtt = _node.Attributes["type"];
-
-            if (typeAtt == null)
-            {
-                throw new Exception("ActionNode has not type attribute:" + _node.ToString());
-            }
-
-            ActionNode<Battle, Hero, AiActionData> actionNode;
-
-            switch (typeAtt.InnerText)
-            {
-                case DefenseActionNode.key:
-
-                    actionNode = new DefenseActionNode();
-
-                    break;
-
-                case ChooseTargetActionNode.key:
-
-                    actionNode = new ChooseTargetActionNode(_node);
-
-                    break;
-
-                case MoveForwardActionNode.key:
-
-                    actionNode = new MoveForwardActionNode(_node);
-
-                    break;
-
-                default:
-
-                    throw new Exception("Unknown ActionNode:" + _node.ToString());
-            }
-
-            return actionNode;
-        }
-
-        private static ConditionNode<Battle, Hero, AiActionData> GetActionConditionNode(XmlNode _node)
-        {
-            XmlAttribute typeAtt = _node.Attributes["type"];
-
-            if (typeAtt == null)
-            {
-                throw new Exception("ConditionNode has not type attribute:" + _node.ToString());
-            }
-
-            ConditionNode<Battle, Hero, AiActionData> conditionNode;
-
-            string key = typeAtt.InnerText;
-
-            switch (key)
-            {
-                case CheckHeroCanActionConditionNode.key:
-
-                    conditionNode = new CheckHeroCanActionConditionNode();
-
-                    break;
-
-                case CheckHeroCanBeAttackConditionNode.key:
-
-                    conditionNode = new CheckHeroCanBeAttackConditionNode();
-
-                    break;
-
-                case CheckHeroTypeConditionNode.key:
-
-                    conditionNode = new CheckHeroTypeConditionNode(_node);
-
-                    break;
-
-                case GetCanAttackHeroPosConditionNode.key:
-
-                    conditionNode = new GetCanAttackHeroPosConditionNode();
-
-                    break;
-
-                case GetCanAttackPosConditionNode.key:
-
-                    conditionNode = new GetCanAttackPosConditionNode();
-
-                    break;
-
-                case GetCanShootHeroPosConditionConditionNode.key:
-
-                    conditionNode = new GetCanShootHeroPosConditionConditionNode();
-
-                    break;
-
-                case GetCanSupportHeroPosConditionNode.key:
-
-                    conditionNode = new GetCanSupportHeroPosConditionNode();
-
-                    break;
-
-                case GetCanSupportPosConditionNode.key:
-
-                    conditionNode = new GetCanSupportPosConditionNode();
-
-                    break;
-
-                case CheckHeroCanShootConditionNode.key:
-
-                    conditionNode = new CheckHeroCanShootConditionNode();
-
-                    break;
-
-                default:
-
-                    throw new Exception("Unknown ConditionNode:" + _node.ToString());
-            }
-
-            return conditionNode;
-        }
-
-
-
-        private static ActionNode<Battle, bool, AiSummonData> GetSummonActionNode(XmlNode _node)
-        {
-            XmlAttribute typeAtt = _node.Attributes["type"];
-
-            if (typeAtt == null)
-            {
-                throw new Exception("ActionNode has not type attribute:" + _node.ToString());
-            }
-
-            ActionNode<Battle, bool, AiSummonData> actionNode;
-
-            switch (typeAtt.InnerText)
-            {
-                case SummonActionNode.key:
-
-                    actionNode = new SummonActionNode(_node);
-
-                    break;
-
-                default:
-
-                    throw new Exception("Unknown ActionNode:" + _node.ToString());
-            }
-
-            return actionNode;
-        }
-
-        private static ConditionNode<Battle, bool, AiSummonData> GetSummonConditionNode(XmlNode _node)
-        {
-            XmlAttribute typeAtt = _node.Attributes["type"];
-
-            if (typeAtt == null)
-            {
-                throw new Exception("ConditionNode has not type attribute:" + _node.ToString());
-            }
-
-            ConditionNode<Battle, bool, AiSummonData> conditionNode;
-
-            string key = typeAtt.InnerText;
-
-            switch (key)
-            {
-                case GetSummonPosToEnemyAreaListConditionNode.key:
-
-                    conditionNode = new GetSummonPosToEnemyAreaListConditionNode(_node);
-
-                    break;
-
-                case GetSummonHeroIdConditionNode.key:
-
-                    conditionNode = new GetSummonHeroIdConditionNode();
-
-                    break;
-
-                case ChooseSummonPosConditionNode.key:
-
-                    conditionNode = new ChooseSummonPosConditionNode(_node);
-
-                    break;
-
-                case CheckSummonHeroTypeConditionNode.key:
-
-                    conditionNode = new CheckSummonHeroTypeConditionNode(_node);
-
-                    break;
-
-                case GetMoneyConditionNode.key:
-
-                    conditionNode = new GetMoneyConditionNode();
-
-                    break;
-
-                case GetSummonPosToEnemyHeroListConditionNode.key:
-
-                    conditionNode = new GetSummonPosToEnemyHeroListConditionNode(_node);
-
-                    break;
-
-                default:
-
-                    throw new Exception("Unknown ConditionNode:" + _node.ToString());
-            }
-
-            return conditionNode;
-        }
 
 
 
