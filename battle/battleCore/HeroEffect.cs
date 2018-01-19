@@ -68,7 +68,7 @@ namespace FinalWar
             }
             else
             {
-                return _hero.GetData(heroData);
+                return _hero.GetData(heroData) * _sds.GetData()[1];
             }
         }
     }

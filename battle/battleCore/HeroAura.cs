@@ -119,7 +119,7 @@ namespace FinalWar
                             }
                             else
                             {
-                                _result += _hero.GetData(heroData);
+                                _result += _hero.GetData(heroData) * _sds.GetEffectData()[1];
                             }
                         }
                     };
