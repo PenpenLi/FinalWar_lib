@@ -10,31 +10,31 @@ namespace FinalWar
             {
                 case Effect.DAMAGE:
 
-                    _hero.BeDamage(_sds.GetData()[0]);
+                    _hero.BeDamage(GetData(_hero, _sds));
 
                     break;
 
                 case Effect.HP_CHANGE:
 
-                    _hero.HpChange(_sds.GetData()[0]);
+                    _hero.HpChange(GetData(_hero, _sds));
 
                     break;
 
                 case Effect.SHIELD_CHANGE:
 
-                    _hero.ShieldChange(_sds.GetData()[0]);
+                    _hero.ShieldChange(GetData(_hero, _sds));
 
                     break;
 
                 case Effect.CHANGE_HERO:
 
-                    _hero.ChangeHero(_sds.GetData()[0]);
+                    _hero.ChangeHero(GetData(_hero, _sds));
 
                     break;
 
                 case Effect.ADD_MONEY:
 
-                    _hero.MoneyChange(_sds.GetData()[0]);
+                    _hero.MoneyChange(GetData(_hero, _sds));
 
                     break;
 
@@ -56,6 +56,20 @@ namespace FinalWar
             }
 
             return new BattleHeroEffectVO(_sds.GetEffect(), _sds.GetData());
+        }
+
+        private static int GetData(Hero _hero, IEffectSDS _sds)
+        {
+            Hero.HeroData heroData = (Hero.HeroData)_sds.GetData()[0];
+
+            if (heroData == Hero.HeroData.DATA)
+            {
+                return _sds.GetData()[1];
+            }
+            else
+            {
+                return _hero.GetData(heroData);
+            }
         }
     }
 }

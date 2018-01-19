@@ -27,31 +27,19 @@
         SMALLER
     }
 
-    public enum AuraConditionType
-    {
-        DATA,
-        NOWHP,
-        MAXHP,
-        LEVEL,
-        ATTACK,
-        NEIGHBOUR_ALLY_NUM,
-        NEIGHBOUR_ENEMY_NUM,
-        NEIGHBOUR_NUM,
-    }
-
     public interface IAuraSDS
     {
         string GetEventName();
         int GetPriority();
         AuraTarget GetTriggerTarget();
         AuraConditionCompare GetConditionCompare();
-        AuraConditionType[] GetConditionType();
+        Hero.HeroData[] GetConditionType();
         AuraTarget[] GetConditionTarget();
         int[] GetConditionData();
         AuraType GetEffectType();
         AuraTarget GetEffectTarget();
         int GetEffectTargetNum();
-        int GetEffectData();
+        int[] GetEffectData();
         string[] GetRemoveEventNames();
         string GetDesc();
     }

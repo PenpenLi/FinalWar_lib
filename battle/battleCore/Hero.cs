@@ -5,6 +5,18 @@ namespace FinalWar
 {
     public class Hero
     {
+        public enum HeroData
+        {
+            DATA,
+            NOWHP,
+            MAXHP,
+            LEVEL,
+            ATTACK,
+            NEIGHBOUR_ALLY_NUM,
+            NEIGHBOUR_ENEMY_NUM,
+            NEIGHBOUR_NUM,
+        }
+
         internal enum HeroAction
         {
             ATTACK,
@@ -492,6 +504,98 @@ namespace FinalWar
         public List<int> GetCanAttackPos()
         {
             return BattlePublicTools.GetCanAttackPos(battle, this);
+        }
+
+        internal int GetData(HeroData _type)
+        {
+            switch (_type)
+            {
+                case HeroData.LEVEL:
+
+                    return sds.GetCost();
+
+                case HeroData.ATTACK:
+
+                    return sds.GetAttack();
+
+                case HeroData.MAXHP:
+
+                    return sds.GetHp();
+
+                case HeroData.NOWHP:
+
+                    return nowHp;
+
+                case HeroData.NEIGHBOUR_ALLY_NUM:
+
+                    List<int> tmpList = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
+
+                    int num = 0;
+
+                    for (int i = 0; i < tmpList.Count; i++)
+                    {
+                        int tmpPos = tmpList[i];
+
+                        Hero tmpHero;
+
+                        if (battle.heroMapDic.TryGetValue(tmpPos, out tmpHero))
+                        {
+                            if (tmpHero.isMine == isMine)
+                            {
+                                num++;
+                            }
+                        }
+                    }
+
+                    return num;
+
+                case HeroData.NEIGHBOUR_ENEMY_NUM:
+
+                    tmpList = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
+
+                    num = 0;
+
+                    for (int i = 0; i < tmpList.Count; i++)
+                    {
+                        int tmpPos = tmpList[i];
+
+                        Hero tmpHero;
+
+                        if (battle.heroMapDic.TryGetValue(tmpPos, out tmpHero))
+                        {
+                            if (tmpHero.isMine != isMine)
+                            {
+                                num++;
+                            }
+                        }
+                    }
+
+                    return num;
+
+                case HeroData.NEIGHBOUR_NUM:
+
+                    tmpList = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
+
+                    num = 0;
+
+                    for (int i = 0; i < tmpList.Count; i++)
+                    {
+                        int tmpPos = tmpList[i];
+
+                        Hero tmpHero;
+
+                        if (battle.heroMapDic.TryGetValue(tmpPos, out tmpHero))
+                        {
+                            num++;
+                        }
+                    }
+
+                    return num;
+
+                default:
+
+                    throw new Exception("Unknown AuraConditionType:" + _type);
+            }
         }
     }
 }
