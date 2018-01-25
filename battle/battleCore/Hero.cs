@@ -51,6 +51,8 @@ namespace FinalWar
 
         private int damage = 0;
 
+        private bool beKilled = false;
+
         internal Hero(Battle _battle, bool _isMine, IHeroSDS _sds, int _pos)
         {
             battle = _battle;
@@ -251,7 +253,7 @@ namespace FinalWar
 
         internal bool IsAlive()
         {
-            return nowHp > 0;
+            return nowHp > 0 && !beKilled;
         }
 
         internal void ChangeHero(int _id)
@@ -268,6 +270,11 @@ namespace FinalWar
             battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.REMOVE_BORN_AURA, ref funcList, this, null);
 
             HeroAura.Init(battle, this);
+        }
+
+        internal void BeKilled()
+        {
+            beKilled = true;
         }
 
         internal bool GetCanMove()
@@ -315,11 +322,11 @@ namespace FinalWar
 
         private int GetAttackFix(Hero _hero)
         {
-            int attackFixAura = 0;
+            int attackFix = 0;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK, ref attackFixAura, this, _hero);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK, ref attackFix, this, _hero);
 
-            return attackFixAura;
+            return attackFix;
         }
 
         internal void Recover(ref List<Func<BattleTriggerAuraVO>> _funcList)
@@ -467,13 +474,13 @@ namespace FinalWar
             {
                 _hero.HpChange(-_damage);
 
-                vo = new BattleHeroEffectVO(Effect.HP_CHANGE, new int[] { -_damage });
+                vo = new BattleHeroEffectVO(Effect.HP_CHANGE, -_damage);
             }
             else
             {
                 _hero.BeDamage(_damage);
 
-                vo = new BattleHeroEffectVO(Effect.DAMAGE, new int[] { _damage });
+                vo = new BattleHeroEffectVO(Effect.DAMAGE, _damage);
             }
 
             battle.eventListener.DispatchEvent(BattleConst.DO_DAMAGE, ref _funcList, this, _hero);

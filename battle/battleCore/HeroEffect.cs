@@ -6,39 +6,51 @@ namespace FinalWar
     {
         internal static BattleHeroEffectVO HeroTakeEffect(Battle _battle, Hero _hero, IEffectSDS _sds)
         {
+            int data = 0;
+
             switch (_sds.GetEffect())
             {
                 case Effect.DAMAGE:
 
-                    _hero.BeDamage(GetData(_hero, _sds));
+                    data = GetData(_hero, _sds);
+
+                    _hero.BeDamage(data);
 
                     break;
 
                 case Effect.HP_CHANGE:
 
-                    _hero.HpChange(GetData(_hero, _sds));
+                    data = GetData(_hero, _sds);
+
+                    _hero.HpChange(data);
 
                     break;
 
                 case Effect.SHIELD_CHANGE:
 
-                    _hero.ShieldChange(GetData(_hero, _sds));
+                    data = GetData(_hero, _sds);
+
+                    _hero.ShieldChange(data);
 
                     break;
 
                 case Effect.CHANGE_HERO:
 
-                    _hero.ChangeHero(GetData(_hero, _sds));
+                    data = _sds.GetData()[0];
+
+                    _hero.ChangeHero(data);
 
                     break;
 
                 case Effect.ADD_MONEY:
 
-                    _hero.MoneyChange(GetData(_hero, _sds));
+                    data = GetData(_hero, _sds);
+
+                    _hero.MoneyChange(data);
 
                     break;
 
-                case Effect.BE_CLEAN:
+                case Effect.BE_CLEANED:
 
                     _hero.BeClean();
 
@@ -46,7 +58,15 @@ namespace FinalWar
 
                 case Effect.ADD_AURA:
 
-                    HeroAura.Init(_battle, _hero, _sds.GetData()[0], false);
+                    data = _sds.GetData()[0];
+
+                    HeroAura.Init(_battle, _hero, data, false);
+
+                    break;
+
+                case Effect.BE_KILLED:
+
+                    _hero.BeKilled();
 
                     break;
 
@@ -55,7 +75,7 @@ namespace FinalWar
                     throw new Exception("skill effect error:" + _sds.GetEffect().ToString());
             }
 
-            return new BattleHeroEffectVO(_sds.GetEffect(), _sds.GetData());
+            return new BattleHeroEffectVO(_sds.GetEffect(), data);
         }
 
         private static int GetData(Hero _hero, IEffectSDS _sds)

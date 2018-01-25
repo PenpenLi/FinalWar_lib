@@ -879,7 +879,7 @@ namespace FinalWar
 
                                     attackVO = attacker.Attack(defender, attackDamage, ref funcList);
 
-                                    defenseVO = new BattleHeroEffectVO(Effect.NULL, null);
+                                    defenseVO = new BattleHeroEffectVO(Effect.NULL, 0);
                                 }
                                 else
                                 {
@@ -889,7 +889,7 @@ namespace FinalWar
 
                                     int defenseDamage = defender.GetDamage(attacker);
 
-                                    attackVO = new BattleHeroEffectVO(Effect.NULL, null);
+                                    attackVO = new BattleHeroEffectVO(Effect.NULL, 0);
 
                                     defenseVO = defender.Attack(attacker, defenseDamage, ref funcList);
                                 }

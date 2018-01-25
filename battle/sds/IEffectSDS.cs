@@ -9,7 +9,8 @@
         CHANGE_HERO,
         ADD_MONEY,
         ADD_AURA,
-        BE_CLEAN,
+        BE_CLEANED,
+        BE_KILLED,
     }
 
     public interface IEffectSDS
