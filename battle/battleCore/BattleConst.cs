@@ -15,8 +15,10 @@
         public const int MAX_PRIORITY = short.MaxValue;
 
         public const string FIX_ATTACK = "fixAttack";
+        public const string FIX_BE_ATTACK = "fixBeAttack";
         public const string FIX_SPEED = "fixSpeed";
         public const string FIX_CAN_PIERCE_SHIELD = "fixCanPierceShield";
+        public const string FIX_CAN_BE_PIERCE_SHIELD = "fixCanBePierceShield";
         public const string FIX_CAN_MOVE = "fixCanMove";
         public const string FIX_CAN_RECOVER_SHIELD = "fixCanRecoverShield";
         public const string ATTACK = "attack";

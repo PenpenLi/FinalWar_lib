@@ -326,6 +326,8 @@ namespace FinalWar
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK, ref attackFix, this, _hero);
 
+            battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACK, ref attackFix, _hero, this);
+
             return attackFix;
         }
 
@@ -467,6 +469,11 @@ namespace FinalWar
             bool tmpCanPierceShield = false;
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this, _hero);
+
+            if (!tmpCanPierceShield)
+            {
+                battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_BE_PIERCE_SHIELD, ref tmpCanPierceShield, _hero, this);
+            }
 
             BattleHeroEffectVO vo;
 
