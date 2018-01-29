@@ -25,6 +25,7 @@
         public const string RUSH = "rush";
         public const string DO_DAMAGE = "doDamage";
         public const string FIX_FEAR = "fixFear";
+        public const string RECOVER = "recover";
         public const string ROUND_OVER = "roundOver";
         public const string DIE = "die";
         public const string CAPTURE_MAP_AREA = "captureMapArea";

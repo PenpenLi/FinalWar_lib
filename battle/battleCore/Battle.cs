@@ -1191,6 +1191,22 @@ namespace FinalWar
             }
 
             yield return new BattleRecoverVO();
+
+            funcList = null;
+
+            enumerator = heroMapDic.Values.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                enumerator.Current.RoundOver(ref funcList);
+            }
+
+            if (funcList != null)
+            {
+                yield return InvokeFuncList(funcList);
+            }
+
+            yield return new BattleRecoverVO();
         }
 
         private void RemoveHeroAction(BattleData _battleData, Hero _hero)

@@ -333,13 +333,35 @@ namespace FinalWar
 
         internal void Recover(ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
+            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.RECOVER, ref _funcList, this, null);
+        }
+
+        internal void RoundOver(ref List<Func<BattleTriggerAuraVO>> _funcList)
+        {
             bool recoverShield = true;
 
-            battle.eventListener.DispatchEvent<bool, Hero, Hero>(BattleConst.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this, null);
+            List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                int tmpPos = list[i];
+
+                if (battle.GetPosIsMine(tmpPos) != isMine && battle.heroMapDic.ContainsKey(tmpPos))
+                {
+                    recoverShield = false;
+
+                    break;
+                }
+            }
 
             if (recoverShield)
             {
-                nowShield = sds.GetShield();
+                battle.eventListener.DispatchEvent<bool, Hero, Hero>(BattleConst.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this, null);
+
+                if (recoverShield)
+                {
+                    nowShield = sds.GetShield();
+                }
             }
 
             attackTimes = sds.GetHeroType().GetAttackTimes();
