@@ -15,6 +15,7 @@ namespace FinalWar
             NEIGHBOUR_ALLY_NUM,
             NEIGHBOUR_ENEMY_NUM,
             NEIGHBOUR_NUM,
+            NOWSHIELD,
         }
 
         internal enum HeroAction
@@ -52,6 +53,8 @@ namespace FinalWar
         private int damage = 0;
 
         private bool beKilled = false;
+
+        private bool isAttacked = false;
 
         internal Hero(Battle _battle, bool _isMine, IHeroSDS _sds, int _pos)
         {
@@ -288,7 +291,14 @@ namespace FinalWar
 
         public int GetDamage()
         {
-            return GetDamage(null);
+            int attack = sds.GetAttack() + GetAttackFix() + nowShield;
+
+            if (attack < 0)
+            {
+                attack = 0;
+            }
+
+            return attack;
         }
 
         internal int GetDamage(Hero _hero)
@@ -305,7 +315,14 @@ namespace FinalWar
 
         public int GetDamageWithoutShield()
         {
-            return GetDamageWithoutShield(null);
+            int attack = sds.GetAttack() + GetAttackFix();
+
+            if (attack < 0)
+            {
+                attack = 0;
+            }
+
+            return attack;
         }
 
         internal int GetDamageWithoutShield(Hero _hero)
@@ -331,6 +348,15 @@ namespace FinalWar
             return attackFix;
         }
 
+        private int GetAttackFix()
+        {
+            int attackFix = 0;
+
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_ATTACK, ref attackFix, this, null);
+
+            return attackFix;
+        }
+
         internal void Recover(ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
             battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.RECOVER, ref _funcList, this, null);
@@ -338,30 +364,39 @@ namespace FinalWar
 
         internal void RoundOver(ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
-            bool recoverShield = true;
-
-            List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
-
-            for (int i = 0; i < list.Count; i++)
+            if (!isAttacked)
             {
-                int tmpPos = list[i];
+                bool recoverShield = true;
 
-                if (battle.GetPosIsMine(tmpPos) != isMine && battle.heroMapDic.ContainsKey(tmpPos))
-                {
-                    recoverShield = false;
+                //List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
 
-                    break;
-                }
-            }
+                //for (int i = 0; i < list.Count; i++)
+                //{
+                //    int tmpPos = list[i];
 
-            if (recoverShield)
-            {
+                //    if (battle.GetPosIsMine(tmpPos) != isMine && battle.heroMapDic.ContainsKey(tmpPos))
+                //    {
+                //        recoverShield = false;
+
+                //        break;
+                //    }
+                //}
+
                 battle.eventListener.DispatchEvent<bool, Hero, Hero>(BattleConst.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this, null);
 
                 if (recoverShield)
                 {
                     nowShield = sds.GetShield();
                 }
+            }
+            else
+            {
+                isAttacked = false;
+            }
+
+            if (nowShield > sds.GetShield())
+            {
+                nowShield = sds.GetShield();
             }
 
             attackTimes = sds.GetHeroType().GetAttackTimes();
@@ -488,6 +523,8 @@ namespace FinalWar
 
         private BattleHeroEffectVO DoDamage(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
+            _hero.isAttacked = true;
+
             bool tmpCanPierceShield = false;
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this, _hero);
@@ -561,6 +598,10 @@ namespace FinalWar
                 case HeroData.NOWHP:
 
                     return nowHp;
+
+                case HeroData.NOWSHIELD:
+
+                    return nowShield;
 
                 case HeroData.NEIGHBOUR_ALLY_NUM:
 
