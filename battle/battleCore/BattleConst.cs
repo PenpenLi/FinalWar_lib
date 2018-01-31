@@ -24,6 +24,7 @@
         public const string ATTACK = "attack";
         public const string RUSH = "rush";
         public const string DO_DAMAGE = "doDamage";
+        public const string BE_DAMAGED = "beDamaged";
         public const string FIX_FEAR = "fixFear";
         public const string RECOVER = "recover";
         public const string ROUND_OVER = "roundOver";

@@ -556,6 +556,8 @@ namespace FinalWar
 
             battle.eventListener.DispatchEvent(BattleConst.DO_DAMAGE, ref _funcList, this, _hero);
 
+            battle.eventListener.DispatchEvent(BattleConst.BE_DAMAGED, ref _funcList, _hero, this);
+
             return vo;
         }
 

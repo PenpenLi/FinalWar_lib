@@ -737,7 +737,7 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                enumerator.Current.Recover(ref funcList);
+                enumerator.Current.RoundStart(ref funcList);
             }
 
             if (funcList != null)
