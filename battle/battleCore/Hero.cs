@@ -357,6 +357,11 @@ namespace FinalWar
             return attackFix;
         }
 
+        internal void RoundStart(ref List<Func<BattleTriggerAuraVO>> _funcList)
+        {
+            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.ROUND_START, ref _funcList, this, null);
+        }
+
         internal void Recover(ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
             battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.RECOVER, ref _funcList, this, null);

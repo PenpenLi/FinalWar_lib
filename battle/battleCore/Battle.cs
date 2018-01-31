@@ -166,14 +166,9 @@ namespace FinalWar
 
             yield return DoSkill(battleData);
 
-            //yield return DoRoundStart(battleData);
-
-
-            //yield return DoRush(battleData);
+            yield return DoRoundStart(battleData);
 
             yield return DoAttack(battleData);
-
-            //yield return DoRush(battleData);
 
             yield return DoMove(battleData);
 
@@ -732,6 +727,34 @@ namespace FinalWar
                     yield return RemoveDieHero(_battleData);
                 }
             }
+        }
+
+        private IEnumerator DoRoundStart(BattleData _battleData)
+        {
+            List<Func<BattleTriggerAuraVO>> funcList = null;
+
+            IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                enumerator.Current.Recover(ref funcList);
+            }
+
+            if (funcList != null)
+            {
+                yield return InvokeFuncList(funcList);
+
+                enumerator = heroMapDic.Values.GetEnumerator();
+
+                while (enumerator.MoveNext())
+                {
+                    enumerator.Current.ProcessDamage();
+                }
+
+                yield return RemoveDieHero(_battleData);
+            }
+
+            yield return new BattleRecoverVO();
         }
 
         private IEnumerator DoAttack(BattleData _battleData)

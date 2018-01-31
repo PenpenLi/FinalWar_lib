@@ -27,6 +27,7 @@
         public const string FIX_FEAR = "fixFear";
         public const string RECOVER = "recover";
         public const string ROUND_OVER = "roundOver";
+        public const string ROUND_START = "roundStart";
         public const string DIE = "die";
         public const string CAPTURE_MAP_AREA = "captureMapArea";
         public const string BE_CLEAN = "beClean";

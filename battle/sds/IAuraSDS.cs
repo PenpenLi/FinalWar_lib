@@ -38,6 +38,10 @@
         int[] GetConditionData();
         AuraType GetEffectType();
         AuraTarget GetEffectTarget();
+        AuraConditionCompare GetTargetConditionCompare();
+        Hero.HeroData[] GetTargetConditionType();
+        bool[] GetTargetConditionTarget();
+        int[] GetTargetConditionData();
         int GetEffectTargetNum();
         int[] GetEffectData();
         string[] GetRemoveEventNames();
