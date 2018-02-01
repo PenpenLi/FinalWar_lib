@@ -17,6 +17,7 @@ namespace FinalWar
             NEIGHBOUR_NUM,
             NOWSHIELD,
             MAXSHIELD,
+            BE_ATTACKED_TIMES,
         }
 
         internal enum HeroAction
@@ -55,7 +56,7 @@ namespace FinalWar
 
         private bool beKilled = false;
 
-        private bool isAttacked = false;
+        private int beAttackedTimes = 0;
 
         internal Hero(Battle _battle, bool _isMine, IHeroSDS _sds, int _pos)
         {
@@ -370,7 +371,7 @@ namespace FinalWar
 
         internal void RoundOver(ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
-            if (!isAttacked)
+            if (beAttackedTimes == 0)
             {
                 bool recoverShield = true;
 
@@ -397,7 +398,7 @@ namespace FinalWar
             }
             else
             {
-                isAttacked = false;
+                beAttackedTimes = 0;
             }
 
             if (nowShield > sds.GetShield())
@@ -529,7 +530,7 @@ namespace FinalWar
 
         private BattleHeroEffectVO DoDamage(Hero _hero, int _damage, ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
-            _hero.isAttacked = true;
+            _hero.beAttackedTimes++;
 
             bool tmpCanPierceShield = false;
 
@@ -680,6 +681,10 @@ namespace FinalWar
                     }
 
                     return num;
+
+                case HeroData.BE_ATTACKED_TIMES:
+
+                    return beAttackedTimes;
 
                 default:
 
