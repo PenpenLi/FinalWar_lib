@@ -16,6 +16,7 @@ namespace FinalWar
             NEIGHBOUR_ENEMY_NUM,
             NEIGHBOUR_NUM,
             NOWSHIELD,
+            MAXSHIELD,
         }
 
         internal enum HeroAction
@@ -609,6 +610,10 @@ namespace FinalWar
                 case HeroData.NOWSHIELD:
 
                     return nowShield;
+
+                case HeroData.MAXSHIELD:
+
+                    return sds.GetShield();
 
                 case HeroData.NEIGHBOUR_ALLY_NUM:
 
