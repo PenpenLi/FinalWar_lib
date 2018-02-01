@@ -29,6 +29,7 @@
 
     public interface IAuraSDS
     {
+        int GetID();
         string GetEventName();
         int GetPriority();
         AuraTarget GetTriggerTarget();
@@ -45,6 +46,5 @@
         int GetEffectTargetNum();
         int[] GetEffectData();
         string[] GetRemoveEventNames();
-        string GetDesc();
     }
 }

@@ -58,16 +58,16 @@ namespace FinalWar
 
                 ids.Add(id);
 
-                SuperEventListener.SuperFunctionCallBackV1<List<string>, Hero> dele2 = delegate (int _index, ref List<string> _list, Hero _triggerHero)
+                SuperEventListener.SuperFunctionCallBackV1<List<int>, Hero> dele2 = delegate (int _index, ref List<int> _list, Hero _triggerHero)
                 {
                     if (_triggerHero == _hero)
                     {
                         if (_list == null)
                         {
-                            _list = new List<string>();
+                            _list = new List<int>();
                         }
 
-                        _list.Add(sds.GetDesc());
+                        _list.Add(sds.GetID());
                     }
                 };
 
