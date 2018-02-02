@@ -632,9 +632,7 @@ namespace FinalWar
                                     attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
                                 }
 
-                                int damage = attacker.GetDamage(stander);
-
-                                BattleHeroEffectVO vo = attacker.Rush(stander, damage, ref funcList);
+                                BattleHeroEffectVO vo = attacker.Rush(stander, ref funcList);
 
                                 yield return new BattleRushVO(attacker.pos, stander.pos, vo);
 
@@ -847,74 +845,44 @@ namespace FinalWar
 
                                 BattleHeroEffectVO defenseVO;
 
-                                bool attackerShield;
-
-                                bool defenderShield;
-
                                 if (Math.Abs(speedDiff) < 2)
                                 {
-                                    int attackDamage;
-
-                                    int defenseDamage;
-
                                     if (speedDiff == 0)
                                     {
-                                        attackDamage = attacker.GetDamage(defender);
+                                        attacker.Attack(defender, ref funcList);
 
-                                        defenseDamage = defender.GetDamage(attacker);
-
-                                        attackerShield = true;
-
-                                        defenderShield = true;
+                                        defender.Attack(attacker, ref funcList);
                                     }
                                     else if (speedDiff == 1)
                                     {
-                                        attackDamage = attacker.GetDamage(defender);
+                                        attacker.Attack(defender, ref funcList);
 
-                                        defenseDamage = defender.GetDamageWithoutShield(attacker);
+                                        defender.ProcessDamage();
 
-                                        attackerShield = true;
-
-                                        defenderShield = false;
+                                        if (defender.IsAlive())
+                                        {
+                                            defender.Attack(attacker, ref funcList);
+                                        }
                                     }
                                     else
                                     {
-                                        attackDamage = attacker.GetDamageWithoutShield(defender);
+                                        defender.Attack(attacker, ref funcList);
 
-                                        defenseDamage = defender.GetDamage(attacker);
+                                        attacker.ProcessDamage();
 
-                                        attackerShield = false;
-
-                                        defenderShield = true;
+                                        if (attacker.IsAlive())
+                                        {
+                                            attacker.Attack(defender, ref funcList);
+                                        }
                                     }
-
-                                    attackVO = attacker.Attack(defender, attackDamage, ref funcList);
-
-                                    defenseVO = defender.Attack(attacker, defenseDamage, ref funcList);
                                 }
                                 else if (speedDiff > 1)
                                 {
-                                    attackerShield = true;
-
-                                    defenderShield = false;
-
-                                    int attackDamage = attacker.GetDamage(defender);
-
-                                    attackVO = attacker.Attack(defender, attackDamage, ref funcList);
-
-                                    defenseVO = new BattleHeroEffectVO(Effect.NULL, 0);
+                                    attacker.Attack(defender, ref funcList);
                                 }
                                 else
                                 {
-                                    attackerShield = false;
-
-                                    defenderShield = true;
-
-                                    int defenseDamage = defender.GetDamage(attacker);
-
-                                    attackVO = new BattleHeroEffectVO(Effect.NULL, 0);
-
-                                    defenseVO = defender.Attack(attacker, defenseDamage, ref funcList);
+                                    defender.Attack(attacker, ref funcList);
                                 }
 
                                 if (defender.action == Hero.HeroAction.DEFENSE || defender.action == Hero.HeroAction.SUPPORT)
