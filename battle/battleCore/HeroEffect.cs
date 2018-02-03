@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace FinalWar
 {
     internal static class HeroEffect
     {
-        internal static BattleHeroEffectVO HeroTakeEffect(Battle _battle, Hero _hero, IEffectSDS _sds)
+        internal static List<BattleHeroEffectVO> HeroTakeEffect(Battle _battle, Hero _hero, IEffectSDS _sds)
         {
+            List<BattleHeroEffectVO> result = new List<BattleHeroEffectVO>();
+
             int data = 0;
 
             switch (_sds.GetEffect())
@@ -14,9 +17,31 @@ namespace FinalWar
 
                     data = GetData(_hero, _sds);
 
+                    int nowShield;
+
+                    int nowHp;
+
+                    _hero.ProcessDamage(out nowShield, out nowHp);
+
                     _hero.BeDamage(data);
 
-                    break;
+                    int targetShield;
+
+                    int targetHp;
+
+                    _hero.ProcessDamage(out targetShield, out targetHp);
+
+                    if (targetShield < nowShield)
+                    {
+                        result.Add(new BattleHeroEffectVO(Effect.SHIELD_CHANGE, targetShield - nowShield));
+                    }
+
+                    if (targetHp < nowHp)
+                    {
+                        result.Add(new BattleHeroEffectVO(Effect.HP_CHANGE, targetHp - nowHp));
+                    }
+
+                    return result;
 
                 case Effect.HP_CHANGE:
 
@@ -75,7 +100,9 @@ namespace FinalWar
                     throw new Exception("skill effect error:" + _sds.GetEffect().ToString());
             }
 
-            return new BattleHeroEffectVO(_sds.GetEffect(), data);
+            result.Add(new BattleHeroEffectVO(_sds.GetEffect(), data));
+
+            return result;
         }
 
         private static int GetData(Hero _hero, IEffectSDS _sds)

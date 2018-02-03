@@ -40,9 +40,9 @@ namespace FinalWar
 
         internal int actionTarget { get; private set; }
 
-        internal int nowHp { get; private set; }
+        public int nowHp { get; private set; }
 
-        private int nowShield;
+        public int nowShield { get; private set; }
 
         internal int attackTimes { get; private set; }
 
@@ -185,20 +185,6 @@ namespace FinalWar
             else
             {
                 _nowShield -= tmpDamage;
-            }
-
-            if (_nowShield < 0)
-            {
-                _nowShield = 0;
-            }
-
-            if (_nowHp < 0)
-            {
-                _nowHp = 0;
-            }
-            else if (_nowHp > sds.GetHp())
-            {
-                _nowHp = sds.GetHp();
             }
         }
 
@@ -446,108 +432,77 @@ namespace FinalWar
             battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.BE_CLEAN, ref funcList, this, null);
         }
 
-        internal BattleHeroEffectVO Attack(Hero _hero, ref List<Func<BattleTriggerAuraVO>> _funcList)
+        public int GetAttack()
         {
-            battle.eventListener.DispatchEvent(BattleConst.ATTACK, ref _funcList, this, _hero);
+            int attack = sds.GetAttack();
 
-            int doDamage;
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_ATTACK_DAMAGE, ref attack, this, null);
 
-            int doShieldDamage;
-
-            int doHpDamage;
-
-            GetAttackDamage(_hero, out doDamage, out doShieldDamage, out doHpDamage);
-
-            return DoDamage(_hero, doDamage, doShieldDamage, doHpDamage, ref _funcList);
-        }
-
-        internal BattleHeroEffectVO Rush(Hero _hero, ref List<Func<BattleTriggerAuraVO>> _funcList)
-        {
-            battle.eventListener.DispatchEvent(BattleConst.RUSH, ref _funcList, this, _hero);
-
-            int doDamage;
-
-            int doShieldDamage;
-
-            int doHpDamage;
-
-            GetAttackDamage(_hero, out doDamage, out doShieldDamage, out doHpDamage);
-
-            GetRushDamage(_hero, ref doDamage, ref doShieldDamage, ref doHpDamage);
-
-            return DoDamage(_hero, doDamage, doShieldDamage, doHpDamage, ref _funcList);
-        }
-
-        private void GetAttackDamage(Hero _hero, out int _damage, out int _shieldDamage, out int _hpDamage)
-        {
-            _damage = sds.GetAttack() + nowShield;
-
-            _shieldDamage = 0;
-
-            _hpDamage = 0;
-
-            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_DAMAGE, ref _damage, this, _hero);
-
-            battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACK_DAMAGE, ref _damage, _hero, this);
-
-            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_SHIELD_DAMAGE, ref _shieldDamage, this, _hero);
-
-            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_HP_DAMAGE, ref _hpDamage, this, _hero);
-        }
-
-        private void GetRushDamage(Hero _hero, ref int _damage, ref int _shieldDamage, ref int _hpDamage)
-        {
-            battle.eventListener.DispatchEvent(BattleConst.FIX_RUSH_DAMAGE, ref _damage, this, _hero);
-
-            battle.eventListener.DispatchEvent(BattleConst.FIX_BE_RUSH_DAMAGE, ref _damage, _hero, this);
-
-            battle.eventListener.DispatchEvent(BattleConst.FIX_RUSH_SHIELD_DAMAGE, ref _shieldDamage, this, _hero);
-
-            battle.eventListener.DispatchEvent(BattleConst.FIX_RUSH_HP_DAMAGE, ref _hpDamage, this, _hero);
-        }
-
-        private BattleHeroEffectVO DoDamage(Hero _hero, int _damage, int _shieldDamage, int _hpDamage, ref List<Func<BattleTriggerAuraVO>> _funcList)
-        {
-            if (_damage < 0)
+            if (attack < 0)
             {
-                _damage = 0;
+                attack = 0;
             }
+
+            return attack;
+        }
+
+        internal void Attack(Hero _hero, ref List<Func<BattleTriggerAuraVO>> _funcList)
+        {
+            bool shieldToDamage = true;
+
+            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_SHIELD_TO_DAMAGE, ref shieldToDamage, this, _hero);
+
+            if (shieldToDamage)
+            {
+                battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_SHIELD_TO_DAMAGE, ref shieldToDamage, _hero, this);
+            }
+
+            int doDamage = sds.GetAttack() + (shieldToDamage ? nowShield : 0);
+
+            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_DAMAGE, ref doDamage, this, _hero);
+
+            battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_DAMAGE, ref doDamage, _hero, this);
+
+            if (doDamage < 0)
+            {
+                doDamage = 0;
+            }
+
+            int doShieldDamage = 0;
+
+            int doHpDamage = 0;
+
+            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_SHIELD_DAMAGE, ref doShieldDamage, this, _hero);
+
+            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_HP_DAMAGE, ref doHpDamage, this, _hero);
 
             _hero.beAttackedTimes++;
 
-            bool tmpCanPierceShield = false;
+            bool canPierceShield = false;
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_PIERCE_SHIELD, ref tmpCanPierceShield, this, _hero);
+            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_PIERCE_SHIELD, ref canPierceShield, this, _hero);
 
-            if (!tmpCanPierceShield)
+            if (!canPierceShield)
             {
-                battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_BE_PIERCE_SHIELD, ref tmpCanPierceShield, _hero, this);
+                battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_PIERCE_SHIELD, ref canPierceShield, _hero, this);
             }
 
-            BattleHeroEffectVO vo;
-
-            if (tmpCanPierceShield)
+            if (canPierceShield)
             {
-                _hero.HpChange(-_damage);
-
-                vo = new BattleHeroEffectVO(Effect.HP_CHANGE, -_damage);
+                _hero.HpChange(-doDamage);
             }
             else
             {
-                _hero.BeDamage(_damage);
-
-                vo = new BattleHeroEffectVO(Effect.DAMAGE, _damage);
+                _hero.BeDamage(doDamage);
             }
 
-            _hero.ShieldChange(-_shieldDamage);
+            _hero.ShieldChange(-doShieldDamage);
 
-            _hero.HpChange(-_hpDamage);
+            _hero.HpChange(-doHpDamage);
 
             battle.eventListener.DispatchEvent(BattleConst.DO_DAMAGE, ref _funcList, this, _hero);
 
             battle.eventListener.DispatchEvent(BattleConst.BE_DAMAGED, ref _funcList, _hero, this);
-
-            return vo;
         }
 
         internal void MoneyChange(int _num)

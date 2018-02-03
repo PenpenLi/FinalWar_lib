@@ -166,7 +166,7 @@ namespace FinalWar
 
         private static BattleTriggerAuraVO AuraCastSkill(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds)
         {
-            Dictionary<int, BattleHeroEffectVO> dic = new Dictionary<int, BattleHeroEffectVO>();
+            Dictionary<int, List<BattleHeroEffectVO>> dic = new Dictionary<int, List<BattleHeroEffectVO>>();
 
             AuraCastSkillReal(_battle, _hero, _triggerHero, _triggerTargetHero, _sds, dic);
 
@@ -175,7 +175,7 @@ namespace FinalWar
             return result;
         }
 
-        private static void AuraCastSkillReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds, Dictionary<int, BattleHeroEffectVO> _dic)
+        private static void AuraCastSkillReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds, Dictionary<int, List<BattleHeroEffectVO>> _dic)
         {
             switch (_sds.GetEffectTarget())
             {
@@ -183,7 +183,7 @@ namespace FinalWar
 
                     IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
 
-                    BattleHeroEffectVO vo = HeroEffect.HeroTakeEffect(_battle, _hero, effectSDS);
+                    List<BattleHeroEffectVO> vo = HeroEffect.HeroTakeEffect(_battle, _hero, effectSDS);
 
                     _dic.Add(_hero.pos, vo);
 

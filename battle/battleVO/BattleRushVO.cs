@@ -4,13 +4,11 @@
     {
         public int attacker;
         public int stander;
-        public BattleHeroEffectVO vo;
 
-        public BattleRushVO(int _attacker, int _stander, BattleHeroEffectVO _vo)
+        public BattleRushVO(int _attacker, int _stander)
         {
             attacker = _attacker;
             stander = _stander;
-            vo = _vo;
         }
     }
 }

@@ -488,13 +488,13 @@ namespace FinalWar
 
                 if (cellData.stander != null)
                 {
-                    LinkedList<Tuple<int, Hero, Func<BattleHeroEffectVO>>> linkedList = null;
+                    LinkedList<Tuple<int, Hero, Func<List<BattleHeroEffectVO>>>> linkedList = null;
 
                     if (cellData.shooters.Count > 0)
                     {
                         if (linkedList == null)
                         {
-                            linkedList = new LinkedList<Tuple<int, Hero, Func<BattleHeroEffectVO>>>();
+                            linkedList = new LinkedList<Tuple<int, Hero, Func<List<BattleHeroEffectVO>>>>();
                         }
 
                         for (int i = 0; i < cellData.shooters.Count; i++)
@@ -513,7 +513,7 @@ namespace FinalWar
                     {
                         if (linkedList == null)
                         {
-                            linkedList = new LinkedList<Tuple<int, Hero, Func<BattleHeroEffectVO>>>();
+                            linkedList = new LinkedList<Tuple<int, Hero, Func<List<BattleHeroEffectVO>>>>();
                         }
 
                         for (int i = 0; i < cellData.supporters.Count; i++)
@@ -531,15 +531,15 @@ namespace FinalWar
                     {
                         Dictionary<Hero, List<BattleHeroEffectVO>> result = new Dictionary<Hero, List<BattleHeroEffectVO>>();
 
-                        IEnumerator<Tuple<int, Hero, Func<BattleHeroEffectVO>>> enumerator3 = linkedList.GetEnumerator();
+                        IEnumerator<Tuple<int, Hero, Func<List<BattleHeroEffectVO>>>> enumerator3 = linkedList.GetEnumerator();
 
                         while (enumerator3.MoveNext())
                         {
-                            Tuple<int, Hero, Func<BattleHeroEffectVO>> tuple = enumerator3.Current;
+                            Tuple<int, Hero, Func<List<BattleHeroEffectVO>>> tuple = enumerator3.Current;
 
                             Hero hero = tuple.second;
 
-                            Func<BattleHeroEffectVO> func = tuple.third;
+                            Func<List<BattleHeroEffectVO>> func = tuple.third;
 
                             List<BattleHeroEffectVO> list;
 
@@ -550,9 +550,9 @@ namespace FinalWar
                                 result.Add(hero, list);
                             }
 
-                            BattleHeroEffectVO vo = func();
+                            List<BattleHeroEffectVO> vo = func();
 
-                            list.Add(vo);
+                            list.AddRange(vo);
                         }
 
                         IEnumerator<KeyValuePair<Hero, List<BattleHeroEffectVO>>> enumerator4 = result.GetEnumerator();
@@ -632,9 +632,9 @@ namespace FinalWar
                                     attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
                                 }
 
-                                BattleHeroEffectVO vo = attacker.Rush(stander, ref funcList);
+                                attacker.Attack(stander, ref funcList);
 
-                                yield return new BattleRushVO(attacker.pos, stander.pos, vo);
+                                yield return new BattleRushVO(attacker.pos, stander.pos);
 
                                 break;
                             }
@@ -802,17 +802,23 @@ namespace FinalWar
 
                                 int defenderSpeed;
 
+                                AttackType attackType;
+
                                 if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
                                 {
                                     defender = cellData.stander;
 
                                     defenderSpeed = defender.GetDefenseSpeed(attacker);
+
+                                    attackType = AttackType.A_D;
                                 }
                                 else if (cellData.supporters.Count > 0)
                                 {
                                     defender = cellData.supporters[0];
 
                                     defenderSpeed = defender.GetSupportSpeed(attacker);
+
+                                    attackType = AttackType.A_S;
                                 }
                                 else
                                 {
@@ -833,17 +839,15 @@ namespace FinalWar
                                     }
 
                                     checkedPosDic.Add(attacker.pos, true);
+
+                                    attackType = AttackType.A_A;
                                 }
 
                                 int attackerSpeed = attacker.GetAttackSpeed(defender);
 
-                                yield return new BattlePrepareAttackVO(cellData.pos, attacker.pos, attackerSpeed, defender.pos, defenderSpeed);
+                                yield return new BattlePrepareAttackVO(cellData.pos, attackType, attacker.pos, attackerSpeed, defender.pos, defenderSpeed);
 
                                 int speedDiff = attackerSpeed - defenderSpeed;
-
-                                BattleHeroEffectVO attackVO;
-
-                                BattleHeroEffectVO defenseVO;
 
                                 if (Math.Abs(speedDiff) < 2)
                                 {
@@ -852,49 +856,54 @@ namespace FinalWar
                                         attacker.Attack(defender, ref funcList);
 
                                         defender.Attack(attacker, ref funcList);
+
+                                        yield return new BattleAttackBothVO(cellData.pos, attacker.pos, defender.pos);
                                     }
                                     else if (speedDiff == 1)
                                     {
                                         attacker.Attack(defender, ref funcList);
+
+                                        yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
 
                                         defender.ProcessDamage();
 
                                         if (defender.IsAlive())
                                         {
                                             defender.Attack(attacker, ref funcList);
+
+                                            yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
                                         }
                                     }
                                     else
                                     {
                                         defender.Attack(attacker, ref funcList);
 
+                                        yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
+
                                         attacker.ProcessDamage();
 
                                         if (attacker.IsAlive())
                                         {
                                             attacker.Attack(defender, ref funcList);
+
+                                            yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
                                         }
                                     }
                                 }
                                 else if (speedDiff > 1)
                                 {
                                     attacker.Attack(defender, ref funcList);
+
+                                    yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
                                 }
                                 else
                                 {
                                     defender.Attack(attacker, ref funcList);
+
+                                    yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
                                 }
 
-                                if (defender.action == Hero.HeroAction.DEFENSE || defender.action == Hero.HeroAction.SUPPORT)
-                                {
-                                    yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos, attackerShield, defenderShield, attackVO, defenseVO);
-                                }
-                                else
-                                {
-                                    yield return new BattleAttackBothVO(attacker.pos, defender.pos, attackerShield, defenderShield, attackVO, defenseVO);
-                                }
-
-                                yield return new BattleAttackOverVO(cellData.pos, attacker.pos, defender.pos);
+                                yield return new BattleAttackOverVO(cellData.pos, attackType, attacker.pos, defender.pos);
 
                                 break;
                             }

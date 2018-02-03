@@ -14,21 +14,17 @@
 
         public const int MAX_PRIORITY = short.MaxValue;
 
-        public const string FIX_ATTACK_DAMAGE = "fixAttackDamage";
-        public const string FIX_RUSH_DAMAGE = "fixRushDamage";
-        public const string FIX_ATTACK_SHIELD_DAMAGE = "fixAttackShieldDamage";
-        public const string FIX_RUSH_SHIELD_DAMAGE = "fixRushShieldDamage";
-        public const string FIX_ATTACK_HP_DAMAGE = "fixAttackHpDamage";
-        public const string FIX_RUSH_HP_DAMAGE = "fixRushHpDamage";
-        public const string FIX_BE_ATTACK_DAMAGE = "fixBeAttackDamage";
-        public const string FIX_BE_RUSH_DAMAGE = "fixBeRushDamage";
         public const string FIX_SPEED = "fixSpeed";
-        public const string FIX_CAN_PIERCE_SHIELD = "fixCanPierceShield";
-        public const string FIX_CAN_BE_PIERCE_SHIELD = "fixCanBePierceShield";
+        public const string FIX_ATTACK_SHIELD_TO_DAMAGE = "fixAttackShieldToDamage";
+        public const string FIX_BE_ATTACKED_SHIELD_TO_DAMAGE = "fixBeAttackedShieldToDamage";
+        public const string FIX_ATTACK_DAMAGE = "fixAttackDamage";
+        public const string FIX_BE_ATTACKED_DAMAGE = "fixBeAttackedDamage";
+        public const string FIX_ATTACK_SHIELD_DAMAGE = "fixAttackShieldDamage";
+        public const string FIX_ATTACK_HP_DAMAGE = "fixAttackHpDamage";
+        public const string FIX_ATTACK_PIERCE_SHIELD = "fixAttackPierceShield";
+        public const string FIX_BE_ATTACKED_PIERCE_SHIELD = "fixBeAttackedPierceShield";
         public const string FIX_CAN_MOVE = "fixCanMove";
         public const string FIX_CAN_RECOVER_SHIELD = "fixCanRecoverShield";
-        public const string ATTACK = "attack";
-        public const string RUSH = "rush";
         public const string DO_DAMAGE = "doDamage";
         public const string BE_DAMAGED = "beDamaged";
         public const string FIX_FEAR = "fixFear";
