@@ -480,6 +480,8 @@ namespace FinalWar
 
         private IEnumerator DoSkill(BattleData _battleData)
         {
+            bool hasSkill = false;
+
             IEnumerator<BattleCellData> enumerator = _battleData.actionDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
@@ -492,6 +494,8 @@ namespace FinalWar
 
                     if (cellData.shooters.Count > 0)
                     {
+                        hasSkill = true;
+
                         if (linkedList == null)
                         {
                             linkedList = new LinkedList<Tuple<int, Hero, Func<List<BattleHeroEffectVO>>>>();
@@ -511,6 +515,8 @@ namespace FinalWar
 
                     if (cellData.supporters.Count > 0)
                     {
+                        hasSkill = true;
+
                         if (linkedList == null)
                         {
                             linkedList = new LinkedList<Tuple<int, Hero, Func<List<BattleHeroEffectVO>>>>();
@@ -574,14 +580,17 @@ namespace FinalWar
                 }
             }
 
-            IEnumerator<Hero> enumerator2 = heroMapDic.Values.GetEnumerator();
-
-            while (enumerator2.MoveNext())
+            if (hasSkill)
             {
-                enumerator2.Current.ProcessDamage();
-            }
+                IEnumerator<Hero> enumerator2 = heroMapDic.Values.GetEnumerator();
 
-            yield return RemoveDieHero(_battleData);
+                while (enumerator2.MoveNext())
+                {
+                    enumerator2.Current.ProcessDamage();
+                }
+
+                yield return RemoveDieHero(_battleData);
+            }
         }
 
         private IEnumerator DoRush(BattleData _battleData)
