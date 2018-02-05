@@ -27,8 +27,8 @@ namespace FinalWar
         private Dictionary<int, bool> mapBelongDic = new Dictionary<int, bool>();
         public Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
 
-        private Queue<int> mCards = new Queue<int>();
-        private Queue<int> oCards = new Queue<int>();
+        public Queue<int> mCards = new Queue<int>();
+        public Queue<int> oCards = new Queue<int>();
 
         public List<int> mHandCards = new List<int>();
         public List<int> oHandCards = new List<int>();
