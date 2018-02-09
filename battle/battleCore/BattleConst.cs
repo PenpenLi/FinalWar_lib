@@ -14,25 +14,29 @@
 
         public const int MAX_PRIORITY = short.MaxValue;
 
-        public const string FIX_SPEED = "fixSpeed";
         public const string FIX_ATTACK_SHIELD_TO_DAMAGE = "fixAttackShieldToDamage";
         public const string FIX_BE_ATTACKED_SHIELD_TO_DAMAGE = "fixBeAttackedShieldToDamage";
-        public const string FIX_ATTACK_DAMAGE = "fixAttackDamage";
-        public const string FIX_BE_ATTACKED_DAMAGE = "fixBeAttackedDamage";
-        public const string FIX_ATTACK_SHIELD_DAMAGE = "fixAttackShieldDamage";
-        public const string FIX_ATTACK_HP_DAMAGE = "fixAttackHpDamage";
         public const string FIX_ATTACK_PIERCE_SHIELD = "fixAttackPierceShield";
         public const string FIX_BE_ATTACKED_PIERCE_SHIELD = "fixBeAttackedPierceShield";
         public const string FIX_CAN_MOVE = "fixCanMove";
         public const string FIX_CAN_RECOVER_SHIELD = "fixCanRecoverShield";
+        public const string FIX_FEAR = "fixFear";
+
+        public const string FIX_SPEED = "fixSpeed";
+        public const string FIX_ATTACK_DAMAGE = "fixAttackDamage";
+        public const string FIX_BE_ATTACKED_DAMAGE = "fixBeAttackedDamage";
+        public const string FIX_ATTACK_SHIELD_DAMAGE = "fixAttackShieldDamage";
+        public const string FIX_ATTACK_HP_DAMAGE = "fixAttackHpDamage";
+        
         public const string DO_DAMAGE = "doDamage";
         public const string BE_DAMAGED = "beDamaged";
-        public const string FIX_FEAR = "fixFear";
         public const string RECOVER = "recover";
-        public const string ROUND_OVER = "roundOver";
         public const string ROUND_START = "roundStart";
         public const string DIE = "die";
         public const string CAPTURE_MAP_AREA = "captureMapArea";
+
+
+        public const string ROUND_OVER = "roundOver";
         public const string BE_CLEAN = "beClean";
         public const string TRIGGER_BORN_AURA = "triggerBornAura";
         public const string REMOVE_BORN_AURA = "removeBornAura";
