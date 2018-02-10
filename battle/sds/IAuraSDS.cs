@@ -33,13 +33,11 @@
         AuraTarget GetTriggerTarget();
         AuraConditionCompare GetConditionCompare();
         Hero.HeroData[] GetConditionType();
-        AuraTarget[] GetConditionTarget();
         int[] GetConditionData();
         AuraType GetEffectType();
         AuraTarget GetEffectTarget();
         AuraConditionCompare GetTargetConditionCompare();
         Hero.HeroData[] GetTargetConditionType();
-        AuraTarget[] GetTargetConditionTarget();
         int[] GetTargetConditionData();
         int GetEffectTargetNum();
         int[] GetEffectData();
