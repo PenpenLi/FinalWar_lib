@@ -18,6 +18,7 @@ namespace FinalWar
             NOWSHIELD,
             MAXSHIELD,
             BE_ATTACKED_TIMES,
+            SCORE,
         }
 
         internal enum HeroAction
@@ -270,11 +271,11 @@ namespace FinalWar
 
         internal bool GetCanMove()
         {
-            bool tmpCanMove = true;
+            int tmpCanMove = 1;
 
-            battle.eventListener.DispatchEvent<bool, Hero, Hero>(BattleConst.FIX_CAN_MOVE, ref tmpCanMove, this, null);
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_CAN_MOVE, ref tmpCanMove, this, null);
 
-            return tmpCanMove;
+            return tmpCanMove > 0;
         }
 
         internal void RoundStart(ref List<Func<BattleTriggerAuraVO>> _funcList)
@@ -291,7 +292,7 @@ namespace FinalWar
         {
             if (beAttackedTimes == 0)
             {
-                bool recoverShield = true;
+                int recoverShield = 1;
 
                 //List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
 
@@ -307,9 +308,9 @@ namespace FinalWar
                 //    }
                 //}
 
-                battle.eventListener.DispatchEvent<bool, Hero, Hero>(BattleConst.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this, null);
+                battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this, null);
 
-                if (recoverShield)
+                if (recoverShield > 0)
                 {
                     nowShield = sds.GetShield();
                 }
@@ -353,11 +354,11 @@ namespace FinalWar
 
         private bool CheckFear()
         {
-            bool willeFear = true;
+            int willeFear = 1;
 
-            battle.eventListener.DispatchEvent<bool, Hero, Hero>(BattleConst.FIX_FEAR, ref willeFear, this, null);
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_FEAR, ref willeFear, this, null);
 
-            if (willeFear)
+            if (willeFear > 0)
             {
                 int myNum = 0;
 
@@ -448,16 +449,13 @@ namespace FinalWar
 
         internal void Attack(Hero _hero, ref List<Func<BattleTriggerAuraVO>> _funcList)
         {
-            bool shieldToDamage = true;
+            int shieldToDamage = 1;
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_SHIELD_TO_DAMAGE, ref shieldToDamage, this, _hero);
 
-            if (shieldToDamage)
-            {
-                battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_SHIELD_TO_DAMAGE, ref shieldToDamage, _hero, this);
-            }
+            battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_SHIELD_TO_DAMAGE, ref shieldToDamage, _hero, this);
 
-            int doDamage = sds.GetAttack() + (shieldToDamage ? nowShield : 0);
+            int doDamage = sds.GetAttack() + (shieldToDamage > 0 ? nowShield : 0);
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_DAMAGE, ref doDamage, this, _hero);
 
@@ -478,16 +476,13 @@ namespace FinalWar
 
             _hero.beAttackedTimes++;
 
-            bool canPierceShield = false;
+            int canPierceShield = 0;
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_PIERCE_SHIELD, ref canPierceShield, this, _hero);
 
-            if (!canPierceShield)
-            {
-                battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_PIERCE_SHIELD, ref canPierceShield, _hero, this);
-            }
+            battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_PIERCE_SHIELD, ref canPierceShield, _hero, this);
 
-            if (canPierceShield)
+            if (canPierceShield > 0)
             {
                 _hero.HpChange(-doDamage);
             }
@@ -627,6 +622,10 @@ namespace FinalWar
                 case HeroData.BE_ATTACKED_TIMES:
 
                     return beAttackedTimes;
+
+                case HeroData.SCORE:
+
+                    return isMine ? battle.mScore - battle.oScore : battle.oScore - battle.mScore;
 
                 default:
 

@@ -90,20 +90,6 @@ namespace FinalWar
 
             switch (_sds.GetEffectType())
             {
-                case AuraType.FIX_BOOL:
-
-                    SuperEventListener.SuperFunctionCallBackV2<bool, Hero, Hero> dele0 = delegate (int _index, ref bool _result, Hero _triggerHero, Hero _triggerTargetHero)
-                    {
-                        if (CheckAuraIsBeSilenced(_battle, _hero, _isInBorn) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionTarget(), _sds.GetConditionData()))
-                        {
-                            _result = _sds.GetEffectData()[0] == 1;
-                        }
-                    };
-
-                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele0, _sds.GetPriority());
-
-                    break;
-
                 case AuraType.FIX_INT:
 
                     SuperEventListener.SuperFunctionCallBackV2<int, Hero, Hero> dele1 = delegate (int _index, ref int _result, Hero _triggerHero, Hero _triggerTargetHero)

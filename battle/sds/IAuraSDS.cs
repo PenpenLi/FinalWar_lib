@@ -3,7 +3,6 @@
     public enum AuraType
     {
         FIX_INT,
-        FIX_BOOL,
         CAST_SKILL
     }
 
