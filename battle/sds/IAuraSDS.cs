@@ -30,7 +30,6 @@
     {
         int GetID();
         string GetEventName();
-        int GetPriority();
         AuraTarget GetTriggerTarget();
         AuraConditionCompare GetConditionCompare();
         Hero.HeroData[] GetConditionType();
