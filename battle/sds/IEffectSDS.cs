@@ -17,6 +17,9 @@
     {
         Effect GetEffect();
         int GetPriority();
+        AuraConditionCompare GetConditionCompare();
+        Hero.HeroData[] GetConditionType();
+        int[] GetConditionData();
         int[] GetData();
     }
 }

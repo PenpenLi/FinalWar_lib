@@ -94,7 +94,7 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV2<int, Hero, Hero> dele1 = delegate (int _index, ref int _result, Hero _triggerHero, Hero _triggerTargetHero)
                     {
-                        if (CheckAuraIsBeSilenced(_battle, _hero, _isInBorn) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
+                        if (CheckAuraIsBeSilenced(_battle, _hero, _isInBorn) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
                         {
                             Hero.HeroData heroData = (Hero.HeroData)(_sds.GetEffectData()[0]);
 
@@ -122,7 +122,7 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _funcList, Hero _triggerHero, Hero _triggerTargetHero)
                     {
-                        if (CheckAuraIsBeSilenced(_battle, _hero, _isInBorn) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckAuraCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
+                        if (CheckAuraIsBeSilenced(_battle, _hero, _isInBorn) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
                         {
                             Func<BattleTriggerAuraVO> func = delegate ()
                             {
@@ -163,11 +163,11 @@ namespace FinalWar
 
         private static void AuraCastSkillReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _sds, Dictionary<int, List<BattleHeroEffectVO>> _dic)
         {
+            IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
+
             switch (_sds.GetEffectTarget())
             {
                 case AuraTarget.OWNER:
-
-                    IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
 
                     List<BattleHeroEffectVO> vo = HeroEffect.HeroTakeEffect(_battle, _hero, effectSDS);
 
@@ -194,7 +194,7 @@ namespace FinalWar
 
                         if (_battle.heroMapDic.TryGetValue(pos, out targetHero))
                         {
-                            if (targetHero.isMine == _hero.isMine && CheckAuraCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetTargetConditionCompare(), _sds.GetTargetConditionType(), _sds.GetTargetConditionData()))
+                            if (targetHero.isMine == _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
                             {
                                 if (_sds.GetEffectTargetNum() > 0)
                                 {
@@ -202,8 +202,6 @@ namespace FinalWar
                                 }
                                 else
                                 {
-                                    effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
-
                                     vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                                     _dic.Add(targetHero.pos, vo);
@@ -224,8 +222,6 @@ namespace FinalWar
                         for (int i = 0; i < targetHerolist.Count; i++)
                         {
                             Hero targetHero = targetHerolist[i];
-
-                            effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
 
                             vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
@@ -254,7 +250,7 @@ namespace FinalWar
 
                         if (_battle.heroMapDic.TryGetValue(pos, out targetHero))
                         {
-                            if (targetHero.isMine != _hero.isMine && CheckAuraCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetTargetConditionCompare(), _sds.GetTargetConditionType(), _sds.GetTargetConditionData()))
+                            if (targetHero.isMine != _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
                             {
                                 if (_sds.GetEffectTargetNum() > 0)
                                 {
@@ -262,8 +258,6 @@ namespace FinalWar
                                 }
                                 else
                                 {
-                                    effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
-
                                     vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                                     _dic.Add(targetHero.pos, vo);
@@ -285,8 +279,6 @@ namespace FinalWar
                         {
                             Hero targetHero = targetHerolist[i];
 
-                            effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
-
                             vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                             _dic.Add(targetHero.pos, vo);
@@ -297,8 +289,6 @@ namespace FinalWar
 
                 case AuraTarget.TRIGGER:
 
-                    effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
-
                     vo = HeroEffect.HeroTakeEffect(_battle, _triggerHero, effectSDS);
 
                     _dic.Add(_triggerHero.pos, vo);
@@ -306,8 +296,6 @@ namespace FinalWar
                     break;
 
                 case AuraTarget.TRIGGER_TARGET:
-
-                    effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
 
                     vo = HeroEffect.HeroTakeEffect(_battle, _triggerTargetHero, effectSDS);
 
@@ -332,7 +320,7 @@ namespace FinalWar
 
                         Hero targetHero;
 
-                        if (_battle.heroMapDic.TryGetValue(pos, out targetHero) && CheckAuraCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetTargetConditionCompare(), _sds.GetTargetConditionType(), _sds.GetTargetConditionData()))
+                        if (_battle.heroMapDic.TryGetValue(pos, out targetHero) && CheckCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
                         {
                             if (_sds.GetEffectTargetNum() > 0)
                             {
@@ -340,8 +328,6 @@ namespace FinalWar
                             }
                             else
                             {
-                                effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
-
                                 vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                                 _dic.Add(targetHero.pos, vo);
@@ -361,8 +347,6 @@ namespace FinalWar
                         for (int i = 0; i < targetHerolist.Count; i++)
                         {
                             Hero targetHero = targetHerolist[i];
-
-                            effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
 
                             vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
@@ -387,7 +371,7 @@ namespace FinalWar
                     {
                         Hero targetHero = enumerator.Current;
 
-                        if (targetHero != _hero && targetHero.isMine == _hero.isMine && CheckAuraCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetTargetConditionCompare(), _sds.GetTargetConditionType(), _sds.GetTargetConditionData()))
+                        if (targetHero != _hero && targetHero.isMine == _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
                         {
                             if (_sds.GetEffectTargetNum() > 0)
                             {
@@ -395,8 +379,6 @@ namespace FinalWar
                             }
                             else
                             {
-                                effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
-
                                 vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                                 _dic.Add(targetHero.pos, vo);
@@ -416,8 +398,6 @@ namespace FinalWar
                         for (int i = 0; i < targetHerolist.Count; i++)
                         {
                             Hero targetHero = targetHerolist[i];
-
-                            effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
 
                             vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
@@ -442,7 +422,7 @@ namespace FinalWar
                     {
                         Hero targetHero = enumerator.Current;
 
-                        if (targetHero.isMine != _hero.isMine && CheckAuraCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetTargetConditionCompare(), _sds.GetTargetConditionType(), _sds.GetTargetConditionData()))
+                        if (targetHero.isMine != _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
                         {
                             if (_sds.GetEffectTargetNum() > 0)
                             {
@@ -450,8 +430,6 @@ namespace FinalWar
                             }
                             else
                             {
-                                effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
-
                                 vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
                                 _dic.Add(targetHero.pos, vo);
@@ -471,8 +449,6 @@ namespace FinalWar
                         for (int i = 0; i < targetHerolist.Count; i++)
                         {
                             Hero targetHero = targetHerolist[i];
-
-                            effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
 
                             vo = HeroEffect.HeroTakeEffect(_battle, targetHero, effectSDS);
 
@@ -505,11 +481,11 @@ namespace FinalWar
             return true;
         }
 
-        private static bool CheckAuraCondition(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, AuraConditionCompare _conditionCompare, Hero.HeroData[] _conditionType, int[] _conditionData)
+        internal static bool CheckCondition(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, AuraConditionCompare _conditionCompare, Hero.HeroData[] _conditionType, int[] _conditionData)
         {
             if (_conditionCompare != AuraConditionCompare.NULL)
             {
-                return CheckAuraConditionReal(_battle, _hero, _triggerHero, _triggerTargetHero, _conditionCompare, _conditionType, _conditionData);
+                return CheckConditionReal(_battle, _hero, _triggerHero, _triggerTargetHero, _conditionCompare, _conditionType, _conditionData);
             }
             else
             {
@@ -593,7 +569,7 @@ namespace FinalWar
             }
         }
 
-        private static bool CheckAuraConditionReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, AuraConditionCompare _conditionCompare, Hero.HeroData[] _conditionType, int[] _conditionData)
+        private static bool CheckConditionReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, AuraConditionCompare _conditionCompare, Hero.HeroData[] _conditionType, int[] _conditionData)
         {
             int first;
 

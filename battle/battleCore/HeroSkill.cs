@@ -16,6 +16,11 @@ namespace FinalWar
 
                 IEffectSDS sds = Battle.GetEffectData(id);
 
+                if (!HeroAura.CheckCondition(_battle, _hero, null, _target, sds.GetConditionCompare(), sds.GetConditionType(), sds.GetConditionData()))
+                {
+                    continue;
+                }
+
                 Func<List<BattleHeroEffectVO>> func = delegate ()
                 {
                     return HeroEffect.HeroTakeEffect(_battle, _target, sds);
