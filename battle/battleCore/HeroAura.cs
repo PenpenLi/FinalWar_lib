@@ -116,10 +116,6 @@ namespace FinalWar
 
                 case AuraType.CAST_SKILL:
 
-                    IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
-
-                    int priority = effectSDS.GetPriority();
-
                     SuperEventListener.SuperFunctionCallBackV2<List<Func<BattleTriggerAuraVO>>, Hero, Hero> dele2 = delegate (int _index, ref List<Func<BattleTriggerAuraVO>> _funcList, Hero _triggerHero, Hero _triggerTargetHero)
                     {
                         if (CheckAuraIsBeSilenced(_battle, _hero, _isInBorn) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))

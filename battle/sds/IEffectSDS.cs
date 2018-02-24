@@ -2,7 +2,6 @@
 {
     public enum Effect
     {
-        NULL,
         DAMAGE,
         HP_CHANGE,
         SHIELD_CHANGE,
