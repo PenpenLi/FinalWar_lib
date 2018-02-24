@@ -190,7 +190,7 @@ namespace FinalWar
 
                         if (_battle.heroMapDic.TryGetValue(pos, out targetHero))
                         {
-                            if (targetHero.isMine == _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
+                            if (targetHero.isMine == _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, effectSDS.GetConditionCompare(), effectSDS.GetConditionType(), effectSDS.GetConditionData()))
                             {
                                 if (_sds.GetEffectTargetNum() > 0)
                                 {
@@ -246,7 +246,7 @@ namespace FinalWar
 
                         if (_battle.heroMapDic.TryGetValue(pos, out targetHero))
                         {
-                            if (targetHero.isMine != _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
+                            if (targetHero.isMine != _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, effectSDS.GetConditionCompare(), effectSDS.GetConditionType(), effectSDS.GetConditionData()))
                             {
                                 if (_sds.GetEffectTargetNum() > 0)
                                 {
@@ -316,7 +316,7 @@ namespace FinalWar
 
                         Hero targetHero;
 
-                        if (_battle.heroMapDic.TryGetValue(pos, out targetHero) && CheckCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
+                        if (_battle.heroMapDic.TryGetValue(pos, out targetHero) && CheckCondition(_battle, _hero, _triggerHero, targetHero, effectSDS.GetConditionCompare(), effectSDS.GetConditionType(), effectSDS.GetConditionData()))
                         {
                             if (_sds.GetEffectTargetNum() > 0)
                             {
@@ -367,7 +367,7 @@ namespace FinalWar
                     {
                         Hero targetHero = enumerator.Current;
 
-                        if (targetHero != _hero && targetHero.isMine == _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
+                        if (targetHero != _hero && targetHero.isMine == _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, effectSDS.GetConditionCompare(), effectSDS.GetConditionType(), effectSDS.GetConditionData()))
                         {
                             if (_sds.GetEffectTargetNum() > 0)
                             {
@@ -418,7 +418,7 @@ namespace FinalWar
                     {
                         Hero targetHero = enumerator.Current;
 
-                        if (targetHero.isMine != _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
+                        if (targetHero.isMine != _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, effectSDS.GetConditionCompare(), effectSDS.GetConditionType(), effectSDS.GetConditionData()))
                         {
                             if (_sds.GetEffectTargetNum() > 0)
                             {
