@@ -222,7 +222,7 @@ namespace FinalWar
 
                         if (_battle.heroMapDic.TryGetValue(pos, out targetHero))
                         {
-                            if (targetHero.isMine == _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _auraSDS.GetConditionCompare(), _auraSDS.GetConditionType(), _auraSDS.GetConditionData()))
+                            if (targetHero.isMine == _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _effectSDS.GetConditionCompare(), _effectSDS.GetConditionType(), _effectSDS.GetConditionData()))
                             {
                                 if (_auraSDS.GetEffectTargetNum() > 0)
                                 {
@@ -278,7 +278,7 @@ namespace FinalWar
 
                         if (_battle.heroMapDic.TryGetValue(pos, out targetHero))
                         {
-                            if (targetHero.isMine != _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _auraSDS.GetConditionCompare(), _auraSDS.GetConditionType(), _auraSDS.GetConditionData()))
+                            if (targetHero.isMine != _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _effectSDS.GetConditionCompare(), _effectSDS.GetConditionType(), _effectSDS.GetConditionData()))
                             {
                                 if (_auraSDS.GetEffectTargetNum() > 0)
                                 {
@@ -348,7 +348,7 @@ namespace FinalWar
 
                         Hero targetHero;
 
-                        if (_battle.heroMapDic.TryGetValue(pos, out targetHero) && CheckCondition(_battle, _hero, _triggerHero, targetHero, _auraSDS.GetConditionCompare(), _auraSDS.GetConditionType(), _auraSDS.GetConditionData()))
+                        if (_battle.heroMapDic.TryGetValue(pos, out targetHero) && CheckCondition(_battle, _hero, _triggerHero, targetHero, _effectSDS.GetConditionCompare(), _effectSDS.GetConditionType(), _effectSDS.GetConditionData()))
                         {
                             if (_auraSDS.GetEffectTargetNum() > 0)
                             {
@@ -399,7 +399,7 @@ namespace FinalWar
                     {
                         Hero targetHero = enumerator.Current;
 
-                        if (targetHero != _hero && targetHero.isMine == _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _auraSDS.GetConditionCompare(), _auraSDS.GetConditionType(), _auraSDS.GetConditionData()))
+                        if (targetHero != _hero && targetHero.isMine == _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _effectSDS.GetConditionCompare(), _effectSDS.GetConditionType(), _effectSDS.GetConditionData()))
                         {
                             if (_auraSDS.GetEffectTargetNum() > 0)
                             {
@@ -450,7 +450,7 @@ namespace FinalWar
                     {
                         Hero targetHero = enumerator.Current;
 
-                        if (targetHero.isMine != _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _auraSDS.GetConditionCompare(), _auraSDS.GetConditionType(), _auraSDS.GetConditionData()))
+                        if (targetHero.isMine != _hero.isMine && CheckCondition(_battle, _hero, _triggerHero, targetHero, _effectSDS.GetConditionCompare(), _effectSDS.GetConditionType(), _effectSDS.GetConditionData()))
                         {
                             if (_auraSDS.GetEffectTargetNum() > 0)
                             {
