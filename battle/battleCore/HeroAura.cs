@@ -496,11 +496,11 @@ namespace FinalWar
         {
             if (_isInBorn)
             {
-                bool canTrigger = true;
+                int canTrigger = 1;
 
-                _battle.eventListener.DispatchEvent<bool, Hero, Hero>(BattleConst.TRIGGER_BORN_AURA, ref canTrigger, _hero, null);
+                _battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.TRIGGER_BORN_AURA, ref canTrigger, _hero, null);
 
-                if (!canTrigger)
+                if (canTrigger < 1)
                 {
                     return false;
                 }
