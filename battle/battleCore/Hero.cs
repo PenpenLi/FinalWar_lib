@@ -257,9 +257,9 @@ namespace FinalWar
                 nowHp = sds.GetHp();
             }
 
-            List<Func<BattleTriggerAuraVO>> funcList = null;
+            LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
 
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.REMOVE_BORN_AURA, ref funcList, this, null);
+            battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.REMOVE_BORN_AURA, ref funcList, this, null);
 
             HeroAura.Init(battle, this);
         }
@@ -278,17 +278,17 @@ namespace FinalWar
             return tmpCanMove > 0;
         }
 
-        internal void RoundStart(ref List<Func<BattleTriggerAuraVO>> _funcList)
+        internal void RoundStart(ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
         {
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.ROUND_START, ref _funcList, this, null);
+            battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.ROUND_START, ref _funcList, this, null);
         }
 
-        internal void Recover(ref List<Func<BattleTriggerAuraVO>> _funcList)
+        internal void RoundOver(ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
         {
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.RECOVER, ref _funcList, this, null);
+            battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.ROUND_OVER, ref _funcList, this, null);
         }
 
-        internal void RoundOver(ref List<Func<BattleTriggerAuraVO>> _funcList)
+        internal void Recover(ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
         {
             if (beAttackedTimes == 0)
             {
@@ -349,7 +349,7 @@ namespace FinalWar
                     break;
             }
 
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.ROUND_OVER, ref _funcList, this, null);
+            battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.RECOVER, ref _funcList, this, null);
         }
 
         private bool CheckFear()
@@ -428,9 +428,9 @@ namespace FinalWar
 
         internal void BeClean()
         {
-            List<Func<BattleTriggerAuraVO>> funcList = null;
+            LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
 
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.BE_CLEAN, ref funcList, this, null);
+            battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.BE_CLEAN, ref funcList, this, null);
         }
 
         public int GetAttack()
@@ -447,7 +447,7 @@ namespace FinalWar
             return attack;
         }
 
-        internal void Attack(Hero _hero, ref List<Func<BattleTriggerAuraVO>> _funcList)
+        internal void Attack(Hero _hero, ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
         {
             int shieldToDamage = 1;
 
@@ -505,14 +505,14 @@ namespace FinalWar
             battle.MoneyChangeReal(isMine, _num);
         }
 
-        internal void Die(ref List<Func<BattleTriggerAuraVO>> _funcList)
+        internal void Die(ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
         {
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.DIE, ref _funcList, this, null);
+            battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.DIE, ref _funcList, this, null);
         }
 
-        internal void CaptureArea(ref List<Func<BattleTriggerAuraVO>> _funcList)
+        internal void CaptureArea(ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
         {
-            battle.eventListener.DispatchEvent<List<Func<BattleTriggerAuraVO>>, Hero, Hero>(BattleConst.CAPTURE_MAP_AREA, ref _funcList, this, null);
+            battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.CAPTURE_MAP_AREA, ref _funcList, this, null);
         }
 
         public void GetDesc(ref List<int> _list)

@@ -172,6 +172,8 @@ namespace FinalWar
 
             yield return DoMove(battleData);
 
+            yield return DoRoundOver();
+
             yield return DoRecover();
 
             yield return DoSummon(tmpSummon);
@@ -599,7 +601,7 @@ namespace FinalWar
             {
                 bool hasRush = false;
 
-                List<Func<BattleTriggerAuraVO>> funcList = null;
+                LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
 
                 IEnumerator<BattleCellData> enumerator = _battleData.actionDic.Values.GetEnumerator();
 
@@ -697,7 +699,7 @@ namespace FinalWar
 
             if (dieList != null)
             {
-                List<Func<BattleTriggerAuraVO>> funcList = null;
+                LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
 
                 for (int i = 0; i < dieList.Count; i++)
                 {
@@ -738,7 +740,7 @@ namespace FinalWar
 
         private IEnumerator DoRoundStart(BattleData _battleData)
         {
-            List<Func<BattleTriggerAuraVO>> funcList = null;
+            LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
 
             IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
@@ -774,7 +776,7 @@ namespace FinalWar
 
                 Dictionary<int, bool> checkedPosDic = null;
 
-                List<Func<BattleTriggerAuraVO>> funcList = null;
+                LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
 
                 IEnumerator<BattleCellData> enumerator = _battleData.actionDic.Values.GetEnumerator();
 
@@ -1038,7 +1040,7 @@ namespace FinalWar
                 {
                     yield return new BattleScoreChangeVO();
 
-                    List<Func<BattleTriggerAuraVO>> funcList = null;
+                    LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
 
                     for (int i = 0; i < captureList.Count; i++)
                     {
@@ -1174,15 +1176,15 @@ namespace FinalWar
             return hero;
         }
 
-        private IEnumerator DoRecover()
+        private IEnumerator DoRoundOver()
         {
-            List<Func<BattleTriggerAuraVO>> funcList = null;
+            LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
 
             IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                enumerator.Current.Recover(ref funcList);
+                enumerator.Current.RoundOver(ref funcList);
             }
 
             if (funcList != null)
@@ -1200,14 +1202,17 @@ namespace FinalWar
             }
 
             yield return new BattleRecoverVO();
+        }
 
-            funcList = null;
+        private IEnumerator DoRecover()
+        {
+            LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
 
-            enumerator = heroMapDic.Values.GetEnumerator();
+            IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                enumerator.Current.RoundOver(ref funcList);
+                enumerator.Current.Recover(ref funcList);
             }
 
             if (funcList != null)
@@ -1339,11 +1344,13 @@ namespace FinalWar
             }
         }
 
-        private IEnumerator InvokeFuncList(List<Func<BattleTriggerAuraVO>> _funcList)
+        private IEnumerator InvokeFuncList(LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
         {
-            for (int m = 0; m < _funcList.Count; m++)
+            IEnumerator<KeyValuePair<int, Func<BattleTriggerAuraVO>>> enumerator = _funcList.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                yield return _funcList[m]();
+                yield return enumerator.Current.Value();
             }
         }
 

@@ -27,16 +27,15 @@
         public const string FIX_BE_ATTACKED_DAMAGE = "fixBeAttackedDamage";
         public const string FIX_ATTACK_SHIELD_DAMAGE = "fixAttackShieldDamage";
         public const string FIX_ATTACK_HP_DAMAGE = "fixAttackHpDamage";
-        
+
         public const string DO_DAMAGE = "doDamage";
         public const string BE_DAMAGED = "beDamaged";
-        public const string RECOVER = "recover";
+        public const string ROUND_OVER = "roundOver";
         public const string ROUND_START = "roundStart";
         public const string DIE = "die";
         public const string CAPTURE_MAP_AREA = "captureMapArea";
 
-
-        public const string ROUND_OVER = "roundOver";
+        public const string RECOVER = "recover";
         public const string BE_CLEAN = "beClean";
         public const string TRIGGER_BORN_AURA = "triggerBornAura";
         public const string REMOVE_BORN_AURA = "removeBornAura";
