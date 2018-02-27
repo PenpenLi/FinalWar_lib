@@ -184,24 +184,29 @@ namespace FinalWar
 
         private static BattleTriggerAuraVO AuraCastSkill(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _auraSDS, IEffectSDS _effectSDS)
         {
-            Dictionary<int, List<BattleHeroEffectVO>> dic = new Dictionary<int, List<BattleHeroEffectVO>>();
-
-            AuraCastSkillReal(_battle, _hero, _triggerHero, _triggerTargetHero, _auraSDS, _effectSDS, dic);
+            Dictionary<int, List<BattleHeroEffectVO>> dic = AuraCastSkillReal(_battle, _hero, _triggerHero, _triggerTargetHero, _auraSDS, _effectSDS);
 
             BattleTriggerAuraVO result = new BattleTriggerAuraVO(_hero.pos, dic);
 
             return result;
         }
 
-        private static void AuraCastSkillReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _auraSDS, IEffectSDS _effectSDS, Dictionary<int, List<BattleHeroEffectVO>> _dic)
+        private static Dictionary<int, List<BattleHeroEffectVO>> AuraCastSkillReal(Battle _battle, Hero _hero, Hero _triggerHero, Hero _triggerTargetHero, IAuraSDS _auraSDS, IEffectSDS _effectSDS)
         {
+            Dictionary<int, List<BattleHeroEffectVO>> result = null;
+
             switch (_auraSDS.GetEffectTarget())
             {
                 case AuraTarget.OWNER:
 
                     List<BattleHeroEffectVO> vo = HeroEffect.HeroTakeEffect(_battle, _hero, _effectSDS);
 
-                    _dic.Add(_hero.pos, vo);
+                    if (result == null)
+                    {
+                        result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                    }
+
+                    result.Add(_hero.pos, vo);
 
                     break;
 
@@ -234,7 +239,12 @@ namespace FinalWar
                                 {
                                     vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _effectSDS);
 
-                                    _dic.Add(targetHero.pos, vo);
+                                    if (result == null)
+                                    {
+                                        result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                                    }
+
+                                    result.Add(targetHero.pos, vo);
                                 }
                             }
                         }
@@ -255,7 +265,12 @@ namespace FinalWar
 
                             vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _effectSDS);
 
-                            _dic.Add(targetHero.pos, vo);
+                            if (result == null)
+                            {
+                                result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                            }
+
+                            result.Add(targetHero.pos, vo);
                         }
                     }
 
@@ -290,7 +305,12 @@ namespace FinalWar
                                 {
                                     vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _effectSDS);
 
-                                    _dic.Add(targetHero.pos, vo);
+                                    if (result == null)
+                                    {
+                                        result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                                    }
+
+                                    result.Add(targetHero.pos, vo);
                                 }
                             }
                         }
@@ -311,7 +331,12 @@ namespace FinalWar
 
                             vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _effectSDS);
 
-                            _dic.Add(targetHero.pos, vo);
+                            if (result == null)
+                            {
+                                result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                            }
+
+                            result.Add(targetHero.pos, vo);
                         }
                     }
 
@@ -321,7 +346,12 @@ namespace FinalWar
 
                     vo = HeroEffect.HeroTakeEffect(_battle, _triggerHero, _effectSDS);
 
-                    _dic.Add(_triggerHero.pos, vo);
+                    if (result == null)
+                    {
+                        result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                    }
+
+                    result.Add(_triggerHero.pos, vo);
 
                     break;
 
@@ -329,7 +359,12 @@ namespace FinalWar
 
                     vo = HeroEffect.HeroTakeEffect(_battle, _triggerTargetHero, _effectSDS);
 
-                    _dic.Add(_triggerTargetHero.pos, vo);
+                    if (result == null)
+                    {
+                        result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                    }
+
+                    result.Add(_triggerTargetHero.pos, vo);
 
                     break;
 
@@ -360,7 +395,12 @@ namespace FinalWar
                             {
                                 vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _effectSDS);
 
-                                _dic.Add(targetHero.pos, vo);
+                                if (result == null)
+                                {
+                                    result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                                }
+
+                                result.Add(targetHero.pos, vo);
                             }
                         }
                     }
@@ -380,7 +420,12 @@ namespace FinalWar
 
                             vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _effectSDS);
 
-                            _dic.Add(targetHero.pos, vo);
+                            if (result == null)
+                            {
+                                result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                            }
+
+                            result.Add(targetHero.pos, vo);
                         }
                     }
 
@@ -411,7 +456,12 @@ namespace FinalWar
                             {
                                 vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _effectSDS);
 
-                                _dic.Add(targetHero.pos, vo);
+                                if (result == null)
+                                {
+                                    result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                                }
+
+                                result.Add(targetHero.pos, vo);
                             }
                         }
                     }
@@ -431,7 +481,12 @@ namespace FinalWar
 
                             vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _effectSDS);
 
-                            _dic.Add(targetHero.pos, vo);
+                            if (result == null)
+                            {
+                                result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                            }
+
+                            result.Add(targetHero.pos, vo);
                         }
                     }
 
@@ -462,7 +517,12 @@ namespace FinalWar
                             {
                                 vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _effectSDS);
 
-                                _dic.Add(targetHero.pos, vo);
+                                if (result == null)
+                                {
+                                    result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                                }
+
+                                result.Add(targetHero.pos, vo);
                             }
                         }
                     }
@@ -482,7 +542,12 @@ namespace FinalWar
 
                             vo = HeroEffect.HeroTakeEffect(_battle, targetHero, _effectSDS);
 
-                            _dic.Add(targetHero.pos, vo);
+                            if (result == null)
+                            {
+                                result = new Dictionary<int, List<BattleHeroEffectVO>>();
+                            }
+
+                            result.Add(targetHero.pos, vo);
                         }
                     }
 
@@ -492,6 +557,8 @@ namespace FinalWar
 
                     throw new Exception("AuraCastSkill error! Unknown AuraTarget:" + _auraSDS.GetEffectTarget());
             }
+
+            return result;
         }
 
         private static bool CheckAuraIsBeSilenced(Battle _battle, Hero _hero, bool _isInBorn)
