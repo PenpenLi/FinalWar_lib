@@ -11,6 +11,8 @@
     {
         int GetID();
 
+        bool GetCanAttack();
+
         int GetAttackSpeed();
         int GetDefenseSpeed();
         int GetSupportSpeed();
