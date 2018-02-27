@@ -6,6 +6,8 @@ namespace FinalWar
 {
     internal static class HeroAura
     {
+        private const int REMOVE_EVENT_PRIORITY = 1;
+
         internal static void Init(Battle _battle, Hero _hero)
         {
             if (_hero.sds.GetAuras().Length == 0)
@@ -42,19 +44,19 @@ namespace FinalWar
                 }
             };
 
-            id = _battle.eventListener.AddListener(BattleConst.DIE, dele, BattleConst.MAX_PRIORITY);
+            id = _battle.eventListener.AddListener(BattleConst.DIE, dele, REMOVE_EVENT_PRIORITY);
 
             ids.Add(id);
 
             if (_isInBorn)
             {
-                id = _battle.eventListener.AddListener(BattleConst.REMOVE_BORN_AURA, dele, BattleConst.MAX_PRIORITY);
+                id = _battle.eventListener.AddListener(BattleConst.REMOVE_BORN_AURA, dele, REMOVE_EVENT_PRIORITY);
 
                 ids.Add(id);
             }
             else
             {
-                id = _battle.eventListener.AddListener(BattleConst.BE_CLEAN, dele, BattleConst.MAX_PRIORITY);
+                id = _battle.eventListener.AddListener(BattleConst.BE_CLEAN, dele, REMOVE_EVENT_PRIORITY);
 
                 ids.Add(id);
 
@@ -78,7 +80,7 @@ namespace FinalWar
 
             for (int i = 0; i < sds.GetRemoveEventNames().Length; i++)
             {
-                id = _battle.eventListener.AddListener(sds.GetRemoveEventNames()[i], dele, BattleConst.MAX_PRIORITY);
+                id = _battle.eventListener.AddListener(sds.GetRemoveEventNames()[i], dele, REMOVE_EVENT_PRIORITY);
 
                 ids.Add(id);
             }
