@@ -25,7 +25,7 @@ namespace FinalWar
         public MapData mapData { get; private set; }
 
         private Dictionary<int, bool> mapBelongDic = new Dictionary<int, bool>();
-        public Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
+        internal Dictionary<int, Hero> heroMapDic = new Dictionary<int, Hero>();
 
         public Queue<int> mCards = new Queue<int>();
         public Queue<int> oCards = new Queue<int>();
@@ -1743,6 +1743,21 @@ namespace FinalWar
         internal void ClearFearAction()
         {
             fearAction.Clear();
+        }
+
+        public Hero GetHero(int _pos)
+        {
+            return heroMapDic[_pos];
+        }
+
+        public IEnumerator<Hero> GetHeroEnumerator()
+        {
+            return heroMapDic.Values.GetEnumerator();
+        }
+
+        public bool GetHeroMapContainsKey(int _pos)
+        {
+            return heroMapDic.ContainsKey(_pos);
         }
 
         internal void SetRandomSeed(int _seed)
