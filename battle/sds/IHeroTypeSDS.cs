@@ -17,6 +17,7 @@
         int GetDefenseSpeed();
         int GetSupportSpeed();
 
+        int GetRecoverShield();
         int GetAttackTimes();
         int GetThread();
         int GetFearValue();

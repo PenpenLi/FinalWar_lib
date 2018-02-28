@@ -290,40 +290,23 @@ namespace FinalWar
 
         internal void Recover(ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
         {
-            if (beAttackedTimes == 0)
-            {
-                int recoverShield = 1;
-
-                //List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
-
-                //for (int i = 0; i < list.Count; i++)
-                //{
-                //    int tmpPos = list[i];
-
-                //    if (battle.GetPosIsMine(tmpPos) != isMine && battle.heroMapDic.ContainsKey(tmpPos))
-                //    {
-                //        recoverShield = false;
-
-                //        break;
-                //    }
-                //}
-
-                battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_CAN_RECOVER_SHIELD, ref recoverShield, this, null);
-
-                if (recoverShield > 0)
-                {
-                    nowShield = sds.GetShield();
-                }
-            }
-            else
-            {
-                beAttackedTimes = 0;
-            }
-
             if (nowShield > sds.GetShield())
             {
                 nowShield = sds.GetShield();
             }
+            else if (nowShield < sds.GetShield())
+            {
+                int recoverShield = sds.GetHeroType().GetRecoverShield();
+
+                battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_RECOVER_SHIELD, ref recoverShield, this, null);
+
+                if (recoverShield > beAttackedTimes)
+                {
+                    nowShield = sds.GetShield();
+                }
+            }
+
+            beAttackedTimes = 0;
 
             attackTimes = sds.GetHeroType().GetAttackTimes();
 

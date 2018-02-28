@@ -17,7 +17,6 @@
         public const string FIX_ATTACK_PIERCE_SHIELD = "fixAttackPierceShield";
         public const string FIX_BE_ATTACKED_PIERCE_SHIELD = "fixBeAttackedPierceShield";
         public const string FIX_CAN_MOVE = "fixCanMove";
-        public const string FIX_CAN_RECOVER_SHIELD = "fixCanRecoverShield";
         public const string FIX_FEAR = "fixFear";
 
         public const string FIX_SPEED = "fixSpeed";
@@ -25,6 +24,7 @@
         public const string FIX_BE_ATTACKED_DAMAGE = "fixBeAttackedDamage";
         public const string FIX_ATTACK_SHIELD_DAMAGE = "fixAttackShieldDamage";
         public const string FIX_ATTACK_HP_DAMAGE = "fixAttackHpDamage";
+        public const string FIX_RECOVER_SHIELD = "fixRecoverShield";
 
         public const string DO_DAMAGE = "doDamage";
         public const string BE_DAMAGED = "beDamaged";
