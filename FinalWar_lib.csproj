@@ -103,6 +103,7 @@
     <Compile Include="battle\battleVO\BattleRushVO.cs" />
     <Compile Include="battle\battleVO\BattleScoreChangeVO.cs" />
     <Compile Include="battle\battleVO\BattleShootVO.cs" />
+    <Compile Include="battle\battleVO\BattleStartVO.cs" />
     <Compile Include="battle\battleVO\BattleSummonVO.cs" />
     <Compile Include="battle\battleVO\BattlePrepareAttackVO.cs" />
     <Compile Include="battle\battleVO\BattleSupportVO.cs" />

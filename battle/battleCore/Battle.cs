@@ -152,6 +152,8 @@ namespace FinalWar
 
         internal IEnumerator StartBattle()
         {
+            yield return new BattleStartVO();
+
             BattleData battleData = GetBattleData();
 
             ClearAction();
@@ -161,8 +163,6 @@ namespace FinalWar
             Dictionary<int, int> tmpSummon = summon;
 
             summon = new Dictionary<int, int>();
-
-            yield return new BattleRefreshVO();
 
             yield return DoSkill(battleData);
 
@@ -770,7 +770,7 @@ namespace FinalWar
                 yield return RemoveDieHero(_battleData);
             }
 
-            yield return new BattleRecoverVO();
+            yield return new BattleRoundStartVO();
         }
 
         private IEnumerator DoAttack(BattleData _battleData)
@@ -1068,8 +1068,6 @@ namespace FinalWar
                         }
 
                         yield return RemoveDieHero(_battleData);
-
-                        yield return new BattleRecoverVO();
                     }
                 }
             }
@@ -1208,7 +1206,7 @@ namespace FinalWar
                 yield return RemoveDieHero(null);
             }
 
-            yield return new BattleRecoverVO();
+            yield return new BattleRoundOverVO();
         }
 
         private IEnumerator DoRecover()
