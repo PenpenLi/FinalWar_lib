@@ -19,6 +19,12 @@ namespace FinalWar
             MAXSHIELD,
             BE_ATTACKED_TIMES,
             SCORE,
+            NOWHP_WITH_CHANGE,
+            NOWSHIELD_WITH_CHANGE,
+            LOSE_HP,
+            LOSE_HP_WITH_CHANGE,
+            LOSE_SHIELD,
+            LOSE_SHIELD_WITH_CHANGE,
         }
 
         internal enum HeroAction
@@ -609,6 +615,86 @@ namespace FinalWar
                 case HeroData.SCORE:
 
                     return isMine ? battle.mScore - battle.oScore : battle.oScore - battle.mScore;
+
+                case HeroData.NOWHP_WITH_CHANGE:
+
+                    int tmpNowHp;
+
+                    int tmpNowShield;
+
+                    ProcessDamage(out tmpNowShield, out tmpNowHp);
+
+                    return tmpNowHp;
+
+                case HeroData.NOWSHIELD_WITH_CHANGE:
+
+                    ProcessDamage(out tmpNowShield, out tmpNowHp);
+
+                    return tmpNowShield;
+
+                case HeroData.LOSE_HP:
+
+                    int loseHp = sds.GetHp() - nowHp;
+
+                    if (loseHp < 0)
+                    {
+                        loseHp = 0;
+                    }
+                    else if (loseHp > sds.GetHp())
+                    {
+                        loseHp = sds.GetHp();
+                    }
+
+                    return loseHp;
+
+                case HeroData.LOSE_SHIELD:
+
+                    int loseShield = sds.GetShield() - nowShield;
+
+                    if (loseShield < 0)
+                    {
+                        loseShield = 0;
+                    }
+                    else if (loseShield > sds.GetShield())
+                    {
+                        loseShield = sds.GetShield();
+                    }
+
+                    return loseShield;
+
+                case HeroData.LOSE_HP_WITH_CHANGE:
+
+                    ProcessDamage(out tmpNowShield, out tmpNowHp);
+
+                    loseHp = sds.GetHp() - tmpNowHp;
+
+                    if (loseHp < 0)
+                    {
+                        loseHp = 0;
+                    }
+                    else if (loseHp > sds.GetHp())
+                    {
+                        loseHp = sds.GetHp();
+                    }
+
+                    return loseHp;
+
+                case HeroData.LOSE_SHIELD_WITH_CHANGE:
+
+                    ProcessDamage(out tmpNowShield, out tmpNowHp);
+
+                    loseShield = sds.GetShield() - tmpNowShield;
+
+                    if (loseShield < 0)
+                    {
+                        loseShield = 0;
+                    }
+                    else if (loseShield > sds.GetShield())
+                    {
+                        loseShield = sds.GetShield();
+                    }
+
+                    return loseShield;
 
                 default:
 
