@@ -343,51 +343,56 @@ namespace FinalWar
 
         private bool CheckFear()
         {
-            int willeFear = 1;
+            int myNum = GetFearValue();
 
-            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_FEAR, ref willeFear, this, null);
+            int oppNum = 0;
 
-            if (willeFear > 0)
+            List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
+
+            for (int i = 0; i < list.Count; i++)
             {
-                int myNum = 0;
+                Hero hero;
 
-                int oppNum = 0;
-
-                List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
-
-                for (int i = 0; i < list.Count; i++)
+                if (battle.heroMapDic.TryGetValue(list[i], out hero))
                 {
-                    Hero hero;
-
-                    if (battle.heroMapDic.TryGetValue(list[i], out hero))
+                    if (hero.isMine == isMine)
                     {
-                        if (hero.isMine == isMine)
-                        {
-                            myNum += hero.sds.GetHeroType().GetFearValue();
-                        }
-                        else
-                        {
-                            oppNum += hero.sds.GetHeroType().GetFearValue();
-                        }
+                        myNum += hero.GetFearValue();
                     }
-                }
-
-                int numDiff = oppNum - myNum;
-
-                if (numDiff > 0)
-                {
-                    int v = (numDiff + 1) * numDiff / 2;
-
-                    int randomValue = battle.GetRandomValue(6);
-
-                    if (randomValue < v)
+                    else
                     {
-                        return true;
+                        oppNum += hero.GetFearValue();
                     }
                 }
             }
 
+            int numDiff = oppNum - myNum;
+
+            if (numDiff > 0)
+            {
+                int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
+
+                if (randomValue < numDiff)
+                {
+                    return true;
+                }
+            }
+
             return false;
+        }
+
+        private int GetFearValue()
+        {
+            int fearValue = sds.GetHeroType().GetFearValue();
+
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_FEAR, ref fearValue, this, null);
+
+            if (fearValue < 0)
+            {
+                fearValue = 0;
+            }
+
+            return fearValue;
         }
 
         private void CheckFearReal()
