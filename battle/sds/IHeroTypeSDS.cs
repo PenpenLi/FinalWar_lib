@@ -11,14 +11,13 @@
     {
         int GetID();
 
-        bool GetCanAttack();
-
         int GetAttackSpeed();
         int GetDefenseSpeed();
         int GetSupportSpeed();
 
         int GetRecoverShield();
         int GetAttackTimes();
+        int GetCounterTimes();
         int GetThread();
         int GetFearValue();
 

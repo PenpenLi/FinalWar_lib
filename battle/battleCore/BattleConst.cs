@@ -11,14 +11,13 @@
         public const int MAX_MONEY = 10;
         public const int MAX_SPEED = 2;
         public const int MIN_SPEED = -2;
-        public const int MAX_FEAR_VALUE = 6;
+        public const int MAX_FEAR_VALUE = 4;
 
         public const string FIX_ATTACK_SHIELD_TO_DAMAGE = "fixAttackShieldToDamage";
         public const string FIX_BE_ATTACKED_SHIELD_TO_DAMAGE = "fixBeAttackedShieldToDamage";
         public const string FIX_ATTACK_PIERCE_SHIELD = "fixAttackPierceShield";
         public const string FIX_BE_ATTACKED_PIERCE_SHIELD = "fixBeAttackedPierceShield";
         public const string FIX_CAN_MOVE = "fixCanMove";
-        public const string FIX_FEAR = "fixFear";
 
         public const string FIX_SPEED = "fixSpeed";
         public const string FIX_ATTACK_DAMAGE = "fixAttackDamage";
@@ -26,6 +25,7 @@
         public const string FIX_ATTACK_SHIELD_DAMAGE = "fixAttackShieldDamage";
         public const string FIX_ATTACK_HP_DAMAGE = "fixAttackHpDamage";
         public const string FIX_RECOVER_SHIELD = "fixRecoverShield";
+        public const string FIX_FEAR = "fixFear";
 
         public const string DO_DAMAGE = "doDamage";
         public const string BE_DAMAGED = "beDamaged";

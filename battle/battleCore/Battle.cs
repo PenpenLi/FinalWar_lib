@@ -361,13 +361,13 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                if (enumerator.Current.sds.GetHeroType().GetCanAttack())
+                if (enumerator.Current.sds.GetHeroType().GetCounterTimes() == 0)
                 {
-                    enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
+                    enumerator.Current.SetAction(Hero.HeroAction.NULL);
                 }
                 else
                 {
-                    enumerator.Current.SetAction(Hero.HeroAction.NULL);
+                    enumerator.Current.SetAction(Hero.HeroAction.DEFENSE);
                 }
             }
 
@@ -645,11 +645,6 @@ namespace FinalWar
 
                                 attacker.DoAttack();
 
-                                if (attacker.attackTimes == 0)
-                                {
-                                    attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
-                                }
-
                                 attacker.Attack(stander, ref funcList);
 
                                 yield return new BattleRushVO(attacker.pos, stander.pos);
@@ -811,11 +806,6 @@ namespace FinalWar
 
                                 attacker.DoAttack();
 
-                                if (attacker.attackTimes == 0)
-                                {
-                                    attacker.SetAction(Hero.HeroAction.ATTACK_OVER, attacker.actionTarget);
-                                }
-
                                 Hero defender;
 
                                 int defenderSpeed;
@@ -827,6 +817,8 @@ namespace FinalWar
                                     defender = cellData.stander;
 
                                     defenderSpeed = defender.GetDefenseSpeed(attacker);
+
+                                    defender.DoCounter();
 
                                     attackType = AttackType.A_D;
                                 }
@@ -845,11 +837,6 @@ namespace FinalWar
                                     defenderSpeed = defender.GetAttackSpeed(attacker);
 
                                     defender.DoAttack();
-
-                                    if (defender.attackTimes == 0)
-                                    {
-                                        defender.SetAction(Hero.HeroAction.ATTACK_OVER, defender.actionTarget);
-                                    }
 
                                     if (checkedPosDic == null)
                                     {

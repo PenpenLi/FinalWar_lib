@@ -51,9 +51,11 @@ namespace FinalWar
 
         public int nowShield { get; private set; }
 
-        internal int attackTimes { get; private set; }
-
         private Battle battle;
+
+        private int attackTimes = 0;
+
+        private int counterTimes = 0;
 
         private int shieldChange = 0;
 
@@ -79,8 +81,6 @@ namespace FinalWar
 
             nowShield = sds.GetShield();
 
-            attackTimes = sds.GetHeroType().GetAttackTimes();
-
             SetAction(HeroAction.NULL);
 
             HeroAura.Init(battle, this);
@@ -102,7 +102,25 @@ namespace FinalWar
 
         internal void DoAttack()
         {
-            attackTimes--;
+            attackTimes++;
+
+            if (attackTimes == sds.GetHeroType().GetAttackTimes())
+            {
+                SetAction(HeroAction.ATTACK_OVER, actionTarget);
+            }
+        }
+
+        internal void DoCounter()
+        {
+            if (sds.GetHeroType().GetCounterTimes() > 0)
+            {
+                counterTimes++;
+
+                if (counterTimes == sds.GetHeroType().GetCounterTimes())
+                {
+                    SetAction(HeroAction.NULL);
+                }
+            }
         }
 
         internal void PosChange(int _pos)
@@ -314,7 +332,9 @@ namespace FinalWar
 
             beAttackedTimes = 0;
 
-            attackTimes = sds.GetHeroType().GetAttackTimes();
+            attackTimes = 0;
+
+            counterTimes = 0;
 
             switch (sds.GetHeroType().GetFearType())
             {
