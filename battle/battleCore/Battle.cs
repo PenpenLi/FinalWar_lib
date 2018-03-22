@@ -647,6 +647,8 @@ namespace FinalWar
 
                                 attacker.Attack(stander, ref funcList);
 
+                                stander.BeAttacked();
+
                                 yield return new BattleRushVO(attacker.pos, stander.pos);
 
                                 break;
@@ -862,11 +864,17 @@ namespace FinalWar
 
                                         defender.Attack(attacker, ref funcList);
 
+                                        attacker.BeAttacked();
+
+                                        defender.BeAttacked();
+
                                         yield return new BattleAttackBothVO(cellData.pos, attacker.pos, defender.pos);
                                     }
                                     else if (speedDiff == 1)
                                     {
                                         attacker.Attack(defender, ref funcList);
+
+                                        defender.BeAttacked();
 
                                         yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
 
@@ -876,12 +884,16 @@ namespace FinalWar
                                         {
                                             defender.Attack(attacker, ref funcList);
 
+                                            attacker.BeAttacked();
+
                                             yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
                                         }
                                     }
                                     else
                                     {
                                         defender.Attack(attacker, ref funcList);
+
+                                        attacker.BeAttacked();
 
                                         yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
 
@@ -891,6 +903,8 @@ namespace FinalWar
                                         {
                                             attacker.Attack(defender, ref funcList);
 
+                                            defender.BeAttacked();
+
                                             yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
                                         }
                                     }
@@ -899,11 +913,15 @@ namespace FinalWar
                                 {
                                     attacker.Attack(defender, ref funcList);
 
+                                    defender.BeAttacked();
+
                                     yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
                                 }
                                 else
                                 {
                                     defender.Attack(attacker, ref funcList);
+
+                                    attacker.BeAttacked();
 
                                     yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
                                 }
@@ -1198,18 +1216,11 @@ namespace FinalWar
 
         private IEnumerator DoRecover()
         {
-            LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
-
             IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                enumerator.Current.Recover(ref funcList);
-            }
-
-            if (funcList != null)
-            {
-                yield return InvokeFuncList(funcList);
+                enumerator.Current.Recover();
             }
 
             yield return new BattleRecoverVO();

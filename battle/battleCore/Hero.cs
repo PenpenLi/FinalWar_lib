@@ -19,12 +19,9 @@ namespace FinalWar
             MAXSHIELD,
             BE_ATTACKED_TIMES,
             SCORE,
-            NOWHP_WITH_CHANGE,
-            NOWSHIELD_WITH_CHANGE,
             LOSE_HP,
-            LOSE_HP_WITH_CHANGE,
             LOSE_SHIELD,
-            LOSE_SHIELD_WITH_CHANGE,
+            ISALIVE,
         }
 
         internal enum HeroAction
@@ -108,6 +105,11 @@ namespace FinalWar
             {
                 SetAction(HeroAction.ATTACK_OVER, actionTarget);
             }
+        }
+
+        internal void BeAttacked()
+        {
+            beAttackedTimes++;
         }
 
         internal void DoCounter()
@@ -244,7 +246,7 @@ namespace FinalWar
             return GetSpeedFix(null);
         }
 
-        internal int GetSpeedFix(Hero _hero)
+        private int GetSpeedFix(Hero _hero)
         {
             int tmpSpeedFix = 0;
 
@@ -312,7 +314,7 @@ namespace FinalWar
             battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.ROUND_OVER, ref _funcList, this, null);
         }
 
-        internal void Recover(ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
+        internal void Recover()
         {
             if (nowShield > sds.GetShield())
             {
@@ -358,7 +360,9 @@ namespace FinalWar
                     break;
             }
 
-            battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.RECOVER, ref _funcList, this, null);
+            LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
+
+            battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.RECOVER, ref funcList, this, null);
         }
 
         private bool CheckFear()
@@ -487,8 +491,6 @@ namespace FinalWar
             battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_SHIELD_DAMAGE, ref doShieldDamage, this, _hero);
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_HP_DAMAGE, ref doHpDamage, this, _hero);
-
-            _hero.beAttackedTimes++;
 
             int canPierceShield = 0;
 
@@ -641,22 +643,6 @@ namespace FinalWar
 
                     return isMine ? battle.mScore - battle.oScore : battle.oScore - battle.mScore;
 
-                case HeroData.NOWHP_WITH_CHANGE:
-
-                    int tmpNowHp;
-
-                    int tmpNowShield;
-
-                    ProcessDamage(out tmpNowShield, out tmpNowHp);
-
-                    return tmpNowHp;
-
-                case HeroData.NOWSHIELD_WITH_CHANGE:
-
-                    ProcessDamage(out tmpNowShield, out tmpNowHp);
-
-                    return tmpNowShield;
-
                 case HeroData.LOSE_HP:
 
                     int loseHp = sds.GetHp() - nowHp;
@@ -687,39 +673,9 @@ namespace FinalWar
 
                     return loseShield;
 
-                case HeroData.LOSE_HP_WITH_CHANGE:
+                case HeroData.ISALIVE:
 
-                    ProcessDamage(out tmpNowShield, out tmpNowHp);
-
-                    loseHp = sds.GetHp() - tmpNowHp;
-
-                    if (loseHp < 0)
-                    {
-                        loseHp = 0;
-                    }
-                    else if (loseHp > sds.GetHp())
-                    {
-                        loseHp = sds.GetHp();
-                    }
-
-                    return loseHp;
-
-                case HeroData.LOSE_SHIELD_WITH_CHANGE:
-
-                    ProcessDamage(out tmpNowShield, out tmpNowHp);
-
-                    loseShield = sds.GetShield() - tmpNowShield;
-
-                    if (loseShield < 0)
-                    {
-                        loseShield = 0;
-                    }
-                    else if (loseShield > sds.GetShield())
-                    {
-                        loseShield = sds.GetShield();
-                    }
-
-                    return loseShield;
+                    return IsAlive() ? 1 : 0;
 
                 default:
 
