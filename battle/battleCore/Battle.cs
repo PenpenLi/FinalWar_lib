@@ -856,9 +856,9 @@ namespace FinalWar
 
                                 int speedDiff = attackerSpeed - defenderSpeed;
 
-                                if (Math.Abs(speedDiff) < 2)
+                                if (Math.Abs(speedDiff) < BattleConst.SPEED_GAP_1)
                                 {
-                                    if (speedDiff == 0)
+                                    if (speedDiff < BattleConst.SPEED_GAP_0)
                                     {
                                         attacker.Attack(defender, ref funcList);
 
@@ -870,7 +870,7 @@ namespace FinalWar
 
                                         yield return new BattleAttackBothVO(cellData.pos, attacker.pos, defender.pos);
                                     }
-                                    else if (speedDiff == 1)
+                                    else if (speedDiff > 0)
                                     {
                                         attacker.Attack(defender, ref funcList);
 
@@ -909,7 +909,7 @@ namespace FinalWar
                                         }
                                     }
                                 }
-                                else if (speedDiff > 1)
+                                else if (speedDiff > 0)
                                 {
                                     attacker.Attack(defender, ref funcList);
 
