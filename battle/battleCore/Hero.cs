@@ -651,10 +651,6 @@ namespace FinalWar
                     {
                         loseHp = 0;
                     }
-                    else if (loseHp > sds.GetHp())
-                    {
-                        loseHp = sds.GetHp();
-                    }
 
                     return loseHp;
 
@@ -665,10 +661,6 @@ namespace FinalWar
                     if (loseShield < 0)
                     {
                         loseShield = 0;
-                    }
-                    else if (loseShield > sds.GetShield())
-                    {
-                        loseShield = sds.GetShield();
                     }
 
                     return loseShield;
