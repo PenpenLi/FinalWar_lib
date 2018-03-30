@@ -89,7 +89,7 @@ namespace FinalWar
             SetNeighbourPosMap();
         }
 
-        public void SetNeighbourPosMap()
+        private void SetNeighbourPosMap()
         {
             IEnumerator<KeyValuePair<int, MapUnitType>> enumerator = dic.GetEnumerator();
 
