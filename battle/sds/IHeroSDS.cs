@@ -10,6 +10,7 @@
         int[] GetShootSkills();
         int[] GetSupportSkills();
         int[] GetAuras();
+        int[] GetFeatures();
         IHeroTypeSDS GetHeroType();
     }
 }

@@ -85,7 +85,7 @@ namespace FinalWar
 
                     data = _sds.GetData()[0];
 
-                    HeroAura.Init(_battle, _hero, data, false);
+                    HeroAura.Init(_battle, _hero, data, HeroAura.AuraRegisterType.EFFECT);
 
                     break;
 

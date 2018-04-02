@@ -18,7 +18,7 @@ namespace FinalWar
             NOWSHIELD,
             MAXSHIELD,
             BE_ATTACKED_TIMES,
-            SCORE,
+            SCORE_DIFF,
             LOSE_HP,
             LOSE_SHIELD,
             ISALIVE,
@@ -639,7 +639,7 @@ namespace FinalWar
 
                     return beAttackedTimes;
 
-                case HeroData.SCORE:
+                case HeroData.SCORE_DIFF:
 
                     return isMine ? battle.mScore - battle.oScore : battle.oScore - battle.mScore;
 

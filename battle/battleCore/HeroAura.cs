@@ -6,6 +6,13 @@ namespace FinalWar
 {
     internal static class HeroAura
     {
+        internal enum AuraRegisterType
+        {
+            AURA,
+            EFFECT,
+            FEATURE,
+        }
+
         private const int REMOVE_EVENT_PRIORITY = 1;
 
         internal static void Init(Battle _battle, Hero _hero)
@@ -19,17 +26,24 @@ namespace FinalWar
             {
                 int id = _hero.sds.GetAuras()[i];
 
-                Init(_battle, _hero, id, true);
+                Init(_battle, _hero, id, AuraRegisterType.AURA);
+            }
+
+            for (int i = 0; i < _hero.sds.GetFeatures().Length; i++)
+            {
+                int id = _hero.sds.GetFeatures()[i];
+
+                Init(_battle, _hero, id, AuraRegisterType.FEATURE);
             }
         }
 
-        internal static void Init(Battle _battle, Hero _hero, int _auraID, bool _isInBorn)
+        internal static void Init(Battle _battle, Hero _hero, int _auraID, AuraRegisterType _registerType)
         {
             IAuraSDS sds = Battle.GetAuraData(_auraID);
 
             List<int> ids = new List<int>();
 
-            int id = RegisterAura(_battle, _hero, sds, _isInBorn);
+            int id = RegisterAura(_battle, _hero, sds, _registerType);
 
             ids.Add(id);
 
@@ -48,13 +62,7 @@ namespace FinalWar
 
             ids.Add(id);
 
-            if (_isInBorn)
-            {
-                id = _battle.eventListener.AddListener(BattleConst.REMOVE_BORN_AURA, dele, REMOVE_EVENT_PRIORITY);
-
-                ids.Add(id);
-            }
-            else
+            if (_registerType == AuraRegisterType.EFFECT)
             {
                 id = _battle.eventListener.AddListener(BattleConst.BE_CLEAN, dele, REMOVE_EVENT_PRIORITY);
 
@@ -77,6 +85,12 @@ namespace FinalWar
 
                 ids.Add(id);
             }
+            else
+            {
+                id = _battle.eventListener.AddListener(BattleConst.REMOVE_BORN_AURA, dele, REMOVE_EVENT_PRIORITY);
+
+                ids.Add(id);
+            }
 
             for (int i = 0; i < sds.GetRemoveEventNames().Length; i++)
             {
@@ -86,7 +100,7 @@ namespace FinalWar
             }
         }
 
-        private static int RegisterAura(Battle _battle, Hero _hero, IAuraSDS _sds, bool _isInBorn)
+        private static int RegisterAura(Battle _battle, Hero _hero, IAuraSDS _sds, AuraRegisterType _registerType)
         {
             int result;
 
@@ -96,7 +110,7 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV2<int, Hero, Hero> dele1 = delegate (int _index, ref int _result, Hero _triggerHero, Hero _triggerTargetHero)
                     {
-                        if (CheckAuraIsBeSilenced(_battle, _hero, _isInBorn) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
+                        if (CheckAuraIsBeSilenced(_battle, _hero, _registerType) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
                         {
                             Hero.HeroData heroData = (Hero.HeroData)(_sds.GetEffectData()[0]);
 
@@ -120,7 +134,7 @@ namespace FinalWar
 
                     SuperEventListener.SuperFunctionCallBackV2<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero> dele2 = delegate (int _index, ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList, Hero _triggerHero, Hero _triggerTargetHero)
                     {
-                        if (CheckAuraIsBeSilenced(_battle, _hero, _isInBorn) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
+                        if (CheckAuraIsBeSilenced(_battle, _hero, _registerType) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
                         {
                             IEffectSDS effectSDS = Battle.GetEffectData(_sds.GetEffectData()[0]);
 
@@ -561,9 +575,9 @@ namespace FinalWar
             return result;
         }
 
-        private static bool CheckAuraIsBeSilenced(Battle _battle, Hero _hero, bool _isInBorn)
+        private static bool CheckAuraIsBeSilenced(Battle _battle, Hero _hero, AuraRegisterType _registerType)
         {
-            if (_isInBorn)
+            if (_registerType == AuraRegisterType.AURA)
             {
                 int canTrigger = 1;
 
