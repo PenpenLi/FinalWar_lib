@@ -130,6 +130,30 @@ namespace FinalWar
 
                     break;
 
+                case AuraType.SET_INT:
+
+                    SuperEventListener.SuperFunctionCallBackV2<int, Hero, Hero> dele3 = delegate (int _index, ref int _result, Hero _triggerHero, Hero _triggerTargetHero)
+                    {
+                        if (CheckAuraIsBeSilenced(_battle, _hero, _registerType) && CheckAuraTrigger(_battle, _hero, _triggerHero, _sds) && CheckCondition(_battle, _hero, _triggerHero, _triggerTargetHero, _sds.GetConditionCompare(), _sds.GetConditionType(), _sds.GetConditionData()))
+                        {
+                            Hero.HeroData heroData = (Hero.HeroData)(_sds.GetEffectData()[0]);
+
+                            if (heroData == Hero.HeroData.DATA)
+                            {
+                                _result = _sds.GetEffectData()[1];
+
+                            }
+                            else
+                            {
+                                _result = _hero.GetData(heroData) * _sds.GetEffectData()[1];
+                            }
+                        }
+                    };
+
+                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele3, _sds.GetPriority());
+
+                    break;
+
                 case AuraType.CAST_SKILL:
 
                     SuperEventListener.SuperFunctionCallBackV2<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero> dele2 = delegate (int _index, ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList, Hero _triggerHero, Hero _triggerTargetHero)

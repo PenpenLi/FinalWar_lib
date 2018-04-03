@@ -3,7 +3,8 @@
     public enum AuraType
     {
         FIX_INT,
-        CAST_SKILL
+        CAST_SKILL,
+        SET_INT,
     }
 
     public enum AuraTarget
