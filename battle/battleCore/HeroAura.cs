@@ -126,7 +126,7 @@ namespace FinalWar
                         }
                     };
 
-                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele1);
+                    result = _battle.eventListener.AddListener(_sds.GetEventName(), dele1, _sds.GetPriority());
 
                     break;
 

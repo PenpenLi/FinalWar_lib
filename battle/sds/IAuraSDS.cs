@@ -30,12 +30,13 @@
     {
         int GetID();
         string GetEventName();
+        AuraType GetEffectType();
+        int GetPriority();
         AuraTarget GetEffectTarget();
         AuraTarget GetTriggerTarget();
         AuraConditionCompare GetConditionCompare();
         Hero.HeroData[] GetConditionType();
         int[] GetConditionData();
-        AuraType GetEffectType();
         int GetEffectTargetNum();
         int[] GetEffectData();
         string[] GetRemoveEventNames();
