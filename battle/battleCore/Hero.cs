@@ -467,17 +467,22 @@ namespace FinalWar
 
         internal void Attack(Hero _hero, ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
         {
+            int doDamage = sds.GetAttack();
+
+            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_DAMAGE, ref doDamage, this, _hero);
+
+            battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_DAMAGE, ref doDamage, _hero, this);
+
             int shieldToDamage = 1;
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_SHIELD_TO_DAMAGE, ref shieldToDamage, this, _hero);
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_SHIELD_TO_DAMAGE, ref shieldToDamage, _hero, this);
 
-            int doDamage = sds.GetAttack() + (shieldToDamage > 0 ? nowShield : 0);
-
-            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_DAMAGE, ref doDamage, this, _hero);
-
-            battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_DAMAGE, ref doDamage, _hero, this);
+            if (shieldToDamage > 0)
+            {
+                doDamage += nowShield;
+            }
 
             if (doDamage < 0)
             {
