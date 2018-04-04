@@ -17,11 +17,6 @@ namespace FinalWar
 
         internal static void Init(Battle _battle, Hero _hero)
         {
-            if (_hero.sds.GetAuras().Length == 0)
-            {
-                return;
-            }
-
             for (int i = 0; i < _hero.sds.GetAuras().Length; i++)
             {
                 int id = _hero.sds.GetAuras()[i];

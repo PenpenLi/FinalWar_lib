@@ -451,11 +451,29 @@ namespace FinalWar
             battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.BE_CLEAN, ref funcList, this, null);
         }
 
-        public int GetAttack()
+        public int GetAttackByClient()
         {
+            int recNowHp = nowHp;
+
+            int recNowShield = nowShield;
+
+            int tmpNowHp;
+
+            int tmpNowShield;
+
+            ProcessDamage(out tmpNowShield, out tmpNowHp);
+
+            nowHp = tmpNowHp;
+
+            nowShield = tmpNowShield;
+
             int attack = sds.GetAttack();
 
             battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_ATTACK_DAMAGE, ref attack, this, null);
+
+            nowHp = recNowHp;
+
+            nowShield = recNowShield;
 
             if (attack < 0)
             {
