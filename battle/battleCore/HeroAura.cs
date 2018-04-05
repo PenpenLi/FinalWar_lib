@@ -13,8 +13,6 @@ namespace FinalWar
             FEATURE,
         }
 
-        private const int REMOVE_EVENT_PRIORITY = 1;
-
         internal static void Init(Battle _battle, Hero _hero)
         {
             for (int i = 0; i < _hero.sds.GetAuras().Length; i++)
@@ -53,13 +51,13 @@ namespace FinalWar
                 }
             };
 
-            id = _battle.eventListener.AddListener(BattleConst.DIE, dele, REMOVE_EVENT_PRIORITY);
+            id = _battle.eventListener.AddListener(BattleConst.DIE, dele);
 
             ids.Add(id);
 
             if (_registerType == AuraRegisterType.EFFECT)
             {
-                id = _battle.eventListener.AddListener(BattleConst.BE_CLEAN, dele, REMOVE_EVENT_PRIORITY);
+                id = _battle.eventListener.AddListener(BattleConst.BE_CLEAN, dele);
 
                 ids.Add(id);
 
@@ -82,14 +80,14 @@ namespace FinalWar
             }
             else
             {
-                id = _battle.eventListener.AddListener(BattleConst.REMOVE_BORN_AURA, dele, REMOVE_EVENT_PRIORITY);
+                id = _battle.eventListener.AddListener(BattleConst.REMOVE_BORN_AURA, dele);
 
                 ids.Add(id);
             }
 
             for (int i = 0; i < sds.GetRemoveEventNames().Length; i++)
             {
-                id = _battle.eventListener.AddListener(sds.GetRemoveEventNames()[i], dele, REMOVE_EVENT_PRIORITY);
+                id = _battle.eventListener.AddListener(sds.GetRemoveEventNames()[i], dele);
 
                 ids.Add(id);
             }

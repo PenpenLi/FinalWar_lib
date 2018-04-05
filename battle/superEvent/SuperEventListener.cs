@@ -606,7 +606,7 @@ namespace superEvent
                             {
                                 SuperEventListenerUnit unit = lastNode.Value;
 
-                                if (unit.priority > priority)
+                                if (priority > unit.priority)
                                 {
                                     lastNode = lastNode.Next;
 
