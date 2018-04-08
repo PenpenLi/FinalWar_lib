@@ -33,9 +33,9 @@ namespace FinalWar
         public List<int> mHandCards = new List<int>();
         public List<int> oHandCards = new List<int>();
 
-        private int deckCardsNum;
+        public int deckCardsNum { private set; get; }
 
-        private int addCardsNum;
+        public int addCardsNum { private set; get; }
 
         private int[] cardsArr;
 
@@ -107,8 +107,6 @@ namespace FinalWar
 
             oScore = mapData.oScore;
 
-            mMoney = oMoney = BattleConst.DEFAULT_MONEY;
-
             for (int i = 0; i < deckCardsNum && i < _mCards.Length; i++)
             {
                 SetCard(i, _mCards[i]);
@@ -137,6 +135,10 @@ namespace FinalWar
                     oHandCards.Add(oCards.Dequeue());
                 }
             }
+
+            mMoney = mHandCards.Count * BattleConst.ADD_MONEY;
+
+            oMoney = oHandCards.Count * BattleConst.ADD_MONEY;
 
             for (int i = 0; i < mapSDS.GetHero().Length; i++)
             {
