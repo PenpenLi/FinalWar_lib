@@ -66,6 +66,10 @@ namespace FinalWar
 
             int maxRoundNum = _br.ReadInt32();
 
+            int deckCardsNum = _br.ReadInt32();
+
+            int addCardsNum = _br.ReadInt32();
+
             int num = _br.ReadInt32();
 
             int[] mCards = new int[num];
@@ -74,11 +78,11 @@ namespace FinalWar
 
             int[] oCards = new int[num];
 
-            InitBattle(mapID, maxRoundNum, mCards, oCards);
+            InitBattle(mapID, maxRoundNum, deckCardsNum, addCardsNum, mCards, oCards);
 
             if (!serverProcessBattle)
             {
-                simulateBattle.InitBattle(mapID, maxRoundNum, mCards, oCards);
+                simulateBattle.InitBattle(mapID, maxRoundNum, deckCardsNum, addCardsNum, mCards, oCards);
             }
 
             num = _br.ReadInt32();

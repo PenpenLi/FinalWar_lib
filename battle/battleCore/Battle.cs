@@ -33,7 +33,11 @@ namespace FinalWar
         public List<int> mHandCards = new List<int>();
         public List<int> oHandCards = new List<int>();
 
-        private int[] cardsArr = new int[BattleConst.DECK_CARD_NUM * 2];
+        private int deckCardsNum;
+
+        private int addCardsNum;
+
+        private int[] cardsArr;
 
         public int mScore { get; private set; }
         public int oScore { get; private set; }
@@ -83,31 +87,38 @@ namespace FinalWar
             return random.Get(_max);
         }
 
-        internal void InitBattle(int _mapID, int _maxRoundNum, int[] _mCards, int[] _oCards)
+        internal void InitBattle(int _mapID, int _maxRoundNum, int _deckCardsNum, int _addCardsNum, int[] _mCards, int[] _oCards)
         {
             Reset();
 
             maxRoundNum = _maxRoundNum;
+
+            deckCardsNum = _deckCardsNum;
+
+            addCardsNum = _addCardsNum;
+
+            cardsArr = new int[deckCardsNum * 2];
 
             IMapSDS mapSDS = GetMapData(_mapID);
 
             mapData = mapSDS.GetMapData();
 
             mScore = mapData.mScore;
+
             oScore = mapData.oScore;
 
             mMoney = oMoney = BattleConst.DEFAULT_MONEY;
 
-            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _mCards.Length; i++)
+            for (int i = 0; i < deckCardsNum && i < _mCards.Length; i++)
             {
                 SetCard(i, _mCards[i]);
 
                 mCards.Enqueue(i);
             }
 
-            for (int i = 0; i < BattleConst.DECK_CARD_NUM && i < _oCards.Length; i++)
+            for (int i = 0; i < deckCardsNum && i < _oCards.Length; i++)
             {
-                int index = BattleConst.DECK_CARD_NUM + i;
+                int index = deckCardsNum + i;
 
                 SetCard(index, _oCards[i]);
 
@@ -262,6 +273,8 @@ namespace FinalWar
             ClearAction();
 
             ClearFearAction();
+
+            cardsArr = null;
 
             roundNum = 0;
         }
@@ -1259,9 +1272,9 @@ namespace FinalWar
 
         private IEnumerator DoAddMoneyAndCards()
         {
-            yield return AddMoneyAndCards(true, BattleConst.ADD_CARD_NUM, BattleConst.ADD_MONEY);
+            yield return AddMoneyAndCards(true);
 
-            yield return AddMoneyAndCards(false, BattleConst.ADD_CARD_NUM, BattleConst.ADD_MONEY);
+            yield return AddMoneyAndCards(false);
         }
 
         internal void MoneyChangeReal(bool _isMine, int _num)
@@ -1312,22 +1325,30 @@ namespace FinalWar
             }
         }
 
-        private IEnumerator AddMoneyAndCards(bool _isMine, int _addCardsNum, int _addMoneyNum)
+        private IEnumerator AddMoneyAndCards(bool _isMine)
         {
-            Queue<int> cards = _isMine ? mCards : oCards;
+            Queue<int> cards;
+
+            List<int> handCardsList;
+
+            if (_isMine)
+            {
+                cards = mCards;
+
+                handCardsList = mHandCards;
+            }
+            else
+            {
+                cards = oCards;
+
+                handCardsList = oHandCards;
+            }
 
             if (cards.Count > 0)
             {
-                if (_addCardsNum > cards.Count)
-                {
-                    _addCardsNum = cards.Count;
-                }
-
-                List<int> handCardsList = _isMine ? mHandCards : oHandCards;
-
                 List<int> addList = new List<int>();
 
-                for (int i = 0; i < _addCardsNum && cards.Count > 0; i++)
+                for (int i = 0; i < addCardsNum && cards.Count > 0; i++)
                 {
                     int uid = cards.Dequeue();
 
@@ -1337,11 +1358,11 @@ namespace FinalWar
                     {
                         handCardsList.Add(uid);
                     }
+
+                    MoneyChangeReal(_isMine, BattleConst.ADD_MONEY);
                 }
 
                 yield return new BattleAddCardsVO(_isMine, addList);
-
-                MoneyChangeReal(_isMine, _addMoneyNum);
 
                 yield return new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney);
             }
@@ -1534,7 +1555,7 @@ namespace FinalWar
             {
                 int uid = enumerator.Current.Key;
 
-                if (_isMine == uid < BattleConst.DECK_CARD_NUM)
+                if (_isMine == uid < deckCardsNum)
                 {
                     IHeroSDS sds = GetHeroData(GetCard(uid));
 
