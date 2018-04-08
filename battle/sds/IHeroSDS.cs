@@ -11,6 +11,7 @@
         int[] GetSupportSkills();
         int[] GetAuras();
         int[] GetFeatures();
+        int[] GetEffects();
         IHeroTypeSDS GetHeroType();
     }
 }

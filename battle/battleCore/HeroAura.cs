@@ -28,6 +28,13 @@ namespace FinalWar
 
                 Init(_battle, _hero, id, AuraRegisterType.FEATURE);
             }
+
+            for (int i = 0; i < _hero.sds.GetEffects().Length; i++)
+            {
+                int id = _hero.sds.GetEffects()[i];
+
+                Init(_battle, _hero, id, AuraRegisterType.EFFECT);
+            }
         }
 
         internal static void Init(Battle _battle, Hero _hero, int _auraID, AuraRegisterType _registerType)
