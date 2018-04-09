@@ -198,6 +198,8 @@ namespace FinalWar
 
                     bw.Write(recordData.addCardsNum);
 
+                    bw.Write(recordData.addMoney);
+
                     bw.Write(recordData.mCards.Length);
 
                     bw.Write(recordData.oCards.Length);
