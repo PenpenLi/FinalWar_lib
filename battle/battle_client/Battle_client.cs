@@ -70,6 +70,8 @@ namespace FinalWar
 
             int addCardsNum = _br.ReadInt32();
 
+            int addMoney = _br.ReadInt32();
+
             int num = _br.ReadInt32();
 
             int[] mCards = new int[num];
@@ -78,11 +80,11 @@ namespace FinalWar
 
             int[] oCards = new int[num];
 
-            InitBattle(mapID, maxRoundNum, deckCardsNum, addCardsNum, mCards, oCards);
+            InitBattle(mapID, maxRoundNum, deckCardsNum, addCardsNum, addMoney, mCards, oCards);
 
             if (!serverProcessBattle)
             {
-                simulateBattle.InitBattle(mapID, maxRoundNum, deckCardsNum, addCardsNum, mCards, oCards);
+                simulateBattle.InitBattle(mapID, maxRoundNum, deckCardsNum, addCardsNum, addMoney, mCards, oCards);
             }
 
             num = _br.ReadInt32();

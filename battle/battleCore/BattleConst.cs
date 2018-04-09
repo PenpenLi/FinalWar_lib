@@ -6,9 +6,9 @@
         public const int DEFAULT_HAND_CARD_NUM = 4;
         public const int MAX_HAND_CARD_NUM = 4;
         //public const int ADD_CARD_NUM = 1;
-        //public const int DEFAULT_MONEY = 12;
-        public const int ADD_MONEY = 3;
-        public const int MAX_MONEY = 12;
+        public const int DEFAULT_MONEY = 10;
+        //public const int ADD_MONEY = 3;
+        public const int MAX_MONEY = 10;
         public const int MAX_SPEED = 2;
         public const int MIN_SPEED = -2;
         public const int MAX_FEAR_VALUE = 4;

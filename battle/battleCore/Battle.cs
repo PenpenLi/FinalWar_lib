@@ -37,6 +37,8 @@ namespace FinalWar
 
         public int addCardsNum { private set; get; }
 
+        public int addMoney { private set; get; }
+
         private int[] cardsArr;
 
         public int mScore { get; private set; }
@@ -87,7 +89,7 @@ namespace FinalWar
             return random.Get(_max);
         }
 
-        internal void InitBattle(int _mapID, int _maxRoundNum, int _deckCardsNum, int _addCardsNum, int[] _mCards, int[] _oCards)
+        internal void InitBattle(int _mapID, int _maxRoundNum, int _deckCardsNum, int _addCardsNum, int _addMoney, int[] _mCards, int[] _oCards)
         {
             Reset();
 
@@ -96,6 +98,8 @@ namespace FinalWar
             deckCardsNum = _deckCardsNum;
 
             addCardsNum = _addCardsNum;
+
+            addMoney = _addMoney;
 
             cardsArr = new int[deckCardsNum * 2];
 
@@ -136,9 +140,7 @@ namespace FinalWar
                 }
             }
 
-            mMoney = mHandCards.Count * BattleConst.ADD_MONEY;
-
-            oMoney = oHandCards.Count * BattleConst.ADD_MONEY;
+            mMoney = oMoney = BattleConst.DEFAULT_MONEY;
 
             for (int i = 0; i < mapSDS.GetHero().Length; i++)
             {
@@ -1350,24 +1352,21 @@ namespace FinalWar
             {
                 List<int> addList = new List<int>();
 
-                for (int i = 0; i < addCardsNum && cards.Count > 0; i++)
+                for (int i = 0; i < addCardsNum && cards.Count > 0 && handCardsList.Count < BattleConst.MAX_HAND_CARD_NUM; i++)
                 {
                     int uid = cards.Dequeue();
 
                     addList.Add(uid);
 
-                    if (handCardsList.Count < BattleConst.MAX_HAND_CARD_NUM)
-                    {
-                        handCardsList.Add(uid);
-                    }
-
-                    MoneyChangeReal(_isMine, BattleConst.ADD_MONEY);
+                    handCardsList.Add(uid);
                 }
 
                 yield return new BattleAddCardsVO(_isMine, addList);
-
-                yield return new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney);
             }
+
+            MoneyChangeReal(_isMine, addMoney);
+
+            yield return new BattleMoneyChangeVO(_isMine, _isMine ? mMoney : oMoney);
         }
 
         private IEnumerator InvokeFuncList(LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
