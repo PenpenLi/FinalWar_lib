@@ -20,6 +20,7 @@
         public const string FIX_ATTACK_PIERCE_SHIELD = "fixAttackPierceShield";
         public const string FIX_BE_ATTACKED_PIERCE_SHIELD = "fixBeAttackedPierceShield";
         public const string FIX_CAN_MOVE = "fixCanMove";
+        public const string FIX_CAN_COUNTER_WHEN_DEAD = "fixCanCounterWhenDead";
 
         public const string FIX_SPEED = "fixSpeed";
         public const string FIX_ATTACK_DAMAGE = "fixAttackDamage";

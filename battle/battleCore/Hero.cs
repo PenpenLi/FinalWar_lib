@@ -554,6 +554,20 @@ namespace FinalWar
             battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.CAPTURE_MAP_AREA, ref _funcList, this, null);
         }
 
+        internal bool GetCanCounterWhenDead(Hero _hero)
+        {
+            int canCounterWhenDead = 0;
+
+            battle.eventListener.DispatchEvent(BattleConst.FIX_CAN_COUNTER_WHEN_DEAD, ref canCounterWhenDead, this, _hero);
+
+            return canCounterWhenDead > 0;
+        }
+
+
+
+
+
+
         public void GetDesc(ref List<int> _list)
         {
             battle.eventListener.DispatchEvent(BattleConst.GET_AURA_DESC, ref _list, this);

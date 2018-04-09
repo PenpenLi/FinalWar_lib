@@ -897,7 +897,7 @@ namespace FinalWar
 
                                         defender.ProcessDamage();
 
-                                        if (defender.IsAlive())
+                                        if (defender.IsAlive() || defender.GetCanCounterWhenDead(attacker))
                                         {
                                             defender.Attack(attacker, ref funcList);
 
@@ -916,7 +916,7 @@ namespace FinalWar
 
                                         attacker.ProcessDamage();
 
-                                        if (attacker.IsAlive())
+                                        if (attacker.IsAlive() || attacker.GetCanCounterWhenDead(defender))
                                         {
                                             attacker.Attack(defender, ref funcList);
 
