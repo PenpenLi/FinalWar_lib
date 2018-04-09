@@ -111,6 +111,8 @@ namespace FinalWar
 
             oScore = mapData.oScore;
 
+            mMoney = oMoney = BattleConst.DEFAULT_MONEY;
+
             for (int i = 0; i < deckCardsNum && i < _mCards.Length; i++)
             {
                 SetCard(i, _mCards[i]);
@@ -139,8 +141,6 @@ namespace FinalWar
                     oHandCards.Add(oCards.Dequeue());
                 }
             }
-
-            mMoney = oMoney = BattleConst.DEFAULT_MONEY;
 
             for (int i = 0; i < mapSDS.GetHero().Length; i++)
             {
