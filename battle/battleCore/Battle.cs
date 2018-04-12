@@ -867,11 +867,15 @@ namespace FinalWar
 
                                 string defenderSpeedStr;
 
+                                int speedDiff;
+
                                 if (attacker.GetEqualSpeed(defender) || defender.GetEqualSpeed(attacker))
                                 {
                                     attackerSpeed = defenderSpeed = 0;
 
                                     attackerSpeedStr = defenderSpeedStr = "-";
+
+                                    speedDiff = 0;
                                 }
                                 else
                                 {
@@ -893,11 +897,11 @@ namespace FinalWar
                                     attackerSpeedStr = attackerSpeed.ToString();
 
                                     defenderSpeedStr = defenderSpeed.ToString();
+
+                                    speedDiff = attackerSpeed - defenderSpeed;
                                 }
 
                                 yield return new BattlePrepareAttackVO(cellData.pos, attackType, attacker.pos, attackerSpeedStr, defender.pos, defenderSpeedStr);
-
-                                int speedDiff = attackerSpeed - defenderSpeed;
 
                                 if (Math.Abs(speedDiff) < BattleConst.SPEED_GAP_1)
                                 {
