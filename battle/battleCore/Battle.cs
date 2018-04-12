@@ -1348,19 +1348,24 @@ namespace FinalWar
                 handCardsList = oHandCards;
             }
 
-            if (cards.Count > 0)
+            List<int> addList = null;
+
+            for (int i = 0; i < addCardsNum && cards.Count > 0 && handCardsList.Count < BattleConst.MAX_HAND_CARD_NUM; i++)
             {
-                List<int> addList = new List<int>();
+                int uid = cards.Dequeue();
 
-                for (int i = 0; i < addCardsNum && cards.Count > 0 && handCardsList.Count < BattleConst.MAX_HAND_CARD_NUM; i++)
+                handCardsList.Add(uid);
+
+                if (addList == null)
                 {
-                    int uid = cards.Dequeue();
-
-                    addList.Add(uid);
-
-                    handCardsList.Add(uid);
+                    addList = new List<int>();
                 }
 
+                addList.Add(uid);
+            }
+
+            if (addList != null)
+            {
                 yield return new BattleAddCardsVO(_isMine, addList);
             }
 
