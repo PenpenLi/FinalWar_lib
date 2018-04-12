@@ -241,7 +241,7 @@ namespace FinalWar
             return FixSpeed(speed);
         }
 
-        public int GetSpeedFix()
+        public int GetSpeedFixByClient()
         {
             return GetSpeedFix(null);
         }
@@ -487,10 +487,6 @@ namespace FinalWar
         {
             int doDamage = sds.GetAttack();
 
-            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_DAMAGE, ref doDamage, this, _hero);
-
-            battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_DAMAGE, ref doDamage, _hero, this);
-
             int shieldToDamage = 1;
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_SHIELD_TO_DAMAGE, ref shieldToDamage, this, _hero);
@@ -501,6 +497,10 @@ namespace FinalWar
             {
                 doDamage += nowShield;
             }
+
+            battle.eventListener.DispatchEvent(BattleConst.FIX_ATTACK_DAMAGE, ref doDamage, this, _hero);
+
+            battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_DAMAGE, ref doDamage, _hero, this);
 
             if (doDamage < 0)
             {
