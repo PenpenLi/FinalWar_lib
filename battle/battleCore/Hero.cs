@@ -563,6 +563,15 @@ namespace FinalWar
             return canCounterWhenDead > 0;
         }
 
+        internal bool GetEqualSpeed(Hero _hero)
+        {
+            int equalSpeed = 0;
+
+            battle.eventListener.DispatchEvent(BattleConst.FIX_EQUAL_SPEED, ref equalSpeed, this, _hero);
+
+            return equalSpeed > 0;
+        }
+
 
 
 
