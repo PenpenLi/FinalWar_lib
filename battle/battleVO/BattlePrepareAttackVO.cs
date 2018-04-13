@@ -14,13 +14,13 @@
         public AttackType attackType;
 
         public int attacker;
-        public string attackerSpeed;
+        public int attackerSpeed;
 
         public int defender;
-        public string defenderSpeed;
+        public int defenderSpeed;
 
 
-        public BattlePrepareAttackVO(int _pos, AttackType _attackType, int _attacker, string _attackerSpeed, int _defender, string _defenderSpeed)
+        public BattlePrepareAttackVO(int _pos, AttackType _attackType, int _attacker, int _attackerSpeed, int _defender, int _defenderSpeed)
         {
             pos = _pos;
 

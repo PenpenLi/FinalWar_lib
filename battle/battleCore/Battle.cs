@@ -827,6 +827,8 @@ namespace FinalWar
 
                                 Hero defender;
 
+                                int defenderSpeedReal;
+
                                 AttackType attackType;
 
                                 if (cellData.stander != null && cellData.stander.action == Hero.HeroAction.DEFENSE)
@@ -836,12 +838,16 @@ namespace FinalWar
                                     defender.DoCounter();
 
                                     attackType = AttackType.A_D;
+
+                                    defenderSpeedReal = defender.GetDefenseSpeed(attacker);
                                 }
                                 else if (cellData.supporters.Count > 0)
                                 {
                                     defender = cellData.supporters[0];
 
                                     attackType = AttackType.A_S;
+
+                                    defenderSpeedReal = defender.GetSupportSpeed(attacker);
                                 }
                                 else
                                 {
@@ -857,51 +863,37 @@ namespace FinalWar
                                     checkedPosDic.Add(attacker.pos, true);
 
                                     attackType = AttackType.A_A;
+
+                                    defenderSpeedReal = defender.GetAttackSpeed(attacker);
                                 }
+
+                                int attackerSpeedReal = attacker.GetAttackSpeed(defender);
 
                                 int attackerSpeed;
 
                                 int defenderSpeed;
 
-                                string attackerSpeedStr;
-
-                                string defenderSpeedStr;
-
-                                int speedDiff;
-
-                                if (attacker.GetEqualSpeed(defender) || defender.GetEqualSpeed(attacker))
+                                if (attacker.GetEqualOppSpeed(defender))
                                 {
-                                    attackerSpeed = defenderSpeed = 0;
-
-                                    attackerSpeedStr = defenderSpeedStr = "-";
-
-                                    speedDiff = 0;
+                                    attackerSpeed = defenderSpeedReal;
                                 }
                                 else
                                 {
-                                    attackerSpeed = attacker.GetAttackSpeed(defender);
-
-                                    if (attackType == AttackType.A_A)
-                                    {
-                                        defenderSpeed = defender.GetAttackSpeed(attacker);
-                                    }
-                                    else if (attackType == AttackType.A_D)
-                                    {
-                                        defenderSpeed = defender.GetDefenseSpeed(attacker);
-                                    }
-                                    else
-                                    {
-                                        defenderSpeed = defender.GetSupportSpeed(attacker);
-                                    }
-
-                                    attackerSpeedStr = attackerSpeed.ToString();
-
-                                    defenderSpeedStr = defenderSpeed.ToString();
-
-                                    speedDiff = attackerSpeed - defenderSpeed;
+                                    attackerSpeed = attackerSpeedReal;
                                 }
 
-                                yield return new BattlePrepareAttackVO(cellData.pos, attackType, attacker.pos, attackerSpeedStr, defender.pos, defenderSpeedStr);
+                                if (defender.GetEqualOppSpeed(attacker))
+                                {
+                                    defenderSpeed = attackerSpeedReal;
+                                }
+                                else
+                                {
+                                    defenderSpeed = defenderSpeedReal;
+                                }
+
+                                yield return new BattlePrepareAttackVO(cellData.pos, attackType, attacker.pos, attackerSpeed, defender.pos, defenderSpeed);
+
+                                int speedDiff = attackerSpeed - defenderSpeed;
 
                                 if (Math.Abs(speedDiff) < BattleConst.SPEED_GAP_1)
                                 {
