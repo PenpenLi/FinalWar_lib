@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
 using bt;
-using System.Xml;
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting;
-using System.Collections;
 
 namespace FinalWar
 {
@@ -32,17 +29,17 @@ namespace FinalWar
             aiSummonData = new AiSummonData();
         }
 
-        public static void Start(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack)
+        public static void Start(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _action, Dictionary<int, int> _summon)
         {
-            ClearAction(_battle, _isMine);
+            ActionHero(_battle, _isMine, _getRandomValueCallBack, _action);
 
-            ActionHero(_battle, _isMine, _getRandomValueCallBack);
-
-            SummonHero(_battle, _isMine, _getRandomValueCallBack);
+            SummonHero(_battle, _isMine, _getRandomValueCallBack, _summon);
         }
 
-        private static void ActionHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack)
+        private static void ActionHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _action)
         {
+            aiActionData.result = _action;
+
             List<Hero> heroList = null;
 
             IEnumerator<Hero> enumerator = _battle.heroMapDic.Values.GetEnumerator();
@@ -77,76 +74,17 @@ namespace FinalWar
                     aiActionData.dic.Clear();
                 }
             }
+
+            aiActionData.result = null;
         }
 
-        private static void SummonHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack)
+        private static void SummonHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _summon)
         {
+            aiSummonData.result = _summon;
+
             summonBtRoot.Enter(_getRandomValueCallBack, _battle, _isMine, aiSummonData);
-        }
 
-        private static void ClearAction(Battle _battle, bool _isMine)
-        {
-            List<int> delList = null;
-
-            IEnumerator<KeyValuePair<int, int>> enumerator = _battle.GetSummonEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                KeyValuePair<int, int> pair = enumerator.Current;
-
-                int pos = pair.Value;
-
-                bool b = _battle.GetPosIsMine(pos);
-
-                if (b == _isMine)
-                {
-                    if (delList == null)
-                    {
-                        delList = new List<int>();
-                    }
-
-                    delList.Add(pair.Key);
-                }
-            }
-
-            if (delList != null)
-            {
-                for (int i = 0; i < delList.Count; i++)
-                {
-                    _battle.DelSummon(delList[i]);
-                }
-
-                delList.Clear();
-            }
-
-            enumerator = _battle.GetActionEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                KeyValuePair<int, int> pair = enumerator.Current;
-
-                int pos = pair.Key;
-
-                bool b = _battle.GetPosIsMine(pos);
-
-                if (b == _isMine)
-                {
-                    if (delList == null)
-                    {
-                        delList = new List<int>();
-                    }
-
-                    delList.Add(pair.Key);
-                }
-            }
-
-            if (delList != null)
-            {
-                for (int i = 0; i < delList.Count; i++)
-                {
-                    _battle.DelAction(delList[i]);
-                }
-            }
+            aiSummonData.result = null;
         }
 
 
@@ -155,7 +93,8 @@ namespace FinalWar
 
 
 
-        public static Dictionary<int, List<int>> GetSummonPosToEmemyAreaList(Battle _battle, bool _isMine, int _max)
+
+        public static Dictionary<int, List<int>> GetSummonPosToEmemyAreaList(Battle _battle, bool _isMine, int _max, Dictionary<int, int> _summon)
         {
             int startPos = _isMine ? _battle.mapData.oBase : _battle.mapData.mBase;
 
@@ -232,7 +171,7 @@ namespace FinalWar
 
                 int range = pair.Value;
 
-                if (range > -1 && range < _max && _battle.CheckPosCanSummon(_isMine, pos))
+                if (range > -1 && range < _max && !_summon.ContainsValue(pos) && _battle.CheckPosCanSummon(_isMine, pos))
                 {
                     if (result == null)
                     {
@@ -255,7 +194,7 @@ namespace FinalWar
             return result;
         }
 
-        public static Dictionary<int, List<int>> GetSummonPosToEmemyHeroList(Battle _battle, bool _isMine, int _max)
+        public static Dictionary<int, List<int>> GetSummonPosToEmemyHeroList(Battle _battle, bool _isMine, int _max, Dictionary<int, int> _summon)
         {
             Dictionary<int, int> close = new Dictionary<int, int>();
 
@@ -338,7 +277,7 @@ namespace FinalWar
 
                 int range = pair.Value;
 
-                if (range > -1 && range < _max && _battle.CheckPosCanSummon(_isMine, pos))
+                if (range > -1 && range < _max && !_summon.ContainsValue(pos) && _battle.CheckPosCanSummon(_isMine, pos))
                 {
                     if (result == null)
                     {

@@ -21,14 +21,6 @@ namespace FinalWar
             }
         }
 
-        private enum CardState
-        {
-            N,
-            M,
-            O,
-            A
-        }
-
         private class BattleRecordData
         {
             public int roundNum;
@@ -68,8 +60,6 @@ namespace FinalWar
         private bool mOver;
 
         private bool oOver;
-
-        private CardState[] cardStateArr;
 
         private Action<bool, bool, MemoryStream> serverSendDataCallBack;
 
@@ -115,9 +105,7 @@ namespace FinalWar
 
             InitCards(recordData.deckCardsNum, _mCards, _oCards, out recordData.mCards, out recordData.oCards);
 
-            InitCardState(out cardStateArr, recordData);
-
-            if (processBattle)
+            if (processBattle || recordData.isVsAi)
             {
                 battle.InitBattle(recordData.mapID, recordData.maxRoundNum, recordData.deckCardsNum, recordData.addCardsNum, recordData.addMoney, recordData.mCards, recordData.oCards);
             }
@@ -169,26 +157,24 @@ namespace FinalWar
 
                     bool isOver;
 
-                    CardState tmpCardState;
+                    int[] cards;
 
                     if (_isMine)
                     {
                         isOver = mOver;
 
-                        tmpCardState = CardState.M;
+                        cards = recordData.mCards;
                     }
                     else
                     {
                         isOver = oOver;
 
-                        tmpCardState = CardState.O;
+                        cards = recordData.oCards;
                     }
 
                     bw.Write(_isMine);
 
-                    bw.Write(processBattle);
-
-                    bw.Write(recordData.isVsAi);
+                    bw.Write(processBattle || recordData.isVsAi);
 
                     bw.Write(recordData.mapID);
 
@@ -204,48 +190,75 @@ namespace FinalWar
 
                     bw.Write(recordData.oCards.Length);
 
-                    long pos = ms.Position;
+                    List<int> list = new List<int>();
 
-                    bw.Write(0);
+                    int cardIndex = 0;
 
-                    int num = 0;
-
-                    for (int i = 0; i < recordData.deckCardsNum; i++)
+                    for (int i = 0; i < BattleConst.DEFAULT_HAND_CARD_NUM; i++)
                     {
-                        int index = i;
-
-                        CardState cardState = cardStateArr[index];
-
-                        if (cardState == CardState.A || cardState == tmpCardState || (recordData.isVsAi && cardState != CardState.N))
+                        if (cardIndex < cards.Length)
                         {
-                            bw.Write(index);
+                            if (_isMine)
+                            {
+                                list.Add(cardIndex);
+                            }
+                            else
+                            {
+                                list.Add(recordData.deckCardsNum + cardIndex);
+                            }
 
-                            bw.Write(recordData.mCards[i]);
-
-                            num++;
-                        }
-
-                        index = recordData.deckCardsNum + i;
-
-                        cardState = cardStateArr[index];
-
-                        if (cardState == CardState.A || cardState == tmpCardState || (recordData.isVsAi && cardState != CardState.N))
-                        {
-                            bw.Write(index);
-
-                            bw.Write(recordData.oCards[i]);
-
-                            num++;
+                            cardIndex++;
                         }
                     }
 
-                    long pos2 = ms.Position;
+                    for (int i = 0; i < recordData.roundNum; i++)
+                    {
+                        BattleRecordRoundData roundData = recordData.data[i];
 
-                    ms.Position = pos;
+                        for (int m = 0; m < roundData.summon.Count; m++)
+                        {
+                            PlayerAction summon = roundData.summon[m];
 
-                    bw.Write(num);
+                            if ((summon.key < recordData.deckCardsNum && !_isMine) || (summon.key >= recordData.deckCardsNum && _isMine))
+                            {
+                                list.Add(summon.key);
+                            }
+                            else
+                            {
+                                if (cardIndex < cards.Length)
+                                {
+                                    if (_isMine)
+                                    {
+                                        list.Add(cardIndex);
+                                    }
+                                    else
+                                    {
+                                        list.Add(recordData.deckCardsNum + cardIndex);
+                                    }
 
-                    ms.Position = pos2;
+                                    cardIndex++;
+                                }
+                            }
+                        }
+                    }
+
+                    bw.Write(list.Count);
+
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        int index = list[i];
+
+                        bw.Write(index);
+
+                        if (index < recordData.deckCardsNum)
+                        {
+                            bw.Write(recordData.mCards[index]);
+                        }
+                        else
+                        {
+                            bw.Write(recordData.oCards[index - recordData.deckCardsNum]);
+                        }
+                    }
 
                     bw.Write(recordData.roundNum);
 
@@ -340,15 +353,38 @@ namespace FinalWar
                 {
                     using (BinaryWriter mBw = new BinaryWriter(mMs), oBw = new BinaryWriter(oMs))
                     {
-                        ServerSetCardState(cardStateArr, recordData, recordData.roundNum);
-
                         ServerStartBattleSetRandom(recordData, recordData.roundNum);
 
-                        ServerStartBattle(mBw, oBw, recordData);
-
-                        if (processBattle)
+                        if (processBattle || recordData.isVsAi)
                         {
-                            Battle.BattleResult battleResult = ProcessBattle(battle, recordData.data[recordData.roundNum], recordData.isVsAi);
+                            BattleRecordRoundData data = recordData.data[recordData.roundNum];
+
+                            if (recordData.isVsAi)
+                            {
+                                Dictionary<int, int> action = new Dictionary<int, int>();
+
+                                Dictionary<int, int> summon = new Dictionary<int, int>();
+
+                                BattleAi.Start(battle, false, random.Next, action, summon);
+
+                                IEnumerator<KeyValuePair<int, int>> enumerator = action.GetEnumerator();
+
+                                while (enumerator.MoveNext())
+                                {
+                                    data.action.Add(new PlayerAction(false, enumerator.Current.Key, enumerator.Current.Value));
+                                }
+
+                                enumerator = summon.GetEnumerator();
+
+                                while (enumerator.MoveNext())
+                                {
+                                    data.summon.Add(new PlayerAction(false, enumerator.Current.Key, enumerator.Current.Value));
+                                }
+                            }
+
+                            ServerStartBattle(mBw, oBw, recordData);
+
+                            Battle.BattleResult battleResult = ProcessBattle(battle, data);
 
                             recordData.roundNum++;
 
@@ -375,6 +411,8 @@ namespace FinalWar
                         }
                         else
                         {
+                            ServerStartBattle(mBw, oBw, recordData);
+
                             recordData.roundNum++;
 
                             if (recordData.roundNum == recordData.maxRoundNum)
@@ -436,8 +474,6 @@ namespace FinalWar
         {
             mOver = oOver = false;
 
-            cardStateArr = null;
-
             //save recordData
         }
 
@@ -447,20 +483,13 @@ namespace FinalWar
 
             recordData = ReadRecordDataFromBytes(_bytes);
 
-            InitCardState(out cardStateArr, recordData);
-
-            for (int i = 0; i < recordData.roundNum; i++)
-            {
-                ServerSetCardState(cardStateArr, recordData, i);
-            }
-
-            if (processBattle)
+            if (processBattle || recordData.isVsAi)
             {
                 battle.InitBattle(recordData.mapID, recordData.maxRoundNum, recordData.deckCardsNum, recordData.addCardsNum, recordData.addMoney, recordData.mCards, recordData.oCards);
 
                 for (int i = 0; i < recordData.roundNum; i++)
                 {
-                    ProcessBattle(battle, recordData.data[i], recordData.isVsAi);
+                    ProcessBattle(battle, recordData.data[i]);
                 }
             }
         }
@@ -548,21 +577,6 @@ namespace FinalWar
             }
         }
 
-        private static void InitCardState(out CardState[] _cardStateArr, BattleRecordData _recordData)
-        {
-            _cardStateArr = new CardState[_recordData.deckCardsNum * 2];
-
-            for (int i = 0; i < _recordData.mCards.Length && i < BattleConst.DEFAULT_HAND_CARD_NUM; i++)
-            {
-                _cardStateArr[i] = CardState.M;
-            }
-
-            for (int i = 0; i < _recordData.oCards.Length && i < BattleConst.DEFAULT_HAND_CARD_NUM; i++)
-            {
-                _cardStateArr[_recordData.deckCardsNum + i] = CardState.O;
-            }
-        }
-
         private static void WriteRoundDataToStream(BinaryWriter _bw, BattleRecordRoundData _data)
         {
             _bw.Write(_data.summon.Count);
@@ -594,37 +608,6 @@ namespace FinalWar
             _bw.Write(_data.randomSeed);
         }
 
-        private static void ServerSetCardState(CardState[] _cardStateArr, BattleRecordData _recordData, int _roundNum)
-        {
-            BattleRecordRoundData data = _recordData.data[_roundNum];
-
-            for (int i = 0; i < data.summon.Count; i++)
-            {
-                int uid = data.summon[i].key;
-
-                _cardStateArr[uid] = CardState.A;
-            }
-
-            for (int i = 0; i < _recordData.addCardsNum; i++)
-            {
-                int index = BattleConst.DEFAULT_HAND_CARD_NUM + _roundNum * _recordData.addCardsNum + i;
-
-                if (index < _recordData.mCards.Length)
-                {
-                    int uid = index;
-
-                    _cardStateArr[uid] = CardState.M;
-                }
-
-                if (index < _recordData.oCards.Length)
-                {
-                    int uid = _recordData.deckCardsNum + index;
-
-                    _cardStateArr[uid] = CardState.O;
-                }
-            }
-        }
-
         private static void ServerStartBattleSetRandom(BattleRecordData _recordData, int _roundNum)
         {
             _recordData.data[_roundNum].randomSeed = random.Next();
@@ -632,6 +615,48 @@ namespace FinalWar
 
         private static void ServerStartBattle(BinaryWriter _mBw, BinaryWriter _oBw, BattleRecordData _recordData)
         {
+            int mCardIndex = 0;
+
+            int oCardIndex = 0;
+
+            for (int i = 0; i < BattleConst.DEFAULT_HAND_CARD_NUM; i++)
+            {
+                if (mCardIndex < _recordData.mCards.Length)
+                {
+                    mCardIndex++;
+                }
+
+                if (oCardIndex < _recordData.oCards.Length)
+                {
+                    oCardIndex++;
+                }
+            }
+
+            for (int i = 0; i < _recordData.roundNum; i++)
+            {
+                List<PlayerAction> summon = _recordData.data[i].summon;
+
+                for (int m = 0; m < summon.Count; m++)
+                {
+                    PlayerAction playerAction = summon[m];
+
+                    if (playerAction.key < _recordData.deckCardsNum)
+                    {
+                        if (mCardIndex < _recordData.mCards.Length)
+                        {
+                            mCardIndex++;
+                        }
+                    }
+                    else
+                    {
+                        if (oCardIndex < _recordData.oCards.Length)
+                        {
+                            oCardIndex++;
+                        }
+                    }
+                }
+            }
+
             _mBw.Write(PackageTag.S2C_DOACTION);
 
             _oBw.Write(PackageTag.S2C_DOACTION);
@@ -660,69 +685,42 @@ namespace FinalWar
 
                 _oBw.Write(uid);
 
+                mNum++;
+
+                oNum++;
+
                 if (uid < _recordData.deckCardsNum)
                 {
                     _mBw.Write(_recordData.mCards[uid]);
 
                     _oBw.Write(_recordData.mCards[uid]);
+
+                    if (mCardIndex < _recordData.mCards.Length)
+                    {
+                        _mBw.Write(mCardIndex);
+
+                        _mBw.Write(_recordData.mCards[mCardIndex]);
+
+                        mCardIndex++;
+
+                        mNum++;
+                    }
                 }
                 else
                 {
                     _mBw.Write(_recordData.oCards[uid - _recordData.deckCardsNum]);
 
                     _oBw.Write(_recordData.oCards[uid - _recordData.deckCardsNum]);
-                }
 
-                mNum++;
-
-                oNum++;
-            }
-
-            for (int i = 0; i < _recordData.addCardsNum; i++)
-            {
-                int index = BattleConst.DEFAULT_HAND_CARD_NUM + _recordData.roundNum * _recordData.addCardsNum + i;
-
-                if (index < _recordData.mCards.Length)
-                {
-                    int uid = index;
-
-                    int id = _recordData.mCards[index];
-
-                    _mBw.Write(uid);
-
-                    _mBw.Write(id);
-
-                    mNum++;
-
-                    if (_recordData.isVsAi)
+                    if (oCardIndex < _recordData.oCards.Length)
                     {
-                        _oBw.Write(uid);
+                        _oBw.Write(oCardIndex + _recordData.deckCardsNum);
 
-                        _oBw.Write(id);
+                        _oBw.Write(_recordData.oCards[oCardIndex]);
+
+                        oCardIndex++;
 
                         oNum++;
-                    }
-                }
-
-                if (index < _recordData.oCards.Length)
-                {
-                    int uid = _recordData.deckCardsNum + index;
-
-                    int id = _recordData.oCards[index];
-
-                    _oBw.Write(uid);
-
-                    _oBw.Write(id);
-
-                    oNum++;
-
-                    if (_recordData.isVsAi)
-                    {
-                        _mBw.Write(uid);
-
-                        _mBw.Write(id);
-
-                        mNum++;
                     }
                 }
             }
@@ -736,7 +734,7 @@ namespace FinalWar
             _oBw.Write(oNum);
         }
 
-        private static Battle.BattleResult ProcessBattle(Battle _battle, BattleRecordRoundData _data, bool _isVsAi)
+        private static Battle.BattleResult ProcessBattle(Battle _battle, BattleRecordRoundData _data)
         {
             IEnumerator<PlayerAction> enumerator2 = _data.action.GetEnumerator();
 
@@ -764,11 +762,6 @@ namespace FinalWar
 
             _battle.SetRandomSeed(_data.randomSeed);
 
-            if (_isVsAi)
-            {
-                BattleAi.Start(_battle, false, _battle.GetRandomValue);
-            }
-
             SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(_battle.StartBattle());
 
             superEnumerator.Done();
@@ -784,7 +777,7 @@ namespace FinalWar
 
             for (int i = 0; i < _recordData.roundNum; i++)
             {
-                battleResult = ProcessBattle(_battle, _recordData.data[i], _recordData.isVsAi);
+                battleResult = ProcessBattle(_battle, _recordData.data[i]);
 
                 if (battleResult != Battle.BattleResult.NOT_OVER)
                 {

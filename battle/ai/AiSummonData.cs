@@ -11,5 +11,7 @@ namespace FinalWar
         internal int id;
 
         internal int money;
+
+        internal Dictionary<int, int> result;
     }
 }

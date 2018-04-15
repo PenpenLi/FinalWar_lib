@@ -16,7 +16,7 @@ namespace FinalWar
 
             int target = list[index];
 
-            _t.AddAction(_u.isMine, _u.pos, target);
+            _v.result.Add(_u.pos, target);
 
             return true;
         }

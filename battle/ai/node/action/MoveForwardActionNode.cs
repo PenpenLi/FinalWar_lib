@@ -14,7 +14,7 @@ namespace FinalWar
 
             List<int> list = BattleAStar.Find(_t.mapData, _u.pos, target, value, _getRandomValueCallBack);
 
-            _t.AddAction(_u.isMine, _u.pos, list[0]);
+            _v.result.Add(_u.pos, list[0]);
 
             return true;
         }

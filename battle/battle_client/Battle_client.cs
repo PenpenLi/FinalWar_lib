@@ -18,8 +18,6 @@ namespace FinalWar
 
         private bool serverProcessBattle;
 
-        private bool isVsAi;
-
         private Battle simulateBattle = new Battle();
 
         public void ClientSetCallBack(Action<MemoryStream, Action<BinaryReader>> _clientSendDataCallBack, Action _clientRefreshDataCallBack, Action<SuperEnumerator<ValueType>> _clientDoActionCallBack, Action<BattleResult> _clientBattleOverCallBack)
@@ -59,8 +57,6 @@ namespace FinalWar
             Log.Write("ClientRefreshData  isMine:" + clientIsMine);
 
             serverProcessBattle = _br.ReadBoolean();
-
-            isVsAi = _br.ReadBoolean();
 
             int mapID = _br.ReadInt32();
 
@@ -116,16 +112,6 @@ namespace FinalWar
                     _br.BaseStream.Position = pos;
 
                     ReadRoundDataFromStream(_br, simulateBattle);
-                }
-
-                if (isVsAi)
-                {
-                    BattleAi.Start(this, false, GetRandomValue);
-
-                    if (!serverProcessBattle)
-                    {
-                        BattleAi.Start(simulateBattle, false, simulateBattle.GetRandomValue);
-                    }
                 }
 
                 SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(StartBattle());
@@ -300,16 +286,6 @@ namespace FinalWar
                 if (!serverProcessBattle)
                 {
                     simulateBattle.SetCard(uid, id);
-                }
-            }
-
-            if (isVsAi)
-            {
-                BattleAi.Start(this, false, GetRandomValue);
-
-                if (!serverProcessBattle)
-                {
-                    BattleAi.Start(simulateBattle, false, simulateBattle.GetRandomValue);
                 }
             }
 

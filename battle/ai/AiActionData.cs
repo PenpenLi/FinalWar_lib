@@ -6,6 +6,8 @@ namespace FinalWar
     {
         internal Dictionary<string, List<int>> dic = new Dictionary<string, List<int>>();
 
+        internal Dictionary<int, int> result;
+
         internal void Add(string _key, List<int> _list)
         {
             dic.Add(_key, _list);

@@ -16,12 +16,7 @@ namespace FinalWar
 
             int pos = list[index];
 
-            bool b = _t.AddSummon(_u, _v.uid, pos);
-
-            if (!b)
-            {
-                throw new Exception("SummonActionNode error!");
-            }
+            _v.result.Add(_v.uid, pos);
 
             list.RemoveAt(index);
 
