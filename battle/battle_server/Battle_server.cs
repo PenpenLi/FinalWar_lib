@@ -233,7 +233,7 @@ namespace FinalWar
                                     }
                                     else
                                     {
-                                        list.Add(recordData.deckCardsNum + cardIndex);
+                                        list.Add(cardIndex + recordData.deckCardsNum);
                                     }
 
                                     cardIndex++;
@@ -681,19 +681,13 @@ namespace FinalWar
             {
                 int uid = data.summon[i].key;
 
-                _mBw.Write(uid);
-
-                _oBw.Write(uid);
-
-                mNum++;
-
-                oNum++;
-
                 if (uid < _recordData.deckCardsNum)
                 {
-                    _mBw.Write(_recordData.mCards[uid]);
+                    _oBw.Write(uid);
 
                     _oBw.Write(_recordData.mCards[uid]);
+
+                    oNum++;
 
                     if (mCardIndex < _recordData.mCards.Length)
                     {
@@ -708,9 +702,11 @@ namespace FinalWar
                 }
                 else
                 {
+                    _mBw.Write(uid);
+
                     _mBw.Write(_recordData.oCards[uid - _recordData.deckCardsNum]);
 
-                    _oBw.Write(_recordData.oCards[uid - _recordData.deckCardsNum]);
+                    mNum++;
 
                     if (oCardIndex < _recordData.oCards.Length)
                     {
