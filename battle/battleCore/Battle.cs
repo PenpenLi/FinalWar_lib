@@ -897,7 +897,7 @@ namespace FinalWar
 
                                 if (Math.Abs(speedDiff) < BattleConst.SPEED_GAP_1)
                                 {
-                                    if (speedDiff < BattleConst.SPEED_GAP_0)
+                                    if (Math.Abs(speedDiff) < BattleConst.SPEED_GAP_0)
                                     {
                                         attacker.Attack(defender, ref funcList);
 

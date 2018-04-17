@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using superEnumerator;
+using System.Collections;
 
 namespace FinalWar
 {
@@ -382,7 +383,7 @@ namespace FinalWar
                                 }
                             }
 
-                            ServerStartBattle(mBw, oBw, recordData);
+                            ServerStartBattle(mBw, oBw, recordData, recordData.roundNum);
 
                             Battle.BattleResult battleResult = ProcessBattle(battle, data);
 
@@ -411,7 +412,7 @@ namespace FinalWar
                         }
                         else
                         {
-                            ServerStartBattle(mBw, oBw, recordData);
+                            ServerStartBattle(mBw, oBw, recordData, recordData.roundNum);
 
                             recordData.roundNum++;
 
@@ -490,6 +491,40 @@ namespace FinalWar
                 for (int i = 0; i < recordData.roundNum; i++)
                 {
                     ProcessBattle(battle, recordData.data[i]);
+                }
+            }
+        }
+
+        public IEnumerator FromBytesAndReplay(byte[] _bytes)
+        {
+            ResetData();
+
+            recordData = ReadRecordDataFromBytes(_bytes);
+
+            int roundNum = recordData.roundNum;
+
+            recordData.roundNum = 0;
+
+            yield return null;
+
+            for (int i = 0; i < roundNum; i++)
+            {
+                using (MemoryStream mMs = new MemoryStream(), oMs = new MemoryStream())
+                {
+                    using (BinaryWriter mBw = new BinaryWriter(mMs), oBw = new BinaryWriter(oMs))
+                    {
+                        BattleRecordRoundData data = recordData.data[i];
+
+                        ServerStartBattle(mBw, oBw, recordData, i);
+
+                        recordData.roundNum++;
+
+                        serverSendDataCallBack(true, true, mMs);
+
+                        serverSendDataCallBack(false, true, oMs);
+
+                        yield return null;
+                    }
                 }
             }
         }
@@ -613,7 +648,7 @@ namespace FinalWar
             _recordData.data[_roundNum].randomSeed = random.Next();
         }
 
-        private static void ServerStartBattle(BinaryWriter _mBw, BinaryWriter _oBw, BattleRecordData _recordData)
+        private static void ServerStartBattle(BinaryWriter _mBw, BinaryWriter _oBw, BattleRecordData _recordData, int _roundNum)
         {
             int mCardIndex = 0;
 
@@ -632,7 +667,7 @@ namespace FinalWar
                 }
             }
 
-            for (int i = 0; i < _recordData.roundNum; i++)
+            for (int i = 0; i < _roundNum; i++)
             {
                 List<PlayerAction> summon = _recordData.data[i].summon;
 
@@ -661,7 +696,7 @@ namespace FinalWar
 
             _oBw.Write(PackageTag.S2C_DOACTION);
 
-            BattleRecordRoundData data = _recordData.data[_recordData.roundNum];
+            BattleRecordRoundData data = _recordData.data[_roundNum];
 
             WriteRoundDataToStream(_mBw, data);
 
