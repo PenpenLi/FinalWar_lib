@@ -33,7 +33,7 @@ namespace FinalWar
         {
             ActionHero(_battle, _isMine, _getRandomValueCallBack, _action);
 
-            SummonHero(_battle, _isMine, _getRandomValueCallBack, _summon);
+            SummonHero(_battle, _isMine, _getRandomValueCallBack, _summon, _action);
         }
 
         private static void ActionHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _action)
@@ -78,9 +78,11 @@ namespace FinalWar
             aiActionData.result = null;
         }
 
-        private static void SummonHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _summon)
+        private static void SummonHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _summon, Dictionary<int, int> _action)
         {
             aiSummonData.result = _summon;
+
+            aiSummonData.action = _action;
 
             summonBtRoot.Enter(_getRandomValueCallBack, _battle, _isMine, aiSummonData);
 
@@ -94,7 +96,7 @@ namespace FinalWar
 
 
 
-        public static Dictionary<int, List<int>> GetSummonPosToEmemyAreaList(Battle _battle, bool _isMine, int _max, Dictionary<int, int> _summon)
+        public static Dictionary<int, List<int>> GetSummonPosToEmemyAreaList(Battle _battle, bool _isMine, int _max, Dictionary<int, int> _summon, Dictionary<int, int> _action)
         {
             int startPos = _isMine ? _battle.mapData.oBase : _battle.mapData.mBase;
 
@@ -171,7 +173,7 @@ namespace FinalWar
 
                 int range = pair.Value;
 
-                if (range > -1 && range < _max && !_summon.ContainsValue(pos) && _battle.CheckPosCanSummon(_isMine, pos))
+                if (range > -1 && range < _max && !_summon.ContainsValue(pos) && _battle.CheckPosCanSummon(_isMine, pos) == -1 && !_action.ContainsValue(pos))
                 {
                     if (result == null)
                     {
@@ -194,7 +196,7 @@ namespace FinalWar
             return result;
         }
 
-        public static Dictionary<int, List<int>> GetSummonPosToEmemyHeroList(Battle _battle, bool _isMine, int _max, Dictionary<int, int> _summon)
+        public static Dictionary<int, List<int>> GetSummonPosToEmemyHeroList(Battle _battle, bool _isMine, int _max, Dictionary<int, int> _summon, Dictionary<int, int> _action)
         {
             Dictionary<int, int> close = new Dictionary<int, int>();
 
@@ -277,7 +279,7 @@ namespace FinalWar
 
                 int range = pair.Value;
 
-                if (range > -1 && range < _max && !_summon.ContainsValue(pos) && _battle.CheckPosCanSummon(_isMine, pos))
+                if (range > -1 && range < _max && !_summon.ContainsValue(pos) && _battle.CheckPosCanSummon(_isMine, pos) == -1 && !_action.ContainsValue(pos))
                 {
                     if (result == null)
                     {

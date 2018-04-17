@@ -165,7 +165,7 @@ namespace FinalWar
             _battle.SetRandomSeed(randomSeed);
         }
 
-        public bool ClientRequestSummon(int _cardUid, int _pos)
+        public int ClientRequestSummon(int _cardUid, int _pos)
         {
             return AddSummon(clientIsMine, _cardUid, _pos);
         }
@@ -188,7 +188,7 @@ namespace FinalWar
             }
         }
 
-        public bool ClientRequestAction(int _pos, int _targetPos)
+        public int ClientRequestAction(int _pos, int _targetPos)
         {
             return AddAction(clientIsMine, _pos, _targetPos);
         }

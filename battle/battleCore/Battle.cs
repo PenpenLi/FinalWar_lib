@@ -1445,7 +1445,7 @@ namespace FinalWar
             return summon.ContainsValue(_pos);
         }
 
-        internal bool AddSummon(bool _isMine, int _uid, int _pos)
+        internal int AddSummon(bool _isMine, int _uid, int _pos)
         {
             List<int> handCards;
 
@@ -1470,18 +1470,32 @@ namespace FinalWar
 
                 IHeroSDS sds = GetHeroData(GetCard(_uid));
 
-                if (sds.GetCost() <= nowMoney && !GetSummonContainsKey(_uid) && CheckPosCanSummon(_isMine, _pos))
+                if (sds.GetCost() > nowMoney)
+                {
+                    return 10;
+                }
+                else if (GetSummonContainsKey(_uid))
+                {
+                    return 11;
+                }
+                else if (CheckPosCanSummon(_isMine, _pos) != -1)
+                {
+                    return CheckPosCanSummon(_isMine, _pos);
+                }
+                else
                 {
                     AddSummon(_uid, _pos);
 
-                    return true;
+                    return -1;
                 }
             }
-
-            return false;
+            else
+            {
+                return 13;
+            }
         }
 
-        public bool CheckPosCanSummon(bool _isMine, int _pos)
+        public int CheckPosCanSummon(bool _isMine, int _pos)
         {
             MapData.MapUnitType mapUnitType;
 
@@ -1489,17 +1503,17 @@ namespace FinalWar
             {
                 if (mapUnitType != MapData.MapUnitType.M_AREA && mapUnitType != MapData.MapUnitType.O_AREA)
                 {
-                    return false;
+                    return 0;
                 }
 
                 if (GetPosIsMine(_pos) != _isMine)
                 {
-                    return false;
+                    return 1;
                 }
             }
             else
             {
-                return false;
+                return 2;
             }
 
             for (int i = 0; i < action.Count; i++)
@@ -1508,7 +1522,7 @@ namespace FinalWar
 
                 if (pair.Value == _pos)
                 {
-                    return false;
+                    return 3;
                 }
             }
 
@@ -1540,7 +1554,7 @@ namespace FinalWar
 
                                     if (pair.Value == _pos)
                                     {
-                                        return false;
+                                        return 4;
                                     }
 
                                     break;
@@ -1553,18 +1567,18 @@ namespace FinalWar
 
                                 if (tmpList != null && tmpList.Contains(_pos))
                                 {
-                                    return false;
+                                    return 5;
                                 }
                             }
                         }
                     }
                 }
 
-                return true;
+                return -1;
             }
             else
             {
-                return false;
+                return 6;
             }
         }
 
@@ -1629,23 +1643,23 @@ namespace FinalWar
             return -1;
         }
 
-        internal bool AddAction(bool _isMine, int _pos, int _targetPos)
+        internal int AddAction(bool _isMine, int _pos, int _targetPos)
         {
             Hero hero;
 
             if (!heroMapDic.TryGetValue(_pos, out hero))
             {
-                return false;
+                return 1;
             }
 
             if (hero.isMine != _isMine)
             {
-                return false;
+                return 2;
             }
 
             if (!hero.GetCanAction())
             {
-                return false;
+                return 3;
             }
 
             MapData.MapUnitType mapUnitType;
@@ -1654,17 +1668,17 @@ namespace FinalWar
             {
                 if (mapUnitType != MapData.MapUnitType.M_AREA && mapUnitType != MapData.MapUnitType.O_AREA)
                 {
-                    return false;
+                    return 4;
                 }
             }
             else
             {
-                return false;
+                return 5;
             }
 
             if (GetActionContainsKey(_pos) != -1)
             {
-                return false;
+                return 6;
             }
 
             bool targetPosIsMine = GetPosIsMine(_targetPos);
@@ -1677,7 +1691,7 @@ namespace FinalWar
                 {
                     if (GetSummonContainsValue(_targetPos))
                     {
-                        return false;
+                        return 7;
                     }
                 }
                 else
@@ -1705,7 +1719,7 @@ namespace FinalWar
                                 {
                                     if (targetHero.sds.GetHeroType().GetThread() > nowThreadLevel)
                                     {
-                                        return false;
+                                        return 8;
                                     }
                                 }
                             }
@@ -1715,7 +1729,7 @@ namespace FinalWar
 
                 AddAction(_pos, _targetPos);
 
-                return true;
+                return -1;
             }
             else
             {
@@ -1727,11 +1741,11 @@ namespace FinalWar
                     {
                         AddAction(_pos, _targetPos);
 
-                        return true;
+                        return -1;
                     }
                 }
 
-                return false;
+                return 9;
             }
         }
 

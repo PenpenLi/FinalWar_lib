@@ -736,11 +736,11 @@ namespace FinalWar
 
             while (enumerator2.MoveNext())
             {
-                bool b = _battle.AddAction(enumerator2.Current.isMine, enumerator2.Current.key, enumerator2.Current.value);
+                int result = _battle.AddAction(enumerator2.Current.isMine, enumerator2.Current.key, enumerator2.Current.value);
 
-                if (!b)
+                if (result != -1)
                 {
-                    throw new Exception("action error!");
+                    throw new Exception("action error:" + result);
                 }
             }
 
@@ -748,11 +748,11 @@ namespace FinalWar
 
             while (enumerator2.MoveNext())
             {
-                bool b = _battle.AddSummon(enumerator2.Current.isMine, enumerator2.Current.key, enumerator2.Current.value);
+                int result = _battle.AddSummon(enumerator2.Current.isMine, enumerator2.Current.key, enumerator2.Current.value);
 
-                if (!b)
+                if (result != -1)
                 {
-                    throw new Exception("summon error!");
+                    throw new Exception("summon error:" + result);
                 }
             }
 
