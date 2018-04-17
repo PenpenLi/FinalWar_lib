@@ -31,14 +31,16 @@ namespace FinalWar
 
         public static void Start(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _action, Dictionary<int, int> _summon)
         {
-            ActionHero(_battle, _isMine, _getRandomValueCallBack, _action);
+            ActionHero(_battle, _isMine, _getRandomValueCallBack, _action, _summon);
 
-            SummonHero(_battle, _isMine, _getRandomValueCallBack, _summon, _action);
+            SummonHero(_battle, _isMine, _getRandomValueCallBack, _action, _summon);
         }
 
-        private static void ActionHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _action)
+        private static void ActionHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _action, Dictionary<int, int> _summon)
         {
-            aiActionData.result = _action;
+            aiActionData.action = _action;
+
+            aiActionData.summon = _summon;
 
             List<Hero> heroList = null;
 
@@ -75,18 +77,22 @@ namespace FinalWar
                 }
             }
 
-            aiActionData.result = null;
+            aiActionData.action = null;
+
+            aiActionData.summon = null;
         }
 
-        private static void SummonHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _summon, Dictionary<int, int> _action)
+        private static void SummonHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _action, Dictionary<int, int> _summon)
         {
-            aiSummonData.result = _summon;
-
             aiSummonData.action = _action;
+
+            aiSummonData.summon = _summon;
 
             summonBtRoot.Enter(_getRandomValueCallBack, _battle, _isMine, aiSummonData);
 
-            aiSummonData.result = null;
+            aiSummonData.action = null;
+
+            aiSummonData.summon = null;
         }
 
 

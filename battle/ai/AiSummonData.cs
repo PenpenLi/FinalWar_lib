@@ -14,6 +14,6 @@ namespace FinalWar
 
         internal Dictionary<int, int> action;
 
-        internal Dictionary<int, int> result;
+        internal Dictionary<int, int> summon;
     }
 }

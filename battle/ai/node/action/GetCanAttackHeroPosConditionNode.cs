@@ -10,11 +10,31 @@ namespace FinalWar
         {
             List<int> posList = BattlePublicTools.GetCanAttackHeroPos(_t, _u);
 
-            if (posList != null)
-            {
-                _v.Add(GetType().Name, posList);
+            return CheckResult(posList, _v);
+        }
 
-                return true;
+        protected bool CheckResult(List<int> _posList, AiActionData _v)
+        {
+            if (_posList != null)
+            {
+                for (int i = _posList.Count - 1; i > -1; i--)
+                {
+                    if (_v.summon.ContainsValue(_posList[i]))
+                    {
+                        _posList.RemoveAt(i);
+                    }
+                }
+
+                if (_posList.Count > 0)
+                {
+                    _v.Add(GetType().Name, _posList);
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {

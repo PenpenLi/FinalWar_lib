@@ -9,7 +9,7 @@ namespace FinalWar
 
         public override bool Enter(Func<int, int> _getRandomValueCallBack, Battle _t, bool _u, AiSummonData _v)
         {
-            _v.summonPosDic = BattleAi.GetSummonPosToEmemyHeroList(_t, _u, value, _v.result, _v.action);
+            _v.summonPosDic = BattleAi.GetSummonPosToEmemyHeroList(_t, _u, value, _v.summon, _v.action);
 
             return _v.summonPosDic != null;
         }

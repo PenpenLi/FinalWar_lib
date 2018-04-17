@@ -19,7 +19,7 @@ namespace FinalWar
 
             for (int i = handCards.Count - 1; i > -1; i--)
             {
-                if (_v.result.ContainsKey(handCards[i]))
+                if (_v.summon.ContainsKey(handCards[i]))
                 {
                     handCards.RemoveAt(i);
                 }
