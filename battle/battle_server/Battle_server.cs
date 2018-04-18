@@ -505,9 +505,12 @@ namespace FinalWar
 
             recordData.roundNum = 0;
 
-            yield return null;
+            return Replay(roundNum);
+        }
 
-            for (int i = 0; i < roundNum; i++)
+        private IEnumerator Replay(int _roundNum)
+        {
+            for (int i = 0; i < _roundNum; i++)
             {
                 using (MemoryStream mMs = new MemoryStream(), oMs = new MemoryStream())
                 {
