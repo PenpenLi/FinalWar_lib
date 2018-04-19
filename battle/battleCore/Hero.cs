@@ -322,9 +322,7 @@ namespace FinalWar
             }
             else if (nowShield < sds.GetShield())
             {
-                int recoverShield = sds.GetHeroType().GetRecoverShield();
-
-                battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_RECOVER_SHIELD, ref recoverShield, this, null);
+                int recoverShield = sds.GetHeroType().GetRecoverShield() + GetRecoverShieldValueFix();
 
                 if (recoverShield > beAttackedTimes)
                 {
@@ -414,9 +412,7 @@ namespace FinalWar
 
         private int GetFearValue()
         {
-            int fearValue = sds.GetHeroType().GetFearValue();
-
-            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_FEAR, ref fearValue, this, null);
+            int fearValue = sds.GetHeroType().GetFearValue() + GetFearValueFix();
 
             if (fearValue < 0)
             {
@@ -424,6 +420,24 @@ namespace FinalWar
             }
 
             return fearValue;
+        }
+
+        public int GetFearValueFix()
+        {
+            int fearValueFix = 0;
+
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_FEAR, ref fearValueFix, this, null);
+
+            return fearValueFix;
+        }
+
+        public int GetRecoverShieldValueFix()
+        {
+            int recoverShieldValueFix = 0;
+
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_RECOVER_SHIELD, ref recoverShieldValueFix, this, null);
+
+            return recoverShieldValueFix;
         }
 
         private void CheckFearReal()
