@@ -365,49 +365,120 @@ namespace FinalWar
 
         private bool CheckFear()
         {
-            List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
-
-            if (list.Count > 0)
+            if (BattleConst.CHECK_FEAR_WITH_NEIGHBOUR)
             {
-                int myNum = GetFearValue();
+                List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
 
-                int oppNum = 0;
-
-                bool hasOpp = false;
-
-                for (int i = 0; i < list.Count; i++)
+                if (list.Count > 0)
                 {
-                    Hero hero;
+                    int myNum = GetFearValue();
 
-                    if (battle.heroMapDic.TryGetValue(list[i], out hero))
+                    int oppNum = 0;
+
+                    bool hasOpp = false;
+
+                    for (int i = 0; i < list.Count; i++)
                     {
-                        if (hero.isMine == isMine)
-                        {
-                            myNum += hero.GetFearValue();
-                        }
-                        else
-                        {
-                            oppNum += hero.GetFearValue();
+                        Hero hero;
 
-                            hasOpp = true;
+                        if (battle.heroMapDic.TryGetValue(list[i], out hero))
+                        {
+                            if (hero.isMine == isMine)
+                            {
+                                myNum += hero.GetFearValue();
+                            }
+                            else
+                            {
+                                oppNum += hero.GetFearValue();
+
+                                hasOpp = true;
+                            }
+                        }
+                    }
+
+                    if (hasOpp)
+                    {
+                        int numDiff = oppNum - myNum + BattleConst.SPEED_DIFF_FIX;
+
+                        int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
+
+                        if (numDiff > randomValue)
+                        {
+                            return true;
                         }
                     }
                 }
 
-                if (hasOpp)
-                {
-                    int numDiff = oppNum - myNum + BattleConst.SPEED_DIFF_FIX;
-
-                    int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
-
-                    if (numDiff > randomValue)
-                    {
-                        return true;
-                    }
-                }
+                return false;
             }
+            else
+            {
+                List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
 
-            return false;
+                if (list.Count > 0)
+                {
+                    int myNum = GetFearValue();
+
+                    int oppNum = 0;
+
+                    bool hasOpp = false;
+
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        int pos2 = list[i];
+
+                        if (battle.GetPosIsMine(pos2) != isMine)
+                        {
+                            Hero oppHero;
+
+                            if (battle.heroMapDic.TryGetValue(pos2, out oppHero))
+                            {
+                                hasOpp = true;
+
+                                int oppFearValue = oppHero.GetFearValue();
+
+                                List<int> list2 = BattlePublicTools.GetNeighbourPos(battle.mapData, pos2);
+
+                                for (int m = 0; m < list2.Count; m++)
+                                {
+                                    int pos3 = list2[m];
+
+                                    if (pos3 != pos && battle.GetPosIsMine(pos3) == isMine)
+                                    {
+                                        Hero myHero;
+
+                                        if (battle.heroMapDic.TryGetValue(pos3, out myHero))
+                                        {
+                                            int myFearValue = myHero.GetFearValue();
+
+                                            oppFearValue -= myFearValue;
+                                        }
+                                    }
+                                }
+
+                                if (oppFearValue > 0)
+                                {
+                                    oppNum += oppFearValue;
+                                }
+                            }
+                        }
+                    }
+
+                    if (hasOpp)
+                    {
+                        int numDiff = oppNum - myNum + BattleConst.SPEED_DIFF_FIX;
+
+                        int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
+
+                        if (numDiff > randomValue)
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
         }
 
         private int GetFearValue()
