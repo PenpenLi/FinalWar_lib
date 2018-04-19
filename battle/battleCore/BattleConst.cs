@@ -10,10 +10,15 @@
         //public const int ADD_MONEY = 3;
         public const int MAX_MONEY = 10;
 
-        public const int MAX_SPEED = 2;
-        public const int MIN_SPEED = -2;
+        public const bool SPEED_WITH_RANDOM = true;
+
+        public const int MAX_SPEED = int.MaxValue;
+        public const int MIN_SPEED = int.MinValue;
+        //public const int MAX_SPEED = 2;
+        //public const int MIN_SPEED = -2;
         public const int SPEED_GAP_0 = 1;
         public const int SPEED_GAP_1 = 2;
+        public const int MAX_SPEED_VALUE = 3;
 
         public const int MAX_FEAR_VALUE = 3;
 

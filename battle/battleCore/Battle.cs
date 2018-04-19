@@ -895,9 +895,54 @@ namespace FinalWar
 
                                 int speedDiff = attackerSpeed - defenderSpeed;
 
-                                if (Math.Abs(speedDiff) < BattleConst.SPEED_GAP_1)
+                                if (BattleConst.SPEED_WITH_RANDOM)
                                 {
-                                    if (Math.Abs(speedDiff) < BattleConst.SPEED_GAP_0)
+                                    int speedDiffAbs = Math.Abs(speedDiff);
+
+                                    int value = GetRandomValue(BattleConst.MAX_SPEED_VALUE);
+
+                                    if (speedDiffAbs > value)
+                                    {
+                                        if (speedDiff > 0)
+                                        {
+                                            attacker.Attack(defender, ref funcList);
+
+                                            defender.BeAttacked();
+
+                                            yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
+
+                                            defender.ProcessDamage();
+
+                                            if (defender.IsAlive() || defender.GetCanCounterWhenDead(attacker))
+                                            {
+                                                defender.Attack(attacker, ref funcList);
+
+                                                attacker.BeAttacked();
+
+                                                yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            defender.Attack(attacker, ref funcList);
+
+                                            attacker.BeAttacked();
+
+                                            yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
+
+                                            attacker.ProcessDamage();
+
+                                            if (attacker.IsAlive() || attacker.GetCanCounterWhenDead(defender))
+                                            {
+                                                attacker.Attack(defender, ref funcList);
+
+                                                defender.BeAttacked();
+
+                                                yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
+                                            }
+                                        }
+                                    }
+                                    else
                                     {
                                         attacker.Attack(defender, ref funcList);
 
@@ -909,6 +954,62 @@ namespace FinalWar
 
                                         yield return new BattleAttackBothVO(cellData.pos, attacker.pos, defender.pos);
                                     }
+                                }
+                                else
+                                {
+                                    if (Math.Abs(speedDiff) < BattleConst.SPEED_GAP_1)
+                                    {
+                                        if (Math.Abs(speedDiff) < BattleConst.SPEED_GAP_0)
+                                        {
+                                            attacker.Attack(defender, ref funcList);
+
+                                            defender.Attack(attacker, ref funcList);
+
+                                            attacker.BeAttacked();
+
+                                            defender.BeAttacked();
+
+                                            yield return new BattleAttackBothVO(cellData.pos, attacker.pos, defender.pos);
+                                        }
+                                        else if (speedDiff > 0)
+                                        {
+                                            attacker.Attack(defender, ref funcList);
+
+                                            defender.BeAttacked();
+
+                                            yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
+
+                                            defender.ProcessDamage();
+
+                                            if (defender.IsAlive() || defender.GetCanCounterWhenDead(attacker))
+                                            {
+                                                defender.Attack(attacker, ref funcList);
+
+                                                attacker.BeAttacked();
+
+                                                yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            defender.Attack(attacker, ref funcList);
+
+                                            attacker.BeAttacked();
+
+                                            yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
+
+                                            attacker.ProcessDamage();
+
+                                            if (attacker.IsAlive() || attacker.GetCanCounterWhenDead(defender))
+                                            {
+                                                attacker.Attack(defender, ref funcList);
+
+                                                defender.BeAttacked();
+
+                                                yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
+                                            }
+                                        }
+                                    }
                                     else if (speedDiff > 0)
                                     {
                                         attacker.Attack(defender, ref funcList);
@@ -916,17 +1017,6 @@ namespace FinalWar
                                         defender.BeAttacked();
 
                                         yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
-
-                                        defender.ProcessDamage();
-
-                                        if (defender.IsAlive() || defender.GetCanCounterWhenDead(attacker))
-                                        {
-                                            defender.Attack(attacker, ref funcList);
-
-                                            attacker.BeAttacked();
-
-                                            yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
-                                        }
                                     }
                                     else
                                     {
@@ -935,34 +1025,7 @@ namespace FinalWar
                                         attacker.BeAttacked();
 
                                         yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
-
-                                        attacker.ProcessDamage();
-
-                                        if (attacker.IsAlive() || attacker.GetCanCounterWhenDead(defender))
-                                        {
-                                            attacker.Attack(defender, ref funcList);
-
-                                            defender.BeAttacked();
-
-                                            yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
-                                        }
                                     }
-                                }
-                                else if (speedDiff > 0)
-                                {
-                                    attacker.Attack(defender, ref funcList);
-
-                                    defender.BeAttacked();
-
-                                    yield return new BattleAttackAndCounterVO(cellData.pos, attacker.pos, defender.pos);
-                                }
-                                else
-                                {
-                                    defender.Attack(attacker, ref funcList);
-
-                                    attacker.BeAttacked();
-
-                                    yield return new BattleAttackAndCounterVO(cellData.pos, defender.pos, attacker.pos);
                                 }
 
                                 yield return new BattleAttackOverVO(cellData.pos, attackType, attacker.pos, defender.pos);
