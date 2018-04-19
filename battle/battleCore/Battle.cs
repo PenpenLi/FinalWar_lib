@@ -561,8 +561,6 @@ namespace FinalWar
 
                     if (linkedList != null)
                     {
-                        Dictionary<Hero, List<BattleHeroEffectVO>> result = new Dictionary<Hero, List<BattleHeroEffectVO>>();
-
                         IEnumerator<Tuple<int, Hero, Func<List<BattleHeroEffectVO>>>> enumerator3 = linkedList.GetEnumerator();
 
                         while (enumerator3.MoveNext())
@@ -573,33 +571,15 @@ namespace FinalWar
 
                             Func<List<BattleHeroEffectVO>> func = tuple.third;
 
-                            List<BattleHeroEffectVO> list;
-
-                            if (!result.TryGetValue(hero, out list))
-                            {
-                                list = new List<BattleHeroEffectVO>();
-
-                                result.Add(hero, list);
-                            }
-
                             List<BattleHeroEffectVO> vo = func();
-
-                            list.AddRange(vo);
-                        }
-
-                        IEnumerator<KeyValuePair<Hero, List<BattleHeroEffectVO>>> enumerator4 = result.GetEnumerator();
-
-                        while (enumerator4.MoveNext())
-                        {
-                            Hero hero = enumerator4.Current.Key;
 
                             if (hero.isMine == cellData.stander.isMine)
                             {
-                                yield return new BattleSupportVO(hero.pos, cellData.pos, enumerator4.Current.Value);
+                                yield return new BattleSupportVO(hero.pos, cellData.pos, vo);
                             }
                             else
                             {
-                                yield return new BattleShootVO(hero.pos, cellData.pos, enumerator4.Current.Value);
+                                yield return new BattleShootVO(hero.pos, cellData.pos, vo);
                             }
                         }
                     }
