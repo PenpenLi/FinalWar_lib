@@ -367,38 +367,45 @@ namespace FinalWar
 
         private bool CheckFear()
         {
-            int myNum = GetFearValue();
-
-            int oppNum = 0;
-
             List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
 
-            for (int i = 0; i < list.Count; i++)
+            if (list.Count > 0)
             {
-                Hero hero;
+                int myNum = GetFearValue();
 
-                if (battle.heroMapDic.TryGetValue(list[i], out hero))
+                int oppNum = 0;
+
+                bool hasOpp = false;
+
+                for (int i = 0; i < list.Count; i++)
                 {
-                    if (hero.isMine == isMine)
+                    Hero hero;
+
+                    if (battle.heroMapDic.TryGetValue(list[i], out hero))
                     {
-                        myNum += hero.GetFearValue();
-                    }
-                    else
-                    {
-                        oppNum += hero.GetFearValue();
+                        if (hero.isMine == isMine)
+                        {
+                            myNum += hero.GetFearValue();
+                        }
+                        else
+                        {
+                            oppNum += hero.GetFearValue();
+
+                            hasOpp = true;
+                        }
                     }
                 }
-            }
 
-            int numDiff = oppNum - myNum;
-
-            if (numDiff > 0)
-            {
-                int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
-
-                if (randomValue < numDiff)
+                if (hasOpp)
                 {
-                    return true;
+                    int numDiff = oppNum - myNum + BattleConst.SPEED_DIFF_FIX;
+
+                    int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
+
+                    if (numDiff > randomValue)
+                    {
+                        return true;
+                    }
                 }
             }
 
