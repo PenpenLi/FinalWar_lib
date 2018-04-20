@@ -557,29 +557,16 @@ namespace FinalWar
                 _mCardsResult = new int[_mCards.Count];
             }
 
-            for (int i = 0; i < _mCardsResult.Length; i++)
+            int[] tmpArr = new int[_mCards.Count];
+
+            for (int i = 0; i < _mCards.Count; i++)
             {
-                _mCardsResult[i] = _mCards[i];
+                tmpArr[i] = _mCards[i];
             }
 
-            int length = _mCardsResult.Length;
+            BattlePublicTools.Shuffle(tmpArr, random.Next);
 
-            while (length > 1)
-            {
-                int index = random.Next(length);
-
-                int lastIndex = length - 1;
-
-                int id = _mCardsResult[index];
-
-                int last = _mCardsResult[lastIndex];
-
-                _mCardsResult[index] = last;
-
-                _mCardsResult[lastIndex] = id;
-
-                length--;
-            }
+            Array.Copy(tmpArr, _mCardsResult, _mCardsResult.Length);
 
             if (_oCards.Count > _deckCardsNum)
             {
@@ -595,24 +582,16 @@ namespace FinalWar
                 _oCardsResult[i] = _oCards[i];
             }
 
-            length = _oCardsResult.Length;
+            tmpArr = new int[_oCards.Count];
 
-            while (length > 1)
+            for (int i = 0; i < _oCards.Count; i++)
             {
-                int index = random.Next(length);
-
-                int lastIndex = length - 1;
-
-                int id = _oCardsResult[index];
-
-                int last = _oCardsResult[lastIndex];
-
-                _oCardsResult[index] = last;
-
-                _oCardsResult[lastIndex] = id;
-
-                length--;
+                tmpArr[i] = _oCards[i];
             }
+
+            BattlePublicTools.Shuffle(tmpArr, random.Next);
+
+            Array.Copy(tmpArr, _oCardsResult, _oCardsResult.Length);
         }
 
         private static void WriteRoundDataToStream(BinaryWriter _bw, BattleRecordRoundData _data)
