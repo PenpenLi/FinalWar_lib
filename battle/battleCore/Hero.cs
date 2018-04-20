@@ -398,7 +398,7 @@ namespace FinalWar
 
                     if (hasOpp)
                     {
-                        int numDiff = oppNum - myNum + BattleConst.SPEED_DIFF_FIX;
+                        int numDiff = oppNum - myNum + BattleConst.FEAR_DIFF_FIX;
 
                         int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
 
@@ -493,7 +493,7 @@ namespace FinalWar
                     {
                         int myNum = GetFearValue();
 
-                        int numDiff = oppNum - myNum + BattleConst.SPEED_DIFF_FIX;
+                        int numDiff = oppNum - myNum + BattleConst.FEAR_DIFF_FIX;
 
                         int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
 

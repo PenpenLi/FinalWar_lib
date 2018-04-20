@@ -63,6 +63,7 @@
     <Compile Include="battle\ai\node\action\CheckHeroCanActionConditionNode.cs" />
     <Compile Include="battle\ai\node\action\CheckHeroCanBeAttackConditionNode.cs" />
     <Compile Include="battle\ai\node\action\CheckHeroCanShootConditionNode.cs" />
+    <Compile Include="battle\ai\node\action\CheckHeroCanReachOppBaseConditionNode.cs" />
     <Compile Include="battle\ai\node\action\CheckHeroTypeConditionNode.cs" />
     <Compile Include="battle\ai\node\action\ChooseTargetActionNode.cs" />
     <Compile Include="battle\ai\node\action\DefenseActionNode.cs" />
