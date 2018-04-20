@@ -31,6 +31,7 @@
         public const string FIX_CAN_MOVE = "fixCanMove";
         public const string FIX_CAN_COUNTER_WHEN_DEAD = "fixCanCounterWhenDead";
         public const string FIX_EQUAL_OPP_SPEED = "fixEqualOppSpeed";
+        public const string FIX_ATTACK_FIRST_WITH_HIGHER_SPEED = "fixAttackFirstWithHigherSpeed";
 
         public const string FIX_SPEED = "fixSpeed";
         public const string FIX_ATTACK_DAMAGE = "fixAttackDamage";

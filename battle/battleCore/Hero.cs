@@ -760,6 +760,15 @@ namespace FinalWar
             battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.CAPTURE_MAP_AREA, ref _funcList, this, null);
         }
 
+        internal bool GetAttackFirstWithHigherSpeed(Hero _hero)
+        {
+            int attackFirstWithHigherSpeed = 0;
+
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.FIX_ATTACK_FIRST_WITH_HIGHER_SPEED, ref attackFirstWithHigherSpeed, this, _hero);
+
+            return attackFirstWithHigherSpeed > 0;
+        }
+
         internal bool GetCanCounterWhenDead(Hero _hero)
         {
             int canCounterWhenDead = 0;

@@ -877,6 +877,15 @@ namespace FinalWar
 
                                 if (BattleConst.SPEED_WITH_RANDOM)
                                 {
+                                    if (speedDiff > 0 && attacker.GetAttackFirstWithHigherSpeed(defender))
+                                    {
+                                        speedDiff = BattleConst.MAX_SPEED_VALUE;
+                                    }
+                                    else if (speedDiff < 0 && defender.GetAttackFirstWithHigherSpeed(attacker))
+                                    {
+                                        speedDiff = -BattleConst.MAX_SPEED_VALUE;
+                                    }
+
                                     int speedDiffAbs = Math.Abs(speedDiff);
 
                                     int value = GetRandomValue(BattleConst.MAX_SPEED_VALUE);
