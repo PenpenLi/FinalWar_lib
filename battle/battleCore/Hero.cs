@@ -417,7 +417,7 @@ namespace FinalWar
 
                 if (list.Count > 0)
                 {
-                    int myNum = GetFearValue();
+                    Dictionary<int, int> tmpDic = null;
 
                     int oppNum = 0;
 
@@ -449,9 +449,34 @@ namespace FinalWar
 
                                         if (battle.heroMapDic.TryGetValue(pos3, out myHero))
                                         {
-                                            int myFearValue = myHero.GetFearValue();
+                                            if (tmpDic == null)
+                                            {
+                                                tmpDic = new Dictionary<int, int>();
+                                            }
 
-                                            oppFearValue -= myFearValue;
+                                            int myFearValue;
+
+                                            if (!tmpDic.TryGetValue(pos3, out myFearValue))
+                                            {
+                                                myFearValue = myHero.GetFearValue();
+
+                                                tmpDic.Add(pos3, myFearValue);
+                                            }
+
+                                            if (oppFearValue > myFearValue)
+                                            {
+                                                oppFearValue -= myFearValue;
+
+                                                myFearValue = 0;
+                                            }
+                                            else
+                                            {
+                                                myFearValue -= oppFearValue;
+
+                                                oppFearValue = 0;
+                                            }
+
+                                            tmpDic[pos3] = myFearValue;
                                         }
                                     }
                                 }
@@ -466,6 +491,8 @@ namespace FinalWar
 
                     if (hasOpp)
                     {
+                        int myNum = GetFearValue();
+
                         int numDiff = oppNum - myNum + BattleConst.SPEED_DIFF_FIX;
 
                         int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
@@ -479,6 +506,93 @@ namespace FinalWar
 
                 return false;
             }
+        }
+
+        public int GetNumDiffByClient()
+        {
+            List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
+
+            if (list.Count > 0)
+            {
+                Dictionary<int, int> tmpDic = null;
+
+                int oppNum = 0;
+
+                bool hasOpp = false;
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    int pos2 = list[i];
+
+                    if (battle.GetPosIsMine(pos2) != isMine)
+                    {
+                        Hero oppHero;
+
+                        if (battle.heroMapDic.TryGetValue(pos2, out oppHero))
+                        {
+                            hasOpp = true;
+
+                            int oppFearValue = oppHero.GetFearValue();
+
+                            List<int> list2 = BattlePublicTools.GetNeighbourPos(battle.mapData, pos2);
+
+                            for (int m = 0; m < list2.Count; m++)
+                            {
+                                int pos3 = list2[m];
+
+                                if (pos3 != pos && battle.GetPosIsMine(pos3) == isMine)
+                                {
+                                    Hero myHero;
+
+                                    if (battle.heroMapDic.TryGetValue(pos3, out myHero))
+                                    {
+                                        if (tmpDic == null)
+                                        {
+                                            tmpDic = new Dictionary<int, int>();
+                                        }
+
+                                        int myFearValue;
+
+                                        if (!tmpDic.TryGetValue(pos3, out myFearValue))
+                                        {
+                                            myFearValue = myHero.GetFearValue();
+
+                                            tmpDic.Add(pos3, myFearValue);
+                                        }
+
+                                        if (oppFearValue > myFearValue)
+                                        {
+                                            oppFearValue -= myFearValue;
+
+                                            myFearValue = 0;
+                                        }
+                                        else
+                                        {
+                                            myFearValue -= oppFearValue;
+
+                                            oppFearValue = 0;
+                                        }
+
+                                        tmpDic[pos3] = myFearValue;
+                                    }
+                                }
+                            }
+
+                            if (oppFearValue > 0)
+                            {
+                                oppNum += oppFearValue;
+                            }
+                        }
+                    }
+                }
+
+                if (hasOpp)
+                {
+                    return oppNum;
+                }
+            }
+
+            return -1;
         }
 
         private int GetFearValue()
