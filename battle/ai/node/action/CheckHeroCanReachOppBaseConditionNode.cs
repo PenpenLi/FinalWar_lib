@@ -12,7 +12,7 @@ namespace FinalWar
 
             int target = _u.isMine ? _t.mapData.oBase : _t.mapData.mBase;
 
-            if (list.Contains(target))
+            if (list != null && list.Contains(target))
             {
                 if (!_t.heroMapDic.ContainsKey(target))
                 {
