@@ -11,7 +11,6 @@
         public const int MAX_MONEY = 10;
 
         public const bool SPEED_WITH_RANDOM = true;
-
         public const int MAX_SPEED = int.MaxValue;
         public const int MIN_SPEED = int.MinValue;
         //public const int MAX_SPEED = 2;
@@ -20,9 +19,9 @@
         public const int SPEED_GAP_1 = 2;
         public const int MAX_SPEED_VALUE = 3;
 
+        public const bool CHECK_FEAR_WITH_NEIGHBOUR = false;
         public const int FEAR_DIFF_FIX = 1;
         public const int MAX_FEAR_VALUE = 3;
-        public const bool CHECK_FEAR_WITH_NEIGHBOUR = false;
 
         public const string FIX_ATTACK_SHIELD_TO_DAMAGE = "fixAttackShieldToDamage";
         public const string FIX_BE_ATTACKED_SHIELD_TO_DAMAGE = "fixBeAttackedShieldToDamage";
