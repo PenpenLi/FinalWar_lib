@@ -89,7 +89,7 @@ namespace FinalWar
             return random.Get(_max);
         }
 
-        internal void InitBattle(int _mapID, int _maxRoundNum, int _deckCardsNum, int _addCardsNum, int _addMoney, int[] _mCards, int[] _oCards)
+        internal void InitBattle(int _mapID, int _maxRoundNum, int _deckCardsNum, int _addCardsNum, int _addMoney, int _defaultHandCardsNum, int _defaultMoney, int[] _mCards, int[] _oCards)
         {
             Reset();
 
@@ -111,7 +111,7 @@ namespace FinalWar
 
             oScore = mapData.oScore;
 
-            mMoney = oMoney = BattleConst.DEFAULT_MONEY;
+            mMoney = oMoney = _defaultMoney;
 
             for (int i = 0; i < deckCardsNum && i < _mCards.Length; i++)
             {
@@ -129,7 +129,7 @@ namespace FinalWar
                 oCards.Enqueue(index);
             }
 
-            for (int i = 0; i < BattleConst.DEFAULT_HAND_CARD_NUM; i++)
+            for (int i = 0; i < _defaultHandCardsNum; i++)
             {
                 if (mCards.Count > 0)
                 {
