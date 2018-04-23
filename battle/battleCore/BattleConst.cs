@@ -21,7 +21,7 @@
         public const int MAX_SPEED_VALUE = 3;
 
         public const int FEAR_DIFF_FIX = 1;
-        public const int MAX_FEAR_VALUE = 4;
+        public const int MAX_FEAR_VALUE = 3;
         public const bool CHECK_FEAR_WITH_NEIGHBOUR = false;
 
         public const string FIX_ATTACK_SHIELD_TO_DAMAGE = "fixAttackShieldToDamage";
