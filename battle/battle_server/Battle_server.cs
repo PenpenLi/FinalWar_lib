@@ -204,7 +204,7 @@ namespace FinalWar
                         {
                             PlayerAction summon = roundData.summon[m];
 
-                            if ((summon.key < battleInitData.GetMPlayerInitData().GetDeckCardsNum() && !_isMine) || (summon.key >= battleInitData.GetMPlayerInitData().GetDeckCardsNum() && _isMine))
+                            if (summon.key < battleInitData.GetMPlayerInitData().GetDeckCardsNum() != _isMine)
                             {
                                 list.Add(summon.key);
                             }
@@ -536,14 +536,7 @@ namespace FinalWar
         {
             IBattleInitDataSDS battleInitData = Battle.GetBattleInitData(_recordData.battleInitDataID);
 
-            if (_mCards.Count > battleInitData.GetMPlayerInitData().GetDeckCardsNum())
-            {
-                _recordData.mCards = new int[battleInitData.GetMPlayerInitData().GetDeckCardsNum()];
-            }
-            else
-            {
-                _recordData.mCards = new int[_mCards.Count];
-            }
+            _recordData.mCards = new int[Math.Min(_mCards.Count, battleInitData.GetMPlayerInitData().GetDeckCardsNum())];
 
             int[] tmpArr = new int[_mCards.Count];
 
@@ -556,14 +549,7 @@ namespace FinalWar
 
             Array.Copy(tmpArr, _recordData.mCards, _recordData.mCards.Length);
 
-            if (_oCards.Count > battleInitData.GetOPlayerInitData().GetDeckCardsNum())
-            {
-                _recordData.oCards = new int[battleInitData.GetOPlayerInitData().GetDeckCardsNum()];
-            }
-            else
-            {
-                _recordData.oCards = new int[_oCards.Count];
-            }
+            _recordData.oCards = new int[Math.Min(_oCards.Count, battleInitData.GetOPlayerInitData().GetDeckCardsNum())];
 
             tmpArr = new int[_oCards.Count];
 
@@ -617,19 +603,9 @@ namespace FinalWar
         {
             IBattleInitDataSDS battleInitData = Battle.GetBattleInitData(_recordData.battleInitDataID);
 
-            int mCardIndex = 0;
+            int mCardIndex = Math.Min(battleInitData.GetMPlayerInitData().GetDefaultHandCardsNum(), _recordData.mCards.Length);
 
-            int oCardIndex = 0;
-
-            for (int i = 0; i < battleInitData.GetMPlayerInitData().GetDeckCardsNum() && mCardIndex < _recordData.mCards.Length; i++)
-            {
-                mCardIndex++;
-            }
-
-            for (int i = 0; i < battleInitData.GetOPlayerInitData().GetDeckCardsNum() && mCardIndex < _recordData.oCards.Length; i++)
-            {
-                oCardIndex++;
-            }
+            int oCardIndex = Math.Min(battleInitData.GetOPlayerInitData().GetDefaultHandCardsNum(), _recordData.oCards.Length);
 
             for (int i = 0; i < _roundNum; i++)
             {
