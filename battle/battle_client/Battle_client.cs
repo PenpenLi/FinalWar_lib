@@ -58,19 +58,7 @@ namespace FinalWar
 
             serverProcessBattle = _br.ReadBoolean();
 
-            int mapID = _br.ReadInt32();
-
-            int maxRoundNum = _br.ReadInt32();
-
-            int deckCardsNum = _br.ReadInt32();
-
-            int addCardsNum = _br.ReadInt32();
-
-            int addMoney = _br.ReadInt32();
-
-            int defaultHandCardsNum = _br.ReadInt32();
-
-            int defaultMoney = _br.ReadInt32();
+            int battleInitDataID = _br.ReadInt32();
 
             int num = _br.ReadInt32();
 
@@ -80,11 +68,11 @@ namespace FinalWar
 
             int[] oCards = new int[num];
 
-            InitBattle(mapID, maxRoundNum, deckCardsNum, addCardsNum, addMoney, defaultHandCardsNum, defaultMoney, mCards, oCards);
+            InitBattle(battleInitDataID, mCards, oCards);
 
             if (!serverProcessBattle)
             {
-                simulateBattle.InitBattle(mapID, maxRoundNum, deckCardsNum, addCardsNum, addMoney, defaultHandCardsNum, defaultMoney, mCards, oCards);
+                simulateBattle.InitBattle(battleInitDataID, mCards, oCards);
             }
 
             num = _br.ReadInt32();
@@ -325,6 +313,46 @@ namespace FinalWar
         private void GetResponse(BinaryReader _br)
         {
 
+        }
+
+        public int maxRoundNum
+        {
+            get
+            {
+                return GetMaxRoundNum();
+            }
+        }
+
+        public int mAddMoney
+        {
+            get
+            {
+                return GetAddMoney(clientIsMine);
+            }
+        }
+
+        public int oAddMoney
+        {
+            get
+            {
+                return GetAddMoney(!clientIsMine);
+            }
+        }
+
+        public int mAddCardsNum
+        {
+            get
+            {
+                return GetAddCardsNum(clientIsMine);
+            }
+        }
+
+        public int oAddCardsNum
+        {
+            get
+            {
+                return GetAddCardsNum(!clientIsMine);
+            }
         }
     }
 }

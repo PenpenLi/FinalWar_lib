@@ -85,6 +85,7 @@
     <Compile Include="battle\battleCore\BattleConst.cs" />
     <Compile Include="battle\battleCore\BattleData.cs" />
     <Compile Include="battle\ai\BattleAStar.cs" />
+    <Compile Include="battle\sds\IBattleInitDataSDS.cs" />
     <Compile Include="battle\battleVO\BattleAddCardsVO.cs" />
     <Compile Include="battle\battleVO\BattleAttackAndCounterVO.cs" />
     <Compile Include="battle\battleVO\BattleAttackBothVO.cs" />

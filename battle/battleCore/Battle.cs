@@ -21,6 +21,7 @@ namespace FinalWar
         internal static Func<int, IHeroSDS> GetHeroData;
         internal static Func<int, IAuraSDS> GetAuraData;
         internal static Func<int, IEffectSDS> GetEffectData;
+        internal static Func<int, IBattleInitDataSDS> GetBattleInitData;
 
         public MapData mapData { get; private set; }
 
@@ -33,11 +34,7 @@ namespace FinalWar
         public List<int> mHandCards = new List<int>();
         public List<int> oHandCards = new List<int>();
 
-        public int deckCardsNum { private set; get; }
-
-        public int addCardsNum { private set; get; }
-
-        public int addMoney { private set; get; }
+        private IBattleInitDataSDS battleInitData;
 
         private int[] cardsArr;
 
@@ -55,13 +52,11 @@ namespace FinalWar
 
         public int roundNum { private set; get; }
 
-        public int maxRoundNum { private set; get; }
-
         internal SuperEventListener eventListener = new SuperEventListener();
 
         private SuperRandom random = new SuperRandom();
 
-        public static void Init<S, T, U, V>(Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _auraDataDic, Dictionary<int, V> _effectDataDic) where S : IMapSDS where T : IHeroSDS where U : IAuraSDS where V : IEffectSDS
+        public static void Init<S, T, U, V, W>(Dictionary<int, S> _mapDataDic, Dictionary<int, T> _heroDataDic, Dictionary<int, U> _auraDataDic, Dictionary<int, V> _effectDataDic, Dictionary<int, W> _battleInitDataDic) where S : IMapSDS where T : IHeroSDS where U : IAuraSDS where V : IEffectSDS where W : IBattleInitDataSDS
         {
             GetMapData = delegate (int _id)
             {
@@ -82,6 +77,11 @@ namespace FinalWar
             {
                 return _effectDataDic[_id];
             };
+
+            GetBattleInitData = delegate (int _id)
+            {
+                return _battleInitDataDic[_id];
+            };
         }
 
         internal int GetRandomValue(int _max)
@@ -89,21 +89,15 @@ namespace FinalWar
             return random.Get(_max);
         }
 
-        internal void InitBattle(int _mapID, int _maxRoundNum, int _deckCardsNum, int _addCardsNum, int _addMoney, int _defaultHandCardsNum, int _defaultMoney, int[] _mCards, int[] _oCards)
+        internal void InitBattle(int _battleInitDataID, int[] _mCards, int[] _oCards)
         {
             Reset();
 
-            maxRoundNum = _maxRoundNum;
+            battleInitData = GetBattleInitData(_battleInitDataID);
 
-            deckCardsNum = _deckCardsNum;
+            cardsArr = new int[battleInitData.GetMPlayerInitData().GetDeckCardsNum() + battleInitData.GetOPlayerInitData().GetDeckCardsNum()];
 
-            addCardsNum = _addCardsNum;
-
-            addMoney = _addMoney;
-
-            cardsArr = new int[deckCardsNum * 2];
-
-            IMapSDS mapSDS = GetMapData(_mapID);
+            IMapSDS mapSDS = GetMapData(battleInitData.GetMapID());
 
             mapData = mapSDS.GetMapData();
 
@@ -111,34 +105,37 @@ namespace FinalWar
 
             oScore = mapData.oScore;
 
-            mMoney = oMoney = _defaultMoney;
+            mMoney = battleInitData.GetMPlayerInitData().GetDefaultMoney();
 
-            for (int i = 0; i < deckCardsNum && i < _mCards.Length; i++)
+            oMoney = battleInitData.GetOPlayerInitData().GetDefaultMoney();
+
+            for (int i = 0; i < battleInitData.GetMPlayerInitData().GetDeckCardsNum() && i < _mCards.Length; i++)
             {
                 SetCard(i, _mCards[i]);
 
-                mCards.Enqueue(i);
+                if (i < battleInitData.GetMPlayerInitData().GetDefaultHandCardsNum())
+                {
+                    mHandCards.Add(i);
+                }
+                else
+                {
+                    mCards.Enqueue(i);
+                }
             }
 
-            for (int i = 0; i < deckCardsNum && i < _oCards.Length; i++)
+            for (int i = 0; i < battleInitData.GetOPlayerInitData().GetDeckCardsNum() && i < _oCards.Length; i++)
             {
-                int index = deckCardsNum + i;
+                int index = battleInitData.GetMPlayerInitData().GetDeckCardsNum() + i;
 
                 SetCard(index, _oCards[i]);
 
-                oCards.Enqueue(index);
-            }
-
-            for (int i = 0; i < _defaultHandCardsNum; i++)
-            {
-                if (mCards.Count > 0)
+                if (i < battleInitData.GetOPlayerInitData().GetDefaultHandCardsNum())
                 {
-                    mHandCards.Add(mCards.Dequeue());
+                    oHandCards.Add(index);
                 }
-
-                if (oCards.Count > 0)
+                else
                 {
-                    oHandCards.Add(oCards.Dequeue());
+                    oCards.Enqueue(index);
                 }
             }
 
@@ -232,7 +229,7 @@ namespace FinalWar
             {
                 roundNum++;
 
-                if (roundNum == maxRoundNum)
+                if (roundNum == battleInitData.GetMaxRoundNum())
                 {
                     if (mScore > oScore)
                     {
@@ -1409,17 +1406,29 @@ namespace FinalWar
 
             List<int> handCardsList;
 
+            int addCardsNum;
+
+            int addMoney;
+
             if (_isMine)
             {
                 cards = mCards;
 
                 handCardsList = mHandCards;
+
+                addCardsNum = battleInitData.GetMPlayerInitData().GetAddCardsNum();
+
+                addMoney = battleInitData.GetMPlayerInitData().GetAddMoney();
             }
             else
             {
                 cards = oCards;
 
                 handCardsList = oHandCards;
+
+                addCardsNum = battleInitData.GetOPlayerInitData().GetAddCardsNum();
+
+                addMoney = battleInitData.GetOPlayerInitData().GetAddMoney();
             }
 
             List<int> addList = null;
@@ -1649,7 +1658,7 @@ namespace FinalWar
             {
                 int uid = enumerator.Current.Key;
 
-                if (_isMine == uid < deckCardsNum)
+                if (_isMine == uid < battleInitData.GetMPlayerInitData().GetDeckCardsNum())
                 {
                     IHeroSDS sds = GetHeroData(GetCard(uid));
 
@@ -1884,6 +1893,21 @@ namespace FinalWar
         public int GetCard(int _uid)
         {
             return cardsArr[_uid];
+        }
+
+        protected int GetAddMoney(bool _isMine)
+        {
+            return _isMine ? battleInitData.GetMPlayerInitData().GetAddMoney() : battleInitData.GetOPlayerInitData().GetAddMoney();
+        }
+
+        protected int GetAddCardsNum(bool _isMine)
+        {
+            return _isMine ? battleInitData.GetMPlayerInitData().GetAddCardsNum() : battleInitData.GetOPlayerInitData().GetAddCardsNum();
+        }
+
+        protected int GetMaxRoundNum()
+        {
+            return battleInitData.GetMaxRoundNum();
         }
     }
 }
