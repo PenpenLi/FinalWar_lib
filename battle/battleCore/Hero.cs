@@ -336,26 +336,20 @@ namespace FinalWar
 
             counterTimes = 0;
 
-            switch (sds.GetHeroType().GetFearType())
+            int needCheckFear = 0;
+
+            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.CHECK_FEAR, ref needCheckFear, this, null);
+
+            if (needCheckFear == 0)
             {
-                case FearType.ALWAYS:
-
-                    CheckFearReal();
-
-                    break;
-
-                case FearType.NEVER:
-
-                    break;
-
-                default:
-
-                    if (CheckFear())
-                    {
-                        CheckFearReal();
-                    }
-
-                    break;
+                if (CheckFear())
+                {
+                    CheckFearReal(false);
+                }
+            }
+            else if (needCheckFear < 0)
+            {
+                CheckFearReal(true);
             }
 
             LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
@@ -550,28 +544,35 @@ namespace FinalWar
             return recoverShieldValueFix;
         }
 
-        private void CheckFearReal()
+        private void CheckFearReal(bool _forceDefense)
         {
-            int num = battle.GetRandomValue(sds.GetHeroType().GetFearAttackWeight() + sds.GetHeroType().GetFearDefenseWeight());
-
-            if (num < sds.GetHeroType().GetFearAttackWeight())
+            if (_forceDefense)
             {
-                List<int> tmpList = BattlePublicTools.GetCanAttackPos(battle, this);
+                battle.AddFearAction(pos, pos);
+            }
+            else
+            {
+                int num = battle.GetRandomValue(sds.GetHeroType().GetFearAttackWeight() + sds.GetHeroType().GetFearDefenseWeight());
 
-                if (tmpList != null)
+                if (num < sds.GetHeroType().GetFearAttackWeight())
                 {
-                    int index = battle.GetRandomValue(tmpList.Count);
+                    List<int> tmpList = BattlePublicTools.GetCanAttackPos(battle, this);
 
-                    battle.AddFearAction(pos, tmpList[index]);
+                    if (tmpList != null)
+                    {
+                        int index = battle.GetRandomValue(tmpList.Count);
+
+                        battle.AddFearAction(pos, tmpList[index]);
+                    }
+                    else
+                    {
+                        battle.AddFearAction(pos, pos);
+                    }
                 }
                 else
                 {
                     battle.AddFearAction(pos, pos);
                 }
-            }
-            else
-            {
-                battle.AddFearAction(pos, pos);
             }
         }
 

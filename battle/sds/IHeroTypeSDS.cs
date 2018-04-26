@@ -1,12 +1,5 @@
 ﻿namespace FinalWar
 {
-    public enum FearType
-    {
-        PROBABILITY,
-        ALWAYS,
-        NEVER
-    }
-
     public interface IHeroTypeSDS
     {
         int GetID();
@@ -20,8 +13,6 @@
         int GetCounterTimes();
         int GetThread();
         int GetFearValue();
-
-        FearType GetFearType();
 
         int GetFearAttackWeight();
         int GetFearDefenseWeight();
