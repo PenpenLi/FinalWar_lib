@@ -295,6 +295,23 @@ namespace FinalWar
             beKilled = true;
         }
 
+        internal void ForceFear(int _data)
+        {
+            if (_data < 0)
+            {
+                battle.AddFearAction(pos, pos);
+            }
+            else if (_data < 6)
+            {
+                int targetPos = battle.mapData.neighbourPosMap[pos][_data];
+
+                if (targetPos != -1)
+                {
+                    battle.AddFearAction(pos, targetPos);
+                }
+            }
+        }
+
         internal bool GetCanMove()
         {
             int tmpCanMove = 1;
@@ -314,7 +331,7 @@ namespace FinalWar
             battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.ROUND_OVER, ref _funcList, this, null);
         }
 
-        internal void Recover()
+        internal void Recover(ref LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
         {
             if (nowShield > sds.GetShield())
             {
@@ -336,25 +353,17 @@ namespace FinalWar
 
             counterTimes = 0;
 
-            int needCheckFear = 0;
+            bool b = battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.CHECK_FORCE_FEAR, ref _funcList, this, null);
 
-            battle.eventListener.DispatchEvent<int, Hero, Hero>(BattleConst.CHECK_FEAR, ref needCheckFear, this, null);
-
-            if (needCheckFear == 0)
+            if (!b)
             {
                 if (CheckFear())
                 {
-                    CheckFearReal(false);
+                    CheckFearReal();
                 }
             }
-            else if (needCheckFear < 0)
-            {
-                CheckFearReal(true);
-            }
 
-            LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
-
-            battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.RECOVER, ref funcList, this, null);
+            battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.RECOVER, ref _funcList, this, null);
         }
 
         private bool CheckFear()
@@ -544,35 +553,28 @@ namespace FinalWar
             return recoverShieldValueFix;
         }
 
-        private void CheckFearReal(bool _forceDefense)
+        private void CheckFearReal()
         {
-            if (_forceDefense)
-            {
-                battle.AddFearAction(pos, pos);
-            }
-            else
-            {
-                int num = battle.GetRandomValue(sds.GetHeroType().GetFearAttackWeight() + sds.GetHeroType().GetFearDefenseWeight());
+            int num = battle.GetRandomValue(sds.GetHeroType().GetFearAttackWeight() + sds.GetHeroType().GetFearDefenseWeight());
 
-                if (num < sds.GetHeroType().GetFearAttackWeight())
+            if (num < sds.GetHeroType().GetFearAttackWeight())
+            {
+                List<int> tmpList = BattlePublicTools.GetCanAttackPos(battle, this);
+
+                if (tmpList != null)
                 {
-                    List<int> tmpList = BattlePublicTools.GetCanAttackPos(battle, this);
+                    int index = battle.GetRandomValue(tmpList.Count);
 
-                    if (tmpList != null)
-                    {
-                        int index = battle.GetRandomValue(tmpList.Count);
-
-                        battle.AddFearAction(pos, tmpList[index]);
-                    }
-                    else
-                    {
-                        battle.AddFearAction(pos, pos);
-                    }
+                    battle.AddFearAction(pos, tmpList[index]);
                 }
                 else
                 {
                     battle.AddFearAction(pos, pos);
                 }
+            }
+            else
+            {
+                battle.AddFearAction(pos, pos);
             }
         }
 

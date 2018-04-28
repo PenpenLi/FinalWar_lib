@@ -10,6 +10,7 @@
         ADD_AURA,
         BE_CLEANED,
         BE_KILLED,
+        FORCE_FEAR,
     }
 
     public interface IEffectSDS

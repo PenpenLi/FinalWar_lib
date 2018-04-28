@@ -139,6 +139,8 @@ namespace FinalWar
                 }
             }
 
+            LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
+
             for (int i = 0; i < mapSDS.GetHero().Length; i++)
             {
                 KeyValuePair<int, int> pair = mapSDS.GetHero()[i];
@@ -154,11 +156,13 @@ namespace FinalWar
                 Hero hero = new Hero(this, isMine, heroSDS, pos);
 
                 heroMapDic.Add(pos, hero);
+
+                eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.CHECK_FORCE_FEAR, ref funcList, hero, null);
             }
 
-            for (int i = 0; i < mapSDS.GetFearAction().Length; i++)
+            if (funcList != null)
             {
-                fearAction.Add(mapSDS.GetFearAction()[i]);
+                InvokeFuncListDirect(funcList);
             }
         }
 
@@ -1304,11 +1308,18 @@ namespace FinalWar
 
         private IEnumerator DoRecover()
         {
+            LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> funcList = null;
+
             IEnumerator<Hero> enumerator = heroMapDic.Values.GetEnumerator();
 
             while (enumerator.MoveNext())
             {
-                enumerator.Current.Recover();
+                enumerator.Current.Recover(ref funcList);
+            }
+
+            if (funcList != null)
+            {
+                InvokeFuncListDirect(funcList);
             }
 
             yield return new BattleRecoverVO();
@@ -1464,6 +1475,16 @@ namespace FinalWar
             while (enumerator.MoveNext())
             {
                 yield return enumerator.Current.Value();
+            }
+        }
+
+        private void InvokeFuncListDirect(LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>> _funcList)
+        {
+            IEnumerator<KeyValuePair<int, Func<BattleTriggerAuraVO>>> enumerator = _funcList.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                enumerator.Current.Value();
             }
         }
 

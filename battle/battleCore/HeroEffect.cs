@@ -95,6 +95,14 @@ namespace FinalWar
 
                     break;
 
+                case Effect.FORCE_FEAR:
+
+                    data = _sds.GetData()[0];
+
+                    _hero.ForceFear(data);
+
+                    break;
+
                 default:
 
                     throw new Exception("skill effect error:" + _sds.GetEffect().ToString());

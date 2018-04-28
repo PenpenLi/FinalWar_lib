@@ -6,6 +6,5 @@ namespace FinalWar
     {
         MapData GetMapData();
         KeyValuePair<int, int>[] GetHero();
-        KeyValuePair<int, int>[] GetFearAction();
     }
 }

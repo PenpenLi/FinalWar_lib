@@ -51,7 +51,7 @@
         public const string BE_CLEAN = "beClean";
         public const string TRIGGER_BORN_AURA = "triggerBornAura";
         public const string REMOVE_BORN_AURA = "removeBornAura";
-        public const string CHECK_FEAR = "checkFear";
+        public const string CHECK_FORCE_FEAR = "checkForceFear";
 
         public const string GET_AURA_DESC = "getAuraDesc";
     }
