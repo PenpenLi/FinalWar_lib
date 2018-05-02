@@ -1474,7 +1474,12 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                yield return enumerator.Current.Value();
+                BattleTriggerAuraVO vo = enumerator.Current.Value();
+
+                if (vo.data != null && vo.data.Count > 0)
+                {
+                    yield return vo;
+                }
             }
         }
 
