@@ -355,12 +355,9 @@ namespace FinalWar
 
             bool b = battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.CHECK_FORCE_FEAR, ref _funcList, this, null);
 
-            if (!b)
+            if (!b && CheckFear())
             {
-                if (CheckFear())
-                {
-                    CheckFearReal();
-                }
+                CheckFearReal();
             }
 
             battle.eventListener.DispatchEvent<LinkedList<KeyValuePair<int, Func<BattleTriggerAuraVO>>>, Hero, Hero>(BattleConst.RECOVER, ref _funcList, this, null);
@@ -368,68 +365,19 @@ namespace FinalWar
 
         private bool CheckFear()
         {
-            if (BattleConst.CHECK_FEAR_WITH_NEIGHBOUR)
+            int numDiff = GetFearNumDiff();
+
+            if (numDiff > 0)
             {
-                List<int> list = BattlePublicTools.GetNeighbourPos(battle.mapData, pos);
+                int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
 
-                if (list.Count > 0)
+                if (numDiff > randomValue)
                 {
-                    int myNum = GetFearValue();
-
-                    int oppNum = 0;
-
-                    bool hasOpp = false;
-
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        Hero hero;
-
-                        if (battle.heroMapDic.TryGetValue(list[i], out hero))
-                        {
-                            if (hero.isMine == isMine)
-                            {
-                                myNum += hero.GetFearValue();
-                            }
-                            else
-                            {
-                                oppNum += hero.GetFearValue();
-
-                                hasOpp = true;
-                            }
-                        }
-                    }
-
-                    if (hasOpp)
-                    {
-                        int numDiff = oppNum - myNum + BattleConst.FEAR_DIFF_FIX;
-
-                        int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
-
-                        if (numDiff > randomValue)
-                        {
-                            return true;
-                        }
-                    }
+                    return true;
                 }
-
-                return false;
             }
-            else
-            {
-                int numDiff = GetFearNumDiff();
 
-                if (numDiff > 0)
-                {
-                    int randomValue = battle.GetRandomValue(BattleConst.MAX_FEAR_VALUE);
-
-                    if (numDiff > randomValue)
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
+            return false;
         }
 
         public int GetFearNumDiff()

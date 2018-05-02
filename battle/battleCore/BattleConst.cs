@@ -19,7 +19,6 @@
         public const int SPEED_GAP_1 = 2;
         public const int MAX_SPEED_VALUE = 3;
 
-        public const bool CHECK_FEAR_WITH_NEIGHBOUR = false;
         public const int FEAR_DIFF_FIX = 1;
         public const int MAX_FEAR_VALUE = 3;
 
