@@ -224,21 +224,21 @@ namespace FinalWar
         {
             int speed = sds.GetHeroType().GetAttackSpeed() + GetSpeedFix(_hero);
 
-            return FixSpeed(speed);
+            return speed;
         }
 
         internal int GetDefenseSpeed(Hero _hero)
         {
             int speed = sds.GetHeroType().GetDefenseSpeed() + GetSpeedFix(_hero);
 
-            return FixSpeed(speed);
+            return speed;
         }
 
         internal int GetSupportSpeed(Hero _hero)
         {
             int speed = sds.GetHeroType().GetSupportSpeed() + GetSpeedFix(_hero);
 
-            return FixSpeed(speed);
+            return speed;
         }
 
         public int GetSpeedFixByClient()
@@ -253,20 +253,6 @@ namespace FinalWar
             battle.eventListener.DispatchEvent(BattleConst.FIX_SPEED, ref tmpSpeedFix, this, _hero);
 
             return tmpSpeedFix;
-        }
-
-        private int FixSpeed(int _speed)
-        {
-            if (_speed > BattleConst.MAX_SPEED)
-            {
-                _speed = BattleConst.MAX_SPEED;
-            }
-            else if (_speed < BattleConst.MIN_SPEED)
-            {
-                _speed = BattleConst.MIN_SPEED;
-            }
-
-            return _speed;
         }
 
         internal bool IsAlive()
