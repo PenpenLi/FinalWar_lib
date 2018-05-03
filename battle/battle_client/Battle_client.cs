@@ -134,22 +134,36 @@ namespace FinalWar
 
             for (int i = 0; i < num; i++)
             {
+                bool isMine = _br.ReadBoolean();
+
                 int uid = _br.ReadInt32();
 
                 int pos = _br.ReadInt32();
 
-                _battle.AddSummon(uid, pos);
+                int result = _battle.AddSummon(isMine, uid, pos);
+
+                if (result != -1)
+                {
+                    throw new Exception("summon error:" + result);
+                }
             }
 
             num = _br.ReadInt32();
 
             for (int i = 0; i < num; i++)
             {
+                bool isMine = _br.ReadBoolean();
+
                 int pos = _br.ReadInt32();
 
                 int targetPos = _br.ReadInt32();
 
-                _battle.AddAction(pos, targetPos);
+                int result = _battle.AddAction(isMine, pos, targetPos);
+
+                if (result != -1)
+                {
+                    throw new Exception("action error:" + result);
+                }
             }
 
             int randomSeed = _br.ReadInt32();
@@ -254,17 +268,6 @@ namespace FinalWar
 
             ClearAction();
 
-            long pos = _br.BaseStream.Position;
-
-            ReadRoundDataFromStream(_br, this);
-
-            if (!serverProcessBattle)
-            {
-                _br.BaseStream.Position = pos;
-
-                ReadRoundDataFromStream(_br, simulateBattle);
-            }
-
             int num = _br.ReadInt32();
 
             for (int i = 0; i < num; i++)
@@ -281,8 +284,16 @@ namespace FinalWar
                 }
             }
 
+            long pos = _br.BaseStream.Position;
+
+            ReadRoundDataFromStream(_br, this);
+
             if (!serverProcessBattle)
             {
+                _br.BaseStream.Position = pos;
+
+                ReadRoundDataFromStream(_br, simulateBattle);
+
                 SuperEnumerator<ValueType> superEnumerator = new SuperEnumerator<ValueType>(simulateBattle.StartBattle());
 
                 superEnumerator.Done();

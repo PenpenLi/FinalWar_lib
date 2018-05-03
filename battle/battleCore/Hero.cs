@@ -168,16 +168,7 @@ namespace FinalWar
                 nowShield -= damage;
             }
 
-            if (nowShield < 0)
-            {
-                nowShield = 0;
-            }
-
-            if (nowHp < 0)
-            {
-                nowHp = 0;
-            }
-            else if (nowHp > sds.GetHp())
+            if (nowHp > sds.GetHp())
             {
                 nowHp = sds.GetHp();
             }
@@ -212,6 +203,11 @@ namespace FinalWar
             else
             {
                 _nowShield -= tmpDamage;
+            }
+
+            if (_nowHp > sds.GetHp())
+            {
+                _nowHp = sds.GetHp();
             }
         }
 
@@ -570,9 +566,9 @@ namespace FinalWar
 
             battle.eventListener.DispatchEvent(BattleConst.FIX_BE_ATTACKED_DAMAGE, ref doDamage, _hero, this);
 
-            if (doDamage < 0)
+            if (doDamage < 1)
             {
-                doDamage = 0;
+                doDamage = 1;
             }
 
             int doShieldDamage = 0;

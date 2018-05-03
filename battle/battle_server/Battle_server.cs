@@ -573,6 +573,8 @@ namespace FinalWar
             {
                 PlayerAction action = enumerator.Current;
 
+                _bw.Write(action.isMine);
+
                 _bw.Write(action.key);
 
                 _bw.Write(action.value);
@@ -585,6 +587,8 @@ namespace FinalWar
             while (enumerator.MoveNext())
             {
                 PlayerAction action = enumerator.Current;
+
+                _bw.Write(action.isMine);
 
                 _bw.Write(action.key);
 
@@ -637,10 +641,6 @@ namespace FinalWar
             _oBw.Write(PackageTag.S2C_DOACTION);
 
             BattleRecordRoundData data = _recordData.data[_roundNum];
-
-            WriteRoundDataToStream(_mBw, data);
-
-            WriteRoundDataToStream(_oBw, data);
 
             long pos = _mBw.BaseStream.Position;
 
@@ -696,6 +696,10 @@ namespace FinalWar
                 }
             }
 
+            long mPos = _mBw.BaseStream.Position;
+
+            long oPos = _oBw.BaseStream.Position;
+
             _mBw.BaseStream.Position = pos;
 
             _mBw.Write(mNum);
@@ -703,6 +707,14 @@ namespace FinalWar
             _oBw.BaseStream.Position = pos;
 
             _oBw.Write(oNum);
+
+            _mBw.BaseStream.Position = mPos;
+
+            _oBw.BaseStream.Position = oPos;
+
+            WriteRoundDataToStream(_mBw, data);
+
+            WriteRoundDataToStream(_oBw, data);
         }
 
         private static Battle.BattleResult ProcessBattle(Battle _battle, BattleRecordRoundData _data)

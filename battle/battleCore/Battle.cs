@@ -1594,7 +1594,7 @@ namespace FinalWar
             }
         }
 
-        internal void AddSummon(int _uid, int _pos)
+        private void AddSummon(int _uid, int _pos)
         {
             summon.Add(_uid, _pos);
         }
@@ -1761,7 +1761,7 @@ namespace FinalWar
             }
         }
 
-        internal void AddAction(int _pos, int _targetPos)
+        private void AddAction(int _pos, int _targetPos)
         {
             action.Add(new KeyValuePair<int, int>(_pos, _targetPos));
         }

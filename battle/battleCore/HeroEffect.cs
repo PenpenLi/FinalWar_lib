@@ -31,14 +31,14 @@ namespace FinalWar
 
                     _hero.ProcessDamage(out targetShield, out targetHp);
 
-                    if (targetShield < nowShield)
-                    {
-                        result.Add(new BattleHeroEffectVO(Effect.SHIELD_CHANGE, targetShield - nowShield));
-                    }
-
                     if (targetHp < nowHp)
                     {
                         result.Add(new BattleHeroEffectVO(Effect.HP_CHANGE, targetHp - nowHp));
+                    }
+
+                    if (targetShield < nowShield)
+                    {
+                        result.Add(new BattleHeroEffectVO(Effect.SHIELD_CHANGE, targetShield - nowShield));
                     }
 
                     return result;
