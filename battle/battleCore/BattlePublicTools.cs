@@ -3,7 +3,7 @@ using System;
 
 namespace FinalWar
 {
-    public class BattlePublicTools
+    public static class BattlePublicTools
     {
         public static List<int> GetNeighbourPos(MapData _mapData, int _pos)
         {
