@@ -1496,6 +1496,19 @@ namespace FinalWar
                 }
                 else
                 {
+                    IEnumerator<KeyValuePair<int, int>> enumerator = GetSummonEnumerator();
+
+                    while (enumerator.MoveNext())
+                    {
+                        if (enumerator.Current.Value == _uid)
+                        {
+                            if (GetPosIsMine(enumerator.Current.Key) == _isMine)
+                            {
+                                return 11;
+                            }
+                        }
+                    }
+
                     AddSummon(_pos, _uid);
 
                     return -1;
