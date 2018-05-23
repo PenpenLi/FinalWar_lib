@@ -16,7 +16,7 @@ namespace FinalWar
 
             int pos = list[0];
 
-            if (!_v.summon.ContainsValue(pos))
+            if (!_v.summon.ContainsKey(pos))
             {
                 _v.action.Add(_u.pos, pos);
 

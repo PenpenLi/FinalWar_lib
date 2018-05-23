@@ -16,7 +16,7 @@ namespace FinalWar
 
             int pos = list[index];
 
-            _v.summon.Add(_v.uid, pos);
+            _v.summon.Add(pos, _v.uid);
 
             list.RemoveAt(index);
 

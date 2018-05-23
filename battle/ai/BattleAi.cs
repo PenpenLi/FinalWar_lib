@@ -179,7 +179,7 @@ namespace FinalWar
 
                 int range = pair.Value;
 
-                if (range > -1 && range < _max && !_summon.ContainsValue(pos) && _battle.CheckPosCanSummon(_isMine, pos) == -1 && !_action.ContainsValue(pos))
+                if (range > -1 && range < _max && !_summon.ContainsKey(pos) && _battle.CheckPosCanSummon(_isMine, pos) == -1 && !_action.ContainsValue(pos))
                 {
                     if (result == null)
                     {
@@ -285,7 +285,7 @@ namespace FinalWar
 
                 int range = pair.Value;
 
-                if (range > -1 && range < _max && !_summon.ContainsValue(pos) && _battle.CheckPosCanSummon(_isMine, pos) == -1 && !_action.ContainsValue(pos))
+                if (range > -1 && range < _max && !_summon.ContainsKey(pos) && _battle.CheckPosCanSummon(_isMine, pos) == -1 && !_action.ContainsValue(pos))
                 {
                     if (result == null)
                     {

@@ -36,7 +36,9 @@ namespace FinalWar
 
         private IBattleInitDataSDS battleInitData;
 
-        private int[] cardsArr;
+        private int[] mCardsArr;
+
+        private int[] oCardsArr;
 
         public int mScore { get; private set; }
         public int oScore { get; private set; }
@@ -95,7 +97,9 @@ namespace FinalWar
 
             battleInitData = GetBattleInitData(_battleInitDataID);
 
-            cardsArr = new int[battleInitData.GetMPlayerInitData().GetDeckCardsNum() + battleInitData.GetOPlayerInitData().GetDeckCardsNum()];
+            mCardsArr = new int[battleInitData.GetMPlayerInitData().GetDeckCardsNum()];
+
+            oCardsArr = new int[battleInitData.GetOPlayerInitData().GetDeckCardsNum()];
 
             IMapSDS mapSDS = GetMapData(battleInitData.GetMapID());
 
@@ -111,7 +115,7 @@ namespace FinalWar
 
             for (int i = 0; i < battleInitData.GetMPlayerInitData().GetDeckCardsNum() && i < _mCards.Length; i++)
             {
-                SetCard(i, _mCards[i]);
+                SetCard(true, i, _mCards[i]);
 
                 if (i < battleInitData.GetMPlayerInitData().GetDefaultHandCardsNum())
                 {
@@ -125,17 +129,15 @@ namespace FinalWar
 
             for (int i = 0; i < battleInitData.GetOPlayerInitData().GetDeckCardsNum() && i < _oCards.Length; i++)
             {
-                int index = battleInitData.GetMPlayerInitData().GetDeckCardsNum() + i;
-
-                SetCard(index, _oCards[i]);
+                SetCard(false, i, _oCards[i]);
 
                 if (i < battleInitData.GetOPlayerInitData().GetDefaultHandCardsNum())
                 {
-                    oHandCards.Add(index);
+                    oHandCards.Add(i);
                 }
                 else
                 {
-                    oCards.Enqueue(index);
+                    oCards.Enqueue(i);
                 }
             }
 
@@ -279,7 +281,9 @@ namespace FinalWar
 
             ClearFearAction();
 
-            cardsArr = null;
+            mCardsArr = null;
+
+            oCardsArr = null;
 
             roundNum = 0;
         }
@@ -292,16 +296,16 @@ namespace FinalWar
             {
                 KeyValuePair<int, int> pair = enumerator.Current;
 
-                int tmpCardUid = pair.Key;
+                int pos = pair.Key;
 
-                int pos = pair.Value;
+                int uid = pair.Value;
 
                 if (heroMapDic.ContainsKey(pos))
                 {
                     throw new Exception("Summon error0");
                 }
 
-                Hero summonHero = SummonOneUnit(tmpCardUid, pos);
+                Hero summonHero = SummonOneUnit(pos, uid);
 
                 heroMapDic.Add(pos, summonHero);
 
@@ -309,11 +313,11 @@ namespace FinalWar
 
                 yield return new BattleMoneyChangeVO(summonHero.isMine, -summonHero.sds.GetCost());
 
-                yield return new BattleSummonVO(summonHero.isMine, tmpCardUid, summonHero.sds.GetID(), pos);
+                yield return new BattleSummonVO(summonHero.isMine, uid, summonHero.sds.GetID(), pos);
             }
         }
 
-        private Hero SummonOneUnit(int _uid, int _pos)
+        private Hero SummonOneUnit(int _pos, int _uid)
         {
             bool isMine = GetPosIsMine(_pos);
 
@@ -325,7 +329,7 @@ namespace FinalWar
 
                 if (index != -1)
                 {
-                    int heroID = GetCard(_uid);
+                    int heroID = GetCard(isMine, _uid);
 
                     sds = GetHeroData(heroID);
 
@@ -349,7 +353,7 @@ namespace FinalWar
 
                 if (index != -1)
                 {
-                    int heroID = GetCard(_uid);
+                    int heroID = GetCard(isMine, _uid);
 
                     sds = GetHeroData(heroID);
 
@@ -1447,17 +1451,17 @@ namespace FinalWar
             return summon.Count;
         }
 
-        public bool GetSummonContainsKey(int _uid)
+        public bool GetSummonContainsKey(int _pos)
         {
-            return summon.ContainsKey(_uid);
+            return summon.ContainsKey(_pos);
         }
 
-        public bool GetSummonContainsValue(int _pos)
+        public bool GetSummonContainsValue(int _uid)
         {
-            return summon.ContainsValue(_pos);
+            return summon.ContainsValue(_uid);
         }
 
-        internal int AddSummon(bool _isMine, int _uid, int _pos)
+        internal int AddSummon(bool _isMine, int _pos, int _uid)
         {
             List<int> handCards;
 
@@ -1480,15 +1484,11 @@ namespace FinalWar
             {
                 int nowMoney = GetNowMoney(_isMine);
 
-                IHeroSDS sds = GetHeroData(GetCard(_uid));
+                IHeroSDS sds = GetHeroData(GetCard(_isMine, _uid));
 
                 if (sds.GetCost() > nowMoney)
                 {
                     return 10;
-                }
-                else if (GetSummonContainsKey(_uid))
-                {
-                    return 11;
                 }
                 else if (CheckPosCanSummon(_isMine, _pos) != -1)
                 {
@@ -1496,7 +1496,7 @@ namespace FinalWar
                 }
                 else
                 {
-                    AddSummon(_uid, _pos);
+                    AddSummon(_pos, _uid);
 
                     return -1;
                 }
@@ -1538,7 +1538,7 @@ namespace FinalWar
                 }
             }
 
-            if (!heroMapDic.ContainsKey(_pos) && !GetSummonContainsValue(_pos))
+            if (!heroMapDic.ContainsKey(_pos) && !GetSummonContainsKey(_pos))
             {
                 bool isMine = GetPosIsMine(_pos);
 
@@ -1594,9 +1594,9 @@ namespace FinalWar
             }
         }
 
-        private void AddSummon(int _uid, int _pos)
+        private void AddSummon(int _pos, int _uid)
         {
-            summon.Add(_uid, _pos);
+            summon.Add(_pos, _uid);
         }
 
         public int GetNowMoney(bool _isMine)
@@ -1607,11 +1607,11 @@ namespace FinalWar
 
             while (enumerator.MoveNext())
             {
-                int uid = enumerator.Current.Key;
+                int uid = enumerator.Current.Value;
 
-                if (_isMine == uid < battleInitData.GetMPlayerInitData().GetDeckCardsNum())
+                if (_isMine == GetPosIsMine(enumerator.Current.Key))
                 {
-                    IHeroSDS sds = GetHeroData(GetCard(uid));
+                    IHeroSDS sds = GetHeroData(GetCard(_isMine, uid));
 
                     money -= sds.GetCost();
                 }
@@ -1620,9 +1620,9 @@ namespace FinalWar
             return money;
         }
 
-        internal void DelSummon(int _uid)
+        internal void DelSummon(int _pos)
         {
-            summon.Remove(_uid);
+            summon.Remove(_pos);
         }
 
         internal void ClearSummon()
@@ -1701,7 +1701,7 @@ namespace FinalWar
             {
                 if (targetPosIsMine == hero.isMine)
                 {
-                    if (GetSummonContainsValue(_targetPos))
+                    if (GetSummonContainsKey(_targetPos))
                     {
                         return 7;
                     }
@@ -1836,14 +1836,21 @@ namespace FinalWar
             random.SetSeed(_seed);
         }
 
-        internal void SetCard(int _uid, int _id)
+        internal void SetCard(bool _isMine, int _uid, int _id)
         {
-            cardsArr[_uid] = _id;
+            if (_isMine)
+            {
+                mCardsArr[_uid] = _id;
+            }
+            else
+            {
+                oCardsArr[_uid] = _id;
+            }
         }
 
-        public int GetCard(int _uid)
+        public int GetCard(bool _isMine, int _uid)
         {
-            return cardsArr[_uid];
+            return _isMine ? mCardsArr[_uid] : oCardsArr[_uid];
         }
 
         protected int GetAddMoney(bool _isMine)

@@ -19,7 +19,7 @@ namespace FinalWar
 
             for (int i = handCards.Count - 1; i > -1; i--)
             {
-                if (_v.summon.ContainsKey(handCards[i]))
+                if (_v.summon.ContainsValue(handCards[i]))
                 {
                     handCards.RemoveAt(i);
                 }
@@ -34,7 +34,7 @@ namespace FinalWar
 
             int uid = handCards[index];
 
-            int id = _t.GetCard(uid);
+            int id = _t.GetCard(_u, uid);
 
             IHeroSDS sds = Battle.GetHeroData(id);
 

@@ -83,11 +83,27 @@ namespace FinalWar
 
                 int id = _br.ReadInt32();
 
-                SetCard(uid, id);
+                SetCard(true, uid, id);
 
                 if (!serverProcessBattle)
                 {
-                    simulateBattle.SetCard(uid, id);
+                    simulateBattle.SetCard(true, uid, id);
+                }
+            }
+
+            num = _br.ReadInt32();
+
+            for (int i = 0; i < num; i++)
+            {
+                int uid = _br.ReadInt32();
+
+                int id = _br.ReadInt32();
+
+                SetCard(false, uid, id);
+
+                if (!serverProcessBattle)
+                {
+                    simulateBattle.SetCard(false, uid, id);
                 }
             }
 
@@ -136,11 +152,11 @@ namespace FinalWar
             {
                 bool isMine = _br.ReadBoolean();
 
-                int uid = _br.ReadInt32();
-
                 int pos = _br.ReadInt32();
 
-                int result = _battle.AddSummon(isMine, uid, pos);
+                int uid = _br.ReadInt32();
+
+                int result = _battle.AddSummon(isMine, pos, uid);
 
                 if (result != -1)
                 {
@@ -171,14 +187,14 @@ namespace FinalWar
             _battle.SetRandomSeed(randomSeed);
         }
 
-        public int ClientRequestSummon(int _cardUid, int _pos)
+        public int ClientRequestSummon(int _pos, int _uid)
         {
-            return AddSummon(clientIsMine, _cardUid, _pos);
+            return AddSummon(clientIsMine, _pos, _uid);
         }
 
-        public void ClientRequestUnsummon(int _cardUid)
+        public void ClientRequestUnsummon(int _pos)
         {
-            DelSummon(_cardUid);
+            DelSummon(_pos);
         }
 
         public void ClientRequestQuitBattle()
@@ -272,15 +288,17 @@ namespace FinalWar
 
             for (int i = 0; i < num; i++)
             {
+                bool isMine = _br.ReadBoolean();
+
                 int uid = _br.ReadInt32();
 
                 int id = _br.ReadInt32();
 
-                SetCard(uid, id);
+                SetCard(isMine, uid, id);
 
                 if (!serverProcessBattle)
                 {
-                    simulateBattle.SetCard(uid, id);
+                    simulateBattle.SetCard(isMine, uid, id);
                 }
             }
 

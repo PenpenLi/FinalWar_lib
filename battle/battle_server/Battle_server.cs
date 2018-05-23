@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using superEnumerator;
 using System.Collections;
+using tuple;
 
 namespace FinalWar
 {
@@ -175,7 +176,9 @@ namespace FinalWar
 
                     bw.Write(recordData.oCards.Length);
 
-                    List<int> list = new List<int>();
+                    List<int> mList = new List<int>();
+
+                    List<int> oList = new List<int>();
 
                     int cardIndex = 0;
 
@@ -185,11 +188,11 @@ namespace FinalWar
                         {
                             if (_isMine)
                             {
-                                list.Add(cardIndex);
+                                mList.Add(cardIndex);
                             }
                             else
                             {
-                                list.Add(cardIndex + battleInitData.GetMPlayerInitData().GetDeckCardsNum());
+                                oList.Add(cardIndex);
                             }
 
                             cardIndex++;
@@ -204,9 +207,16 @@ namespace FinalWar
                         {
                             PlayerAction summon = roundData.summon[m];
 
-                            if (summon.key < battleInitData.GetMPlayerInitData().GetDeckCardsNum() != _isMine)
+                            if (summon.isMine != _isMine)
                             {
-                                list.Add(summon.key);
+                                if (_isMine)
+                                {
+                                    oList.Add(summon.value);
+                                }
+                                else
+                                {
+                                    mList.Add(summon.value);
+                                }
                             }
                             else
                             {
@@ -214,11 +224,11 @@ namespace FinalWar
                                 {
                                     if (_isMine)
                                     {
-                                        list.Add(cardIndex);
+                                        mList.Add(cardIndex);
                                     }
                                     else
                                     {
-                                        list.Add(cardIndex + battleInitData.GetMPlayerInitData().GetDeckCardsNum());
+                                        oList.Add(cardIndex);
                                     }
 
                                     cardIndex++;
@@ -227,22 +237,26 @@ namespace FinalWar
                         }
                     }
 
-                    bw.Write(list.Count);
+                    bw.Write(mList.Count);
 
-                    for (int i = 0; i < list.Count; i++)
+                    for (int i = 0; i < mList.Count; i++)
                     {
-                        int index = list[i];
+                        int index = mList[i];
 
                         bw.Write(index);
 
-                        if (index < battleInitData.GetMPlayerInitData().GetDeckCardsNum())
-                        {
-                            bw.Write(recordData.mCards[index]);
-                        }
-                        else
-                        {
-                            bw.Write(recordData.oCards[index - battleInitData.GetMPlayerInitData().GetDeckCardsNum()]);
-                        }
+                        bw.Write(recordData.mCards[index]);
+                    }
+
+                    bw.Write(oList.Count);
+
+                    for (int i = 0; i < oList.Count; i++)
+                    {
+                        int index = oList[i];
+
+                        bw.Write(index);
+
+                        bw.Write(recordData.oCards[index]);
                     }
 
                     bw.Write(recordData.roundNum);
@@ -293,11 +307,11 @@ namespace FinalWar
 
                 for (int i = 0; i < num; i++)
                 {
-                    int uid = _br.ReadInt32();
-
                     int pos = _br.ReadInt32();
 
-                    data.summon.Add(new PlayerAction(_isMine, uid, pos));
+                    int uid = _br.ReadInt32();
+
+                    data.summon.Add(new PlayerAction(_isMine, pos, uid));
                 }
 
                 num = _br.ReadInt32();
@@ -619,7 +633,7 @@ namespace FinalWar
                 {
                     PlayerAction playerAction = summon[m];
 
-                    if (playerAction.key < battleInitData.GetMPlayerInitData().GetDeckCardsNum())
+                    if (playerAction.isMine)
                     {
                         if (mCardIndex < _recordData.mCards.Length)
                         {
@@ -642,75 +656,99 @@ namespace FinalWar
 
             BattleRecordRoundData data = _recordData.data[_roundNum];
 
-            long pos = _mBw.BaseStream.Position;
+            List<Tuple<bool, int, int>> mList = null;
 
-            _mBw.Write(0);
-
-            _oBw.Write(0);
-
-            int mNum = 0;
-
-            int oNum = 0;
+            List<Tuple<bool, int, int>> oList = null;
 
             for (int i = 0; i < data.summon.Count; i++)
             {
-                int uid = data.summon[i].key;
+                PlayerAction action = data.summon[i];
 
-                if (uid < battleInitData.GetMPlayerInitData().GetDeckCardsNum())
+                int uid = action.value;
+
+                if (action.isMine)
                 {
-                    _oBw.Write(uid);
+                    if (oList == null)
+                    {
+                        oList = new List<Tuple<bool, int, int>>();
+                    }
 
-                    _oBw.Write(_recordData.mCards[uid]);
-
-                    oNum++;
+                    oList.Add(new Tuple<bool, int, int>(true, uid, _recordData.mCards[uid]));
 
                     if (mCardIndex < _recordData.mCards.Length)
                     {
-                        _mBw.Write(mCardIndex);
+                        if (mList == null)
+                        {
+                            mList = new List<Tuple<bool, int, int>>();
+                        }
 
-                        _mBw.Write(_recordData.mCards[mCardIndex]);
+                        mList.Add(new Tuple<bool, int, int>(true, mCardIndex, _recordData.mCards[mCardIndex]));
 
                         mCardIndex++;
-
-                        mNum++;
                     }
                 }
                 else
                 {
-                    _mBw.Write(uid);
+                    if (mList == null)
+                    {
+                        mList = new List<Tuple<bool, int, int>>();
+                    }
 
-                    _mBw.Write(_recordData.oCards[uid - battleInitData.GetMPlayerInitData().GetDeckCardsNum()]);
-
-                    mNum++;
+                    mList.Add(new Tuple<bool, int, int>(false, uid, _recordData.oCards[uid]));
 
                     if (oCardIndex < _recordData.oCards.Length)
                     {
-                        _oBw.Write(oCardIndex + battleInitData.GetMPlayerInitData().GetDeckCardsNum());
+                        if (oList == null)
+                        {
+                            oList = new List<Tuple<bool, int, int>>();
+                        }
 
-                        _oBw.Write(_recordData.oCards[oCardIndex]);
+                        oList.Add(new Tuple<bool, int, int>(false, oCardIndex, _recordData.oCards[oCardIndex]));
 
                         oCardIndex++;
-
-                        oNum++;
                     }
                 }
             }
 
-            long mPos = _mBw.BaseStream.Position;
+            if (mList != null)
+            {
+                _mBw.Write(mList.Count);
 
-            long oPos = _oBw.BaseStream.Position;
+                for (int i = 0; i < mList.Count; i++)
+                {
+                    Tuple<bool, int, int> t = mList[i];
 
-            _mBw.BaseStream.Position = pos;
+                    _mBw.Write(t.first);
 
-            _mBw.Write(mNum);
+                    _mBw.Write(t.second);
 
-            _oBw.BaseStream.Position = pos;
+                    _mBw.Write(t.third);
+                }
+            }
+            else
+            {
+                _mBw.Write(0);
+            }
 
-            _oBw.Write(oNum);
+            if (oList != null)
+            {
+                _oBw.Write(oList.Count);
 
-            _mBw.BaseStream.Position = mPos;
+                for (int i = 0; i < oList.Count; i++)
+                {
+                    Tuple<bool, int, int> t = oList[i];
 
-            _oBw.BaseStream.Position = oPos;
+                    _oBw.Write(t.first);
+
+                    _oBw.Write(t.second);
+
+                    _oBw.Write(t.third);
+                }
+            }
+            else
+            {
+                _oBw.Write(0);
+            }
 
             WriteRoundDataToStream(_mBw, data);
 

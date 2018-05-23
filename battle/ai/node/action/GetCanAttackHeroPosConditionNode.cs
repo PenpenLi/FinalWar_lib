@@ -19,7 +19,7 @@ namespace FinalWar
             {
                 for (int i = _posList.Count - 1; i > -1; i--)
                 {
-                    if (_v.summon.ContainsValue(_posList[i]))
+                    if (_v.summon.ContainsKey(_posList[i]))
                     {
                         _posList.RemoveAt(i);
                     }
