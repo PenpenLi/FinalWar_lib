@@ -46,8 +46,6 @@ namespace FinalWar
             {
                 _v.uid = uid;
 
-                _v.id = id;
-
                 return true;
             }
         }

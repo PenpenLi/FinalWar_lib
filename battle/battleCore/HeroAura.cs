@@ -117,7 +117,6 @@ namespace FinalWar
                             if (heroData == Hero.HeroData.DATA)
                             {
                                 _result += _sds.GetEffectData()[1];
-
                             }
                             else
                             {
@@ -141,7 +140,6 @@ namespace FinalWar
                             if (heroData == Hero.HeroData.DATA)
                             {
                                 _result = _sds.GetEffectData()[1];
-
                             }
                             else
                             {

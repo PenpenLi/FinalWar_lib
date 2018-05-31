@@ -25,7 +25,7 @@ namespace FinalWar
                 _v.summonPosDic.Remove(value - 1);
             }
 
-            IHeroSDS sds = Battle.GetHeroData(_v.id);
+            IHeroSDS sds = Battle.GetHeroData(_t.GetCard(_u, _v.uid));
 
             _v.money -= sds.GetCost();
 

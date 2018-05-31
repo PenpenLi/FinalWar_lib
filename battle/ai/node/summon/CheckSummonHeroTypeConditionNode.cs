@@ -9,7 +9,7 @@ namespace FinalWar
 
         public override bool Enter(Func<int, int> _getRandomValueCallBack, Battle _t, bool _u, AiSummonData _v)
         {
-            IHeroSDS sds = Battle.GetHeroData(_v.id);
+            IHeroSDS sds = Battle.GetHeroData(_t.GetCard(_u, _v.uid));
 
             return sds.GetHeroType().GetID() == value;
         }
