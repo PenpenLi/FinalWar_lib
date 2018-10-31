@@ -12,10 +12,6 @@ namespace FinalWar
 
         private static BtRoot<Battle, bool, AiSummonData> summonBtRoot;
 
-        private static AiActionData aiActionData;
-
-        private static AiSummonData aiSummonData;
-
         public static void Init(string _actionStr, string _summonStr)
         {
             bt.Log.Init(Log.Write);
@@ -23,10 +19,6 @@ namespace FinalWar
             actionBtRoot = BtTools.Create<Battle, Hero, AiActionData>(_actionStr, Assembly.GetExecutingAssembly().FullName);
 
             summonBtRoot = BtTools.Create<Battle, bool, AiSummonData>(_summonStr, Assembly.GetExecutingAssembly().FullName);
-
-            aiActionData = new AiActionData();
-
-            aiSummonData = new AiSummonData();
         }
 
         public static void Start(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _action, Dictionary<int, int> _summon)
@@ -38,6 +30,8 @@ namespace FinalWar
 
         private static void ActionHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _action, Dictionary<int, int> _summon)
         {
+            AiActionData aiActionData = new AiActionData();
+
             aiActionData.action = _action;
 
             aiActionData.summon = _summon;
@@ -76,23 +70,17 @@ namespace FinalWar
                     aiActionData.dic.Clear();
                 }
             }
-
-            aiActionData.action = null;
-
-            aiActionData.summon = null;
         }
 
         private static void SummonHero(Battle _battle, bool _isMine, Func<int, int> _getRandomValueCallBack, Dictionary<int, int> _action, Dictionary<int, int> _summon)
         {
+            AiSummonData aiSummonData = new AiSummonData();
+
             aiSummonData.action = _action;
 
             aiSummonData.summon = _summon;
 
             summonBtRoot.Enter(_getRandomValueCallBack, _battle, _isMine, aiSummonData);
-
-            aiSummonData.action = null;
-
-            aiSummonData.summon = null;
         }
 
 

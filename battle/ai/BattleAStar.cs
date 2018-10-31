@@ -13,15 +13,11 @@ namespace FinalWar
             public int parent;
         }
 
-        private static List<AstarUnit> open = new List<AstarUnit>();
-
-        private static Dictionary<int, AstarUnit> close = new Dictionary<int, AstarUnit>();
-
         public static List<int> Find(MapData _mapData, int _startPos, int _endPos, int _maxNum, Func<int, int> _getRandomValueCallBack)
         {
-            open.Clear();
+            List<AstarUnit> open = new List<AstarUnit>();
 
-            close.Clear();
+            Dictionary<int, AstarUnit> close = new Dictionary<int, AstarUnit>();
 
             AstarUnit start = new AstarUnit();
 
